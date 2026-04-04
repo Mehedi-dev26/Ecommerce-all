@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 interface ProductCardProps {
   id: string;
@@ -19,11 +20,21 @@ interface ProductCardProps {
 
 const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weight, category_name_bn }: ProductCardProps) => {
   const { addItem } = useCart();
+  const [wishlisted, setWishlisted] = useState(false);
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     addItem({ id, name, name_bn, price, image_url: image_url || null, weight: weight || null });
     toast({ title: "কার্টে যোগ হয়েছে", description: `${name_bn} কার্টে যোগ করা হয়েছে।` });
+  };
+
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setWishlisted(!wishlisted);
+    toast({
+      title: wishlisted ? "পছন্দ থেকে সরানো হয়েছে" : "পছন্দে যোগ হয়েছে",
+      description: `${name_bn} ${wishlisted ? "পছন্দ তালিকা থেকে সরানো হয়েছে।" : "পছন্দ তালিকায় যোগ করা হয়েছে।"}`,
+    });
   };
 
   const discount = compare_price ? Math.round(((compare_price - price) / compare_price) * 100) : 0;
@@ -33,23 +44,29 @@ const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weigh
       <Card className="group h-full overflow-hidden transition-all duration-300 hover:shadow-lg">
         <div className="relative aspect-square overflow-hidden bg-muted">
           {image_url ? (
-            <img src={image_url} alt={name_bn} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            <img src={image_url} alt={name_bn} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
           ) : (
             <div className="flex h-full items-center justify-center text-4xl sm:text-5xl">🥭</div>
           )}
           {discount > 0 && (
-            <Badge className="absolute left-2 top-2 bg-destructive text-destructive-foreground text-xs">{discount}% ছাড়</Badge>
+            <Badge className="absolute left-1.5 top-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 sm:left-2 sm:top-2 sm:text-xs sm:px-2 sm:py-0.5">{discount}% ছাড়</Badge>
           )}
+          {/* Wishlist heart icon */}
+          <button
+            onClick={handleWishlist}
+            className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-card/80 shadow-sm backdrop-blur-sm transition-all hover:bg-card sm:right-2 sm:top-2 sm:h-8 sm:w-8"
+          >
+            <Heart className={`h-3.5 w-3.5 sm:h-4 sm:w-4 transition-colors ${wishlisted ? "fill-destructive text-destructive" : "text-muted-foreground hover:text-destructive"}`} />
+          </button>
         </div>
-        <CardContent className="p-3 sm:p-4">
-          {category_name_bn && <p className="mb-0.5 text-[10px] text-muted-foreground sm:text-xs">{category_name_bn}</p>}
-          <h3 className="mb-0.5 text-sm font-semibold text-foreground sm:text-base line-clamp-1">{name_bn}</h3>
-          <p className="mb-0.5 text-[10px] text-muted-foreground sm:text-xs line-clamp-1">{name}</p>
-          {weight && <p className="mb-1.5 text-[10px] text-muted-foreground sm:mb-2 sm:text-xs">{weight}</p>}
+        <CardContent className="p-2.5 sm:p-3">
+          {category_name_bn && <p className="mb-0.5 text-[10px] text-muted-foreground">{category_name_bn}</p>}
+          <h3 className="mb-0.5 text-xs font-semibold text-foreground sm:text-sm line-clamp-1">{name_bn}</h3>
+          {weight && <p className="mb-1 text-[10px] text-muted-foreground">{weight}</p>}
           <div className="flex items-center justify-between gap-1">
-            <div className="flex items-baseline gap-1 sm:gap-2">
-              <span className="text-sm font-bold text-primary sm:text-lg">৳{price}</span>
-              {compare_price && <span className="text-[10px] text-muted-foreground line-through sm:text-sm">৳{compare_price}</span>}
+            <div className="flex items-baseline gap-1">
+              <span className="text-sm font-bold text-primary sm:text-base">৳{price}</span>
+              {compare_price && <span className="text-[10px] text-muted-foreground line-through sm:text-xs">৳{compare_price}</span>}
             </div>
             <Button size="sm" onClick={handleAdd} className="h-7 w-7 p-0 sm:h-8 sm:w-8 bg-primary text-primary-foreground hover:bg-primary/90">
               <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />

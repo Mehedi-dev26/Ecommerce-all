@@ -14,7 +14,7 @@ const FeaturedProducts = () => {
         .from("products")
         .select("*, categories(name_bn)")
         .eq("is_featured", true)
-        .limit(6);
+        .limit(8);
       if (error) throw error;
       return data;
     },
@@ -28,13 +28,13 @@ const FeaturedProducts = () => {
           <p className="text-xs text-muted-foreground sm:text-base">সবচেয়ে বেশি বিক্রিত পণ্যগুলো</p>
         </div>
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-56 rounded-xl sm:h-72 md:h-80" />
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} className="h-56 rounded-xl sm:h-72" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 md:gap-6">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-5">
             {products?.map((p: any) => (
               <ProductCard
                 key={p.id}
