@@ -202,11 +202,10 @@ const ProductDetail = () => {
               {product.weight && <p className="mt-1 text-xs text-muted-foreground sm:text-sm">পরিমাণ: {product.weight}</p>}
             </div>
 
-            {/* Description - ABOVE buy buttons */}
+            {/* Short Description */}
             {(product.description_bn || product.description) && (
               <div className="mb-4">
-                <h3 className="mb-2 text-sm font-semibold text-foreground sm:text-base">বিবরণ</h3>
-                <p className="text-sm leading-relaxed text-foreground/80 sm:text-base">{product.description_bn || product.description}</p>
+                <p className="text-sm leading-relaxed text-foreground/80 line-clamp-2 sm:text-base">{product.description_bn || product.description}</p>
               </div>
             )}
 
