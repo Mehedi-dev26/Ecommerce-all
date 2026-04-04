@@ -249,31 +249,18 @@ const ProductDetail = () => {
             </div>
 
             {/* Service features */}
-            <div className="grid grid-cols-2 gap-3 rounded-lg border bg-card p-3 sm:grid-cols-4 sm:p-4">
-              <div className="flex items-center gap-2">
-                <div className="rounded-full bg-primary/10 p-2">
-                  <Truck className="h-4 w-4 text-primary" />
+            <div className="flex flex-wrap gap-2 sm:gap-3">
+              {[
+                { icon: Truck, label: "সারাদেশে ডেলিভারি" },
+                { icon: ShieldCheck, label: "১০০% খাঁটি" },
+                { icon: RotateCcw, label: "ক্যাশ অন ডেলিভারি" },
+                { icon: Package, label: "নিরাপদ প্যাকেজিং" },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 sm:px-4 sm:py-2">
+                  <Icon className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <span className="text-[10px] font-medium text-foreground whitespace-nowrap sm:text-xs">{label}</span>
                 </div>
-                <span className="text-[10px] font-medium text-foreground sm:text-xs">সারাদেশে ডেলিভারি</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="rounded-full bg-primary/10 p-2">
-                  <ShieldCheck className="h-4 w-4 text-primary" />
-                </div>
-                <span className="text-[10px] font-medium text-foreground sm:text-xs">১০০% খাঁটি</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="rounded-full bg-primary/10 p-2">
-                  <RotateCcw className="h-4 w-4 text-primary" />
-                </div>
-                <span className="text-[10px] font-medium text-foreground sm:text-xs">ক্যাশ অন ডেলিভারি</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="rounded-full bg-primary/10 p-2">
-                  <Package className="h-4 w-4 text-primary" />
-                </div>
-                <span className="text-[10px] font-medium text-foreground sm:text-xs">নিরাপদ প্যাকেজিং</span>
-              </div>
+              ))}
             </div>
           </div>
         </div>

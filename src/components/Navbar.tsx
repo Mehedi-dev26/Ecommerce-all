@@ -21,7 +21,7 @@ const Navbar = () => {
     <header className="sticky top-0 z-50 bg-primary shadow-lg">
       <div className="container mx-auto flex items-center justify-between px-3 py-2 sm:px-4 sm:py-3">
         <Link to="/" className="flex items-center gap-2">
-          <img src={mawraLogo} alt="MAWRA Logo" className="h-9 w-9 rounded-full object-cover sm:h-10 sm:w-10" />
+          <img src={mawraLogo} alt="MAWRA Logo" className="h-9 w-9 rounded-full object-cover ring-2 ring-secondary ring-offset-1 ring-offset-primary sm:h-10 sm:w-10" />
           <span className="font-brand text-2xl font-bold text-primary-foreground sm:text-3xl">Mawra</span>
         </Link>
 
