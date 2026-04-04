@@ -21,20 +21,20 @@ const FeaturedProducts = () => {
   });
 
   return (
-    <section className="py-16">
+    <section className="bg-muted/50 py-12 sm:py-16">
       <div className="container mx-auto px-4">
-        <div className="mb-10 text-center">
-          <h2 className="mb-2 text-3xl font-bold text-foreground">জনপ্রিয় পণ্যসমূহ</h2>
-          <p className="text-muted-foreground">আমাদের সবচেয়ে বেশি বিক্রিত পণ্যগুলো দেখুন</p>
+        <div className="mb-8 text-center sm:mb-10">
+          <h2 className="mb-2 text-2xl font-bold text-foreground sm:text-3xl">জনপ্রিয় পণ্যসমূহ</h2>
+          <p className="text-sm text-muted-foreground sm:text-base">আমাদের সবচেয়ে বেশি বিক্রিত পণ্যগুলো</p>
         </div>
         {isLoading ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-80 rounded-lg" />
+              <Skeleton key={i} className="h-64 rounded-lg sm:h-80" />
             ))}
           </div>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 sm:gap-4 md:gap-6">
             {products?.map((p: any) => (
               <ProductCard
                 key={p.id}
@@ -50,7 +50,7 @@ const FeaturedProducts = () => {
             ))}
           </div>
         )}
-        <div className="mt-10 text-center">
+        <div className="mt-8 text-center sm:mt-10">
           <Button asChild size="lg" variant="outline">
             <Link to="/products">সব পণ্য দেখুন <ArrowRight className="ml-2 h-4 w-4" /></Link>
           </Button>
