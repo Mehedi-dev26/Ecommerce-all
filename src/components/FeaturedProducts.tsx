@@ -21,20 +21,20 @@ const FeaturedProducts = () => {
   });
 
   return (
-    <section className="bg-muted/50 py-12 sm:py-16">
+    <section className="bg-muted/50 py-10 sm:py-16">
       <div className="container mx-auto px-4">
-        <div className="mb-8 text-center sm:mb-10">
-          <h2 className="mb-2 text-2xl font-bold text-foreground sm:text-3xl">জনপ্রিয় পণ্যসমূহ</h2>
-          <p className="text-sm text-muted-foreground sm:text-base">আমাদের সবচেয়ে বেশি বিক্রিত পণ্যগুলো</p>
+        <div className="mb-6 text-center sm:mb-10">
+          <h2 className="mb-1 text-xl font-bold text-foreground sm:mb-2 sm:text-3xl">জনপ্রিয় পণ্যসমূহ</h2>
+          <p className="text-xs text-muted-foreground sm:text-base">সবচেয়ে বেশি বিক্রিত পণ্যগুলো</p>
         </div>
         {isLoading ? (
-          <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-64 rounded-lg sm:h-80" />
+              <Skeleton key={i} className="h-56 rounded-xl sm:h-72 md:h-80" />
             ))}
           </div>
         ) : (
-          <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 sm:gap-4 md:gap-6">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 md:gap-6">
             {products?.map((p: any) => (
               <ProductCard
                 key={p.id}
@@ -50,8 +50,8 @@ const FeaturedProducts = () => {
             ))}
           </div>
         )}
-        <div className="mt-8 text-center sm:mt-10">
-          <Button asChild size="lg" variant="outline">
+        <div className="mt-6 text-center sm:mt-10">
+          <Button asChild variant="outline" className="sm:h-11 sm:px-6">
             <Link to="/products">সব পণ্য দেখুন <ArrowRight className="ml-2 h-4 w-4" /></Link>
           </Button>
         </div>
