@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -47,28 +49,20 @@
   .dark {
     --background: 150 30% 6%;
     --foreground: 40 33% 95%;
-
     --card: 150 25% 10%;
     --card-foreground: 40 33% 95%;
-
     --popover: 150 25% 10%;
     --popover-foreground: 40 33% 95%;
-
     --primary: 145 55% 35%;
     --primary-foreground: 40 33% 97%;
-
     --secondary: 42 70% 45%;
     --secondary-foreground: 40 33% 97%;
-
     --muted: 150 15% 15%;
     --muted-foreground: 40 10% 60%;
-
     --accent: 42 70% 45%;
     --accent-foreground: 40 33% 97%;
-
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 150 15% 20%;
     --input: 150 15% 20%;
     --ring: 145 55% 35%;
@@ -79,8 +73,12 @@
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
+    font-family: 'Hind Siliguri', sans-serif;
   }
+}
+
+.font-brand {
+  font-family: 'Dancing Script', cursive;
 }
