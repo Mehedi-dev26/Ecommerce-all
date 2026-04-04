@@ -14,7 +14,7 @@ const FeaturedProducts = () => {
         .from("products")
         .select("*, categories(name_bn)")
         .eq("is_featured", true)
-        .limit(6);
+        .limit(8);
       if (error) throw error;
       return data;
     },
