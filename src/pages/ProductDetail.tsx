@@ -2,17 +2,17 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Minus, Plus, Heart, Share2, Truck, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight, Star, ThumbsUp, CheckCircle2, Package, ZoomIn, X } from "lucide-react";
+import { ShoppingCart, Minus, Plus, Heart, Share2, Truck, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight, Star, User, ThumbsUp, CheckCircle2, Package } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
-import { useState, useRef, useCallback } from "react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ProductCard from "@/components/ProductCard";
 
+// Fake reviews for demo
 const fakeReviews = [
   { id: 1, name: "রহিম উদ্দিন", rating: 5, date: "২০ মে, ২০২৬", comment: "অসাধারণ পণ্য! স্বাদ খুবই ভালো এবং একদম খাঁটি। আবার অর্ডার করবো।", verified: true },
   { id: 2, name: "ফাতেমা বেগম", rating: 4, date: "১৫ মে, ২০২৬", comment: "পণ্যের মান ভালো, প্যাকেজিংও সুন্দর ছিল। ডেলিভারি সময়মতো হয়েছে।", verified: true },
@@ -31,118 +31,11 @@ const StarRating = ({ rating, size = "sm" }: { rating: number; size?: "sm" | "md
   );
 };
 
-// Image Zoom Modal
-const ZoomModal = ({ src, alt, onClose }: { src: string; alt: string; onClose: () => void }) => {
-  const [scale, setScale] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const isDragging = useRef(false);
-  const lastPos = useRef({ x: 0, y: 0 });
-
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    setScale((s) => Math.min(4, Math.max(1, s - e.deltaY * 0.002)));
-  }, []);
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    isDragging.current = true;
-    lastPos.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging.current) return;
-    setPosition((p) => ({
-      x: p.x + e.clientX - lastPos.current.x,
-      y: p.y + e.clientY - lastPos.current.y,
-    }));
-    lastPos.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const handleMouseUp = () => { isDragging.current = false; };
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-foreground/80 backdrop-blur-sm" onClick={onClose}>
-      <button onClick={onClose} className="absolute right-4 top-4 z-10 rounded-full bg-card p-2 shadow-lg hover:bg-muted">
-        <X className="h-5 w-5" />
-      </button>
-      <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-3 rounded-full bg-card/90 px-4 py-2 shadow-lg backdrop-blur-sm">
-        <button onClick={(e) => { e.stopPropagation(); setScale((s) => Math.max(1, s - 0.5)); }} className="text-sm font-bold text-foreground hover:text-primary">−</button>
-        <span className="text-xs text-muted-foreground">{Math.round(scale * 100)}%</span>
-        <button onClick={(e) => { e.stopPropagation(); setScale((s) => Math.min(4, s + 0.5)); }} className="text-sm font-bold text-foreground hover:text-primary">+</button>
-      </div>
-      <div
-        className="max-h-[90vh] max-w-[90vw] cursor-grab overflow-hidden active:cursor-grabbing"
-        onClick={(e) => e.stopPropagation()}
-        onWheel={handleWheel}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-      >
-        <img
-          src={src}
-          alt={alt}
-          className="max-h-[85vh] max-w-[85vw] object-contain transition-transform duration-150"
-          style={{ transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)` }}
-          draggable={false}
-        />
-      </div>
-    </div>
-  );
-};
-
-// Magnifier lens on hover (desktop)
-const ImageWithMagnifier = ({ src, alt, onClick }: { src: string; alt: string; onClick: () => void }) => {
-  const [showMag, setShowMag] = useState(false);
-  const [magPos, setMagPos] = useState({ x: 0, y: 0, bgX: 0, bgY: 0 });
-  const imgRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!imgRef.current) return;
-    const rect = imgRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setMagPos({ x: e.clientX - rect.left, y: e.clientY - rect.top, bgX: x, bgY: y });
-  };
-
-  return (
-    <div
-      ref={imgRef}
-      className="group relative h-full w-full cursor-crosshair"
-      onMouseEnter={() => setShowMag(true)}
-      onMouseLeave={() => setShowMag(false)}
-      onMouseMove={handleMouseMove}
-      onClick={onClick}
-    >
-      <img src={src} alt={alt} className="h-full w-full object-contain p-2" draggable={false} />
-      {/* Zoom hint */}
-      <div className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-card/80 px-2.5 py-1 text-[10px] text-muted-foreground opacity-0 shadow backdrop-blur-sm transition group-hover:opacity-100">
-        <ZoomIn className="h-3 w-3" /> ক্লিক করে জুম করুন
-      </div>
-      {/* Magnifier lens */}
-      {showMag && (
-        <div
-          className="pointer-events-none absolute z-10 hidden h-36 w-36 rounded-full border-2 border-primary/30 shadow-lg lg:block"
-          style={{
-            left: magPos.x - 72,
-            top: magPos.y - 72,
-            backgroundImage: `url(${src})`,
-            backgroundSize: "500%",
-            backgroundPosition: `${magPos.bgX}% ${magPos.bgY}%`,
-            backgroundRepeat: "no-repeat",
-          }}
-        />
-      )}
-    </div>
-  );
-};
-
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { addItem } = useCart();
   const [qty, setQty] = useState(1);
   const [selectedImg, setSelectedImg] = useState(0);
-  const [zoomOpen, setZoomOpen] = useState(false);
-  const [wishlisted, setWishlisted] = useState(false);
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", id],
@@ -173,10 +66,15 @@ const ProductDetail = () => {
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-6 sm:py-10">
-        <div className="grid gap-6 lg:grid-cols-12">
-          <div className="lg:col-span-4"><Skeleton className="aspect-square rounded-lg" /></div>
-          <div className="space-y-4 lg:col-span-5"><Skeleton className="h-8 w-3/4" /><Skeleton className="h-6 w-1/2" /><Skeleton className="h-20 w-full" /></div>
-          <div className="lg:col-span-3"><Skeleton className="h-64 rounded-lg" /></div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
+          <div className="lg:col-span-2">
+            <Skeleton className="aspect-square rounded-lg" />
+          </div>
+          <div className="space-y-4 lg:col-span-3">
+            <Skeleton className="h-8 w-3/4" />
+            <Skeleton className="h-6 w-1/2" />
+            <Skeleton className="h-20 w-full" />
+          </div>
         </div>
       </div>
     );
@@ -212,11 +110,6 @@ const ProductDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Zoom Modal */}
-      {zoomOpen && allImages.length > 0 && (
-        <ZoomModal src={allImages[selectedImg]} alt={product.name_bn} onClose={() => setZoomOpen(false)} />
-      )}
-
       {/* Breadcrumb */}
       <div className="border-b bg-muted/30">
         <div className="container mx-auto px-4 py-2 sm:py-3">
@@ -239,14 +132,13 @@ const ProductDetail = () => {
       </div>
 
       <div className="container mx-auto px-4 py-4 sm:py-8">
-        {/* ============ DESKTOP: 3-column layout ============ */}
-        <div className="grid gap-6 lg:grid-cols-12 lg:gap-8">
-
-          {/* Column 1: Image Gallery */}
-          <div className="lg:col-span-4">
+        {/* Main product section - 2 col on desktop, 3 col on lg */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 lg:gap-10">
+          {/* Image Gallery */}
+          <div className="lg:col-span-2">
             <div className="relative mb-3 aspect-square overflow-hidden rounded-lg border bg-card">
               {allImages.length > 0 ? (
-                <ImageWithMagnifier src={allImages[selectedImg]} alt={product.name_bn} onClick={() => setZoomOpen(true)} />
+                <img src={allImages[selectedImg]} alt={product.name_bn} className="h-full w-full object-contain p-2 transition-transform duration-300 hover:scale-110" />
               ) : (
                 <div className="flex h-full items-center justify-center text-8xl">🥭</div>
               )}
@@ -264,22 +156,19 @@ const ProductDetail = () => {
                 </>
               )}
             </div>
-            {/* Thumbnails */}
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {allImages.length > 1 ? allImages.map((img, i) => (
-                <button key={i} onClick={() => setSelectedImg(i)} className={`h-14 w-14 shrink-0 overflow-hidden rounded-md border-2 transition sm:h-16 sm:w-16 ${i === selectedImg ? "border-primary ring-1 ring-primary/30" : "border-border hover:border-primary/50"}`}>
-                  <img src={img} alt="" className="h-full w-full object-cover" />
-                </button>
-              )) : allImages.length === 1 && (
-                <button className="h-14 w-14 shrink-0 overflow-hidden rounded-md border-2 border-primary ring-1 ring-primary/30 sm:h-16 sm:w-16">
-                  <img src={allImages[0]} alt="" className="h-full w-full object-cover" />
-                </button>
-              )}
-            </div>
+            {allImages.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {allImages.map((img, i) => (
+                  <button key={i} onClick={() => setSelectedImg(i)} className={`h-16 w-16 shrink-0 overflow-hidden rounded-md border-2 transition sm:h-20 sm:w-20 ${i === selectedImg ? "border-primary" : "border-border hover:border-primary/50"}`}>
+                    <img src={img} alt="" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Column 2: Product Info */}
-          <div className="lg:col-span-5">
+          {/* Product Info */}
+          <div className="lg:col-span-3">
             {(product as any).categories?.name_bn && (
               <Link to={`/products?category=${(product as any).categories?.name}`} className="mb-2 inline-block rounded-full bg-muted px-3 py-1 text-[11px] font-medium text-muted-foreground hover:text-primary sm:text-xs">
                 {(product as any).categories?.name_bn}
@@ -288,19 +177,19 @@ const ProductDetail = () => {
             <h1 className="mb-1 text-xl font-bold text-foreground sm:text-2xl lg:text-3xl">{product.name_bn}</h1>
             <p className="mb-2 text-xs text-muted-foreground sm:text-sm">{product.name}</p>
 
-            {/* Rating */}
-            <div className="mb-3 flex items-center gap-2 flex-wrap">
+            {/* Rating summary */}
+            <div className="mb-4 flex items-center gap-2">
               <StarRating rating={Math.round(Number(avgRating))} size="md" />
               <span className="text-sm font-medium text-foreground">{avgRating}</span>
               <span className="text-xs text-muted-foreground">({fakeReviews.length}টি রিভিউ)</span>
-              <Separator orientation="vertical" className="hidden h-4 sm:block" />
-              <span className="text-xs">{product.stock > 0 ? <span className="text-primary font-medium">স্টকে আছে</span> : <span className="text-destructive font-medium">স্টকে নেই</span>}</span>
+              <Separator orientation="vertical" className="h-4" />
+              <span className="text-xs text-muted-foreground">{product.stock > 0 ? <span className="text-green-600 font-medium">স্টকে আছে</span> : <span className="text-destructive font-medium">স্টকে নেই</span>}</span>
             </div>
 
-            <Separator className="mb-3" />
+            <Separator className="mb-4" />
 
-            {/* Price */}
-            <div className="mb-3 rounded-lg bg-muted/50 p-3 sm:p-4">
+            {/* Price section */}
+            <div className="mb-4 rounded-lg bg-muted/50 p-3 sm:p-4">
               <div className="flex items-baseline gap-3">
                 <span className="text-2xl font-bold text-primary sm:text-3xl">৳{Number(product.price)}</span>
                 {product.compare_price && (
@@ -315,113 +204,63 @@ const ProductDetail = () => {
 
             {/* Short Description */}
             {(product.description_bn || product.description) && (
-              <p className="mb-3 text-sm leading-relaxed text-foreground/80 line-clamp-2 sm:text-base">{product.description_bn || product.description}</p>
+              <div className="mb-4">
+                <p className="text-sm leading-relaxed text-foreground/80 line-clamp-2 sm:text-base">{product.description_bn || product.description}</p>
+              </div>
             )}
 
-            <Separator className="mb-3" />
+            <Separator className="mb-4" />
 
-            {/* Quantity + Buy (shown on mobile, hidden on lg) */}
-            <div className="lg:hidden">
-              <div className="mb-3 flex items-center gap-1">
+            {/* Quantity */}
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="flex items-center gap-1">
                 <span className="mr-2 text-xs font-medium text-foreground sm:text-sm">পরিমাণ:</span>
                 <div className="flex items-center rounded-lg border">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setQty(Math.max(1, qty - 1))}><Minus className="h-3.5 w-3.5" /></Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => setQty(Math.max(1, qty - 1))}>
+                    <Minus className="h-3.5 w-3.5" />
+                  </Button>
                   <span className="w-10 text-center text-sm font-semibold">{qty}</span>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setQty(Math.min(product.stock, qty + 1))}><Plus className="h-3.5 w-3.5" /></Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => setQty(Math.min(product.stock, qty + 1))}>
+                    <Plus className="h-3.5 w-3.5" />
+                  </Button>
                 </div>
-                <span className="ml-2 text-[11px] text-muted-foreground">({product.stock}টি স্টকে)</span>
-              </div>
-              <div className="mb-3 flex gap-2">
-                <Button onClick={handleBuyNow} size="lg" className="flex-1 bg-secondary text-secondary-foreground hover:bg-secondary/90 text-xs h-10">এখনই কিনুন</Button>
-                <Button onClick={handleAdd} size="lg" variant="outline" className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs h-10">
-                  <ShoppingCart className="mr-1 h-4 w-4" /> কার্টে যোগ করুন
-                </Button>
-              </div>
-              <div className="mb-4 flex gap-4">
-                <button onClick={() => { setWishlisted(!wishlisted); toast({ title: wishlisted ? "পছন্দ থেকে সরানো হয়েছে" : "পছন্দে যোগ হয়েছে" }); }} className={`flex items-center gap-1.5 text-xs transition-colors ${wishlisted ? "text-destructive" : "text-muted-foreground hover:text-destructive"}`}>
-                  <Heart className={`h-4 w-4 ${wishlisted ? "fill-destructive" : ""}`} /> পছন্দে রাখুন
-                </button>
-                <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors">
-                  <Share2 className="h-4 w-4" /> শেয়ার
-                </button>
-              </div>
-              {/* Trust badges mobile */}
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { icon: Truck, label: "সারাদেশে ডেলিভারি" },
-                  { icon: ShieldCheck, label: "১০০% খাঁটি" },
-                  { icon: RotateCcw, label: "ক্যাশ অন ডেলিভারি" },
-                  { icon: Package, label: "নিরাপদ প্যাকেজিং" },
-                ].map(({ icon: Icon, label }) => (
-                  <div key={label} className="flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5">
-                    <Icon className="h-3.5 w-3.5 text-primary shrink-0" />
-                    <span className="text-[10px] font-medium text-foreground whitespace-nowrap">{label}</span>
-                  </div>
-                ))}
+                <span className="ml-2 text-[11px] text-muted-foreground sm:text-xs">({product.stock}টি স্টকে আছে)</span>
               </div>
             </div>
 
-            {/* Wishlist + Share (desktop) */}
-            <div className="hidden lg:flex gap-4 mb-3">
-              <button onClick={() => { setWishlisted(!wishlisted); toast({ title: wishlisted ? "পছন্দ থেকে সরানো হয়েছে" : "পছন্দে যোগ হয়েছে" }); }} className={`flex items-center gap-1.5 text-sm transition-colors ${wishlisted ? "text-destructive" : "text-muted-foreground hover:text-destructive"}`}>
-                <Heart className={`h-4 w-4 ${wishlisted ? "fill-destructive" : ""}`} /> পছন্দে রাখুন
+            {/* Buy buttons */}
+            <div className="mb-4 flex gap-2 sm:gap-3">
+              <Button onClick={handleBuyNow} size="lg" className="flex-1 bg-secondary text-secondary-foreground hover:bg-secondary/90 text-xs sm:text-sm h-10 sm:h-12">
+                এখনই কিনুন
+              </Button>
+              <Button onClick={handleAdd} size="lg" variant="outline" className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm h-10 sm:h-12">
+                <ShoppingCart className="mr-1.5 h-4 w-4" /> কার্টে যোগ করুন
+              </Button>
+            </div>
+
+            {/* Wishlist + Share */}
+            <div className="mb-5 flex gap-4">
+              <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive sm:text-sm transition-colors">
+                <Heart className="h-4 w-4" /> পছন্দে রাখুন
               </button>
-              <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors">
+              <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary sm:text-sm transition-colors">
                 <Share2 className="h-4 w-4" /> শেয়ার
               </button>
             </div>
-          </div>
 
-          {/* Column 3: Purchase Card (desktop only) */}
-          <div className="hidden lg:block lg:col-span-3">
-            <div className="sticky top-20 space-y-4 rounded-xl border bg-card p-5 shadow-sm">
-              {/* Price in card */}
-              <div>
-                <span className="text-2xl font-bold text-primary">৳{Number(product.price)}</span>
-                {product.compare_price && (
-                  <span className="ml-2 text-sm text-muted-foreground line-through">৳{Number(product.compare_price)}</span>
-                )}
-              </div>
-
-              {/* Quantity */}
-              <div>
-                <span className="mb-1.5 block text-xs font-medium text-foreground">পরিমাণ নির্বাচন করুন</span>
-                <div className="flex items-center rounded-lg border">
-                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setQty(Math.max(1, qty - 1))}><Minus className="h-3.5 w-3.5" /></Button>
-                  <span className="flex-1 text-center text-sm font-semibold">{qty}</span>
-                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setQty(Math.min(product.stock, qty + 1))}><Plus className="h-3.5 w-3.5" /></Button>
+            {/* Service features */}
+            <div className="flex flex-wrap gap-2 sm:gap-3">
+              {[
+                { icon: Truck, label: "সারাদেশে ডেলিভারি" },
+                { icon: ShieldCheck, label: "১০০% খাঁটি" },
+                { icon: RotateCcw, label: "ক্যাশ অন ডেলিভারি" },
+                { icon: Package, label: "নিরাপদ প্যাকেজিং" },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 sm:px-4 sm:py-2">
+                  <Icon className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <span className="text-[10px] font-medium text-foreground whitespace-nowrap sm:text-xs">{label}</span>
                 </div>
-                <span className="mt-1 block text-[11px] text-muted-foreground">{product.stock}টি স্টকে আছে</span>
-              </div>
-
-              {/* Buttons */}
-              <div className="space-y-2">
-                <Button onClick={handleBuyNow} className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 h-11">
-                  এখনই কিনুন
-                </Button>
-                <Button onClick={handleAdd} variant="outline" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground h-11">
-                  <ShoppingCart className="mr-1.5 h-4 w-4" /> কার্টে যোগ করুন
-                </Button>
-              </div>
-
-              <Separator />
-
-              {/* Trust badges vertical */}
-              <div className="space-y-2.5">
-                {[
-                  { icon: Truck, label: "সারাদেশে ডেলিভারি" },
-                  { icon: ShieldCheck, label: "১০০% খাঁটি পণ্য" },
-                  { icon: RotateCcw, label: "ক্যাশ অন ডেলিভারি" },
-                  { icon: Package, label: "নিরাপদ প্যাকেজিং" },
-                ].map(({ icon: Icon, label }) => (
-                  <div key={label} className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                      <Icon className="h-4 w-4 text-primary" />
-                    </div>
-                    <span className="text-xs font-medium text-foreground">{label}</span>
-                  </div>
-                ))}
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -443,12 +282,22 @@ const ProductDetail = () => {
                 <h3 className="mb-3 text-base font-semibold text-foreground sm:text-lg">পণ্যের বিস্তারিত</h3>
                 <p className="text-sm leading-relaxed text-foreground/80 sm:text-base">{product.description_bn || product.description || "কোনো বিবরণ নেই।"}</p>
                 <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {["কোনো কেমিক্যাল বা প্রিজারভেটিভ নেই", "সম্পূর্ণ হাতে তৈরি", "ঐতিহ্যবাহী রেসিপি", "প্রিমিয়াম প্যাকেজিং"].map((text) => (
-                    <div key={text} className="flex items-center gap-2 rounded-md bg-muted/50 p-3">
-                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                      <span className="text-xs sm:text-sm text-foreground">{text}</span>
-                    </div>
-                  ))}
+                  <div className="flex items-center gap-2 rounded-md bg-muted/50 p-3">
+                    <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                    <span className="text-xs sm:text-sm text-foreground">কোনো কেমিক্যাল বা প্রিজারভেটিভ নেই</span>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-md bg-muted/50 p-3">
+                    <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                    <span className="text-xs sm:text-sm text-foreground">সম্পূর্ণ হাতে তৈরি</span>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-md bg-muted/50 p-3">
+                    <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                    <span className="text-xs sm:text-sm text-foreground">ঐতিহ্যবাহী রেসিপি</span>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-md bg-muted/50 p-3">
+                    <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                    <span className="text-xs sm:text-sm text-foreground">প্রিমিয়াম প্যাকেজিং</span>
+                  </div>
                 </div>
               </div>
             </TabsContent>
@@ -522,9 +371,28 @@ const ProductDetail = () => {
           <div className="mt-10 sm:mt-16">
             <h2 className="mb-4 text-lg font-bold text-foreground sm:mb-6 sm:text-xl">একই ক্যাটাগরির পণ্য</h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-              {relatedProducts.map((rp: any) => (
-                <ProductCard key={rp.id} id={rp.id} name={rp.name} name_bn={rp.name_bn} price={rp.price} compare_price={rp.compare_price} image_url={rp.image_url} weight={rp.weight} category_name_bn={rp.categories?.name_bn} />
-              ))}
+              {relatedProducts.map((rp: any) => {
+                const rpDiscount = rp.compare_price ? Math.round(((Number(rp.compare_price) - Number(rp.price)) / Number(rp.compare_price)) * 100) : 0;
+                return (
+                  <Link key={rp.id} to={`/products/${rp.id}`} className="group overflow-hidden rounded-lg border bg-card shadow-sm transition hover:shadow-md">
+                    <div className="relative aspect-square overflow-hidden bg-muted">
+                      {rp.image_url ? (
+                        <img src={rp.image_url} alt={rp.name_bn} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-4xl">🥭</div>
+                      )}
+                      {rpDiscount > 0 && <Badge className="absolute left-2 top-2 bg-destructive text-destructive-foreground text-[10px]">-{rpDiscount}%</Badge>}
+                    </div>
+                    <div className="p-2.5 sm:p-3">
+                      <h3 className="text-xs font-semibold text-foreground line-clamp-1 sm:text-sm">{rp.name_bn}</h3>
+                      <div className="mt-1 flex items-baseline gap-1.5">
+                        <span className="text-sm font-bold text-primary">৳{Number(rp.price)}</span>
+                        {rp.compare_price && <span className="text-[10px] text-muted-foreground line-through">৳{Number(rp.compare_price)}</span>}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
