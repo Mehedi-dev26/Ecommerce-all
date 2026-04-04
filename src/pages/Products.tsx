@@ -6,9 +6,88 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
 import { SlidersHorizontal, X } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+
+const FilterSidebar = ({
+  categories,
+  selectedCategory,
+  onCategorySelect,
+  priceRange,
+  onPriceChange,
+  maxPrice,
+  onReset,
+}: {
+  categories: any[] | undefined;
+  selectedCategory: string;
+  onCategorySelect: (name: string) => void;
+  priceRange: [number, number];
+  onPriceChange: (val: [number, number]) => void;
+  maxPrice: number;
+  onReset: () => void;
+}) => (
+  <div className="space-y-5">
+    {/* Price Range Filter - on top */}
+    <div>
+      <h3 className="mb-3 text-sm font-semibold text-foreground">মূল্য পরিসীমা</h3>
+      <div className="px-1">
+        <Slider
+          min={0}
+          max={maxPrice}
+          step={50}
+          value={priceRange}
+          onValueChange={(val) => onPriceChange(val as [number, number])}
+          className="mb-3"
+        />
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span className="rounded border bg-muted/50 px-2 py-1 font-medium text-foreground">৳{priceRange[0]}</span>
+          <span className="text-[10px]">থেকে</span>
+          <span className="rounded border bg-muted/50 px-2 py-1 font-medium text-foreground">৳{priceRange[1]}</span>
+        </div>
+      </div>
+    </div>
+
+    <Separator />
+
+    {/* Category Filter */}
+    <div>
+      <h3 className="mb-3 text-sm font-semibold text-foreground">ক্যাটাগরি</h3>
+      <div className="space-y-1">
+        <button
+          onClick={() => onCategorySelect("")}
+          className={`w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${
+            !selectedCategory
+              ? "bg-primary text-primary-foreground font-medium"
+              : "text-foreground hover:bg-muted"
+          }`}
+        >
+          সকল পণ্য
+        </button>
+        {categories?.map((cat: any) => (
+          <button
+            key={cat.id}
+            onClick={() => onCategorySelect(cat.name)}
+            className={`w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${
+              selectedCategory === cat.name
+                ? "bg-primary text-primary-foreground font-medium"
+                : "text-foreground hover:bg-muted"
+            }`}
+          >
+            {cat.name_bn}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <Separator />
+
+    {/* Reset */}
+    <Button variant="outline" size="sm" className="w-full" onClick={onReset}>
+      <X className="mr-1.5 h-3.5 w-3.5" /> ফিল্টার রিসেট করুন
+    </Button>
+  </div>
+);
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -40,13 +119,18 @@ const Products = () => {
     enabled: categories !== undefined,
   });
 
-  // Get max price from products
   const maxPrice = useMemo(() => {
     if (!products?.length) return 10000;
     return Math.ceil(Math.max(...products.map((p: any) => Number(p.price))) / 100) * 100;
   }, [products]);
 
-  // Filter products by price
+  // Properly reset price range when products load
+  useEffect(() => {
+    if (maxPrice > 0) {
+      setPriceRange([0, maxPrice]);
+    }
+  }, [maxPrice]);
+
   const filteredProducts = useMemo(() => {
     if (!products) return [];
     return products.filter((p: any) => {
@@ -55,92 +139,19 @@ const Products = () => {
     });
   }, [products, priceRange]);
 
-  // Reset price when max changes
-  useMemo(() => {
-    if (maxPrice > 0 && priceRange[1] === 10000) {
-      setPriceRange([0, maxPrice]);
-    }
-  }, [maxPrice]);
-
-  const handleCategorySelect = (catName: string) => {
+  const handleCategorySelect = useCallback((catName: string) => {
     if (catName) {
       setSearchParams({ category: catName });
     } else {
       setSearchParams({});
     }
     setMobileFilterOpen(false);
-  };
+  }, [setSearchParams]);
 
-  const FilterSidebar = () => (
-    <div className="space-y-6">
-      {/* Category Filter */}
-      <div>
-        <h3 className="mb-3 text-sm font-semibold text-foreground">ক্যাটাগরি</h3>
-        <div className="space-y-1">
-          <button
-            onClick={() => handleCategorySelect("")}
-            className={`w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${
-              !selectedCategory
-                ? "bg-primary text-primary-foreground font-medium"
-                : "text-foreground hover:bg-muted"
-            }`}
-          >
-            সকল পণ্য
-          </button>
-          {categories?.map((cat: any) => (
-            <button
-              key={cat.id}
-              onClick={() => handleCategorySelect(cat.name)}
-              className={`w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${
-                selectedCategory === cat.name
-                  ? "bg-primary text-primary-foreground font-medium"
-                  : "text-foreground hover:bg-muted"
-              }`}
-            >
-              {cat.name_bn}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* Price Range Filter */}
-      <div>
-        <h3 className="mb-3 text-sm font-semibold text-foreground">মূল্য পরিসীমা</h3>
-        <div className="px-1">
-          <Slider
-            min={0}
-            max={maxPrice}
-            step={50}
-            value={priceRange}
-            onValueChange={(val) => setPriceRange(val as [number, number])}
-            className="mb-3"
-          />
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="rounded border bg-muted/50 px-2 py-1 font-medium">৳{priceRange[0]}</span>
-            <span className="text-[10px]">থেকে</span>
-            <span className="rounded border bg-muted/50 px-2 py-1 font-medium">৳{priceRange[1]}</span>
-          </div>
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* Reset */}
-      <Button
-        variant="outline"
-        size="sm"
-        className="w-full"
-        onClick={() => {
-          setSearchParams({});
-          setPriceRange([0, maxPrice]);
-        }}
-      >
-        <X className="mr-1.5 h-3.5 w-3.5" /> ফিল্টার রিসেট করুন
-      </Button>
-    </div>
-  );
+  const handleReset = useCallback(() => {
+    setSearchParams({});
+    setPriceRange([0, maxPrice]);
+  }, [setSearchParams, maxPrice]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -159,14 +170,22 @@ const Products = () => {
 
       <div className="container mx-auto px-4 py-4 sm:py-6">
         <div className="flex gap-6">
-          {/* Desktop Sidebar - hidden on mobile */}
+          {/* Desktop Sidebar */}
           <aside className="hidden w-60 shrink-0 lg:block">
             <div className="sticky top-4 rounded-lg border bg-card p-4">
               <div className="mb-4 flex items-center gap-2">
                 <SlidersHorizontal className="h-4 w-4 text-primary" />
                 <h2 className="text-sm font-semibold text-foreground">ফিল্টার</h2>
               </div>
-              <FilterSidebar />
+              <FilterSidebar
+                categories={categories}
+                selectedCategory={selectedCategory}
+                onCategorySelect={handleCategorySelect}
+                priceRange={priceRange}
+                onPriceChange={setPriceRange}
+                maxPrice={maxPrice}
+                onReset={handleReset}
+              />
             </div>
           </aside>
 
@@ -181,7 +200,15 @@ const Products = () => {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-72 p-4 pt-10">
-                  <FilterSidebar />
+                  <FilterSidebar
+                    categories={categories}
+                    selectedCategory={selectedCategory}
+                    onCategorySelect={handleCategorySelect}
+                    priceRange={priceRange}
+                    onPriceChange={setPriceRange}
+                    maxPrice={maxPrice}
+                    onReset={handleReset}
+                  />
                 </SheetContent>
               </Sheet>
             </div>
