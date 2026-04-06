@@ -9,7 +9,7 @@ const OrderSuccess = () => {
     <div className="container mx-auto flex flex-col items-center px-4 py-20 text-center">
       <CheckCircle className="mb-6 h-20 w-20 text-primary" />
       <h1 className="mb-2 text-3xl font-bold text-foreground">অর্ডার সফল হয়েছে! 🎉</h1>
-      <p className="mb-2 text-muted-foreground">আপনার অর্ডার সাপাহার Mango পেয়েছে।</p>
+      <p className="mb-2 text-muted-foreground">আপনার অর্ডার Sapahar Mango পেয়েছে।</p>
       <p className="mb-6 text-lg font-semibold text-primary">অর্ডার নম্বর: {orderNumber}</p>
       <div className="mb-8 max-w-md rounded-lg bg-muted p-6 text-sm text-left space-y-2">
         <p>📞 আমরা শীঘ্রই আপনার সাথে ফোনে যোগাযোগ করব।</p>
