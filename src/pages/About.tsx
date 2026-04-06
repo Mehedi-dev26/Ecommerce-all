@@ -1,13 +1,13 @@
 import { Leaf, Users, Award, Heart } from "lucide-react";
-import mawraLogo from "@/assets/mawra-logo.jpg";
+import mangoLogo from "@/assets/mango-logo.png";
 
 const About = () => (
   <div className="container mx-auto px-4 py-10">
     <div className="mx-auto max-w-3xl text-center">
-      <img src={mawraLogo} alt="MAWRA" className="mx-auto mb-6 h-24 w-24 rounded-full object-cover shadow-lg ring-2 ring-primary ring-offset-2" />
-      <h1 className="mb-4 text-3xl font-bold text-foreground">MAWRA সম্পর্কে</h1>
+      <img src={mangoLogo} alt="সাপাহার Mango" className="mx-auto mb-6 h-24 w-24 rounded-full object-contain bg-white shadow-lg ring-2 ring-primary ring-offset-2" />
+      <h1 className="mb-4 text-3xl font-bold text-foreground">সাপাহার Mango সম্পর্কে</h1>
       <p className="mb-8 text-lg text-muted-foreground">
-        MAWRA নওগাঁ জেলার সাপাহার উপজেলার ঐতিহ্যবাহী দেশি আম সরাসরি বাগান থেকে আপনার ঘরে পৌঁছে দেওয়ার প্রতিশ্রুতি নিয়ে যাত্রা শুরু করেছে।
+        সাপাহার Mango নওগাঁ জেলার সাপাহার উপজেলার ঐতিহ্যবাহী দেশি আম সরাসরি বাগান থেকে আপনার ঘরে পৌঁছে দেওয়ার প্রতিশ্রুতি নিয়ে যাত্রা শুরু করেছে।
         সাপাহারের উর্বর মাটি ও অনুকূল আবহাওয়ায় জন্মানো এই আম স্বাদে, গন্ধে ও পুষ্টিতে অতুলনীয়।
       </p>
     </div>

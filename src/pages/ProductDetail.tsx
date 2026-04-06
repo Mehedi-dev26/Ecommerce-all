@@ -14,10 +14,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Fake reviews for demo
 const fakeReviews = [
-  { id: 1, name: "রহিম উদ্দিন", rating: 5, date: "২০ মে, ২০২৬", comment: "অসাধারণ পণ্য! স্বাদ খুবই ভালো এবং একদম খাঁটি। আবার অর্ডার করবো।", verified: true },
-  { id: 2, name: "ফাতেমা বেগম", rating: 4, date: "১৫ মে, ২০২৬", comment: "পণ্যের মান ভালো, প্যাকেজিংও সুন্দর ছিল। ডেলিভারি সময়মতো হয়েছে।", verified: true },
-  { id: 3, name: "কামরুল হাসান", rating: 5, date: "১০ মে, ২০২৬", comment: "বাজারে এত খাঁটি পণ্য পাওয়া কঠিন। মারফু থেকে নিলে ভেজাল নিয়ে চিন্তা নেই। পরিবারের সবাই পছন্দ করেছে।", verified: true },
-  { id: 4, name: "সাবিনা আক্তার", rating: 4, date: "৫ মে, ২০২৬", comment: "ভালো পণ্য, তবে আরেকটু বেশি পরিমাণে থাকলে ভালো হতো। স্বাদে কোনো অভিযোগ নেই।", verified: false },
+  { id: 1, name: "রহিম উদ্দিন", rating: 5, date: "২০ মে, ২০২৬", comment: "সাপাহারের আম অসাধারণ! গাছপাকা আমের স্বাদই আলাদা। আবার অর্ডার করবো।", verified: true },
+  { id: 2, name: "ফাতেমা বেগম", rating: 4, date: "১৫ মে, ২০২৬", comment: "আমের মান ভালো, প্যাকেজিংও সুন্দর ছিল। ডেলিভারি সময়মতো হয়েছে।", verified: true },
+  { id: 3, name: "কামরুল হাসান", rating: 5, date: "১০ মে, ২০২৬", comment: "সাপাহার Mango থেকে নিলে ভেজাল নিয়ে চিন্তা নেই। ল্যাংড়া আম পরিবারের সবাই পছন্দ করেছে।", verified: true },
+  { id: 4, name: "সাবিনা আক্তার", rating: 4, date: "৫ মে, ২০২৬", comment: "হিমসাগর আমটা দারুণ ছিল, তবে আরেকটু বেশি পরিমাণে থাকলে ভালো হতো। স্বাদে কোনো অভিযোগ নেই।", verified: false },
 ];
 
 const StarRating = ({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" | "lg" }) => {
