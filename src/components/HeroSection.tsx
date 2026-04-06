@@ -42,21 +42,21 @@ const HeroSection = () => {
 
   return (
     <section className="relative w-full overflow-hidden">
-      {/* Background images with transition */}
+      {/* Background images - use object-contain on mobile for full banner visibility */}
       {slides.map((s, i) => (
         <img
           key={i}
           src={s.image}
           alt={s.title}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 h-full w-full object-cover sm:object-cover transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0"}`}
           width={1920}
           height={720}
           {...(i === 0 ? {} : { loading: "lazy" as const })}
         />
       ))}
 
-      {/* Fixed height container */}
-      <div className="relative h-[320px] sm:h-[420px] lg:h-[520px]">
+      {/* Aspect ratio container - taller on mobile to show full banner */}
+      <div className="relative aspect-[16/9] sm:aspect-[21/9] lg:h-[520px] lg:aspect-auto">
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-transparent" />
 
@@ -66,17 +66,17 @@ const HeroSection = () => {
             <div className="max-w-lg">
               <h1
                 key={`title-${current}`}
-                className="mb-2 text-2xl font-bold text-white sm:text-4xl lg:text-5xl leading-tight animate-in fade-in slide-in-from-bottom-4 duration-500"
+                className="mb-2 text-xl font-bold text-white sm:text-4xl lg:text-5xl leading-tight animate-in fade-in slide-in-from-bottom-4 duration-500"
               >
                 {slide.title}
               </h1>
               <p
                 key={`sub-${current}`}
-                className="mb-4 text-sm text-white/90 sm:text-lg lg:text-xl animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150"
+                className="mb-4 text-xs text-white/90 sm:text-lg lg:text-xl animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150"
               >
                 {slide.subtitle}
               </p>
-              <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
+              <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300 text-xs sm:text-sm">
                 <Link to="/products">{slide.cta} <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
             </div>
