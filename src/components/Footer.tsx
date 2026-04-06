@@ -8,8 +8,8 @@ const Footer = () => (
       <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
         <div className="col-span-2 sm:col-span-1">
           <div className="flex items-center gap-3 mb-4">
-            <img src={mangoLogo} alt="সাপাহার Mango" className="h-12 w-12 rounded-full object-contain bg-white ring-2 ring-primary" />
-            <span className="font-brand text-2xl font-bold text-primary sm:text-3xl">সাপাহার Mango</span>
+            <img src={mangoLogo} alt="Sapahar Mango" className="h-12 w-12 rounded-full object-contain bg-white ring-2 ring-primary" />
+            <span className="font-brand text-2xl font-bold text-primary sm:text-3xl">Sapahar Mango</span>
           </div>
           <p className="text-base text-white/90 leading-relaxed">
             নওগাঁর সাপাহারের খাঁটি দেশি আম সরাসরি বাগান থেকে আপনার দোরগোড়ায়।
@@ -27,11 +27,11 @@ const Footer = () => (
         <div>
           <h4 className="mb-4 text-base font-bold text-primary uppercase tracking-wider">আমের জাত</h4>
           <ul className="space-y-3 text-base">
-            <li className="text-white/90 font-medium">🥭 ল্যাংড়া</li>
-            <li className="text-white/90 font-medium">🥭 হিমসাগর</li>
-            <li className="text-white/90 font-medium">🥭 গোপালভোগ</li>
-            <li className="text-white/90 font-medium">🥭 আম্রপালি</li>
-            <li className="text-white/90 font-medium">🥭 ফজলি</li>
+            <li className="text-white/90 font-medium">ল্যাংড়া</li>
+            <li className="text-white/90 font-medium">হিমসাগর</li>
+            <li className="text-white/90 font-medium">গোপালভোগ</li>
+            <li className="text-white/90 font-medium">আম্রপালি</li>
+            <li className="text-white/90 font-medium">ফজলি</li>
           </ul>
         </div>
         <div className="col-span-2 sm:col-span-1">
@@ -49,7 +49,7 @@ const Footer = () => (
         </div>
       </div>
       <div className="mt-10 border-t border-white/20 pt-6 text-center text-sm text-white/70 sm:text-base font-medium">
-        © {new Date().getFullYear()} সাপাহার Mango — সাপাহারের দেশি আম। সর্বস্বত্ব সংরক্ষিত।
+        © {new Date().getFullYear()} Sapahar Mango — সাপাহারের দেশি আম। সর্বস্বত্ব সংরক্ষিত।
       </div>
     </div>
   </footer>

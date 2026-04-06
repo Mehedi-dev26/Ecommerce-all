@@ -24,12 +24,12 @@ const Navbar = () => {
           <div className="relative">
             <img
               src={mangoLogo}
-              alt="সাপাহার Mango Logo"
+              alt="Sapahar Mango Logo"
               className="h-10 w-10 rounded-full object-contain bg-white ring-[3px] ring-white/80 ring-offset-2 ring-offset-primary sm:h-11 sm:w-11"
             />
           </div>
           <div className="flex flex-col">
-            <span className="font-brand text-2xl font-bold leading-none text-white sm:text-3xl drop-shadow-md">সাপাহার Mango</span>
+            <span className="font-brand text-2xl font-bold leading-none text-white sm:text-3xl drop-shadow-md">Sapahar Mango</span>
             <span className="text-[9px] font-medium tracking-wider text-white/80 sm:text-[10px]">সাপাহারের দেশি আম</span>
           </div>
         </Link>
@@ -70,9 +70,9 @@ const Navbar = () => {
             <SheetContent side="left" className="w-72 border-r-primary/30 bg-primary">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2 text-left">
-                  <img src={mangoLogo} alt="সাপাহার Mango" className="h-8 w-8 rounded-full object-contain bg-white ring-2 ring-white/80" />
+                  <img src={mangoLogo} alt="Sapahar Mango" className="h-8 w-8 rounded-full object-contain bg-white ring-2 ring-white/80" />
                   <div className="flex flex-col">
-                    <span className="font-brand text-xl text-white">সাপাহার Mango</span>
+                    <span className="font-brand text-xl text-white">Sapahar Mango</span>
                     <span className="text-[9px] text-white/70">সাপাহারের দেশি আম</span>
                   </div>
                 </SheetTitle>
