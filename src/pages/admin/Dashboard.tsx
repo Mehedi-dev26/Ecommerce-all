@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, ShoppingCart, DollarSign, TrendingUp, Clock, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Package, ShoppingCart, DollarSign, TrendingUp, Clock,
+  CheckCircle, ArrowUpRight, ArrowRight, Users, FolderTree,
+  AlertCircle, Eye
+} from "lucide-react";
 
 interface Stats {
   totalProducts: number;
@@ -10,19 +16,29 @@ interface Stats {
   pendingOrders: number;
   completedOrders: number;
   totalCategories: number;
+  processingOrders: number;
+  shippedOrders: number;
+  cancelledOrders: number;
 }
 
 interface RecentOrder {
   id: string;
   order_number: string;
   customer_name: string;
+  customer_phone: string;
   total: number;
   status: string;
   created_at: string;
+  payment_method: string;
 }
 
 const Dashboard = () => {
-  const [stats, setStats] = useState<Stats>({ totalProducts: 0, totalOrders: 0, totalRevenue: 0, pendingOrders: 0, completedOrders: 0, totalCategories: 0 });
+  const navigate = useNavigate();
+  const [stats, setStats] = useState<Stats>({
+    totalProducts: 0, totalOrders: 0, totalRevenue: 0,
+    pendingOrders: 0, completedOrders: 0, totalCategories: 0,
+    processingOrders: 0, shippedOrders: 0, cancelledOrders: 0,
+  });
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,22 +52,23 @@ const Dashboard = () => {
 
       const orders = ordersRes.data || [];
       const totalRevenue = orders.reduce((sum, o) => sum + Number(o.total), 0);
-      const pendingOrders = orders.filter((o) => o.status === "pending").length;
-      const completedOrders = orders.filter((o) => o.status === "delivered").length;
 
       setStats({
         totalProducts: productsRes.count || 0,
         totalOrders: orders.length,
         totalRevenue,
-        pendingOrders,
-        completedOrders,
+        pendingOrders: orders.filter((o) => o.status === "pending").length,
+        processingOrders: orders.filter((o) => o.status === "processing").length,
+        shippedOrders: orders.filter((o) => o.status === "shipped").length,
+        completedOrders: orders.filter((o) => o.status === "delivered").length,
+        cancelledOrders: orders.filter((o) => o.status === "cancelled").length,
         totalCategories: categoriesRes.count || 0,
       });
 
       setRecentOrders(
         orders
           .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-          .slice(0, 10)
+          .slice(0, 8)
       );
       setLoading(false);
     };
@@ -59,101 +76,255 @@ const Dashboard = () => {
   }, []);
 
   const statCards = [
-    { title: "মোট প্রোডাক্ট", value: stats.totalProducts, icon: Package, color: "text-primary" },
-    { title: "মোট অর্ডার", value: stats.totalOrders, icon: ShoppingCart, color: "text-secondary" },
-    { title: "মোট আয়", value: `৳${stats.totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-accent" },
-    { title: "পেন্ডিং অর্ডার", value: stats.pendingOrders, icon: Clock, color: "text-orange-500" },
-    { title: "সম্পন্ন অর্ডার", value: stats.completedOrders, icon: CheckCircle, color: "text-green-600" },
-    { title: "ক্যাটাগরি", value: stats.totalCategories, icon: TrendingUp, color: "text-blue-500" },
+    {
+      title: "মোট আয়",
+      value: `৳${stats.totalRevenue.toLocaleString()}`,
+      icon: DollarSign,
+      bg: "bg-primary/10",
+      iconColor: "text-primary",
+      desc: "সর্বমোট বিক্রয়",
+    },
+    {
+      title: "মোট অর্ডার",
+      value: stats.totalOrders,
+      icon: ShoppingCart,
+      bg: "bg-secondary/10",
+      iconColor: "text-secondary",
+      desc: `${stats.pendingOrders} পেন্ডিং`,
+    },
+    {
+      title: "মোট প্রোডাক্ট",
+      value: stats.totalProducts,
+      icon: Package,
+      bg: "bg-accent/10",
+      iconColor: "text-accent",
+      desc: `${stats.totalCategories} ক্যাটাগরি`,
+    },
+    {
+      title: "সম্পন্ন অর্ডার",
+      value: stats.completedOrders,
+      icon: CheckCircle,
+      bg: "bg-secondary/10",
+      iconColor: "text-secondary",
+      desc: "ডেলিভারড",
+    },
+  ];
+
+  const orderStatusCards = [
+    { title: "পেন্ডিং", value: stats.pendingOrders, icon: Clock, className: "border-l-4 border-l-primary" },
+    { title: "প্রসেসিং", value: stats.processingOrders, icon: TrendingUp, className: "border-l-4 border-l-secondary" },
+    { title: "শিপড", value: stats.shippedOrders, icon: Package, className: "border-l-4 border-l-accent" },
+    { title: "বাতিল", value: stats.cancelledOrders, icon: AlertCircle, className: "border-l-4 border-l-destructive" },
   ];
 
   const getStatusBadge = (status: string) => {
-    const map: Record<string, string> = {
-      pending: "bg-yellow-100 text-yellow-800",
-      processing: "bg-blue-100 text-blue-800",
-      shipped: "bg-purple-100 text-purple-800",
-      delivered: "bg-green-100 text-green-800",
-      cancelled: "bg-red-100 text-red-800",
+    const config: Record<string, { bg: string; label: string }> = {
+      pending: { bg: "bg-primary/15 text-primary", label: "পেন্ডিং" },
+      processing: { bg: "bg-secondary/15 text-secondary", label: "প্রসেসিং" },
+      shipped: { bg: "bg-accent/15 text-accent", label: "শিপড" },
+      delivered: { bg: "bg-secondary/15 text-secondary", label: "ডেলিভারড" },
+      cancelled: { bg: "bg-destructive/15 text-destructive", label: "বাতিল" },
     };
-    const labels: Record<string, string> = {
-      pending: "পেন্ডিং",
-      processing: "প্রসেসিং",
-      shipped: "শিপড",
-      delivered: "ডেলিভারড",
-      cancelled: "বাতিল",
-    };
+    const c = config[status] || { bg: "bg-muted text-muted-foreground", label: status };
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${map[status] || "bg-gray-100 text-gray-800"}`}>
-        {labels[status] || status}
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${c.bg}`}>
+        {c.label}
       </span>
     );
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+      <div className="flex flex-col items-center justify-center py-20 gap-3">
+        <div className="animate-spin h-10 w-10 border-4 border-primary/30 border-t-primary rounded-full" />
+        <p className="text-sm text-muted-foreground">ডেটা লোড হচ্ছে...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-foreground">ড্যাশবোর্ড</h1>
+    <div className="space-y-8">
+      {/* Welcome Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/90 via-primary to-accent/80 p-6 lg:p-8 text-primary-foreground">
+        <div className="relative z-10">
+          <h2 className="text-xl lg:text-2xl font-bold mb-1">স্বাগতম, অ্যাডমিন! 🥭</h2>
+          <p className="text-primary-foreground/80 text-sm lg:text-base">
+            আজকের ব্যবসায়িক সারসংক্ষেপ দেখুন এবং আপনার স্টোর পরিচালনা করুন।
+          </p>
+        </div>
+        <div className="absolute top-0 right-0 w-40 h-40 bg-primary-foreground/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 right-20 w-24 h-24 bg-primary-foreground/5 rounded-full translate-y-1/2" />
+      </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      {/* Main Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         {statCards.map((stat) => (
-          <Card key={stat.title} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <stat.icon className={`h-5 w-5 ${stat.color}`} />
+          <Card key={stat.title} className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-primary/30">
+            <CardContent className="p-5">
+              <div className="flex items-start justify-between mb-4">
+                <div className={`h-12 w-12 rounded-xl ${stat.bg} flex items-center justify-center`}>
+                  <stat.icon className={`h-6 w-6 ${stat.iconColor}`} />
+                </div>
+                <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
-              <p className="text-2xl font-bold">{stat.value}</p>
-              <p className="text-xs text-muted-foreground">{stat.title}</p>
+              <p className="text-2xl lg:text-3xl font-bold text-foreground mb-1">{stat.value}</p>
+              <p className="text-sm font-medium text-foreground/80">{stat.title}</p>
+              <p className="text-xs text-muted-foreground mt-1">{stat.desc}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Recent Orders */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">সাম্প্রতিক অর্ডার</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {recentOrders.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">কোনো অর্ডার নেই</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-2">অর্ডার #</th>
-                    <th className="text-left py-3 px-2">কাস্টমার</th>
-                    <th className="text-left py-3 px-2">মোট</th>
-                    <th className="text-left py-3 px-2">স্ট্যাটাস</th>
-                    <th className="text-left py-3 px-2">তারিখ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentOrders.map((order) => (
-                    <tr key={order.id} className="border-b hover:bg-muted/50">
-                      <td className="py-3 px-2 font-medium">{order.order_number}</td>
-                      <td className="py-3 px-2">{order.customer_name}</td>
-                      <td className="py-3 px-2">৳{Number(order.total).toLocaleString()}</td>
-                      <td className="py-3 px-2">{getStatusBadge(order.status)}</td>
-                      <td className="py-3 px-2 text-muted-foreground">
-                        {new Date(order.created_at).toLocaleDateString("bn-BD")}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      {/* Order Status Breakdown */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+        {orderStatusCards.map((item) => (
+          <Card key={item.title} className={`${item.className} hover:shadow-md transition-shadow`}>
+            <CardContent className="p-4 flex items-center gap-3">
+              <item.icon className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="text-xl font-bold">{item.value}</p>
+                <p className="text-xs text-muted-foreground">{item.title}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Recent Orders & Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Recent Orders */}
+        <Card className="lg:col-span-2 border-border/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-bold">সাম্প্রতিক অর্ডার</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-primary hover:text-primary/80 gap-1"
+                onClick={() => navigate("/admin/orders")}
+              >
+                সব দেখুন <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent className="pt-0">
+            {recentOrders.length === 0 ? (
+              <div className="text-center py-12">
+                <ShoppingCart className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-muted-foreground">কোনো অর্ডার নেই</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {recentOrders.map((order) => (
+                  <div
+                    key={order.id}
+                    className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer group"
+                    onClick={() => navigate("/admin/orders")}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <span className="text-xs font-bold text-primary">
+                          {order.customer_name.charAt(0)}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{order.customer_name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          #{order.order_number} · {new Date(order.created_at).toLocaleDateString("bn-BD")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <div className="text-right hidden sm:block">
+                        <p className="text-sm font-bold">৳{Number(order.total).toLocaleString()}</p>
+                      </div>
+                      {getStatusBadge(order.status)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions */}
+        <Card className="border-border/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-bold">দ্রুত অ্যাকশন</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 space-y-2">
+            <button
+              onClick={() => navigate("/admin/products")}
+              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-primary/5 border border-border/50 hover:border-primary/30 transition-all text-left group"
+            >
+              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Package className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">নতুন প্রোডাক্ট যোগ</p>
+                <p className="text-xs text-muted-foreground">পণ্য তালিকায় যোগ করুন</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+
+            <button
+              onClick={() => navigate("/admin/orders")}
+              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-secondary/5 border border-border/50 hover:border-secondary/30 transition-all text-left group"
+            >
+              <div className="h-10 w-10 rounded-lg bg-secondary/10 flex items-center justify-center">
+                <ShoppingCart className="h-5 w-5 text-secondary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">অর্ডার পরিচালনা</p>
+                <p className="text-xs text-muted-foreground">{stats.pendingOrders} পেন্ডিং অর্ডার</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+
+            <button
+              onClick={() => navigate("/admin/categories")}
+              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-accent/5 border border-border/50 hover:border-accent/30 transition-all text-left group"
+            >
+              <div className="h-10 w-10 rounded-lg bg-accent/10 flex items-center justify-center">
+                <FolderTree className="h-5 w-5 text-accent" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">ক্যাটাগরি ম্যানেজ</p>
+                <p className="text-xs text-muted-foreground">{stats.totalCategories} ক্যাটাগরি</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+
+            <button
+              onClick={() => navigate("/admin/customers")}
+              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 border border-border/50 hover:border-primary/30 transition-all text-left group"
+            >
+              <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
+                <Users className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">কাস্টমার তালিকা</p>
+                <p className="text-xs text-muted-foreground">গ্রাহক তথ্য দেখুন</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+
+            <button
+              onClick={() => window.open("/", "_blank")}
+              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 border border-border/50 hover:border-primary/30 transition-all text-left group"
+            >
+              <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
+                <Eye className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">ওয়েবসাইট দেখুন</p>
+                <p className="text-xs text-muted-foreground">লাইভ সাইট প্রিভিউ</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

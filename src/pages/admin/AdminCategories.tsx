@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, FolderTree, GripVertical, Image as ImageIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface Category {
@@ -93,59 +93,134 @@ const AdminCategories = () => {
     setDialogOpen(true);
   };
 
-  if (loading) return <div className="flex justify-center py-20"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center py-20 gap-3">
+      <div className="animate-spin h-10 w-10 border-4 border-primary/30 border-t-primary rounded-full" />
+      <p className="text-sm text-muted-foreground">ক্যাটাগরি লোড হচ্ছে...</p>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">ক্যাটাগরি ম্যানেজমেন্ট</h1>
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <FolderTree className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">{categories.length} টি ক্যাটাগরি</p>
+          </div>
+        </div>
         <Dialog open={dialogOpen} onOpenChange={(v) => { setDialogOpen(v); if (!v) { setEditing(null); setForm({ name: "", name_bn: "", description: "", image_url: "", sort_order: 0 }); } }}>
           <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-2" />নতুন ক্যাটাগরি</Button>
+            <Button className="gap-2 shadow-lg shadow-primary/20"><Plus className="h-4 w-4" />নতুন ক্যাটাগরি</Button>
           </DialogTrigger>
-          <DialogContent>
-            <DialogHeader><DialogTitle>{editing ? "ক্যাটাগরি এডিট" : "নতুন ক্যাটাগরি"}</DialogTitle></DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2"><Label>নাম (English)</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-              <div className="space-y-2"><Label>নাম (বাংলা)</Label><Input value={form.name_bn} onChange={(e) => setForm({ ...form, name_bn: e.target.value })} /></div>
-              <div className="space-y-2"><Label>বিবরণ</Label><textarea className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
-              <div className="space-y-2"><Label>ক্রম</Label><Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: +e.target.value })} /></div>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <FolderTree className="h-5 w-5 text-primary" />
+                {editing ? "ক্যাটাগরি এডিট" : "নতুন ক্যাটাগরি"}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-2">
               <div className="space-y-2">
-                <Label>ছবি</Label>
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">নাম (English)</Label>
+                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">নাম (বাংলা)</Label>
+                <Input value={form.name_bn} onChange={(e) => setForm({ ...form, name_bn: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">বিবরণ</Label>
+                <textarea className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ক্রম</Label>
+                <Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: +e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ছবি</Label>
                 <div className="flex items-center gap-4">
-                  {form.image_url && <img src={form.image_url} alt="" className="h-16 w-16 rounded-lg object-cover" />}
-                  <label className="cursor-pointer flex items-center gap-2 px-4 py-2 border border-dashed border-primary rounded-lg text-sm text-primary hover:bg-primary/5">
-                    <Upload className="h-4 w-4" />{uploading ? "আপলোড হচ্ছে..." : "ছবি আপলোড"}
+                  {form.image_url ? (
+                    <img src={form.image_url} alt="" className="h-20 w-20 rounded-xl object-cover border-2 border-border" />
+                  ) : (
+                    <div className="h-20 w-20 rounded-xl bg-muted flex items-center justify-center">
+                      <ImageIcon className="h-8 w-8 text-muted-foreground/30" />
+                    </div>
+                  )}
+                  <label className="cursor-pointer flex flex-col items-center justify-center gap-1 px-5 py-3 border-2 border-dashed border-primary/30 rounded-xl text-sm text-primary hover:bg-primary/5 hover:border-primary/50 transition-all">
+                    <Upload className="h-5 w-5" />
+                    <span className="text-xs">{uploading ? "আপলোড হচ্ছে..." : "ছবি আপলোড"}</span>
                     <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
                   </label>
                 </div>
               </div>
             </div>
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex justify-end gap-3 pt-4 border-t border-border">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>বাতিল</Button>
-              <Button onClick={handleSave}>{editing ? "আপডেট" : "সেভ"}</Button>
+              <Button onClick={handleSave} className="shadow-lg shadow-primary/20">{editing ? "আপডেট" : "সেভ"}</Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {categories.map((c) => (
-          <Card key={c.id} className="overflow-hidden hover:shadow-md transition-shadow">
-            {c.image_url && <img src={c.image_url} alt={c.name_bn} className="w-full h-32 object-cover" />}
-            <CardContent className="p-4">
-              <h3 className="font-bold text-lg">{c.name_bn}</h3>
-              <p className="text-sm text-muted-foreground">{c.name}</p>
-              {c.description && <p className="text-sm mt-1">{c.description}</p>}
-              <div className="flex justify-end gap-2 mt-3">
-                <Button variant="ghost" size="sm" onClick={() => openEdit(c)}><Pencil className="h-4 w-4" /></Button>
-                <Button variant="ghost" size="sm" className="text-destructive" onClick={() => handleDelete(c.id)}><Trash2 className="h-4 w-4" /></Button>
+      {/* Category Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {categories.map((c, index) => (
+          <Card key={c.id} className="overflow-hidden group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-primary/30">
+            <div className="relative">
+              {c.image_url ? (
+                <img src={c.image_url} alt={c.name_bn} className="w-full h-36 object-cover group-hover:scale-105 transition-transform duration-500" />
+              ) : (
+                <div className="w-full h-36 bg-gradient-to-br from-primary/10 via-muted to-secondary/10 flex items-center justify-center">
+                  <FolderTree className="h-12 w-12 text-muted-foreground/20" />
+                </div>
+              )}
+              <div className="absolute top-2 left-2">
+                <span className="bg-card/90 backdrop-blur-sm text-xs font-bold px-2 py-1 rounded-lg text-muted-foreground">
+                  #{c.sort_order}
+                </span>
               </div>
+              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button variant="secondary" size="icon" className="h-7 w-7 bg-card/90 backdrop-blur-sm hover:bg-primary hover:text-primary-foreground" onClick={() => openEdit(c)}>
+                  <Pencil className="h-3 w-3" />
+                </Button>
+                <Button variant="secondary" size="icon" className="h-7 w-7 bg-card/90 backdrop-blur-sm hover:bg-destructive hover:text-destructive-foreground" onClick={() => handleDelete(c.id)}>
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+            <CardContent className="p-4">
+              <h3 className="font-bold text-foreground">{c.name_bn}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">{c.name}</p>
+              {c.description && (
+                <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{c.description}</p>
+              )}
             </CardContent>
           </Card>
         ))}
-        {categories.length === 0 && <p className="text-muted-foreground col-span-full text-center py-8">কোনো ক্যাটাগরি নেই</p>}
+
+        {/* Add New Card */}
+        <button
+          onClick={() => setDialogOpen(true)}
+          className="border-2 border-dashed border-border/50 hover:border-primary/40 rounded-xl h-full min-h-[200px] flex flex-col items-center justify-center gap-3 text-muted-foreground hover:text-primary transition-all hover:bg-primary/5 group"
+        >
+          <div className="h-12 w-12 rounded-full bg-muted group-hover:bg-primary/10 flex items-center justify-center transition-colors">
+            <Plus className="h-6 w-6" />
+          </div>
+          <span className="text-sm font-medium">নতুন ক্যাটাগরি</span>
+        </button>
       </div>
+
+      {categories.length === 0 && (
+        <div className="text-center py-16">
+          <FolderTree className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+          <p className="text-muted-foreground">কোনো ক্যাটাগরি নেই</p>
+          <p className="text-xs text-muted-foreground mt-1">উপরের বাটনে ক্লিক করে নতুন ক্যাটাগরি যোগ করুন</p>
+        </div>
+      )}
     </div>
   );
 };
