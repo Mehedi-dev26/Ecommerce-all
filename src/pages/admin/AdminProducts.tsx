@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, X, Upload, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, Search, Package, Filter, Star } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 
 interface Product {
   id: string;
@@ -49,6 +50,8 @@ const AdminProducts = () => {
   const [form, setForm] = useState(emptyProduct);
   const [uploading, setUploading] = useState(false);
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const { toast } = useToast();
 
   const fetchData = async () => {
@@ -138,51 +141,118 @@ const AdminProducts = () => {
     setDialogOpen(true);
   };
 
-  const filtered = products.filter(
-    (p) => p.name.toLowerCase().includes(search.toLowerCase()) || p.name_bn.includes(search)
-  );
+  const getCategoryName = (id: string | null) => {
+    if (!id) return null;
+    return categories.find((c) => c.id === id)?.name_bn;
+  };
 
-  if (loading) return <div className="flex justify-center py-20"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
+  const filtered = products.filter((p) => {
+    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.name_bn.includes(search);
+    const matchCategory = categoryFilter === "all" || p.category_id === categoryFilter;
+    const matchStatus = statusFilter === "all" ||
+      (statusFilter === "active" && p.is_active) ||
+      (statusFilter === "inactive" && !p.is_active) ||
+      (statusFilter === "featured" && p.is_featured);
+    return matchSearch && matchCategory && matchStatus;
+  });
+
+  const activeCount = products.filter((p) => p.is_active).length;
+  const lowStockCount = products.filter((p) => p.stock < 10).length;
+
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center py-20 gap-3">
+      <div className="animate-spin h-10 w-10 border-4 border-primary/30 border-t-primary rounded-full" />
+      <p className="text-sm text-muted-foreground">প্রোডাক্ট লোড হচ্ছে...</p>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">প্রোডাক্ট ম্যানেজমেন্ট</h1>
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="bg-card rounded-xl border border-border/50 p-4">
+          <p className="text-2xl font-bold">{products.length}</p>
+          <p className="text-xs text-muted-foreground">মোট প্রোডাক্ট</p>
+        </div>
+        <div className="bg-card rounded-xl border border-border/50 p-4">
+          <p className="text-2xl font-bold text-secondary">{activeCount}</p>
+          <p className="text-xs text-muted-foreground">সক্রিয়</p>
+        </div>
+        <div className="bg-card rounded-xl border border-border/50 p-4">
+          <p className="text-2xl font-bold text-primary">{products.length - activeCount}</p>
+          <p className="text-xs text-muted-foreground">নিষ্ক্রিয়</p>
+        </div>
+        <div className="bg-card rounded-xl border border-border/50 p-4">
+          <p className="text-2xl font-bold text-destructive">{lowStockCount}</p>
+          <p className="text-xs text-muted-foreground">কম স্টক (&lt;10)</p>
+        </div>
+      </div>
+
+      {/* Toolbar */}
+      <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-3 flex-1 w-full lg:w-auto">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="প্রোডাক্ট খুঁজুন..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-card" />
+          </div>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-[160px] bg-card"><SelectValue placeholder="ক্যাটাগরি" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">সকল ক্যাটাগরি</SelectItem>
+              {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name_bn}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[140px] bg-card"><SelectValue placeholder="স্ট্যাটাস" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">সকল</SelectItem>
+              <SelectItem value="active">সক্রিয়</SelectItem>
+              <SelectItem value="inactive">নিষ্ক্রিয়</SelectItem>
+              <SelectItem value="featured">ফিচারড</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         <Dialog open={dialogOpen} onOpenChange={(v) => { setDialogOpen(v); if (!v) { setEditing(null); setForm(emptyProduct); } }}>
           <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-2" />নতুন প্রোডাক্ট</Button>
+            <Button className="gap-2 shadow-lg shadow-primary/20">
+              <Plus className="h-4 w-4" />নতুন প্রোডাক্ট
+            </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editing ? "প্রোডাক্ট এডিট" : "নতুন প্রোডাক্ট যোগ করুন"}</DialogTitle>
+              <DialogTitle className="flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" />
+                {editing ? "প্রোডাক্ট এডিট" : "নতুন প্রোডাক্ট যোগ করুন"}
+              </DialogTitle>
             </DialogHeader>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
               <div className="space-y-2">
-                <Label>নাম (English)</Label>
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">নাম (English)</Label>
                 <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <Label>নাম (বাংলা)</Label>
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">নাম (বাংলা)</Label>
                 <Input value={form.name_bn} onChange={(e) => setForm({ ...form, name_bn: e.target.value })} />
               </div>
               <div className="space-y-2 md:col-span-2">
-                <Label>বিবরণ (English)</Label>
-                <textarea className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">বিবরণ (English)</Label>
+                <textarea className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
               </div>
               <div className="space-y-2 md:col-span-2">
-                <Label>বিবরণ (বাংলা)</Label>
-                <textarea className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" rows={2} value={form.description_bn} onChange={(e) => setForm({ ...form, description_bn: e.target.value })} />
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">বিবরণ (বাংলা)</Label>
+                <textarea className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" rows={2} value={form.description_bn} onChange={(e) => setForm({ ...form, description_bn: e.target.value })} />
               </div>
               <div className="space-y-2">
-                <Label>দাম (৳)</Label>
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">দাম (৳)</Label>
                 <Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: +e.target.value })} />
               </div>
               <div className="space-y-2">
-                <Label>তুলনামূলক দাম (৳)</Label>
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">তুলনামূলক দাম (৳)</Label>
                 <Input type="number" value={form.compare_price} onChange={(e) => setForm({ ...form, compare_price: +e.target.value })} />
               </div>
               <div className="space-y-2">
-                <Label>ক্যাটাগরি</Label>
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ক্যাটাগরি</Label>
                 <Select value={form.category_id} onValueChange={(v) => setForm({ ...form, category_id: v })}>
                   <SelectTrigger><SelectValue placeholder="বাছাই করুন" /></SelectTrigger>
                   <SelectContent>
@@ -191,29 +261,33 @@ const AdminProducts = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>স্টক</Label>
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">স্টক</Label>
                 <Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: +e.target.value })} />
               </div>
               <div className="space-y-2">
-                <Label>ওজন</Label>
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ওজন</Label>
                 <Input value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} placeholder="3kg" />
               </div>
               <div className="space-y-2">
-                <Label>ইউনিট</Label>
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ইউনিট</Label>
                 <Input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} placeholder="kg" />
               </div>
               <div className="space-y-2 md:col-span-2">
-                <Label>ছবি</Label>
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ছবি</Label>
                 <div className="flex items-center gap-4">
-                  {form.image_url && <img src={form.image_url} alt="" className="h-20 w-20 rounded-lg object-cover" />}
-                  <label className="cursor-pointer flex items-center gap-2 px-4 py-2 border border-dashed border-primary rounded-lg text-sm text-primary hover:bg-primary/5">
-                    <Upload className="h-4 w-4" />
-                    {uploading ? "আপলোড হচ্ছে..." : "ছবি আপলোড"}
+                  {form.image_url && (
+                    <div className="relative group">
+                      <img src={form.image_url} alt="" className="h-24 w-24 rounded-xl object-cover border-2 border-border" />
+                    </div>
+                  )}
+                  <label className="cursor-pointer flex flex-col items-center justify-center gap-2 px-6 py-4 border-2 border-dashed border-primary/30 rounded-xl text-sm text-primary hover:bg-primary/5 hover:border-primary/50 transition-all">
+                    <Upload className="h-5 w-5" />
+                    <span className="text-xs">{uploading ? "আপলোড হচ্ছে..." : "ছবি আপলোড"}</span>
                     <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
                   </label>
                 </div>
               </div>
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-6 md:col-span-2 pt-2 border-t border-border">
                 <div className="flex items-center gap-2">
                   <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
                   <Label>সক্রিয়</Label>
@@ -224,62 +298,84 @@ const AdminProducts = () => {
                 </div>
               </div>
             </div>
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex justify-end gap-3 pt-4 border-t border-border">
               <Button variant="outline" onClick={() => setDialogOpen(false)}>বাতিল</Button>
-              <Button onClick={handleSave}>{editing ? "আপডেট" : "সেভ করুন"}</Button>
+              <Button onClick={handleSave} className="shadow-lg shadow-primary/20">{editing ? "আপডেট" : "সেভ করুন"}</Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-        <Input placeholder="প্রোডাক্ট খুঁজুন..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
-      </div>
+      {/* Results count */}
+      <p className="text-xs text-muted-foreground">
+        {filtered.length} টি প্রোডাক্ট দেখানো হচ্ছে
+      </p>
 
       {/* Product Table */}
-      <Card>
+      <Card className="border-border/50 overflow-hidden">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="text-left py-3 px-4">ছবি</th>
-                  <th className="text-left py-3 px-4">নাম</th>
-                  <th className="text-left py-3 px-4 hidden md:table-cell">দাম</th>
-                  <th className="text-left py-3 px-4 hidden md:table-cell">স্টক</th>
-                  <th className="text-left py-3 px-4 hidden lg:table-cell">স্ট্যাটাস</th>
-                  <th className="text-right py-3 px-4">অ্যাকশন</th>
+                <tr className="bg-muted/30 border-b border-border/50">
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">পণ্য</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground hidden md:table-cell">ক্যাটাগরি</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground hidden md:table-cell">দাম</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground hidden lg:table-cell">স্টক</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground hidden lg:table-cell">স্ট্যাটাস</th>
+                  <th className="text-right py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">অ্যাকশন</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-border/30">
                 {filtered.map((p) => (
-                  <tr key={p.id} className="border-b hover:bg-muted/30">
+                  <tr key={p.id} className="hover:bg-muted/20 transition-colors">
                     <td className="py-3 px-4">
-                      <img src={p.image_url || "/placeholder.svg"} alt={p.name_bn} className="h-12 w-12 rounded-lg object-cover" />
-                    </td>
-                    <td className="py-3 px-4">
-                      <p className="font-medium">{p.name_bn}</p>
-                      <p className="text-xs text-muted-foreground">{p.name}</p>
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <img src={p.image_url || "/placeholder.svg"} alt={p.name_bn} className="h-12 w-12 rounded-xl object-cover border border-border/50" />
+                          {p.is_featured && (
+                            <Star className="absolute -top-1 -right-1 h-4 w-4 text-primary fill-primary" />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-foreground truncate">{p.name_bn}</p>
+                          <p className="text-xs text-muted-foreground truncate">{p.name}</p>
+                        </div>
+                      </div>
                     </td>
                     <td className="py-3 px-4 hidden md:table-cell">
-                      <span className="font-semibold">৳{p.price}</span>
-                      {p.compare_price && <span className="text-xs text-muted-foreground line-through ml-2">৳{p.compare_price}</span>}
+                      {getCategoryName(p.category_id) ? (
+                        <Badge variant="secondary" className="font-normal">{getCategoryName(p.category_id)}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">—</span>
+                      )}
                     </td>
-                    <td className="py-3 px-4 hidden md:table-cell">{p.stock}</td>
+                    <td className="py-3 px-4 hidden md:table-cell">
+                      <div>
+                        <span className="font-bold text-foreground">৳{p.price.toLocaleString()}</span>
+                        {p.compare_price ? (
+                          <span className="text-xs text-muted-foreground line-through ml-2">৳{p.compare_price.toLocaleString()}</span>
+                        ) : null}
+                      </div>
+                    </td>
                     <td className="py-3 px-4 hidden lg:table-cell">
-                      <span className={`px-2 py-1 rounded-full text-xs ${p.is_active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+                      <div className="flex items-center gap-2">
+                        <div className={`h-2 w-2 rounded-full ${p.stock < 10 ? "bg-destructive" : p.stock < 50 ? "bg-primary" : "bg-secondary"}`} />
+                        <span className={p.stock < 10 ? "text-destructive font-semibold" : ""}>{p.stock}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 hidden lg:table-cell">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${p.is_active ? "bg-secondary/15 text-secondary" : "bg-destructive/15 text-destructive"}`}>
                         {p.is_active ? "সক্রিয়" : "নিষ্ক্রিয়"}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(p)}>
-                          <Pencil className="h-4 w-4" />
+                      <div className="flex justify-end gap-1">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary" onClick={() => openEdit(p)}>
+                          <Pencil className="h-3.5 w-3.5" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(p.id)}>
-                          <Trash2 className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDelete(p.id)}>
+                          <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     </td>
@@ -288,7 +384,10 @@ const AdminProducts = () => {
               </tbody>
             </table>
             {filtered.length === 0 && (
-              <p className="text-center text-muted-foreground py-8">কোনো প্রোডাক্ট পাওয়া যায়নি</p>
+              <div className="text-center py-16">
+                <Package className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-muted-foreground">কোনো প্রোডাক্ট পাওয়া যায়নি</p>
+              </div>
             )}
           </div>
         </CardContent>
