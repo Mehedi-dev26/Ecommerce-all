@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Package, ShoppingCart, FolderTree, Users,
-  LogOut, Settings, BarChart3, Bell, Globe, ChevronDown, ChevronRight,
-  TrendingUp, FileText, HelpCircle, Shield
+  LogOut, Settings, BarChart3, Globe, ChevronDown, ChevronRight,
+  Shield, CreditCard, Truck
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,13 @@ const navGroups = [
     items: [
       { title: "প্রোডাক্ট", url: "/admin/products", icon: Package, badge: null },
       { title: "ক্যাটাগরি", url: "/admin/categories", icon: FolderTree, badge: null },
+    ],
+  },
+  {
+    label: "পেমেন্ট ও ডেলিভারি",
+    items: [
+      { title: "পেমেন্ট", url: "/admin/payments", icon: CreditCard, badge: null },
+      { title: "ডেলিভারি", url: "/admin/delivery", icon: Truck, badge: null },
     ],
   },
   {
@@ -65,13 +72,14 @@ const AdminSidebar = ({ open, onToggle, onSignOut, userEmail }: AdminSidebarProp
 
       <aside
         className={cn(
-          "fixed top-0 left-0 z-50 h-full bg-sidebar text-sidebar-foreground transition-all duration-300 flex flex-col shadow-2xl",
-          "w-[280px] lg:translate-x-0 lg:static lg:shadow-none",
+          "fixed top-0 left-0 z-50 h-full bg-sidebar text-sidebar-foreground transition-all duration-300 flex flex-col",
+          "w-[280px] lg:relative lg:translate-x-0",
+          "overflow-hidden shrink-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Logo */}
-        <div className="flex items-center gap-3 px-5 py-5 border-b border-sidebar-border/50">
+        <div className="shrink-0 flex items-center gap-3 px-5 py-5 border-b border-sidebar-border/50">
           <div className="relative">
             <div className="h-11 w-11 rounded-xl bg-sidebar-primary/20 flex items-center justify-center overflow-hidden ring-2 ring-sidebar-primary/30">
               <img src={logo} alt="Logo" className="h-9 w-9 rounded-lg object-cover" />
@@ -84,15 +92,10 @@ const AdminSidebar = ({ open, onToggle, onSignOut, userEmail }: AdminSidebarProp
           </div>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation - scrollable */}
         <nav className="flex-1 py-3 px-3 overflow-y-auto scrollbar-thin">
           {navGroups.map((group) => {
             const isCollapsed = collapsedGroups.has(group.label);
-            const hasActive = group.items.some(
-              (item) =>
-                location.pathname === item.url ||
-                (item.url !== "/admin" && location.pathname.startsWith(item.url))
-            );
 
             return (
               <div key={group.label} className="mb-1">
@@ -149,7 +152,7 @@ const AdminSidebar = ({ open, onToggle, onSignOut, userEmail }: AdminSidebarProp
         </nav>
 
         {/* Quick Links */}
-        <div className="px-3 py-2 border-t border-sidebar-border/30">
+        <div className="shrink-0 px-3 py-2 border-t border-sidebar-border/30">
           <a
             href="/"
             target="_blank"
@@ -162,7 +165,7 @@ const AdminSidebar = ({ open, onToggle, onSignOut, userEmail }: AdminSidebarProp
         </div>
 
         {/* User Section */}
-        <div className="p-3 border-t border-sidebar-border/30">
+        <div className="shrink-0 p-3 border-t border-sidebar-border/30">
           <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-sidebar-accent/30 mb-2">
             <div className="h-9 w-9 rounded-full bg-sidebar-primary/20 flex items-center justify-center">
               <Shield className="h-4 w-4 text-sidebar-primary" />
