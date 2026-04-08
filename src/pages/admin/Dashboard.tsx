@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import AdminPageState from "@/components/admin/AdminPageState";
+import { getErrorMessage } from "@/lib/error-message";
 import {
   Package, ShoppingCart, DollarSign, TrendingUp, Clock,
   CheckCircle, ArrowUpRight, ArrowRight, Users, FolderTree,
@@ -40,15 +42,23 @@ const Dashboard = () => {
     processingOrders: 0, shippedOrders: 0, cancelledOrders: 0,
   });
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
       const [productsRes, ordersRes, categoriesRes] = await Promise.all([
         supabase.from("products").select("id", { count: "exact", head: true }),
         supabase.from("orders").select("*"),
         supabase.from("categories").select("id", { count: "exact", head: true }),
       ]);
+
+      if (productsRes.error) throw productsRes.error;
+      if (ordersRes.error) throw ordersRes.error;
+      if (categoriesRes.error) throw categoriesRes.error;
 
       const orders = ordersRes.data || [];
       const totalRevenue = orders.reduce((sum, o) => sum + Number(o.total), 0);
@@ -70,9 +80,16 @@ const Dashboard = () => {
           .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
           .slice(0, 8)
       );
+    } catch (error) {
+      console.error("Failed to load dashboard data", error);
+      setError(getErrorMessage(error, "ড্যাশবোর্ড ডেটা লোড করা যায়নি।"));
+    } finally {
       setLoading(false);
-    };
-    fetchData();
+    }
+  };
+
+  useEffect(() => {
+    void fetchData();
   }, []);
 
   const statCards = [
@@ -134,12 +151,11 @@ const Dashboard = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-3">
-        <div className="animate-spin h-10 w-10 border-4 border-primary/30 border-t-primary rounded-full" />
-        <p className="text-sm text-muted-foreground">ডেটা লোড হচ্ছে...</p>
-      </div>
-    );
+    return <AdminPageState loading message="ড্যাশবোর্ড ডেটা লোড হচ্ছে..." />;
+  }
+
+  if (error) {
+    return <AdminPageState title="ড্যাশবোর্ড লোড করা যায়নি" message={error} onRetry={fetchData} />;
   }
 
   return (

@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Upload, Search, Package, Filter, Star } from "lucide-react";
+import AdminPageState from "@/components/admin/AdminPageState";
+import { getErrorMessage } from "@/lib/error-message";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
@@ -44,6 +46,7 @@ const emptyProduct = {
 const AdminProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
@@ -55,16 +58,29 @@ const AdminProducts = () => {
   const { toast } = useToast();
 
   const fetchData = async () => {
-    const [prodRes, catRes] = await Promise.all([
-      supabase.from("products").select("*").order("created_at", { ascending: false }),
-      supabase.from("categories").select("id, name, name_bn").order("sort_order"),
-    ]);
-    setProducts(prodRes.data || []);
-    setCategories(catRes.data || []);
-    setLoading(false);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const [prodRes, catRes] = await Promise.all([
+        supabase.from("products").select("*").order("created_at", { ascending: false }),
+        supabase.from("categories").select("id, name, name_bn").order("sort_order"),
+      ]);
+
+      if (prodRes.error) throw prodRes.error;
+      if (catRes.error) throw catRes.error;
+
+      setProducts(prodRes.data || []);
+      setCategories(catRes.data || []);
+    } catch (error) {
+      console.error("Failed to load products", error);
+      setError(getErrorMessage(error, "প্রোডাক্ট ডেটা লোড করা যায়নি।"));
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { void fetchData(); }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -77,7 +93,7 @@ const AdminProducts = () => {
       toast({ title: "আপলোড ব্যর্থ", description: error.message, variant: "destructive" });
     } else {
       const { data } = supabase.storage.from("product-images").getPublicUrl(path);
-      setForm({ ...form, image_url: data.publicUrl });
+      setForm((current) => ({ ...current, image_url: data.publicUrl }));
     }
     setUploading(false);
   };
@@ -113,7 +129,7 @@ const AdminProducts = () => {
       setDialogOpen(false);
       setEditing(null);
       setForm(emptyProduct);
-      fetchData();
+      void fetchData();
     }
   };
 
@@ -124,7 +140,7 @@ const AdminProducts = () => {
       toast({ title: "ত্রুটি", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "প্রোডাক্ট মুছে ফেলা হয়েছে" });
-      fetchData();
+      void fetchData();
     }
   };
 
@@ -159,12 +175,9 @@ const AdminProducts = () => {
   const activeCount = products.filter((p) => p.is_active).length;
   const lowStockCount = products.filter((p) => p.stock < 10).length;
 
-  if (loading) return (
-    <div className="flex flex-col items-center justify-center py-20 gap-3">
-      <div className="animate-spin h-10 w-10 border-4 border-primary/30 border-t-primary rounded-full" />
-      <p className="text-sm text-muted-foreground">প্রোডাক্ট লোড হচ্ছে...</p>
-    </div>
-  );
+  if (loading) return <AdminPageState loading message="প্রোডাক্ট লোড হচ্ছে..." />;
+
+  if (error) return <AdminPageState title="প্রোডাক্ট লোড করা যায়নি" message={error} onRetry={fetchData} />;
 
   return (
     <div className="space-y-6">
