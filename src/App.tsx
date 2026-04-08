@@ -43,6 +43,8 @@ const App = () => (
               <Route path="orders" element={<AdminOrders />} />
               <Route path="categories" element={<AdminCategories />} />
               <Route path="customers" element={<AdminCustomers />} />
+              <Route path="payments" element={<AdminPayments />} />
+              <Route path="delivery" element={<AdminDelivery />} />
             </Route>
 
             {/* Public Routes */}
