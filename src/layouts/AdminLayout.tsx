@@ -2,9 +2,8 @@ import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import AdminSidebar from "@/components/admin/AdminSidebar";
-import { Menu, Bell, Search, Maximize2, RefreshCw } from "lucide-react";
+import { Menu, Bell, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/admin": { title: "ড্যাশবোর্ড", subtitle: "আপনার ব্যবসার সারসংক্ষেপ" },
@@ -12,6 +11,8 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/admin/orders": { title: "অর্ডার", subtitle: "অর্ডার ট্র্যাকিং ও ম্যানেজমেন্ট" },
   "/admin/categories": { title: "ক্যাটাগরি", subtitle: "পণ্যের শ্রেণীবিভাগ পরিচালনা" },
   "/admin/customers": { title: "কাস্টমার", subtitle: "গ্রাহক তথ্য ও বিশ্লেষণ" },
+  "/admin/payments": { title: "পেমেন্ট", subtitle: "পেমেন্ট ট্র্যাকিং ও ম্যানেজমেন্ট" },
+  "/admin/delivery": { title: "ডেলিভারি", subtitle: "ডেলিভারি ট্র্যাকিং ও শিপমেন্ট" },
   "/admin/reports": { title: "রিপোর্ট", subtitle: "ব্যবসায়িক বিশ্লেষণ ও রিপোর্ট" },
   "/admin/settings": { title: "সেটিংস", subtitle: "সাইট কনফিগারেশন" },
 };
@@ -37,7 +38,7 @@ const AdminLayout = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen flex bg-muted/40">
+    <div className="h-screen flex overflow-hidden bg-muted/40">
       <AdminSidebar
         open={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -45,9 +46,9 @@ const AdminLayout = () => {
         userEmail={user.email}
       />
 
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-card/80 backdrop-blur-xl border-b border-border/50 px-4 lg:px-8 py-3">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Top bar - sticky */}
+        <header className="shrink-0 z-30 bg-card/80 backdrop-blur-xl border-b border-border/50 px-4 lg:px-8 py-3">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -58,7 +59,6 @@ const AdminLayout = () => {
               <Menu className="h-5 w-5" />
             </Button>
 
-            {/* Page Title */}
             <div className="flex-1 min-w-0">
               <h1 className="text-lg font-bold text-foreground leading-tight">
                 {currentPage.title}
@@ -68,7 +68,6 @@ const AdminLayout = () => {
               </p>
             </div>
 
-            {/* Actions */}
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" className="hidden md:flex text-muted-foreground hover:text-foreground">
                 <RefreshCw className="h-4 w-4" />
@@ -91,13 +90,13 @@ const AdminLayout = () => {
           </div>
         </header>
 
-        {/* Content */}
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
+        {/* Content - scrollable */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
           <Outlet />
         </main>
 
         {/* Footer */}
-        <footer className="border-t border-border/50 bg-card/50 px-4 lg:px-8 py-3">
+        <footer className="shrink-0 border-t border-border/50 bg-card/50 px-4 lg:px-8 py-3">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>© {new Date().getFullYear()} Sapahar Mango</span>
             <span>v1.0.0</span>

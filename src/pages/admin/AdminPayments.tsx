@@ -1,0 +1,230 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import {
+  CreditCard, Search, DollarSign, Clock, CheckCircle,
+  XCircle, Banknote, Wallet, TrendingUp, FileText, Phone
+} from "lucide-react";
+
+interface PaymentRecord {
+  id: string;
+  order_number: string;
+  customer_name: string;
+  customer_phone: string;
+  total: number;
+  payment_method: string;
+  status: string;
+  created_at: string;
+}
+
+const AdminPayments = () => {
+  const [payments, setPayments] = useState<PaymentRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [methodFilter, setMethodFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  useEffect(() => {
+    const fetch = async () => {
+      const { data } = await supabase
+        .from("orders")
+        .select("id, order_number, customer_name, customer_phone, total, payment_method, status, created_at")
+        .order("created_at", { ascending: false });
+      setPayments(data || []);
+      setLoading(false);
+    };
+    fetch();
+  }, []);
+
+  const filtered = payments.filter((p) => {
+    const matchSearch = p.order_number.includes(search) || p.customer_name.includes(search) || p.customer_phone.includes(search);
+    const matchMethod = methodFilter === "all" || p.payment_method === methodFilter;
+    const matchStatus = statusFilter === "all" || p.status === statusFilter;
+    return matchSearch && matchMethod && matchStatus;
+  });
+
+  const totalRevenue = payments.filter(p => p.status === "delivered").reduce((s, p) => s + Number(p.total), 0);
+  const pendingPayments = payments.filter(p => p.status === "pending" || p.status === "processing").reduce((s, p) => s + Number(p.total), 0);
+  const codCount = payments.filter(p => p.payment_method === "cod").length;
+  const cancelledTotal = payments.filter(p => p.status === "cancelled").reduce((s, p) => s + Number(p.total), 0);
+
+  const getPaymentMethodBadge = (method: string) => {
+    const config: Record<string, { icon: typeof CreditCard; label: string; className: string }> = {
+      cod: { icon: Banknote, label: "ক্যাশ অন ডেলিভারি", className: "bg-primary/10 text-primary border-primary/20" },
+      bkash: { icon: Wallet, label: "বিকাশ", className: "bg-pink-500/10 text-pink-600 border-pink-500/20" },
+      nagad: { icon: Wallet, label: "নগদ", className: "bg-orange-500/10 text-orange-600 border-orange-500/20" },
+      bank: { icon: CreditCard, label: "ব্যাংক ট্রান্সফার", className: "bg-blue-500/10 text-blue-600 border-blue-500/20" },
+    };
+    const c = config[method] || { icon: CreditCard, label: method, className: "bg-muted text-muted-foreground" };
+    const Icon = c.icon;
+    return (
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${c.className}`}>
+        <Icon className="h-3 w-3" />
+        {c.label}
+      </span>
+    );
+  };
+
+  const getPaymentStatus = (status: string) => {
+    const map: Record<string, { label: string; className: string }> = {
+      pending: { label: "পেমেন্ট বাকি", className: "bg-primary/15 text-primary" },
+      processing: { label: "প্রসেসিং", className: "bg-secondary/15 text-secondary" },
+      shipped: { label: "শিপড - বাকি", className: "bg-accent/15 text-accent" },
+      delivered: { label: "পেমেন্ট সম্পন্ন", className: "bg-green-500/15 text-green-600" },
+      cancelled: { label: "বাতিল", className: "bg-destructive/15 text-destructive" },
+    };
+    const c = map[status] || { label: status, className: "bg-muted text-muted-foreground" };
+    return <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${c.className}`}>{c.label}</span>;
+  };
+
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center py-20 gap-3">
+      <div className="animate-spin h-10 w-10 border-4 border-primary/30 border-t-primary rounded-full" />
+      <p className="text-sm text-muted-foreground">পেমেন্ট লোড হচ্ছে...</p>
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+        <Card className="border-border/50">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+              <DollarSign className="h-5 w-5 text-green-600" />
+            </div>
+            <div>
+              <p className="text-xl font-bold">৳{totalRevenue.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">সংগৃহীত পেমেন্ট</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-border/50">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Clock className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-xl font-bold">৳{pendingPayments.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">পেন্ডিং পেমেন্ট</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-border/50">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-secondary/10 flex items-center justify-center">
+              <Banknote className="h-5 w-5 text-secondary" />
+            </div>
+            <div>
+              <p className="text-xl font-bold">{codCount}</p>
+              <p className="text-xs text-muted-foreground">ক্যাশ অন ডেলিভারি</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-border/50">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-destructive/10 flex items-center justify-center">
+              <XCircle className="h-5 w-5 text-destructive" />
+            </div>
+            <div>
+              <p className="text-xl font-bold">৳{cancelledTotal.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">বাতিল পেমেন্ট</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="অর্ডার/কাস্টমার খুঁজুন..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-card" />
+        </div>
+        <Select value={methodFilter} onValueChange={setMethodFilter}>
+          <SelectTrigger className="w-[180px] bg-card"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">সকল পেমেন্ট</SelectItem>
+            <SelectItem value="cod">ক্যাশ অন ডেলিভারি</SelectItem>
+            <SelectItem value="bkash">বিকাশ</SelectItem>
+            <SelectItem value="nagad">নগদ</SelectItem>
+            <SelectItem value="bank">ব্যাংক</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[160px] bg-card"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">সকল স্ট্যাটাস</SelectItem>
+            <SelectItem value="pending">পেন্ডিং</SelectItem>
+            <SelectItem value="delivered">সম্পন্ন</SelectItem>
+            <SelectItem value="cancelled">বাতিল</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <p className="text-xs text-muted-foreground">{filtered.length} টি পেমেন্ট দেখানো হচ্ছে</p>
+
+      {/* Payment Table */}
+      <Card className="border-border/50 overflow-hidden">
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-muted/30 border-b border-border/50">
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">অর্ডার</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">কাস্টমার</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground hidden md:table-cell">পেমেন্ট মেথড</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">পরিমাণ</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">স্ট্যাটাস</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground hidden lg:table-cell">তারিখ</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/30">
+                {filtered.map((p) => (
+                  <tr key={p.id} className="hover:bg-muted/20 transition-colors">
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <FileText className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="font-semibold text-primary">#{p.order_number}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <p className="font-medium">{p.customer_name}</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Phone className="h-3 w-3" />{p.customer_phone}
+                      </p>
+                    </td>
+                    <td className="py-3 px-4 hidden md:table-cell">
+                      {getPaymentMethodBadge(p.payment_method)}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="font-bold text-foreground">৳{Number(p.total).toLocaleString()}</span>
+                    </td>
+                    <td className="py-3 px-4">
+                      {getPaymentStatus(p.status)}
+                    </td>
+                    <td className="py-3 px-4 hidden lg:table-cell text-muted-foreground text-xs">
+                      {new Date(p.created_at).toLocaleDateString("bn-BD", { day: "numeric", month: "short", year: "numeric" })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {filtered.length === 0 && (
+              <div className="text-center py-16">
+                <CreditCard className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-muted-foreground">কোনো পেমেন্ট পাওয়া যায়নি</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default AdminPayments;
