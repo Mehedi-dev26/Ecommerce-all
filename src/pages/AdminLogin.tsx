@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Lock, Mail } from "lucide-react";
 import logo from "@/assets/Green_Mango_Logo_1.png";
+import { hasAdminRole } from "@/lib/admin-auth";
+import { getErrorMessage } from "@/lib/error-message";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -24,15 +26,8 @@ const AdminLogin = () => {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
-      // Check if user has admin role
-      const { data: roles, error: roleError } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", data.user.id);
+      const isAdmin = await hasAdminRole(data.user.id);
 
-      if (roleError) throw roleError;
-
-      const isAdmin = roles?.some((r) => r.role === "admin");
       if (!isAdmin) {
         await supabase.auth.signOut();
         toast({ title: "অ্যাক্সেস নেই", description: "আপনার অ্যাডমিন অ্যাক্সেস নেই।", variant: "destructive" });
@@ -40,9 +35,9 @@ const AdminLogin = () => {
       }
 
       toast({ title: "সফল!", description: "অ্যাডমিন প্যানেলে স্বাগতম।" });
-      navigate("/admin");
-    } catch (error: any) {
-      toast({ title: "লগইন ব্যর্থ", description: error.message, variant: "destructive" });
+      navigate("/admin", { replace: true });
+    } catch (error) {
+      toast({ title: "লগইন ব্যর্থ", description: getErrorMessage(error, "লগইন করা যায়নি।"), variant: "destructive" });
     } finally {
       setLoading(false);
     }

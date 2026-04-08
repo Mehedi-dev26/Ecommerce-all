@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import AdminPageState from "@/components/admin/AdminPageState";
+import { getErrorMessage } from "@/lib/error-message";
 import { Search, Phone, MapPin, ShoppingBag, Users, TrendingUp, Crown } from "lucide-react";
 
 interface Customer {
@@ -16,39 +18,51 @@ interface Customer {
 
 const AdminCustomers = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
     const fetchCustomers = async () => {
-      const { data: orders } = await supabase.from("orders").select("customer_name, customer_phone, customer_email, city, total, created_at");
-      if (!orders) { setLoading(false); return; }
+      setLoading(true);
+      setError(null);
 
-      const map = new Map<string, Customer>();
-      for (const o of orders) {
-        const key = o.customer_phone;
-        const existing = map.get(key);
-        if (existing) {
-          existing.totalOrders++;
-          existing.totalSpent += Number(o.total);
-          if (o.created_at > existing.lastOrder) existing.lastOrder = o.created_at;
-        } else {
-          map.set(key, {
-            customer_name: o.customer_name,
-            customer_phone: o.customer_phone,
-            customer_email: o.customer_email,
-            city: o.city,
-            totalOrders: 1,
-            totalSpent: Number(o.total),
-            lastOrder: o.created_at,
-          });
+      try {
+        const { data: orders, error } = await supabase.from("orders").select("customer_name, customer_phone, customer_email, city, total, created_at");
+        if (error) throw error;
+        if (!orders) return;
+
+        const map = new Map<string, Customer>();
+        for (const o of orders) {
+          const key = o.customer_phone;
+          const existing = map.get(key);
+          if (existing) {
+            existing.totalOrders++;
+            existing.totalSpent += Number(o.total);
+            if (o.created_at > existing.lastOrder) existing.lastOrder = o.created_at;
+          } else {
+            map.set(key, {
+              customer_name: o.customer_name,
+              customer_phone: o.customer_phone,
+              customer_email: o.customer_email,
+              city: o.city,
+              totalOrders: 1,
+              totalSpent: Number(o.total),
+              lastOrder: o.created_at,
+            });
+          }
         }
-      }
 
-      setCustomers(Array.from(map.values()).sort((a, b) => b.totalSpent - a.totalSpent));
-      setLoading(false);
+        setCustomers(Array.from(map.values()).sort((a, b) => b.totalSpent - a.totalSpent));
+      } catch (error) {
+        console.error("Failed to load customers", error);
+        setError(getErrorMessage(error, "কাস্টমার ডেটা লোড করা যায়নি।"));
+      } finally {
+        setLoading(false);
+      }
     };
-    fetchCustomers();
+
+    void fetchCustomers();
   }, []);
 
   const filtered = customers.filter(
@@ -58,12 +72,9 @@ const AdminCustomers = () => {
   const totalSpentAll = customers.reduce((s, c) => s + c.totalSpent, 0);
   const avgSpent = customers.length > 0 ? Math.round(totalSpentAll / customers.length) : 0;
 
-  if (loading) return (
-    <div className="flex flex-col items-center justify-center py-20 gap-3">
-      <div className="animate-spin h-10 w-10 border-4 border-primary/30 border-t-primary rounded-full" />
-      <p className="text-sm text-muted-foreground">কাস্টমার লোড হচ্ছে...</p>
-    </div>
-  );
+  if (loading) return <AdminPageState loading message="কাস্টমার লোড হচ্ছে..." />;
+
+  if (error) return <AdminPageState title="কাস্টমার লোড করা যায়নি" message={error} onRetry={() => window.location.reload()} />;
 
   return (
     <div className="space-y-6">

@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import AdminPageState from "@/components/admin/AdminPageState";
+import { getErrorMessage } from "@/lib/error-message";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -46,6 +48,7 @@ const statusOptions = [
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -54,12 +57,24 @@ const AdminOrders = () => {
   const { toast } = useToast();
 
   const fetchOrders = async () => {
-    const { data } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
-    setOrders(data || []);
-    setLoading(false);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      setOrders(data || []);
+    } catch (error) {
+      console.error("Failed to load orders", error);
+      setError(getErrorMessage(error, "অর্ডার লোড করা যায়নি।"));
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchOrders(); }, []);
+  useEffect(() => { void fetchOrders(); }, []);
 
   const updateStatus = async (orderId: string, newStatus: string) => {
     const { error } = await supabase.from("orders").update({ status: newStatus }).eq("id", orderId);
@@ -67,13 +82,20 @@ const AdminOrders = () => {
       toast({ title: "ত্রুটি", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "স্ট্যাটাস আপডেট হয়েছে" });
-      fetchOrders();
+      void fetchOrders();
     }
   };
 
   const viewOrder = async (order: Order) => {
     setSelectedOrder(order);
-    const { data } = await supabase.from("order_items").select("*").eq("order_id", order.id);
+    const { data, error } = await supabase.from("order_items").select("*").eq("order_id", order.id);
+
+    if (error) {
+      toast({ title: "ত্রুটি", description: getErrorMessage(error, "অর্ডারের বিস্তারিত লোড করা যায়নি।"), variant: "destructive" });
+      setOrderItems([]);
+      return;
+    }
+
     setOrderItems(data || []);
   };
 
@@ -98,12 +120,9 @@ const AdminOrders = () => {
   const processingCount = orders.filter((o) => o.status === "processing").length;
   const totalRevenue = orders.reduce((sum, o) => sum + Number(o.total), 0);
 
-  if (loading) return (
-    <div className="flex flex-col items-center justify-center py-20 gap-3">
-      <div className="animate-spin h-10 w-10 border-4 border-primary/30 border-t-primary rounded-full" />
-      <p className="text-sm text-muted-foreground">অর্ডার লোড হচ্ছে...</p>
-    </div>
-  );
+  if (loading) return <AdminPageState loading message="অর্ডার লোড হচ্ছে..." />;
+
+  if (error) return <AdminPageState title="অর্ডার লোড করা যায়নি" message={error} onRetry={fetchOrders} />;
 
   return (
     <div className="space-y-6">

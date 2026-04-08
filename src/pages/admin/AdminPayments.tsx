@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import AdminPageState from "@/components/admin/AdminPageState";
+import { getErrorMessage } from "@/lib/error-message";
 import {
   CreditCard, Search, DollarSign, Clock, CheckCircle,
   XCircle, Banknote, Wallet, TrendingUp, FileText, Phone
@@ -22,21 +24,35 @@ interface PaymentRecord {
 
 const AdminPayments = () => {
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [methodFilter, setMethodFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
+  const fetchPayments = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { data, error } = await supabase
         .from("orders")
         .select("id, order_number, customer_name, customer_phone, total, payment_method, status, created_at")
         .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
       setPayments(data || []);
+    } catch (error) {
+      console.error("Failed to load payments", error);
+      setError(getErrorMessage(error, "পেমেন্ট ডেটা লোড করা যায়নি।"));
+    } finally {
       setLoading(false);
-    };
-    fetch();
+    }
+  };
+
+  useEffect(() => {
+    void fetchPayments();
   }, []);
 
   const filtered = payments.filter((p) => {
@@ -80,12 +96,9 @@ const AdminPayments = () => {
     return <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${c.className}`}>{c.label}</span>;
   };
 
-  if (loading) return (
-    <div className="flex flex-col items-center justify-center py-20 gap-3">
-      <div className="animate-spin h-10 w-10 border-4 border-primary/30 border-t-primary rounded-full" />
-      <p className="text-sm text-muted-foreground">পেমেন্ট লোড হচ্ছে...</p>
-    </div>
-  );
+  if (loading) return <AdminPageState loading message="পেমেন্ট লোড হচ্ছে..." />;
+
+  if (error) return <AdminPageState title="পেমেন্ট লোড করা যায়নি" message={error} onRetry={fetchPayments} />;
 
   return (
     <div className="space-y-6">

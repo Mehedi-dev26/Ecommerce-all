@@ -1,67 +1,101 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import { hasAdminRole } from "@/lib/admin-auth";
 
 export function useAdminAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (!session?.user) {
+    let isActive = true;
+
+    const resolveSession = async (sessionUser: User | null) => {
+      const requestId = ++requestIdRef.current;
+
+      if (!sessionUser) {
+        if (!isActive) return;
         setUser(null);
         setIsAdmin(false);
         setLoading(false);
-        navigate("/admin/login");
+        navigate("/admin/login", { replace: true });
         return;
       }
 
-      setUser(session.user);
+      try {
+        const admin = await hasAdminRole(sessionUser.id);
 
-      const { data: roles } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", session.user.id);
+        if (!isActive || requestId !== requestIdRef.current) {
+          return;
+        }
 
-      const admin = roles?.some((r) => r.role === "admin") ?? false;
-      setIsAdmin(admin);
-      setLoading(false);
+        if (!admin) {
+          setUser(null);
+          setIsAdmin(false);
+          setLoading(false);
+          void supabase.auth.signOut();
+          navigate("/admin/login", { replace: true });
+          return;
+        }
 
-      if (!admin) {
-        await supabase.auth.signOut();
-        navigate("/admin/login");
+        setUser(sessionUser);
+        setIsAdmin(true);
+      } catch (error) {
+        if (!isActive || requestId !== requestIdRef.current) {
+          return;
+        }
+
+        console.error("Failed to verify admin session", error);
+        setUser(null);
+        setIsAdmin(false);
+        void supabase.auth.signOut();
+        navigate("/admin/login", { replace: true });
+      } finally {
+        if (isActive && requestId === requestIdRef.current) {
+          setLoading(false);
+        }
       }
+    };
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "INITIAL_SESSION") {
+        return;
+      }
+
+      void resolveSession(session?.user ?? null);
     });
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session?.user) {
+    void supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => resolveSession(session?.user ?? null))
+      .catch((error) => {
+        console.error("Failed to restore admin session", error);
+
+        if (!isActive) {
+          return;
+        }
+
+        setUser(null);
+        setIsAdmin(false);
         setLoading(false);
-        navigate("/admin/login");
-        return;
-      }
-      setUser(session.user);
-      const { data: roles } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", session.user.id);
-      const admin = roles?.some((r) => r.role === "admin") ?? false;
-      setIsAdmin(admin);
-      setLoading(false);
-      if (!admin) {
-        await supabase.auth.signOut();
-        navigate("/admin/login");
-      }
-    });
+        navigate("/admin/login", { replace: true });
+      });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isActive = false;
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
-    navigate("/admin/login");
+    navigate("/admin/login", { replace: true });
   };
 
   return { user, isAdmin, loading, signOut };

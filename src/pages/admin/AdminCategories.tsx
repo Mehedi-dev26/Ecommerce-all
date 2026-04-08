@@ -5,6 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import AdminPageState from "@/components/admin/AdminPageState";
+import { getErrorMessage } from "@/lib/error-message";
 import { Plus, Pencil, Trash2, Upload, FolderTree, GripVertical, Image as ImageIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -19,6 +21,7 @@ interface Category {
 
 const AdminCategories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Category | null>(null);
@@ -27,12 +30,24 @@ const AdminCategories = () => {
   const { toast } = useToast();
 
   const fetchCategories = async () => {
-    const { data } = await supabase.from("categories").select("*").order("sort_order");
-    setCategories(data || []);
-    setLoading(false);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { data, error } = await supabase.from("categories").select("*").order("sort_order");
+
+      if (error) throw error;
+
+      setCategories(data || []);
+    } catch (error) {
+      console.error("Failed to load categories", error);
+      setError(getErrorMessage(error, "ক্যাটাগরি ডেটা লোড করা যায়নি।"));
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchCategories(); }, []);
+  useEffect(() => { void fetchCategories(); }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -44,7 +59,7 @@ const AdminCategories = () => {
       toast({ title: "আপলোড ব্যর্থ", description: error.message, variant: "destructive" });
     } else {
       const { data } = supabase.storage.from("product-images").getPublicUrl(path);
-      setForm({ ...form, image_url: data.publicUrl });
+      setForm((current) => ({ ...current, image_url: data.publicUrl }));
     }
     setUploading(false);
   };
@@ -72,7 +87,7 @@ const AdminCategories = () => {
       setDialogOpen(false);
       setEditing(null);
       setForm({ name: "", name_bn: "", description: "", image_url: "", sort_order: 0 });
-      fetchCategories();
+      void fetchCategories();
     }
   };
 
@@ -83,7 +98,7 @@ const AdminCategories = () => {
       toast({ title: "ত্রুটি", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "ক্যাটাগরি মুছে ফেলা হয়েছে" });
-      fetchCategories();
+      void fetchCategories();
     }
   };
 
@@ -93,12 +108,9 @@ const AdminCategories = () => {
     setDialogOpen(true);
   };
 
-  if (loading) return (
-    <div className="flex flex-col items-center justify-center py-20 gap-3">
-      <div className="animate-spin h-10 w-10 border-4 border-primary/30 border-t-primary rounded-full" />
-      <p className="text-sm text-muted-foreground">ক্যাটাগরি লোড হচ্ছে...</p>
-    </div>
-  );
+  if (loading) return <AdminPageState loading message="ক্যাটাগরি লোড হচ্ছে..." />;
+
+  if (error) return <AdminPageState title="ক্যাটাগরি লোড করা যায়নি" message={error} onRetry={fetchCategories} />;
 
   return (
     <div className="space-y-6">
