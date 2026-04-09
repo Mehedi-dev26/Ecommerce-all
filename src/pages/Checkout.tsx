@@ -31,6 +31,22 @@ const Checkout = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Pre-fill from profile
+  useEffect(() => {
+    if (profile) {
+      setForm((prev) => ({
+        ...prev,
+        name: prev.name || profile.full_name || "",
+        phone: prev.phone || profile.phone || "",
+        email: prev.email || user?.email || "",
+        division: prev.division || profile.default_division || "",
+        district: prev.district || profile.default_district || "",
+        upazila: prev.upazila || profile.default_upazila || "",
+        address: prev.address || profile.default_address || "",
+      }));
+    }
+  }, [profile, user]);
+
   const shippingCost = totalPrice >= 2000 ? 0 : 120;
 
   // Cascading location data
