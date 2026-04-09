@@ -157,6 +157,32 @@ const UserDashboard = () => {
     toast({ title: "কপি হয়েছে", description: `অর্ডার নম্বর ${orderNumber} কপি করা হয়েছে।` });
   };
 
+  const trackPathaoOrder = async (order: Order) => {
+    if (!order.pathao_consignment_id) return;
+    setTrackingLoading(order.id);
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        `pathao?action=track-order&consignment_id=${order.pathao_consignment_id}`,
+        { method: "GET" }
+      );
+      if (error) throw error;
+      const newStatus = data?.data?.order_status;
+      if (newStatus) {
+        setOrders((prev) =>
+          prev.map((o) =>
+            o.id === order.id ? { ...o, pathao_order_status: newStatus } : o
+          )
+        );
+        toast({ title: "ট্র্যাকিং আপডেট", description: `স্ট্যাটাস: ${newStatus}` });
+      }
+    } catch (err) {
+      console.error("Tracking error:", err);
+      toast({ title: "ত্রুটি", description: "ট্র্যাকিং তথ্য পেতে সমস্যা হয়েছে", variant: "destructive" });
+    } finally {
+      setTrackingLoading(null);
+    }
+  };
+
   const handleProfileSave = async () => {
     setSaving(true);
     try {
