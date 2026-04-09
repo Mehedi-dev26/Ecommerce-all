@@ -83,6 +83,7 @@ const UserDashboard = () => {
   const [trackSearchLoading, setTrackSearchLoading] = useState(false);
   const [trackedOrder, setTrackedOrder] = useState<Order | null>(null);
   const [trackedItems, setTrackedItems] = useState<OrderItem[]>([]);
+  const [trackError, setTrackError] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
