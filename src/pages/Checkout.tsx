@@ -116,42 +116,25 @@ const Checkout = () => {
 
       // Create Pathao courier order (non-blocking)
       try {
-        await supabase.functions.invoke("pathao", {
-          body: {
-            order_id: order.id,
-            store_id: 1, // Default store - admin can configure
-            merchant_order_id: orderNumber,
-            recipient_name: form.name.trim(),
-            recipient_phone: form.phone.trim(),
-            recipient_address: form.address.trim(),
-            recipient_city: 1, // Dhaka default - will be mapped
-            recipient_zone: 1,
-            delivery_type: 48, // Normal delivery
-            item_type: 2, // Parcel
-            special_instruction: form.notes.trim() || "",
-            item_quantity: items.reduce((s, i) => s + i.quantity, 0),
-            item_weight: 0.5,
-            amount_to_collect: totalPrice + shippingCost,
-            item_description: items.map(i => `${i.name_bn} x${i.quantity}`).join(", "),
-          },
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            order_id: order.id,
-            store_id: 1,
-            merchant_order_id: orderNumber,
-            recipient_name: form.name.trim(),
-            recipient_phone: form.phone.trim(),
-            recipient_address: form.address.trim(),
-            recipient_city: 1,
-            recipient_zone: 1,
-            delivery_type: 48,
-            item_type: 2,
-            special_instruction: form.notes.trim() || "",
-            item_quantity: items.reduce((s, i) => s + i.quantity, 0),
-            item_weight: 0.5,
-            amount_to_collect: totalPrice + shippingCost,
-            item_description: items.map(i => `${i.name_bn} x${i.quantity}`).join(", "),
-          }),
+        const pathaoPayload = {
+          order_id: order.id,
+          store_id: 1,
+          merchant_order_id: orderNumber,
+          recipient_name: form.name.trim(),
+          recipient_phone: form.phone.trim(),
+          recipient_address: form.address.trim(),
+          recipient_city: 1,
+          recipient_zone: 1,
+          delivery_type: 48,
+          item_type: 2,
+          special_instruction: form.notes.trim() || "",
+          item_quantity: items.reduce((s, i) => s + i.quantity, 0),
+          item_weight: 0.5,
+          amount_to_collect: totalPrice + shippingCost,
+          item_description: items.map(i => `${i.name_bn} x${i.quantity}`).join(", "),
+        };
+        await supabase.functions.invoke("pathao?action=create-order", {
+          body: pathaoPayload,
         });
       } catch (pathaoErr) {
         console.warn("Pathao order creation failed (non-blocking):", pathaoErr);
