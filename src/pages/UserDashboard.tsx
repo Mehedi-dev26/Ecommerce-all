@@ -372,6 +372,9 @@ const UserDashboard = () => {
             <TabsTrigger value="orders" className="flex-1 sm:flex-none gap-1.5 text-xs sm:text-sm">
               <Package className="h-4 w-4" /> অর্ডার
             </TabsTrigger>
+            <TabsTrigger value="tracking" className="flex-1 sm:flex-none gap-1.5 text-xs sm:text-sm">
+              <Search className="h-4 w-4" /> ট্র্যাকিং
+            </TabsTrigger>
             <TabsTrigger value="profile" className="flex-1 sm:flex-none gap-1.5 text-xs sm:text-sm">
               <User className="h-4 w-4" /> প্রোফাইল
             </TabsTrigger>
