@@ -14,7 +14,8 @@ import {
   Loader2, Package, Clock, CheckCircle, Truck, XCircle, User,
   ShoppingBag, LogOut, MapPin, Phone as PhoneIcon, Pencil, X,
   Calendar, CreditCard, RefreshCw, ChevronRight, Eye,
-  RotateCcw, HelpCircle, Shield, Bell, Copy, ExternalLink
+  RotateCcw, HelpCircle, Shield, Bell, Copy, ExternalLink,
+  Search, ArrowRight
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { divisions } from "@/data/bd-locations";
@@ -78,6 +79,11 @@ const UserDashboard = () => {
   });
   const [saving, setSaving] = useState(false);
   const [trackingLoading, setTrackingLoading] = useState<string | null>(null);
+  const [trackSearchId, setTrackSearchId] = useState("");
+  const [trackSearchLoading, setTrackSearchLoading] = useState(false);
+  const [trackedOrder, setTrackedOrder] = useState<Order | null>(null);
+  const [trackedItems, setTrackedItems] = useState<OrderItem[]>([]);
+  const [trackError, setTrackError] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -180,6 +186,53 @@ const UserDashboard = () => {
       toast({ title: "ত্রুটি", description: "ট্র্যাকিং তথ্য পেতে সমস্যা হয়েছে", variant: "destructive" });
     } finally {
       setTrackingLoading(null);
+    }
+  };
+
+  const searchOrderTracking = async () => {
+    if (!trackSearchId.trim()) return;
+    setTrackSearchLoading(true);
+    setTrackError(null);
+    setTrackedOrder(null);
+    setTrackedItems([]);
+    try {
+      const { data: orderData, error: orderErr } = await supabase
+        .from("orders")
+        .select("id, order_number, total, subtotal, shipping_cost, status, created_at, city, district, payment_method, shipping_address, pathao_consignment_id, pathao_order_status, pathao_tracking_url, delivery_fee")
+        .eq("order_number", trackSearchId.trim().toUpperCase())
+        .maybeSingle();
+
+      if (orderErr || !orderData) {
+        setTrackError("এই অর্ডার নম্বর দিয়ে কোনো অর্ডার পাওয়া যায়নি।");
+        return;
+      }
+
+      // If has pathao consignment, fetch live status
+      if (orderData.pathao_consignment_id) {
+        try {
+          const { data: trackData } = await supabase.functions.invoke(
+            `pathao?action=track-order&consignment_id=${orderData.pathao_consignment_id}`,
+            { method: "GET" }
+          );
+          if (trackData?.data?.order_status) {
+            orderData.pathao_order_status = trackData.data.order_status;
+          }
+        } catch {
+          // use cached status
+        }
+      }
+
+      setTrackedOrder(orderData as Order);
+
+      const { data: items } = await supabase
+        .from("order_items")
+        .select("id, product_name, quantity, price, product_id")
+        .eq("order_id", orderData.id);
+      setTrackedItems(items || []);
+    } catch {
+      setTrackError("অর্ডার ট্র্যাক করতে সমস্যা হয়েছে।");
+    } finally {
+      setTrackSearchLoading(false);
     }
   };
 
@@ -319,6 +372,9 @@ const UserDashboard = () => {
           <TabsList className="w-full sm:w-auto h-10">
             <TabsTrigger value="orders" className="flex-1 sm:flex-none gap-1.5 text-xs sm:text-sm">
               <Package className="h-4 w-4" /> অর্ডার
+            </TabsTrigger>
+            <TabsTrigger value="tracking" className="flex-1 sm:flex-none gap-1.5 text-xs sm:text-sm">
+              <Search className="h-4 w-4" /> ট্র্যাকিং
             </TabsTrigger>
             <TabsTrigger value="profile" className="flex-1 sm:flex-none gap-1.5 text-xs sm:text-sm">
               <User className="h-4 w-4" /> প্রোফাইল
@@ -575,6 +631,196 @@ const UserDashboard = () => {
               })}
             </div>
           )}
+        </TabsContent>
+
+        {/* Tracking Tab */}
+        <TabsContent value="tracking" className="mt-0">
+          <Card className="border-border/50">
+            <CardContent className="p-4 sm:p-6">
+              <div className="text-center mb-6">
+                <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <Truck className="h-7 w-7 text-primary" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground">অর্ডার ট্র্যাকিং</h3>
+                <p className="text-sm text-muted-foreground mt-1">আপনার অর্ডার নম্বর দিয়ে রিয়েল-টাইম ট্র্যাকিং দেখুন</p>
+              </div>
+
+              {/* Search Input */}
+              <div className="flex gap-2 max-w-md mx-auto mb-6">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="অর্ডার নম্বর লিখুন (যেমন: SM-0001)"
+                    value={trackSearchId}
+                    onChange={(e) => setTrackSearchId(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && searchOrderTracking()}
+                    className="pl-9"
+                  />
+                </div>
+                <Button onClick={searchOrderTracking} disabled={trackSearchLoading || !trackSearchId.trim()} className="gap-1.5">
+                  {trackSearchLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+                  ট্র্যাক
+                </Button>
+              </div>
+
+              {/* Error */}
+              {trackError && (
+                <div className="max-w-md mx-auto mb-4 p-3 rounded-lg border border-destructive/20 bg-destructive/5 text-center">
+                  <XCircle className="h-5 w-5 text-destructive mx-auto mb-1" />
+                  <p className="text-sm text-destructive">{trackError}</p>
+                </div>
+              )}
+
+              {/* Tracked Order Result */}
+              {trackedOrder && (
+                <div className="max-w-lg mx-auto space-y-4">
+                  {/* Order Header */}
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-muted/40 border border-border/30">
+                    <div>
+                      <p className="text-xs text-muted-foreground">অর্ডার নম্বর</p>
+                      <p className="text-base font-bold text-foreground">{trackedOrder.order_number}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {new Date(trackedOrder.created_at).toLocaleDateString("bn-BD", { day: "numeric", month: "long", year: "numeric" })}
+                      </p>
+                    </div>
+                    <Badge variant="outline" className={`${statusConfig[trackedOrder.status]?.bg || ""} ${statusConfig[trackedOrder.status]?.color || ""} border`}>
+                      {statusConfig[trackedOrder.status]?.label || trackedOrder.status}
+                    </Badge>
+                  </div>
+
+                  {/* Progress Steps */}
+                  {trackedOrder.status !== "cancelled" && (
+                    <div className="p-4 rounded-xl border border-border/50 bg-card">
+                      <p className="text-xs font-medium text-muted-foreground mb-3">ডেলিভারি অগ্রগতি</p>
+                      <div className="space-y-0">
+                        {statusSteps.map((step, i) => {
+                          const stepCfg = statusConfig[step];
+                          const StepIcon = stepCfg.icon;
+                          const currentIdx = getStepIndex(trackedOrder.status);
+                          const isActive = i <= currentIdx;
+                          const isCurrent = i === currentIdx;
+                          return (
+                            <div key={step} className="flex items-start gap-3">
+                              <div className="flex flex-col items-center">
+                                <div className={`h-8 w-8 rounded-full flex items-center justify-center border-2 transition-all ${isCurrent ? "border-primary bg-primary text-primary-foreground scale-110" : isActive ? "border-primary bg-primary/10" : "border-border bg-card"}`}>
+                                  <StepIcon className={`h-3.5 w-3.5 ${isCurrent ? "text-primary-foreground" : isActive ? "text-primary" : "text-muted-foreground/40"}`} />
+                                </div>
+                                {i < statusSteps.length - 1 && (
+                                  <div className={`w-0.5 h-6 ${i < currentIdx ? "bg-primary" : "bg-border"}`} />
+                                )}
+                              </div>
+                              <div className="pt-1">
+                                <p className={`text-sm font-medium ${isCurrent ? "text-primary" : isActive ? "text-foreground" : "text-muted-foreground/50"}`}>
+                                  {stepCfg.label}
+                                </p>
+                                {isCurrent && (
+                                  <p className="text-[10px] text-muted-foreground mt-0.5">বর্তমান অবস্থা</p>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {trackedOrder.status === "cancelled" && (
+                    <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                      <XCircle className="h-5 w-5 text-destructive" />
+                      <span className="text-sm text-destructive font-medium">এই অর্ডারটি বাতিল করা হয়েছে</span>
+                    </div>
+                  )}
+
+                  {/* Pathao Live Tracking */}
+                  {trackedOrder.pathao_consignment_id && (
+                    <div className="p-4 rounded-xl border border-primary/20 bg-primary/5">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                          <Truck className="h-4 w-4 text-primary" /> পাঠাও কুরিয়ার লাইভ স্ট্যাটাস
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 gap-1 text-[10px]"
+                          disabled={trackSearchLoading}
+                          onClick={searchOrderTracking}
+                        >
+                          <RefreshCw className="h-3 w-3" /> রিফ্রেশ
+                        </Button>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        <Badge variant="outline" className="text-xs gap-1">
+                          <Package className="h-3 w-3" />
+                          কনসাইনমেন্ট: {trackedOrder.pathao_consignment_id}
+                        </Badge>
+                        {trackedOrder.pathao_order_status && (
+                          <Badge className="text-xs bg-primary/10 text-primary border-primary/20">
+                            {trackedOrder.pathao_order_status}
+                          </Badge>
+                        )}
+                      </div>
+                      {trackedOrder.pathao_tracking_url && (
+                        <a
+                          href={trackedOrder.pathao_tracking_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium"
+                        >
+                          <ExternalLink className="h-3 w-3" /> পাঠাও ওয়েবসাইটে বিস্তারিত দেখুন
+                        </a>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Order Items */}
+                  {trackedItems.length > 0 && (
+                    <div className="p-4 rounded-xl border border-border/50 bg-card">
+                      <p className="text-xs font-medium text-muted-foreground mb-2">পণ্যসমূহ</p>
+                      <div className="space-y-1.5">
+                        {trackedItems.map((item) => (
+                          <div key={item.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/30 border border-border/30">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <Package className="h-4 w-4 text-primary" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-xs font-medium text-foreground truncate">{item.product_name}</p>
+                                <p className="text-[10px] text-muted-foreground">{item.quantity} x ৳{Number(item.price).toLocaleString("bn-BD")}</p>
+                              </div>
+                            </div>
+                            <p className="text-xs font-semibold text-foreground flex-shrink-0">
+                              ৳{(item.quantity * Number(item.price)).toLocaleString("bn-BD")}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                      <Separator className="my-2" />
+                      <div className="flex justify-between text-sm font-bold">
+                        <span>মোট</span>
+                        <span className="text-primary">৳{Number(trackedOrder.total).toLocaleString("bn-BD")}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Shipping Address */}
+                  <div className="flex items-start gap-2 text-xs text-muted-foreground p-3 rounded-xl bg-muted/30 border border-border/30">
+                    <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5 text-primary" />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">ডেলিভারি ঠিকানা</p>
+                      <p className="text-sm text-foreground">{trackedOrder.shipping_address}{trackedOrder.district ? `, ${trackedOrder.district}` : ""}, {trackedOrder.city}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Empty state when no search yet */}
+              {!trackedOrder && !trackError && !trackSearchLoading && (
+                <div className="text-center py-8">
+                  <p className="text-xs text-muted-foreground">উপরে আপনার অর্ডার নম্বর লিখে "ট্র্যাক" বাটনে ক্লিক করুন</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Profile Tab */}
