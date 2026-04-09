@@ -1,13 +1,14 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Phone, User, Mail, FileText, AlertCircle } from "lucide-react";
+import { Loader2, MapPin, Phone, User, Mail, FileText, AlertCircle, LogIn } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { divisions } from "@/data/bd-locations";
 
@@ -15,6 +16,7 @@ const BD_PHONE_REGEX = /^01[3-9]\d{8}$/;
 
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
+  const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
