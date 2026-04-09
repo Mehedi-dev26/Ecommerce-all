@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,7 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Loader2, Package, Clock, CheckCircle, Truck, XCircle, User,
   ShoppingBag, LogOut, MapPin, Phone as PhoneIcon, Pencil, X,
-  Calendar, CreditCard, RefreshCw, ChevronRight, Home, Eye
+  Calendar, CreditCard, RefreshCw, ChevronRight, Eye,
+  RotateCcw, HelpCircle, Shield, Bell, Copy, ExternalLink
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { divisions } from "@/data/bd-locations";
@@ -37,6 +39,7 @@ interface OrderItem {
   product_name: string;
   quantity: number;
   price: number;
+  product_id: string | null;
 }
 
 const statusConfig: Record<string, { label: string; icon: any; color: string; bg: string }> = {
@@ -52,6 +55,7 @@ const statusSteps = ["pending", "confirmed", "processing", "shipped", "delivered
 
 const UserDashboard = () => {
   const { user, profile, signOut, refreshProfile, loading: authLoading } = useAuth();
+  const { addItem } = useCart();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -114,7 +118,7 @@ const UserDashboard = () => {
     if (orderItems[orderId]) return;
     const { data } = await supabase
       .from("order_items")
-      .select("id, product_name, quantity, price")
+      .select("id, product_name, quantity, price, product_id")
       .eq("order_id", orderId);
     setOrderItems((prev) => ({ ...prev, [orderId]: data || [] }));
   };
@@ -126,6 +130,26 @@ const UserDashboard = () => {
       setExpandedOrder(orderId);
       fetchOrderItems(orderId);
     }
+  };
+
+  const handleReorder = (items: OrderItem[]) => {
+    items.forEach((item) => {
+      addItem({
+        id: item.product_id || item.id,
+        name: item.product_name,
+        name_bn: item.product_name,
+        price: Number(item.price),
+        image_url: null,
+        weight: null,
+      }, item.quantity);
+    });
+    toast({ title: "✅ কার্টে যোগ হয়েছে", description: "আগের অর্ডারের সব পণ্য কার্টে যোগ করা হয়েছে।" });
+    navigate("/cart");
+  };
+
+  const copyOrderNumber = (orderNumber: string) => {
+    navigator.clipboard.writeText(orderNumber);
+    toast({ title: "কপি হয়েছে", description: `অর্ডার নম্বর ${orderNumber} কপি করা হয়েছে।` });
   };
 
   const handleProfileSave = async () => {
@@ -160,8 +184,13 @@ const UserDashboard = () => {
   const totalSpent = orders.reduce((sum, o) => sum + Number(o.total), 0);
   const deliveredCount = orders.filter((o) => o.status === "delivered").length;
   const pendingCount = orders.filter((o) => ["pending", "confirmed", "processing"].includes(o.status)).length;
+  const cancelledCount = orders.filter((o) => o.status === "cancelled").length;
 
   const filteredOrders = statusFilter === "all" ? orders : orders.filter((o) => o.status === statusFilter);
+
+  // Recent activity
+  const recentOrder = orders[0];
+  const memberSince = user?.created_at ? new Date(user.created_at).toLocaleDateString("bn-BD", { year: "numeric", month: "long" }) : "";
 
   if (authLoading) {
     return (
@@ -199,6 +228,9 @@ const UserDashboard = () => {
                 {profile?.full_name || user?.user_metadata?.full_name || "ইউজার"}
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground truncate">{user?.email}</p>
+              {memberSince && (
+                <p className="text-[10px] text-muted-foreground/70 mt-0.5">সদস্য: {memberSince} থেকে</p>
+              )}
             </div>
             <div className="hidden sm:flex gap-2 pb-1">
               <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => { setActiveTab("profile"); setProfileEditing(true); }}>
@@ -212,8 +244,28 @@ const UserDashboard = () => {
         </div>
       </div>
 
+      {/* Active Order Alert */}
+      {recentOrder && ["pending", "confirmed", "processing", "shipped"].includes(recentOrder.status) && (
+        <div className="mb-4 rounded-xl border border-primary/20 bg-primary/5 p-3 sm:p-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Bell className="h-5 w-5 text-primary animate-pulse" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground">সক্রিয় অর্ডার</p>
+              <p className="text-xs text-muted-foreground truncate">
+                {recentOrder.order_number} — {statusConfig[recentOrder.status]?.label}
+              </p>
+            </div>
+            <Button size="sm" variant="outline" className="flex-shrink-0 gap-1 text-xs" onClick={() => { setActiveTab("orders"); toggleOrderExpand(recentOrder.id); }}>
+              <Eye className="h-3.5 w-3.5" /> দেখুন
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-2 sm:gap-3 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-6">
         {[
           { icon: Package, value: orders.length, label: "মোট অর্ডার", iconColor: "text-primary" },
           { icon: Clock, value: pendingCount, label: "চলমান", iconColor: "text-amber-500" },
@@ -221,10 +273,10 @@ const UserDashboard = () => {
           { icon: CreditCard, value: `৳${totalSpent.toLocaleString("bn-BD")}`, label: "মোট খরচ", iconColor: "text-primary" },
         ].map((stat, i) => (
           <Card key={i} className="border-border/50 overflow-hidden">
-            <CardContent className="p-2.5 sm:p-4 text-center">
-              <stat.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${stat.iconColor} mx-auto mb-1`} />
-              <p className={`text-base sm:text-xl font-bold ${i === 3 ? "text-primary" : "text-foreground"} truncate`}>{stat.value}</p>
-              <p className="text-[9px] sm:text-xs text-muted-foreground">{stat.label}</p>
+            <CardContent className="p-3 sm:p-4 text-center">
+              <stat.icon className={`h-5 w-5 sm:h-6 sm:w-6 ${stat.iconColor} mx-auto mb-1.5`} />
+              <p className={`text-lg sm:text-xl font-bold ${i === 3 ? "text-primary" : "text-foreground"} truncate`}>{stat.value}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{stat.label}</p>
             </CardContent>
           </Card>
         ))}
@@ -240,6 +292,9 @@ const UserDashboard = () => {
             <TabsTrigger value="profile" className="flex-1 sm:flex-none gap-1.5 text-xs sm:text-sm">
               <User className="h-4 w-4" /> প্রোফাইল
             </TabsTrigger>
+            <TabsTrigger value="support" className="flex-1 sm:flex-none gap-1.5 text-xs sm:text-sm">
+              <HelpCircle className="h-4 w-4" /> সাহায্য
+            </TabsTrigger>
           </TabsList>
 
           {activeTab === "orders" && (
@@ -249,10 +304,13 @@ const UserDashboard = () => {
                   <SelectValue placeholder="সব অর্ডার" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">সব অর্ডার</SelectItem>
-                  {Object.entries(statusConfig).map(([key, cfg]) => (
-                    <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
-                  ))}
+                  <SelectItem value="all">সব অর্ডার ({orders.length})</SelectItem>
+                  {Object.entries(statusConfig).map(([key, cfg]) => {
+                    const count = orders.filter(o => o.status === key).length;
+                    return count > 0 ? (
+                      <SelectItem key={key} value={key}>{cfg.label} ({count})</SelectItem>
+                    ) : null;
+                  })}
                 </SelectContent>
               </Select>
               <Button variant="ghost" size="icon" className="h-9 w-9" onClick={fetchOrders}>
@@ -313,7 +371,7 @@ const UserDashboard = () => {
                                 </Badge>
                                 <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
                                   <Calendar className="h-3 w-3" />
-                                  {new Date(order.created_at).toLocaleDateString("bn-BD", { day: "numeric", month: "short" })}
+                                  {new Date(order.created_at).toLocaleDateString("bn-BD", { day: "numeric", month: "short", year: "numeric" })}
                                 </span>
                               </div>
                             </div>
@@ -407,7 +465,7 @@ const UserDashboard = () => {
                           </div>
                           <div className="flex justify-between text-xs text-muted-foreground">
                             <span>ডেলিভারি চার্জ</span>
-                            <span>৳{Number(order.shipping_cost).toLocaleString("bn-BD")}</span>
+                            <span>{Number(order.shipping_cost) === 0 ? "ফ্রি" : `৳${Number(order.shipping_cost).toLocaleString("bn-BD")}`}</span>
                           </div>
                           <Separator />
                           <div className="flex justify-between text-sm font-bold text-foreground">
@@ -420,6 +478,18 @@ const UserDashboard = () => {
                         <div className="flex items-start gap-2 text-xs text-muted-foreground">
                           <MapPin className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
                           <span>{order.shipping_address}{order.district ? `, ${order.district}` : ""}, {order.city}</span>
+                        </div>
+
+                        {/* Action buttons */}
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          <Button variant="outline" size="sm" className="gap-1 text-xs h-8" onClick={() => copyOrderNumber(order.order_number)}>
+                            <Copy className="h-3 w-3" /> কপি নম্বর
+                          </Button>
+                          {items && items.length > 0 && (
+                            <Button variant="outline" size="sm" className="gap-1 text-xs h-8" onClick={() => handleReorder(items)}>
+                              <RotateCcw className="h-3 w-3" /> পুনরায় অর্ডার
+                            </Button>
+                          )}
                         </div>
                       </div>
                     )}
@@ -557,11 +627,36 @@ const UserDashboard = () => {
               </CardContent>
             </Card>
 
+            {/* Account Security */}
+            <Card className="border-border/50">
+              <CardContent className="p-4 sm:p-5">
+                <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm mb-4">
+                  <Shield className="h-4 w-4 text-primary" /> অ্যাকাউন্ট সিকিউরিটি
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 border border-border/30">
+                    <CheckCircle className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">লগইন মেথড</p>
+                      <p className="text-sm font-medium text-foreground">Google অ্যাকাউন্ট</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 border border-border/30">
+                    <CheckCircle className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">ইমেইল</p>
+                      <p className="text-sm font-medium text-foreground truncate">{user?.email}</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Quick Actions */}
-            <Card className="sm:col-span-2 border-border/50">
+            <Card className="border-border/50">
               <CardContent className="p-4 sm:p-5">
                 <h3 className="font-semibold text-foreground mb-3 text-sm">দ্রুত অ্যাকশন</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <Button asChild variant="outline" className="h-auto py-3 flex-col gap-1.5">
                     <Link to="/products">
                       <ShoppingBag className="h-5 w-5 text-primary" />
@@ -585,7 +680,69 @@ const UserDashboard = () => {
             </Card>
           </div>
         </TabsContent>
+
+        {/* Support Tab */}
+        <TabsContent value="support" className="mt-0">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Card className="border-border/50">
+              <CardContent className="p-4 sm:p-5">
+                <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm mb-4">
+                  <HelpCircle className="h-4 w-4 text-primary" /> সচরাচর জিজ্ঞাসা
+                </h3>
+                <div className="space-y-3">
+                  {[
+                    { q: "ডেলিভারি কত দিনে হয়?", a: "সাধারণত ২-৪ দিনের মধ্যে ডেলিভারি হয়। ঢাকার বাইরে ৩-৫ দিন লাগতে পারে।" },
+                    { q: "পেমেন্ট কিভাবে করবো?", a: "ক্যাশ অন ডেলিভারি - পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।" },
+                    { q: "অর্ডার ক্যান্সেল করতে চাই?", a: "অর্ডার ক্যান্সেল করতে আমাদের সাথে যোগাযোগ করুন।" },
+                    { q: "আম কি ১০০% খাঁটি?", a: "হ্যাঁ, আমাদের সব আম সাপাহার থেকে সরাসরি সংগ্রহ করা, কোনো কেমিক্যাল ব্যবহার করা হয় না।" },
+                  ].map((faq, i) => (
+                    <div key={i} className="rounded-xl bg-muted/40 border border-border/30 p-3">
+                      <p className="text-xs font-semibold text-foreground mb-1">{faq.q}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{faq.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/50">
+              <CardContent className="p-4 sm:p-5">
+                <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm mb-4">
+                  <PhoneIcon className="h-4 w-4 text-primary" /> যোগাযোগ
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 border border-border/30">
+                    <PhoneIcon className="h-4 w-4 text-primary flex-shrink-0" />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">ফোন</p>
+                      <p className="text-sm font-medium text-foreground">+880 1XXX-XXXXXX</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 border border-border/30">
+                    <ExternalLink className="h-4 w-4 text-primary flex-shrink-0" />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">ফেসবুক</p>
+                      <p className="text-sm font-medium text-foreground">Sapahar Mango</p>
+                    </div>
+                  </div>
+                </div>
+                <Button asChild variant="outline" className="w-full mt-4 gap-2">
+                  <Link to="/contact">
+                    <HelpCircle className="h-4 w-4" /> বিস্তারিত যোগাযোগ
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
       </Tabs>
+
+      {/* Mobile bottom actions */}
+      <div className="sm:hidden mt-6">
+        <Button variant="ghost" className="w-full text-destructive hover:text-destructive gap-2" onClick={signOut}>
+          <LogOut className="h-4 w-4" /> লগআউট
+        </Button>
+      </div>
     </div>
   );
 };
