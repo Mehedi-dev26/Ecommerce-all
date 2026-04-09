@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -34,6 +34,7 @@ const StarRating = ({ rating, size = "sm" }: { rating: number; size?: "sm" | "md
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { addItem } = useCart();
+  const navigate = useNavigate();
   const [qty, setQty] = useState(1);
   const [selectedImg, setSelectedImg] = useState(0);
 
@@ -100,7 +101,7 @@ const ProductDetail = () => {
 
   const handleBuyNow = () => {
     addItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: Number(product.price), image_url: product.image_url, weight: product.weight }, qty);
-    window.location.href = "/checkout";
+    navigate("/checkout");
   };
 
   const prevImg = () => setSelectedImg((p) => (p - 1 + allImages.length) % allImages.length);
