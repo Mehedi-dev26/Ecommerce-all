@@ -14,6 +14,15 @@ import { divisions } from "@/data/bd-locations";
 
 const BD_PHONE_REGEX = /^01[3-9]\d{8}$/;
 
+async function generateOrderNumber(): Promise<string> {
+  const { count, error } = await supabase
+    .from("orders")
+    .select("*", { count: "exact", head: true });
+
+  const nextNum = (count || 0) + 1;
+  return `SM-${String(nextNum).padStart(4, "0")}`;
+}
+
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
   const { user, profile, loading: authLoading } = useAuth();
@@ -79,7 +88,7 @@ const Checkout = () => {
 
     setLoading(true);
     try {
-      const orderNumber = `MW-${Date.now().toString(36).toUpperCase()}`;
+      const orderNumber = await generateOrderNumber();
       const divBn = selectedDivision?.name_bn || "";
       const distBn = selectedDistrict?.name_bn || "";
       const upzBn = selectedDistrict?.upazilas.find((u) => u.name === form.upazila)?.name_bn || "";
@@ -113,32 +122,6 @@ const Checkout = () => {
 
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
-
-      // Create Pathao courier order (non-blocking)
-      try {
-        const pathaoPayload = {
-          order_id: order.id,
-          store_id: 1,
-          merchant_order_id: orderNumber,
-          recipient_name: form.name.trim(),
-          recipient_phone: form.phone.trim(),
-          recipient_address: form.address.trim(),
-          recipient_city: 1,
-          recipient_zone: 1,
-          delivery_type: 48,
-          item_type: 2,
-          special_instruction: form.notes.trim() || "",
-          item_quantity: items.reduce((s, i) => s + i.quantity, 0),
-          item_weight: 0.5,
-          amount_to_collect: totalPrice + shippingCost,
-          item_description: items.map(i => `${i.name_bn} x${i.quantity}`).join(", "),
-        };
-        await supabase.functions.invoke("pathao?action=create-order", {
-          body: pathaoPayload,
-        });
-      } catch (pathaoErr) {
-        console.warn("Pathao order creation failed (non-blocking):", pathaoErr);
-      }
 
       clearCart();
       toast({ title: "অর্ডার সফল!", description: `অর্ডার নম্বর: ${orderNumber}` });
