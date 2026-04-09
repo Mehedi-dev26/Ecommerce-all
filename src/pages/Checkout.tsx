@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -124,8 +124,13 @@ const Checkout = () => {
     }
   };
 
+  useEffect(() => {
+    if (items.length === 0) {
+      navigate("/cart");
+    }
+  }, [items.length, navigate]);
+
   if (items.length === 0) {
-    navigate("/cart");
     return null;
   }
 
