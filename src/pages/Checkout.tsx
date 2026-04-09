@@ -129,6 +129,23 @@ const Checkout = () => {
     return null;
   }
 
+  // Auth gate - require login to checkout
+  if (!authLoading && !user) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <LogIn className="h-16 w-16 text-primary/30 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-foreground mb-2">অর্ডার করতে লগইন করুন</h2>
+        <p className="text-muted-foreground mb-6">অর্ডার কনফার্ম করতে এবং আপনার অর্ডার ট্র্যাক করতে লগইন প্রয়োজন</p>
+        <Button asChild size="lg" className="gap-2">
+          <Link to="/login" state={{ from: "/checkout" }}>
+            <LogIn className="h-5 w-5" />
+            লগইন করুন
+          </Link>
+        </Button>
+      </div>
+    );
+  }
+
   const FieldError = ({ field }: { field: string }) =>
     errors[field] ? (
       <p className="text-xs text-destructive flex items-center gap-1 mt-1">
