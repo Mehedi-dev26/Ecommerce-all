@@ -114,6 +114,32 @@ const Checkout = () => {
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
 
+      // Create Pathao courier order (non-blocking)
+      try {
+        const pathaoPayload = {
+          order_id: order.id,
+          store_id: 1,
+          merchant_order_id: orderNumber,
+          recipient_name: form.name.trim(),
+          recipient_phone: form.phone.trim(),
+          recipient_address: form.address.trim(),
+          recipient_city: 1,
+          recipient_zone: 1,
+          delivery_type: 48,
+          item_type: 2,
+          special_instruction: form.notes.trim() || "",
+          item_quantity: items.reduce((s, i) => s + i.quantity, 0),
+          item_weight: 0.5,
+          amount_to_collect: totalPrice + shippingCost,
+          item_description: items.map(i => `${i.name_bn} x${i.quantity}`).join(", "),
+        };
+        await supabase.functions.invoke("pathao?action=create-order", {
+          body: pathaoPayload,
+        });
+      } catch (pathaoErr) {
+        console.warn("Pathao order creation failed (non-blocking):", pathaoErr);
+      }
+
       clearCart();
       toast({ title: "অর্ডার সফল!", description: `অর্ডার নম্বর: ${orderNumber}` });
       navigate(`/order-success/${orderNumber}`);

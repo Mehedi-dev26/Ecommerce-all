@@ -135,10 +135,14 @@ export type Database = {
           customer_email: string | null
           customer_name: string
           customer_phone: string
+          delivery_fee: number | null
           district: string | null
           id: string
           notes: string | null
           order_number: string
+          pathao_consignment_id: string | null
+          pathao_order_status: string | null
+          pathao_tracking_url: string | null
           payment_method: string
           shipping_address: string
           shipping_cost: number
@@ -154,10 +158,14 @@ export type Database = {
           customer_email?: string | null
           customer_name: string
           customer_phone: string
+          delivery_fee?: number | null
           district?: string | null
           id?: string
           notes?: string | null
           order_number: string
+          pathao_consignment_id?: string | null
+          pathao_order_status?: string | null
+          pathao_tracking_url?: string | null
           payment_method?: string
           shipping_address: string
           shipping_cost?: number
@@ -173,10 +181,14 @@ export type Database = {
           customer_email?: string | null
           customer_name?: string
           customer_phone?: string
+          delivery_fee?: number | null
           district?: string | null
           id?: string
           notes?: string | null
           order_number?: string
+          pathao_consignment_id?: string | null
+          pathao_order_status?: string | null
+          pathao_tracking_url?: string | null
           payment_method?: string
           shipping_address?: string
           shipping_cost?: number

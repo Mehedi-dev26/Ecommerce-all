@@ -32,6 +32,10 @@ interface Order {
   payment_method: string;
   shipping_address: string;
   district: string | null;
+  pathao_consignment_id: string | null;
+  pathao_order_status: string | null;
+  pathao_tracking_url: string | null;
+  delivery_fee: number | null;
 }
 
 interface OrderItem {
@@ -73,6 +77,7 @@ const UserDashboard = () => {
     default_address: "",
   });
   const [saving, setSaving] = useState(false);
+  const [trackingLoading, setTrackingLoading] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -103,10 +108,10 @@ const UserDashboard = () => {
     try {
       const { data } = await supabase
         .from("orders")
-        .select("id, order_number, total, subtotal, shipping_cost, status, created_at, city, district, payment_method, shipping_address")
+        .select("id, order_number, total, subtotal, shipping_cost, status, created_at, city, district, payment_method, shipping_address, pathao_consignment_id, pathao_order_status, pathao_tracking_url, delivery_fee")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
-      setOrders(data || []);
+      setOrders((data as Order[]) || []);
     } catch {
       // ignore
     } finally {
@@ -150,6 +155,32 @@ const UserDashboard = () => {
   const copyOrderNumber = (orderNumber: string) => {
     navigator.clipboard.writeText(orderNumber);
     toast({ title: "কপি হয়েছে", description: `অর্ডার নম্বর ${orderNumber} কপি করা হয়েছে।` });
+  };
+
+  const trackPathaoOrder = async (order: Order) => {
+    if (!order.pathao_consignment_id) return;
+    setTrackingLoading(order.id);
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        `pathao?action=track-order&consignment_id=${order.pathao_consignment_id}`,
+        { method: "GET" }
+      );
+      if (error) throw error;
+      const newStatus = data?.data?.order_status;
+      if (newStatus) {
+        setOrders((prev) =>
+          prev.map((o) =>
+            o.id === order.id ? { ...o, pathao_order_status: newStatus } : o
+          )
+        );
+        toast({ title: "ট্র্যাকিং আপডেট", description: `স্ট্যাটাস: ${newStatus}` });
+      }
+    } catch (err) {
+      console.error("Tracking error:", err);
+      toast({ title: "ত্রুটি", description: "ট্র্যাকিং তথ্য পেতে সমস্যা হয়েছে", variant: "destructive" });
+    } finally {
+      setTrackingLoading(null);
+    }
   };
 
   const handleProfileSave = async () => {
@@ -421,10 +452,56 @@ const UserDashboard = () => {
                           </div>
                         )}
 
+                        {/* Pathao Courier Tracking */}
+                        {order.pathao_consignment_id && (
+                          <div className="rounded-lg border border-border/50 bg-card p-3">
+                            <div className="flex items-center justify-between mb-2">
+                              <p className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                                <Truck className="h-3.5 w-3.5" /> পাঠাও কুরিয়ার ট্র্যাকিং
+                              </p>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 gap-1 text-[10px]"
+                                disabled={trackingLoading === order.id}
+                                onClick={() => trackPathaoOrder(order)}
+                              >
+                                {trackingLoading === order.id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <RefreshCw className="h-3 w-3" />
+                                )}
+                                আপডেট
+                              </Button>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              <Badge variant="outline" className="text-[10px] gap-1">
+                                <Package className="h-3 w-3" />
+                                ID: {order.pathao_consignment_id}
+                              </Badge>
+                              {order.pathao_order_status && (
+                                <Badge className="text-[10px] bg-primary/10 text-primary border-primary/20">
+                                  {order.pathao_order_status}
+                                </Badge>
+                              )}
+                            </div>
+                            {order.pathao_tracking_url && (
+                              <a
+                                href={order.pathao_tracking_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-2 inline-flex items-center gap-1 text-[10px] text-primary hover:underline"
+                              >
+                                <ExternalLink className="h-3 w-3" /> পাঠাও ওয়েবসাইটে ট্র্যাক করুন
+                              </a>
+                            )}
+                          </div>
+                        )}
+
                         {order.status === "cancelled" && (
-                          <div className="flex items-center gap-2 p-2 rounded-lg bg-rose-50 border border-rose-200 dark:bg-rose-950/30 dark:border-rose-800">
-                            <XCircle className="h-4 w-4 text-rose-500" />
-                            <span className="text-xs text-rose-600 dark:text-rose-400">এই অর্ডারটি বাতিল করা হয়েছে</span>
+                          <div className="flex items-center gap-2 p-2 rounded-lg bg-destructive/10 border border-destructive/20">
+                            <XCircle className="h-4 w-4 text-destructive" />
+                            <span className="text-xs text-destructive">এই অর্ডারটি বাতিল করা হয়েছে</span>
                           </div>
                         )}
 
