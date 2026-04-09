@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,34 +7,75 @@ import { Label } from "@/components/ui/label";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, MapPin, Phone, User, Mail, FileText, AlertCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { divisions } from "@/data/bd-locations";
+
+const BD_PHONE_REGEX = /^01[3-9]\d{8}$/;
 
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    name: "", phone: "", email: "", address: "", city: "ঢাকা", district: "", notes: "",
+    name: "",
+    phone: "",
+    email: "",
+    address: "",
+    division: "",
+    district: "",
+    upazila: "",
+    notes: "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const shippingCost = totalPrice >= 2000 ? 0 : 120;
+
+  // Cascading location data
+  const selectedDivision = useMemo(
+    () => divisions.find((d) => d.name === form.division),
+    [form.division]
+  );
+  const selectedDistrict = useMemo(
+    () => selectedDivision?.districts.find((d) => d.name === form.district),
+    [selectedDivision, form.district]
+  );
+
+  const validate = (): boolean => {
+    const errs: Record<string, string> = {};
+    if (!form.name.trim() || form.name.trim().length < 3) errs.name = "সম্পূর্ণ নাম লিখুন (কমপক্ষে ৩ অক্ষর)";
+    if (!BD_PHONE_REGEX.test(form.phone)) errs.phone = "সঠিক মোবাইল নম্বর দিন (01XXXXXXXXX)";
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = "সঠিক ইমেইল দিন";
+    if (!form.division) errs.division = "বিভাগ সিলেক্ট করুন";
+    if (!form.district) errs.district = "জেলা সিলেক্ট করুন";
+    if (!form.upazila) errs.upazila = "উপজেলা সিলেক্ট করুন";
+    if (!form.address.trim() || form.address.trim().length < 10) errs.address = "সম্পূর্ণ ঠিকানা লিখুন (কমপক্ষে ১০ অক্ষর)";
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) return;
-    setLoading(true);
+    if (!validate()) return;
 
+    setLoading(true);
     try {
       const orderNumber = `MW-${Date.now().toString(36).toUpperCase()}`;
+      const divBn = selectedDivision?.name_bn || "";
+      const distBn = selectedDistrict?.name_bn || "";
+      const upzBn = selectedDistrict?.upazilas.find((u) => u.name === form.upazila)?.name_bn || "";
+      const cityLabel = `${upzBn}, ${distBn}, ${divBn}`;
+
       const { data: order, error: orderError } = await supabase.from("orders").insert({
         order_number: orderNumber,
-        customer_name: form.name,
-        customer_phone: form.phone,
-        customer_email: form.email || null,
-        shipping_address: form.address,
-        city: form.city,
-        district: form.district || null,
-        notes: form.notes || null,
+        customer_name: form.name.trim(),
+        customer_phone: form.phone.trim(),
+        customer_email: form.email.trim() || null,
+        shipping_address: form.address.trim(),
+        city: cityLabel,
+        district: form.district,
+        notes: form.notes.trim() || null,
         subtotal: totalPrice,
         shipping_cost: shippingCost,
         total: totalPrice + shippingCost,
@@ -69,27 +110,167 @@ const Checkout = () => {
     return null;
   }
 
-  const updateField = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  const FieldError = ({ field }: { field: string }) =>
+    errors[field] ? (
+      <p className="text-xs text-destructive flex items-center gap-1 mt-1">
+        <AlertCircle className="h-3 w-3" />
+        {errors[field]}
+      </p>
+    ) : null;
 
   return (
-    <div className="container mx-auto px-4 py-10">
-      <h1 className="mb-8 text-3xl font-bold text-foreground">চেকআউট</h1>
-      <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-3">
+    <div className="container mx-auto px-4 py-6 sm:py-10">
+      <h1 className="mb-6 sm:mb-8 text-2xl sm:text-3xl font-bold text-foreground">চেকআউট</h1>
+      <form onSubmit={handleSubmit} className="grid gap-6 lg:gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <div className="rounded-lg border bg-card p-6">
-            <h2 className="mb-4 text-lg font-semibold">ডেলিভারি তথ্য</h2>
+          {/* Customer Info */}
+          <div className="rounded-xl border bg-card p-4 sm:p-6">
+            <h2 className="mb-4 text-lg font-semibold flex items-center gap-2">
+              <User className="h-5 w-5 text-primary" />
+              ব্যক্তিগত তথ্য
+            </h2>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div><Label htmlFor="name">নাম *</Label><Input id="name" value={form.name} onChange={updateField("name")} required /></div>
-              <div><Label htmlFor="phone">মোবাইল নম্বর *</Label><Input id="phone" value={form.phone} onChange={updateField("phone")} required placeholder="01XXXXXXXXX" /></div>
-              <div><Label htmlFor="email">ইমেইল</Label><Input id="email" type="email" value={form.email} onChange={updateField("email")} /></div>
-              <div><Label htmlFor="city">শহর *</Label><Input id="city" value={form.city} onChange={updateField("city")} required /></div>
-              <div><Label htmlFor="district">জেলা</Label><Input id="district" value={form.district} onChange={updateField("district")} /></div>
+              <div>
+                <Label htmlFor="name" className="flex items-center gap-1">
+                  <User className="h-3.5 w-3.5" />নাম *
+                </Label>
+                <Input
+                  id="name"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="আপনার সম্পূর্ণ নাম"
+                  className={errors.name ? "border-destructive" : ""}
+                />
+                <FieldError field="name" />
+              </div>
+              <div>
+                <Label htmlFor="phone" className="flex items-center gap-1">
+                  <Phone className="h-3.5 w-3.5" />মোবাইল নম্বর *
+                </Label>
+                <Input
+                  id="phone"
+                  value={form.phone}
+                  onChange={(e) => {
+                    const v = e.target.value.replace(/[^0-9]/g, "").slice(0, 11);
+                    setForm({ ...form, phone: v });
+                  }}
+                  placeholder="01XXXXXXXXX"
+                  maxLength={11}
+                  className={errors.phone ? "border-destructive" : ""}
+                />
+                <FieldError field="phone" />
+              </div>
+              <div className="sm:col-span-2">
+                <Label htmlFor="email" className="flex items-center gap-1">
+                  <Mail className="h-3.5 w-3.5" />ইমেইল (ঐচ্ছিক)
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  placeholder="example@email.com"
+                  className={errors.email ? "border-destructive" : ""}
+                />
+                <FieldError field="email" />
+              </div>
             </div>
-            <div className="mt-4"><Label htmlFor="address">সম্পূর্ণ ঠিকানা *</Label><Textarea id="address" value={form.address} onChange={updateField("address")} required /></div>
-            <div className="mt-4"><Label htmlFor="notes">বিশেষ নোট</Label><Textarea id="notes" value={form.notes} onChange={updateField("notes")} placeholder="অর্ডার সম্পর্কে কিছু জানাতে চাইলে লিখুন..." /></div>
           </div>
-          <div className="rounded-lg border bg-card p-6">
+
+          {/* Delivery Address */}
+          <div className="rounded-xl border bg-card p-4 sm:p-6">
+            <h2 className="mb-4 text-lg font-semibold flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-primary" />
+              ডেলিভারি ঠিকানা
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {/* Division */}
+              <div>
+                <Label>বিভাগ *</Label>
+                <Select
+                  value={form.division}
+                  onValueChange={(v) => setForm({ ...form, division: v, district: "", upazila: "" })}
+                >
+                  <SelectTrigger className={errors.division ? "border-destructive" : ""}>
+                    <SelectValue placeholder="বিভাগ সিলেক্ট করুন" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {divisions.map((d) => (
+                      <SelectItem key={d.name} value={d.name}>{d.name_bn}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FieldError field="division" />
+              </div>
+
+              {/* District */}
+              <div>
+                <Label>জেলা *</Label>
+                <Select
+                  value={form.district}
+                  onValueChange={(v) => setForm({ ...form, district: v, upazila: "" })}
+                  disabled={!form.division}
+                >
+                  <SelectTrigger className={errors.district ? "border-destructive" : ""}>
+                    <SelectValue placeholder="জেলা সিলেক্ট করুন" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedDivision?.districts.map((d) => (
+                      <SelectItem key={d.name} value={d.name}>{d.name_bn}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FieldError field="district" />
+              </div>
+
+              {/* Upazila */}
+              <div>
+                <Label>উপজেলা *</Label>
+                <Select
+                  value={form.upazila}
+                  onValueChange={(v) => setForm({ ...form, upazila: v })}
+                  disabled={!form.district}
+                >
+                  <SelectTrigger className={errors.upazila ? "border-destructive" : ""}>
+                    <SelectValue placeholder="উপজেলা সিলেক্ট করুন" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedDistrict?.upazilas.map((u) => (
+                      <SelectItem key={u.name} value={u.name}>{u.name_bn}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FieldError field="upazila" />
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <Label htmlFor="address" className="flex items-center gap-1">
+                <FileText className="h-3.5 w-3.5" />সম্পূর্ণ ঠিকানা *
+              </Label>
+              <Textarea
+                id="address"
+                value={form.address}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+                placeholder="বাড়ি নং, রোড, এলাকা, পোস্ট অফিস..."
+                className={errors.address ? "border-destructive" : ""}
+              />
+              <FieldError field="address" />
+            </div>
+
+            <div className="mt-4">
+              <Label htmlFor="notes">বিশেষ নোট (ঐচ্ছিক)</Label>
+              <Textarea
+                id="notes"
+                value={form.notes}
+                onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                placeholder="অর্ডার সম্পর্কে কিছু জানাতে চাইলে লিখুন..."
+              />
+            </div>
+          </div>
+
+          {/* Payment */}
+          <div className="rounded-xl border bg-card p-4 sm:p-6">
             <h2 className="mb-2 text-lg font-semibold">পেমেন্ট পদ্ধতি</h2>
             <div className="flex items-center gap-3 rounded-lg border-2 border-primary p-4">
               <div className="h-4 w-4 rounded-full border-4 border-primary" />
@@ -100,23 +281,41 @@ const Checkout = () => {
             </div>
           </div>
         </div>
-        <div className="rounded-lg border bg-card p-6 self-start">
+
+        {/* Order Summary */}
+        <div className="rounded-xl border bg-card p-4 sm:p-6 self-start sticky top-4">
           <h3 className="mb-4 text-lg font-semibold">অর্ডার সামারি</h3>
           <div className="space-y-3 mb-4">
             {items.map((item) => (
               <div key={item.id} className="flex justify-between text-sm">
-                <span>{item.name_bn} × {item.quantity}</span>
-                <span>৳{item.price * item.quantity}</span>
+                <span className="flex-1 min-w-0 truncate mr-2">{item.name_bn} × {item.quantity}</span>
+                <span className="flex-shrink-0">৳{item.price * item.quantity}</span>
               </div>
             ))}
           </div>
           <div className="space-y-2 border-t pt-3 text-sm">
-            <div className="flex justify-between"><span className="text-muted-foreground">সাবটোটাল</span><span>৳{totalPrice}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">ডেলিভারি</span><span>{shippingCost === 0 ? "ফ্রি" : `৳${shippingCost}`}</span></div>
-            <div className="flex justify-between border-t pt-2 font-semibold text-base"><span>মোট</span><span className="text-primary">৳{totalPrice + shippingCost}</span></div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">সাবটোটাল</span>
+              <span>৳{totalPrice}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">ডেলিভারি</span>
+              <span>{shippingCost === 0 ? "ফ্রি" : `৳${shippingCost}`}</span>
+            </div>
+            {shippingCost > 0 && (
+              <p className="text-xs text-muted-foreground">৳২,০০০+ অর্ডারে ফ্রি ডেলিভারি</p>
+            )}
+            <div className="flex justify-between border-t pt-2 font-semibold text-base">
+              <span>মোট</span>
+              <span className="text-primary">৳{totalPrice + shippingCost}</span>
+            </div>
           </div>
           <Button type="submit" className="mt-6 w-full" size="lg" disabled={loading}>
-            {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />প্রসেসিং...</> : "অর্ডার কনফার্ম করুন"}
+            {loading ? (
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" />প্রসেসিং...</>
+            ) : (
+              "অর্ডার কনফার্ম করুন"
+            )}
           </Button>
         </div>
       </form>

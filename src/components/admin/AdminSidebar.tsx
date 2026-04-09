@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Package, ShoppingCart, FolderTree, Users,
   LogOut, Settings, BarChart3, Globe, ChevronDown, ChevronRight,
-  Shield, CreditCard, Truck
+  Shield, CreditCard, Truck, Image as ImageIcon
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,7 @@ const navGroups = [
     items: [
       { title: "প্রোডাক্ট", url: "/admin/products", icon: Package, badge: null },
       { title: "ক্যাটাগরি", url: "/admin/categories", icon: FolderTree, badge: null },
+      { title: "ব্যানার", url: "/admin/banners", icon: ImageIcon, badge: null },
     ],
   },
   {
