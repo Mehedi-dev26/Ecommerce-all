@@ -98,6 +98,7 @@ const Checkout = () => {
         shipping_cost: shippingCost,
         total: totalPrice + shippingCost,
         payment_method: "cod",
+        user_id: user?.id || null,
       }).select().single();
 
       if (orderError) throw orderError;
