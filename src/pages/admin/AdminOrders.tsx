@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Search, Eye, Package, ShoppingCart, Clock, CheckCircle,
-  Truck, XCircle, MapPin, Phone, Mail, CreditCard, FileText, User
+  Truck, XCircle, MapPin, Phone, Mail, CreditCard, FileText, User,
+  Send, RefreshCw, ExternalLink, Copy, Check, Loader2
 } from "lucide-react";
 
 interface Order {
@@ -29,6 +30,10 @@ interface Order {
   payment_method: string;
   notes: string | null;
   created_at: string;
+  pathao_consignment_id: string | null;
+  pathao_order_status: string | null;
+  pathao_tracking_url: string | null;
+  delivery_fee: number | null;
 }
 
 interface OrderItem {
@@ -54,17 +59,17 @@ const AdminOrders = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [pathaoLoading, setPathaoLoading] = useState(false);
+  const [trackingLoading, setTrackingLoading] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const fetchOrders = async () => {
     setLoading(true);
     setError(null);
-
     try {
       const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
-
       if (error) throw error;
-
       setOrders(data || []);
     } catch (error) {
       console.error("Failed to load orders", error);
@@ -89,14 +94,93 @@ const AdminOrders = () => {
   const viewOrder = async (order: Order) => {
     setSelectedOrder(order);
     const { data, error } = await supabase.from("order_items").select("*").eq("order_id", order.id);
-
     if (error) {
       toast({ title: "ত্রুটি", description: getErrorMessage(error, "অর্ডারের বিস্তারিত লোড করা যায়নি।"), variant: "destructive" });
       setOrderItems([]);
       return;
     }
-
     setOrderItems(data || []);
+  };
+
+  const sendToPathao = async (order: Order) => {
+    setPathaoLoading(true);
+    try {
+      const pathaoPayload = {
+        order_id: order.id,
+        store_id: 1,
+        merchant_order_id: order.order_number,
+        recipient_name: order.customer_name,
+        recipient_phone: order.customer_phone,
+        recipient_address: order.shipping_address,
+        recipient_city: 1,
+        recipient_zone: 1,
+        delivery_type: 48,
+        item_type: 2,
+        special_instruction: order.notes || "",
+        item_quantity: orderItems.reduce((s, i) => s + i.quantity, 0) || 1,
+        item_weight: 0.5,
+        amount_to_collect: Number(order.total),
+        item_description: orderItems.map(i => `${i.product_name} x${i.quantity}`).join(", ") || order.order_number,
+      };
+
+      const { data, error } = await supabase.functions.invoke("pathao?action=create-order", {
+        body: pathaoPayload,
+      });
+
+      if (error) throw error;
+
+      const consignmentId = data?.data?.consignment_id;
+      if (consignmentId) {
+        const updatedOrder = {
+          ...order,
+          pathao_consignment_id: String(consignmentId),
+          pathao_order_status: data?.data?.order_status || "Pending",
+          pathao_tracking_url: `https://merchant.pathao.com/tracking?consignment_id=${consignmentId}`,
+        };
+        setSelectedOrder(updatedOrder);
+        toast({ title: "পাঠাও কুরিয়ারে সফলভাবে পাঠানো হয়েছে!", description: `Consignment ID: ${consignmentId}` });
+      } else {
+        toast({ title: "পাঠাও কুরিয়ারে পাঠানো হয়েছে" });
+      }
+
+      void fetchOrders();
+    } catch (err: any) {
+      console.error("Pathao send error:", err);
+      toast({ title: "পাঠাও ত্রুটি", description: err.message || "কুরিয়ারে পাঠানো যায়নি", variant: "destructive" });
+    } finally {
+      setPathaoLoading(false);
+    }
+  };
+
+  const refreshTracking = async (order: Order) => {
+    if (!order.pathao_consignment_id) return;
+    setTrackingLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        `pathao?action=track-order&consignment_id=${order.pathao_consignment_id}`,
+        { method: "GET" }
+      );
+      if (error) throw error;
+
+      const newStatus = data?.data?.order_status;
+      if (newStatus) {
+        setSelectedOrder({ ...order, pathao_order_status: newStatus });
+        toast({ title: "ট্র্যাকিং আপডেট হয়েছে", description: `স্ট্যাটাস: ${newStatus}` });
+      }
+      void fetchOrders();
+    } catch (err: any) {
+      toast({ title: "ট্র্যাকিং ত্রুটি", description: err.message, variant: "destructive" });
+    } finally {
+      setTrackingLoading(false);
+    }
+  };
+
+  const copyOrderNumber = async (orderNumber: string) => {
+    try {
+      await navigator.clipboard.writeText(orderNumber);
+      setCopiedId(orderNumber);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {}
   };
 
   const getStatusBadge = (status: string) => {
@@ -111,7 +195,7 @@ const AdminOrders = () => {
   };
 
   const filtered = orders.filter((o) => {
-    const matchSearch = o.order_number.includes(search) || o.customer_name.includes(search) || o.customer_phone.includes(search);
+    const matchSearch = o.order_number.toLowerCase().includes(search.toLowerCase()) || o.customer_name.includes(search) || o.customer_phone.includes(search);
     const matchStatus = statusFilter === "all" || o.status === statusFilter;
     return matchSearch && matchStatus;
   });
@@ -121,7 +205,6 @@ const AdminOrders = () => {
   const totalRevenue = orders.reduce((sum, o) => sum + Number(o.total), 0);
 
   if (loading) return <AdminPageState loading message="অর্ডার লোড হচ্ছে..." />;
-
   if (error) return <AdminPageState title="অর্ডার লোড করা যায়নি" message={error} onRetry={fetchOrders} />;
 
   return (
@@ -195,6 +278,7 @@ const AdminOrders = () => {
                   <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground hidden md:table-cell">পেমেন্ট</th>
                   <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">মোট</th>
                   <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">স্ট্যাটাস</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground hidden lg:table-cell">কুরিয়ার</th>
                   <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground hidden lg:table-cell">তারিখ</th>
                   <th className="text-right py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">অ্যাকশন</th>
                 </tr>
@@ -207,7 +291,15 @@ const AdminOrders = () => {
                         <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                           <FileText className="h-4 w-4 text-primary" />
                         </div>
-                        <span className="font-semibold text-primary">#{o.order_number}</span>
+                        <div className="flex items-center gap-1">
+                          <span className="font-semibold text-primary">#{o.order_number}</span>
+                          <button
+                            onClick={() => copyOrderNumber(o.order_number)}
+                            className="h-5 w-5 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
+                          >
+                            {copiedId === o.order_number ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
+                          </button>
+                        </div>
                       </div>
                     </td>
                     <td className="py-3 px-4">
@@ -241,6 +333,16 @@ const AdminOrders = () => {
                         </SelectContent>
                       </Select>
                     </td>
+                    <td className="py-3 px-4 hidden lg:table-cell">
+                      {o.pathao_consignment_id ? (
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-md font-medium flex items-center gap-1 w-fit">
+                          <Truck className="h-3 w-3" />
+                          {o.pathao_order_status || "Pending"}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </td>
                     <td className="py-3 px-4 hidden lg:table-cell text-muted-foreground text-xs">
                       {new Date(o.created_at).toLocaleDateString("bn-BD", { day: "numeric", month: "short", year: "numeric" })}
                     </td>
@@ -265,14 +367,24 @@ const AdminOrders = () => {
 
       {/* Order Detail Dialog */}
       <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
                 <Package className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <span className="block">অর্ডার #{selectedOrder?.order_number}</span>
+                <div className="flex items-center gap-2">
+                  <span>অর্ডার #{selectedOrder?.order_number}</span>
+                  {selectedOrder && (
+                    <button
+                      onClick={() => copyOrderNumber(selectedOrder.order_number)}
+                      className="h-6 w-6 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {copiedId === selectedOrder.order_number ? <Check className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
+                    </button>
+                  )}
+                </div>
                 <span className="text-xs font-normal text-muted-foreground">
                   {selectedOrder && new Date(selectedOrder.created_at).toLocaleDateString("bn-BD", { day: "numeric", month: "long", year: "numeric" })}
                 </span>
@@ -285,6 +397,63 @@ const AdminOrders = () => {
               <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
                 <span className="text-sm text-muted-foreground">বর্তমান স্ট্যাটাস</span>
                 {getStatusBadge(selectedOrder.status)}
+              </div>
+
+              {/* Pathao Courier Section */}
+              <div className="rounded-xl border border-border/50 p-4">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                  <Truck className="h-4 w-4" />
+                  পাঠাও কুরিয়ার
+                </h4>
+
+                {selectedOrder.pathao_consignment_id ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium">Consignment ID: {selectedOrder.pathao_consignment_id}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          স্ট্যাটাস: <span className="font-semibold text-primary">{selectedOrder.pathao_order_status || "Pending"}</span>
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => refreshTracking(selectedOrder)}
+                          disabled={trackingLoading}
+                          className="gap-1"
+                        >
+                          {trackingLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                          রিফ্রেশ
+                        </Button>
+                        {selectedOrder.pathao_tracking_url && (
+                          <Button variant="outline" size="sm" asChild className="gap-1">
+                            <a href={selectedOrder.pathao_tracking_url} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="h-3 w-3" />
+                              ট্র্যাক
+                            </a>
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-3">
+                    <p className="text-sm text-muted-foreground mb-3">এই অর্ডারটি এখনও পাঠাও কুরিয়ারে পাঠানো হয়নি</p>
+                    <Button
+                      onClick={() => sendToPathao(selectedOrder)}
+                      disabled={pathaoLoading}
+                      className="gap-2"
+                      size="sm"
+                    >
+                      {pathaoLoading ? (
+                        <><Loader2 className="h-4 w-4 animate-spin" />পাঠানো হচ্ছে...</>
+                      ) : (
+                        <><Send className="h-4 w-4" />পাঠাও কুরিয়ারে পাঠান</>
+                      )}
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {/* Customer Info */}
@@ -356,6 +525,12 @@ const AdminOrders = () => {
                   <span className="text-muted-foreground">ডেলিভারি চার্জ</span>
                   <span>৳{Number(selectedOrder.shipping_cost).toLocaleString()}</span>
                 </div>
+                {selectedOrder.delivery_fee != null && Number(selectedOrder.delivery_fee) > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">পাঠাও ডেলিভারি ফি</span>
+                    <span>৳{Number(selectedOrder.delivery_fee).toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="flex justify-between pt-2 border-t border-border/50">
                   <span className="font-bold text-base">সর্বমোট</span>
                   <span className="font-bold text-base text-primary">৳{Number(selectedOrder.total).toLocaleString()}</span>
