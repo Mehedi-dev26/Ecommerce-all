@@ -10,6 +10,7 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/admin/products": { title: "প্রোডাক্ট", subtitle: "পণ্য পরিচালনা ও স্টক ম্যানেজমেন্ট" },
   "/admin/orders": { title: "অর্ডার", subtitle: "অর্ডার ট্র্যাকিং ও ম্যানেজমেন্ট" },
   "/admin/categories": { title: "ক্যাটাগরি", subtitle: "পণ্যের শ্রেণীবিভাগ পরিচালনা" },
+  "/admin/banners": { title: "ব্যানার", subtitle: "হোমপেজ স্লাইডার ব্যানার পরিচালনা" },
   "/admin/customers": { title: "কাস্টমার", subtitle: "গ্রাহক তথ্য ও বিশ্লেষণ" },
   "/admin/payments": { title: "পেমেন্ট", subtitle: "পেমেন্ট ট্র্যাকিং ও ম্যানেজমেন্ট" },
   "/admin/delivery": { title: "ডেলিভারি", subtitle: "ডেলিভারি ট্র্যাকিং ও শিপমেন্ট" },
