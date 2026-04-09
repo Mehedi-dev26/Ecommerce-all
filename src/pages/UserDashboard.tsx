@@ -77,6 +77,7 @@ const UserDashboard = () => {
     default_address: "",
   });
   const [saving, setSaving] = useState(false);
+  const [trackingLoading, setTrackingLoading] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
