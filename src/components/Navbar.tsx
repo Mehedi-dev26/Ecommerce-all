@@ -1,13 +1,16 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart, Menu, Phone } from "lucide-react";
+import { ShoppingCart, Menu, Phone, User, LogOut, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import mangoLogo from "@/assets/mango-logo.png";
 
 const Navbar = () => {
   const { totalItems } = useCart();
+  const { user, profile, signOut, loading } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navLinks = [
@@ -50,6 +53,7 @@ const Navbar = () => {
           <a href="tel:+8801798268989" className="hidden rounded-lg bg-white/15 p-2 text-white/90 transition hover:bg-white/25 hover:text-white sm:block">
             <Phone className="h-4 w-4" />
           </a>
+
           <Link to="/cart" className="relative">
             <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg bg-white/15 text-white hover:bg-white/25 hover:text-white">
               <ShoppingCart className="h-5 w-5" />
@@ -60,6 +64,48 @@ const Navbar = () => {
               )}
             </Button>
           </Link>
+
+          {/* Auth Button */}
+          {!loading && (
+            user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg bg-white/15 text-white hover:bg-white/25 hover:text-white overflow-hidden">
+                    {profile?.avatar_url ? (
+                      <img src={profile.avatar_url} alt="" className="h-full w-full object-cover rounded-lg" />
+                    ) : (
+                      <User className="h-5 w-5" />
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <div className="px-2 py-1.5">
+                    <p className="text-sm font-medium truncate">{profile?.full_name || user.user_metadata?.full_name || "ইউজার"}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" className="cursor-pointer">
+                      <LayoutDashboard className="h-4 w-4 mr-2" />
+                      আমার ড্যাশবোর্ড
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut} className="text-destructive cursor-pointer">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    লগআউট
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link to="/login">
+                <Button variant="ghost" size="sm" className="rounded-lg bg-white/15 text-white hover:bg-white/25 hover:text-white text-xs sm:text-sm gap-1.5">
+                  <User className="h-4 w-4" />
+                  <span className="hidden sm:inline">লগইন</span>
+                </Button>
+              </Link>
+            )
+          )}
 
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild className="lg:hidden">
@@ -88,6 +134,20 @@ const Navbar = () => {
                     {link.label}
                   </Link>
                 ))}
+                {user ? (
+                  <>
+                    <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="rounded-lg px-4 py-3 text-base font-medium text-white transition-colors hover:bg-white/10">
+                      আমার ড্যাশবোর্ড
+                    </Link>
+                    <button onClick={() => { signOut(); setMobileOpen(false); }} className="rounded-lg px-4 py-3 text-left text-base font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white">
+                      লগআউট
+                    </button>
+                  </>
+                ) : (
+                  <Link to="/login" onClick={() => setMobileOpen(false)} className="rounded-lg px-4 py-3 text-base font-medium text-white transition-colors hover:bg-white/10">
+                    লগইন
+                  </Link>
+                )}
               </nav>
               <div className="mt-6 border-t border-white/10 pt-4">
                 <a href="tel:+8801798268989" className="flex items-center gap-2 px-4 text-sm text-white/70 hover:text-white">

@@ -1,13 +1,14 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Phone, User, Mail, FileText, AlertCircle } from "lucide-react";
+import { Loader2, MapPin, Phone, User, Mail, FileText, AlertCircle, LogIn } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { divisions } from "@/data/bd-locations";
 
@@ -15,6 +16,7 @@ const BD_PHONE_REGEX = /^01[3-9]\d{8}$/;
 
 const Checkout = () => {
   const { items, totalPrice, clearCart } = useCart();
+  const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -28,6 +30,22 @@ const Checkout = () => {
     notes: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Pre-fill from profile
+  useEffect(() => {
+    if (profile) {
+      setForm((prev) => ({
+        ...prev,
+        name: prev.name || profile.full_name || "",
+        phone: prev.phone || profile.phone || "",
+        email: prev.email || user?.email || "",
+        division: prev.division || profile.default_division || "",
+        district: prev.district || profile.default_district || "",
+        upazila: prev.upazila || profile.default_upazila || "",
+        address: prev.address || profile.default_address || "",
+      }));
+    }
+  }, [profile, user]);
 
   const shippingCost = totalPrice >= 2000 ? 0 : 120;
 
@@ -80,6 +98,7 @@ const Checkout = () => {
         shipping_cost: shippingCost,
         total: totalPrice + shippingCost,
         payment_method: "cod",
+        user_id: user?.id || null,
       }).select().single();
 
       if (orderError) throw orderError;
@@ -108,6 +127,23 @@ const Checkout = () => {
   if (items.length === 0) {
     navigate("/cart");
     return null;
+  }
+
+  // Auth gate - require login to checkout
+  if (!authLoading && !user) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <LogIn className="h-16 w-16 text-primary/30 mx-auto mb-4" />
+        <h2 className="text-2xl font-bold text-foreground mb-2">অর্ডার করতে লগইন করুন</h2>
+        <p className="text-muted-foreground mb-6">অর্ডার কনফার্ম করতে এবং আপনার অর্ডার ট্র্যাক করতে লগইন প্রয়োজন</p>
+        <Button asChild size="lg" className="gap-2">
+          <Link to="/login" state={{ from: "/checkout" }}>
+            <LogIn className="h-5 w-5" />
+            লগইন করুন
+          </Link>
+        </Button>
+      </div>
+    );
   }
 
   const FieldError = ({ field }: { field: string }) =>
