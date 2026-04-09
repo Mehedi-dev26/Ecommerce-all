@@ -12,30 +12,43 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Loader2, Package, Clock, CheckCircle, Truck, XCircle, User,
   ShoppingBag, LogOut, MapPin, Phone as PhoneIcon, Pencil, X,
-  Calendar, CreditCard, RefreshCw
+  Calendar, CreditCard, RefreshCw, ChevronRight, Home, Eye
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { divisions } from "@/data/bd-locations";
+import { Separator } from "@/components/ui/separator";
 
 interface Order {
   id: string;
   order_number: string;
   total: number;
+  subtotal: number;
+  shipping_cost: number;
   status: string;
   created_at: string;
   city: string;
   payment_method: string;
   shipping_address: string;
+  district: string | null;
 }
 
-const statusConfig: Record<string, { label: string; icon: any; className: string }> = {
-  pending: { label: "অপেক্ষমান", icon: Clock, className: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300" },
-  confirmed: { label: "কনফার্মড", icon: CheckCircle, className: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300" },
-  processing: { label: "প্রসেসিং", icon: Package, className: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950 dark:text-violet-300" },
-  shipped: { label: "শিপড", icon: Truck, className: "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950 dark:text-sky-300" },
-  delivered: { label: "ডেলিভার্ড", icon: CheckCircle, className: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300" },
-  cancelled: { label: "বাতিল", icon: XCircle, className: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950 dark:text-rose-300" },
+interface OrderItem {
+  id: string;
+  product_name: string;
+  quantity: number;
+  price: number;
+}
+
+const statusConfig: Record<string, { label: string; icon: any; color: string; bg: string }> = {
+  pending: { label: "অপেক্ষমান", icon: Clock, color: "text-amber-600", bg: "bg-amber-50 border-amber-200 dark:bg-amber-950/50 dark:border-amber-800" },
+  confirmed: { label: "কনফার্মড", icon: CheckCircle, color: "text-blue-600", bg: "bg-blue-50 border-blue-200 dark:bg-blue-950/50 dark:border-blue-800" },
+  processing: { label: "প্রসেসিং", icon: Package, color: "text-violet-600", bg: "bg-violet-50 border-violet-200 dark:bg-violet-950/50 dark:border-violet-800" },
+  shipped: { label: "শিপড", icon: Truck, color: "text-sky-600", bg: "bg-sky-50 border-sky-200 dark:bg-sky-950/50 dark:border-sky-800" },
+  delivered: { label: "ডেলিভার্ড", icon: CheckCircle, color: "text-emerald-600", bg: "bg-emerald-50 border-emerald-200 dark:bg-emerald-950/50 dark:border-emerald-800" },
+  cancelled: { label: "বাতিল", icon: XCircle, color: "text-rose-600", bg: "bg-rose-50 border-rose-200 dark:bg-rose-950/50 dark:border-rose-800" },
 };
+
+const statusSteps = ["pending", "confirmed", "processing", "shipped", "delivered"];
 
 const UserDashboard = () => {
   const { user, profile, signOut, refreshProfile, loading: authLoading } = useAuth();
@@ -45,6 +58,8 @@ const UserDashboard = () => {
   const [profileEditing, setProfileEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("orders");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const [orderItems, setOrderItems] = useState<Record<string, OrderItem[]>>({});
   const [profileForm, setProfileForm] = useState({
     full_name: "",
     phone: "",
@@ -84,7 +99,7 @@ const UserDashboard = () => {
     try {
       const { data } = await supabase
         .from("orders")
-        .select("id, order_number, total, status, created_at, city, payment_method, shipping_address")
+        .select("id, order_number, total, subtotal, shipping_cost, status, created_at, city, district, payment_method, shipping_address")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
       setOrders(data || []);
@@ -92,6 +107,24 @@ const UserDashboard = () => {
       // ignore
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchOrderItems = async (orderId: string) => {
+    if (orderItems[orderId]) return;
+    const { data } = await supabase
+      .from("order_items")
+      .select("id, product_name, quantity, price")
+      .eq("order_id", orderId);
+    setOrderItems((prev) => ({ ...prev, [orderId]: data || [] }));
+  };
+
+  const toggleOrderExpand = (orderId: string) => {
+    if (expandedOrder === orderId) {
+      setExpandedOrder(null);
+    } else {
+      setExpandedOrder(orderId);
+      fetchOrderItems(orderId);
     }
   };
 
@@ -111,7 +144,7 @@ const UserDashboard = () => {
         .eq("user_id", user!.id);
 
       if (error) throw error;
-      toast({ title: "প্রোফাইল আপডেট হয়েছে" });
+      toast({ title: "✅ প্রোফাইল আপডেট হয়েছে" });
       setProfileEditing(false);
       await refreshProfile();
     } catch (err: any) {
@@ -126,11 +159,9 @@ const UserDashboard = () => {
 
   const totalSpent = orders.reduce((sum, o) => sum + Number(o.total), 0);
   const deliveredCount = orders.filter((o) => o.status === "delivered").length;
-  const pendingCount = orders.filter((o) => o.status === "pending" || o.status === "confirmed" || o.status === "processing").length;
+  const pendingCount = orders.filter((o) => ["pending", "confirmed", "processing"].includes(o.status)).length;
 
-  const filteredOrders = statusFilter === "all"
-    ? orders
-    : orders.filter((o) => o.status === statusFilter);
+  const filteredOrders = statusFilter === "all" ? orders : orders.filter((o) => o.status === statusFilter);
 
   if (authLoading) {
     return (
@@ -142,14 +173,19 @@ const UserDashboard = () => {
 
   if (!user) return null;
 
+  const getStepIndex = (status: string) => {
+    if (status === "cancelled") return -1;
+    return statusSteps.indexOf(status);
+  };
+
   return (
     <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-5xl">
-      {/* Header Banner */}
-      <div className="relative rounded-2xl overflow-hidden mb-6">
-        <div className="h-28 sm:h-36 bg-gradient-to-r from-primary via-primary/80 to-primary/60" />
-        <div className="absolute inset-0 flex items-end pb-0">
-          <div className="container flex items-end gap-3 sm:gap-4 px-4 sm:px-6 pb-4 sm:pb-0 translate-y-10 sm:translate-y-12">
-            <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-card border-4 border-background overflow-hidden shadow-xl flex-shrink-0">
+      {/* Header */}
+      <div className="relative rounded-2xl overflow-hidden mb-6 shadow-lg">
+        <div className="h-24 sm:h-32 bg-gradient-to-br from-primary via-primary/85 to-secondary/70" />
+        <div className="bg-card border-b border-border/50 px-4 sm:px-6 pb-4 pt-0">
+          <div className="flex items-end gap-3 sm:gap-4 -mt-10 sm:-mt-12">
+            <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-card border-4 border-card overflow-hidden shadow-xl flex-shrink-0">
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
               ) : (
@@ -158,97 +194,65 @@ const UserDashboard = () => {
                 </div>
               )}
             </div>
-            <div className="pb-1 sm:pb-2 min-w-0 flex-1">
-              <h1 className="text-lg sm:text-2xl font-bold text-white truncate drop-shadow-md">
+            <div className="flex-1 min-w-0 pb-1">
+              <h1 className="text-lg sm:text-xl font-bold text-foreground truncate">
                 {profile?.full_name || user?.user_metadata?.full_name || "ইউজার"}
               </h1>
-              <p className="text-xs sm:text-sm text-white/80 truncate">{user?.email}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">{user?.email}</p>
             </div>
-            <div className="hidden sm:flex gap-2 pb-2">
-              <Button
-                variant="secondary"
-                size="sm"
-                className="gap-1.5 bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm border-0"
-                onClick={() => { setActiveTab("profile"); setProfileEditing(true); }}
-              >
-                <Pencil className="h-3.5 w-3.5" />
-                প্রোফাইল এডিট
+            <div className="hidden sm:flex gap-2 pb-1">
+              <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => { setActiveTab("profile"); setProfileEditing(true); }}>
+                <Pencil className="h-3.5 w-3.5" /> এডিট
               </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                className="bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm border-0"
-                onClick={signOut}
-              >
-                <LogOut className="h-3.5 w-3.5" />
+              <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive gap-1.5 text-xs" onClick={signOut}>
+                <LogOut className="h-3.5 w-3.5" /> লগআউট
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Spacer for avatar overflow */}
-      <div className="h-8 sm:h-10" />
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <Card className="border-border/50">
-          <CardContent className="p-3 sm:p-4 text-center">
-            <Package className="h-5 w-5 text-primary mx-auto mb-1" />
-            <p className="text-xl sm:text-2xl font-bold text-foreground">{orders.length}</p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">মোট অর্ডার</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-3 sm:p-4 text-center">
-            <Clock className="h-5 w-5 text-amber-500 mx-auto mb-1" />
-            <p className="text-xl sm:text-2xl font-bold text-foreground">{pendingCount}</p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">চলমান</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-3 sm:p-4 text-center">
-            <CheckCircle className="h-5 w-5 text-emerald-500 mx-auto mb-1" />
-            <p className="text-xl sm:text-2xl font-bold text-foreground">{deliveredCount}</p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">ডেলিভার্ড</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-3 sm:p-4 text-center">
-            <CreditCard className="h-5 w-5 text-primary mx-auto mb-1" />
-            <p className="text-xl sm:text-2xl font-bold text-primary">৳{totalSpent.toLocaleString("bn-BD")}</p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">মোট খরচ</p>
-          </CardContent>
-        </Card>
+      {/* Stats */}
+      <div className="grid grid-cols-4 gap-2 sm:gap-3 mb-6">
+        {[
+          { icon: Package, value: orders.length, label: "মোট অর্ডার", iconColor: "text-primary" },
+          { icon: Clock, value: pendingCount, label: "চলমান", iconColor: "text-amber-500" },
+          { icon: CheckCircle, value: deliveredCount, label: "ডেলিভার্ড", iconColor: "text-emerald-500" },
+          { icon: CreditCard, value: `৳${totalSpent.toLocaleString("bn-BD")}`, label: "মোট খরচ", iconColor: "text-primary" },
+        ].map((stat, i) => (
+          <Card key={i} className="border-border/50 overflow-hidden">
+            <CardContent className="p-2.5 sm:p-4 text-center">
+              <stat.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${stat.iconColor} mx-auto mb-1`} />
+              <p className={`text-base sm:text-xl font-bold ${i === 3 ? "text-primary" : "text-foreground"} truncate`}>{stat.value}</p>
+              <p className="text-[9px] sm:text-xs text-muted-foreground">{stat.label}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-          <TabsList className="w-full sm:w-auto">
-            <TabsTrigger value="orders" className="flex-1 sm:flex-none gap-1.5">
-              <Package className="h-4 w-4" />
-              <span>অর্ডার</span>
+          <TabsList className="w-full sm:w-auto h-10">
+            <TabsTrigger value="orders" className="flex-1 sm:flex-none gap-1.5 text-xs sm:text-sm">
+              <Package className="h-4 w-4" /> অর্ডার
             </TabsTrigger>
-            <TabsTrigger value="profile" className="flex-1 sm:flex-none gap-1.5">
-              <User className="h-4 w-4" />
-              <span>প্রোফাইল</span>
+            <TabsTrigger value="profile" className="flex-1 sm:flex-none gap-1.5 text-xs sm:text-sm">
+              <User className="h-4 w-4" /> প্রোফাইল
             </TabsTrigger>
           </TabsList>
 
           {activeTab === "orders" && (
             <div className="flex items-center gap-2">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[140px] h-9 text-xs">
+                <SelectTrigger className="w-[130px] h-9 text-xs">
                   <SelectValue placeholder="সব অর্ডার" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">সব অর্ডার</SelectItem>
-                  <SelectItem value="pending">অপেক্ষমান</SelectItem>
-                  <SelectItem value="confirmed">কনফার্মড</SelectItem>
-                  <SelectItem value="shipped">শিপড</SelectItem>
-                  <SelectItem value="delivered">ডেলিভার্ড</SelectItem>
-                  <SelectItem value="cancelled">বাতিল</SelectItem>
+                  {Object.entries(statusConfig).map(([key, cfg]) => (
+                    <SelectItem key={key} value={key}>{cfg.label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <Button variant="ghost" size="icon" className="h-9 w-9" onClick={fetchOrders}>
@@ -266,18 +270,16 @@ const UserDashboard = () => {
             </div>
           ) : filteredOrders.length === 0 ? (
             <Card className="border-border/50">
-              <CardContent className="py-12 sm:py-16 text-center">
-                <ShoppingBag className="h-14 w-14 text-muted-foreground/20 mx-auto mb-4" />
+              <CardContent className="py-16 text-center">
+                <div className="h-16 w-16 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                  <ShoppingBag className="h-8 w-8 text-muted-foreground/30" />
+                </div>
                 <p className="text-foreground font-semibold text-lg">
                   {statusFilter !== "all" ? "এই ফিল্টারে কোনো অর্ডার নেই" : "এখনো কোনো অর্ডার নেই"}
                 </p>
-                <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
-                  সাপাহারের তাজা আম অর্ডার করুন এবং এখানে ট্র্যাক করুন
-                </p>
+                <p className="text-sm text-muted-foreground mt-1">সাপাহারের তাজা আম অর্ডার করুন</p>
                 <Button asChild className="mt-5 gap-2">
-                  <Link to="/products">
-                    <ShoppingBag className="h-4 w-4" />আম দেখুন
-                  </Link>
+                  <Link to="/products"><ShoppingBag className="h-4 w-4" /> আম দেখুন</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -286,52 +288,141 @@ const UserDashboard = () => {
               {filteredOrders.map((order) => {
                 const status = statusConfig[order.status] || statusConfig.pending;
                 const StatusIcon = status.icon;
-                return (
-                  <Card key={order.id} className="border-border/50 hover:shadow-md transition-all duration-200 group">
-                    <CardContent className="p-3 sm:p-4">
-                      <div className="flex items-start gap-3">
-                        {/* Status Icon */}
-                        <div className={`h-10 w-10 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center flex-shrink-0 border ${status.className}`}>
-                          <StatusIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-                        </div>
+                const isExpanded = expandedOrder === order.id;
+                const items = orderItems[order.id];
+                const currentStep = getStepIndex(order.status);
 
-                        {/* Order Info */}
+                return (
+                  <Card key={order.id} className="border-border/50 overflow-hidden transition-shadow hover:shadow-md">
+                    {/* Order Header */}
+                    <button
+                      onClick={() => toggleOrderExpand(order.id)}
+                      className="w-full text-left p-3 sm:p-4 focus:outline-none"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`h-10 w-10 sm:h-11 sm:w-11 rounded-xl flex items-center justify-center flex-shrink-0 border ${status.bg}`}>
+                          <StatusIcon className={`h-5 w-5 ${status.color}`} />
+                        </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
-                              <p className="font-bold text-foreground text-sm sm:text-base">{order.order_number}</p>
+                              <p className="font-bold text-foreground text-sm">{order.order_number}</p>
                               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1">
-                                <Badge variant="outline" className={`text-[10px] sm:text-xs border ${status.className}`}>
+                                <Badge variant="outline" className={`text-[10px] border ${status.bg} ${status.color}`}>
                                   {status.label}
                                 </Badge>
-                                <span className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1">
+                                <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
                                   <Calendar className="h-3 w-3" />
-                                  {new Date(order.created_at).toLocaleDateString("bn-BD", {
-                                    day: "numeric",
-                                    month: "short",
-                                    year: "numeric",
-                                  })}
+                                  {new Date(order.created_at).toLocaleDateString("bn-BD", { day: "numeric", month: "short" })}
                                 </span>
                               </div>
                             </div>
-                            <div className="text-right flex-shrink-0">
-                              <p className="text-base sm:text-lg font-bold text-primary">
-                                ৳{Number(order.total).toLocaleString("bn-BD")}
-                              </p>
-                              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                                {order.payment_method === "cod" ? "ক্যাশ অন ডেলিভারি" : order.payment_method}
-                              </p>
+                            <div className="text-right flex-shrink-0 flex items-center gap-1">
+                              <div>
+                                <p className="text-sm sm:text-base font-bold text-primary">৳{Number(order.total).toLocaleString("bn-BD")}</p>
+                                <p className="text-[10px] text-muted-foreground">{order.payment_method === "cod" ? "ক্যাশ অন ডেলিভারি" : order.payment_method}</p>
+                              </div>
+                              <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${isExpanded ? "rotate-90" : ""}`} />
                             </div>
-                          </div>
-
-                          {/* Location */}
-                          <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
-                            <MapPin className="h-3 w-3 flex-shrink-0" />
-                            <span className="truncate">{order.city}</span>
                           </div>
                         </div>
                       </div>
-                    </CardContent>
+                    </button>
+
+                    {/* Expanded Details */}
+                    {isExpanded && (
+                      <div className="border-t border-border/50 bg-muted/20 px-3 sm:px-4 py-3 space-y-4">
+                        {/* Progress Tracker */}
+                        {order.status !== "cancelled" && (
+                          <div>
+                            <p className="text-xs font-medium text-muted-foreground mb-2">অর্ডার ট্র্যাকিং</p>
+                            <div className="flex items-center gap-0">
+                              {statusSteps.map((step, i) => {
+                                const stepCfg = statusConfig[step];
+                                const StepIcon = stepCfg.icon;
+                                const isActive = i <= currentStep;
+                                return (
+                                  <div key={step} className="flex items-center flex-1 last:flex-none">
+                                    <div className={`h-7 w-7 sm:h-8 sm:w-8 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-colors ${isActive ? "border-primary bg-primary/10" : "border-border bg-card"}`}>
+                                      <StepIcon className={`h-3 w-3 sm:h-3.5 sm:w-3.5 ${isActive ? "text-primary" : "text-muted-foreground/40"}`} />
+                                    </div>
+                                    {i < statusSteps.length - 1 && (
+                                      <div className={`flex-1 h-0.5 mx-0.5 ${i < currentStep ? "bg-primary" : "bg-border"}`} />
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            <div className="flex justify-between mt-1">
+                              {statusSteps.map((step) => (
+                                <p key={step} className="text-[8px] sm:text-[9px] text-muted-foreground text-center" style={{ width: "20%" }}>
+                                  {statusConfig[step].label}
+                                </p>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {order.status === "cancelled" && (
+                          <div className="flex items-center gap-2 p-2 rounded-lg bg-rose-50 border border-rose-200 dark:bg-rose-950/30 dark:border-rose-800">
+                            <XCircle className="h-4 w-4 text-rose-500" />
+                            <span className="text-xs text-rose-600 dark:text-rose-400">এই অর্ডারটি বাতিল করা হয়েছে</span>
+                          </div>
+                        )}
+
+                        {/* Order Items */}
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground mb-2">পণ্যসমূহ</p>
+                          {items ? (
+                            <div className="space-y-1.5">
+                              {items.map((item) => (
+                                <div key={item.id} className="flex items-center justify-between bg-card rounded-lg p-2 border border-border/50">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                      <Package className="h-4 w-4 text-primary" />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <p className="text-xs font-medium text-foreground truncate">{item.product_name}</p>
+                                      <p className="text-[10px] text-muted-foreground">{item.quantity} x ৳{Number(item.price).toLocaleString("bn-BD")}</p>
+                                    </div>
+                                  </div>
+                                  <p className="text-xs font-semibold text-foreground flex-shrink-0">
+                                    ৳{(item.quantity * Number(item.price)).toLocaleString("bn-BD")}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center py-3">
+                              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Order Summary */}
+                        <div className="bg-card rounded-lg p-3 border border-border/50 space-y-1.5">
+                          <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>সাবটোটাল</span>
+                            <span>৳{Number(order.subtotal).toLocaleString("bn-BD")}</span>
+                          </div>
+                          <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>ডেলিভারি চার্জ</span>
+                            <span>৳{Number(order.shipping_cost).toLocaleString("bn-BD")}</span>
+                          </div>
+                          <Separator />
+                          <div className="flex justify-between text-sm font-bold text-foreground">
+                            <span>মোট</span>
+                            <span className="text-primary">৳{Number(order.total).toLocaleString("bn-BD")}</span>
+                          </div>
+                        </div>
+
+                        {/* Shipping Info */}
+                        <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                          <MapPin className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
+                          <span>{order.shipping_address}{order.district ? `, ${order.district}` : ""}, {order.city}</span>
+                        </div>
+                      </div>
+                    )}
                   </Card>
                 );
               })}
@@ -342,140 +433,121 @@ const UserDashboard = () => {
         {/* Profile Tab */}
         <TabsContent value="profile" className="mt-0">
           <div className="grid gap-4 sm:grid-cols-2">
-            {/* Profile Info Card */}
+            {/* Personal Info */}
             <Card className="border-border/50">
-              <CardContent className="p-4 sm:p-6">
+              <CardContent className="p-4 sm:p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-foreground flex items-center gap-2">
-                    <User className="h-4 w-4 text-primary" />
-                    ব্যক্তিগত তথ্য
+                  <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm">
+                    <User className="h-4 w-4 text-primary" /> ব্যক্তিগত তথ্য
                   </h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setProfileEditing(!profileEditing)}
-                    className="h-8 gap-1"
-                  >
-                    {profileEditing ? <X className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
-                    {profileEditing ? "বাতিল" : "এডিট"}
+                  <Button variant="ghost" size="sm" onClick={() => setProfileEditing(!profileEditing)} className="h-8 gap-1 text-xs">
+                    {profileEditing ? <><X className="h-3.5 w-3.5" /> বাতিল</> : <><Pencil className="h-3.5 w-3.5" /> এডিট</>}
                   </Button>
                 </div>
 
                 {profileEditing ? (
                   <div className="space-y-3">
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-medium text-muted-foreground">নাম</Label>
-                      <Input value={profileForm.full_name} onChange={(e) => setProfileForm({ ...profileForm, full_name: e.target.value })} />
+                      <Label className="text-xs text-muted-foreground">নাম</Label>
+                      <Input value={profileForm.full_name} onChange={(e) => setProfileForm({ ...profileForm, full_name: e.target.value })} placeholder="আপনার নাম" />
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-medium text-muted-foreground">ফোন</Label>
+                      <Label className="text-xs text-muted-foreground">ফোন</Label>
                       <Input
                         value={profileForm.phone}
                         onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value.replace(/[^0-9]/g, "").slice(0, 11) })}
                         placeholder="01XXXXXXXXX"
                       />
                     </div>
-                    <Button onClick={handleProfileSave} disabled={saving} className="w-full mt-2">
+                    <Button onClick={handleProfileSave} disabled={saving} className="w-full mt-2 h-10">
                       {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                       সেভ করুন
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50">
-                      <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">নাম</p>
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {profile?.full_name || user?.user_metadata?.full_name || "সেট করা হয়নি"}
-                        </p>
+                  <div className="space-y-2">
+                    {[
+                      { icon: User, label: "নাম", value: profile?.full_name || user?.user_metadata?.full_name || "সেট করা হয়নি" },
+                      { icon: PhoneIcon, label: "ফোন", value: profile?.phone || "সেট করা হয়নি" },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 border border-border/30">
+                        <item.icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.label}</p>
+                          <p className="text-sm font-medium text-foreground truncate">{item.value}</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50">
-                      <PhoneIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">ফোন</p>
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {profile?.phone || "সেট করা হয়নি"}
-                        </p>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Address Card */}
+            {/* Address */}
             <Card className="border-border/50">
-              <CardContent className="p-4 sm:p-6">
+              <CardContent className="p-4 sm:p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-foreground flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-primary" />
-                    ডিফল্ট ঠিকানা
+                  <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm">
+                    <MapPin className="h-4 w-4 text-primary" /> ডিফল্ট ঠিকানা
                   </h3>
                 </div>
 
                 {profileEditing ? (
                   <div className="space-y-3">
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-medium text-muted-foreground">বিভাগ</Label>
+                      <Label className="text-xs text-muted-foreground">বিভাগ</Label>
                       <Select value={profileForm.default_division} onValueChange={(v) => setProfileForm({ ...profileForm, default_division: v, default_district: "", default_upazila: "" })}>
                         <SelectTrigger><SelectValue placeholder="সিলেক্ট করুন" /></SelectTrigger>
                         <SelectContent>{divisions.map((d) => <SelectItem key={d.name} value={d.name}>{d.name_bn}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-medium text-muted-foreground">জেলা</Label>
+                      <Label className="text-xs text-muted-foreground">জেলা</Label>
                       <Select value={profileForm.default_district} onValueChange={(v) => setProfileForm({ ...profileForm, default_district: v, default_upazila: "" })} disabled={!profileForm.default_division}>
                         <SelectTrigger><SelectValue placeholder="সিলেক্ট করুন" /></SelectTrigger>
                         <SelectContent>{selectedDivision?.districts.map((d) => <SelectItem key={d.name} value={d.name}>{d.name_bn}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-medium text-muted-foreground">উপজেলা</Label>
+                      <Label className="text-xs text-muted-foreground">উপজেলা</Label>
                       <Select value={profileForm.default_upazila} onValueChange={(v) => setProfileForm({ ...profileForm, default_upazila: v })} disabled={!profileForm.default_district}>
                         <SelectTrigger><SelectValue placeholder="সিলেক্ট করুন" /></SelectTrigger>
                         <SelectContent>{selectedDistrict?.upazilas.map((u) => <SelectItem key={u.name} value={u.name}>{u.name_bn}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-medium text-muted-foreground">সম্পূর্ণ ঠিকানা</Label>
+                      <Label className="text-xs text-muted-foreground">সম্পূর্ণ ঠিকানা</Label>
                       <Input value={profileForm.default_address} onChange={(e) => setProfileForm({ ...profileForm, default_address: e.target.value })} placeholder="বাড়ি, রোড, এলাকা..." />
                     </div>
-                    <Button onClick={handleProfileSave} disabled={saving} className="w-full">
+                    <Button onClick={handleProfileSave} disabled={saving} className="w-full h-10">
                       {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                       ঠিকানা সেভ করুন
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {profile?.default_division ? (
                       <>
-                        <div className="p-3 rounded-xl bg-muted/50">
+                        <div className="p-3 rounded-xl bg-muted/40 border border-border/30">
                           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">লোকেশন</p>
                           <p className="text-sm font-medium text-foreground mt-0.5">
                             {divisions.find((d) => d.name === profile.default_division)?.name_bn || profile.default_division}
-                            {profile.default_district && ` > ${divisions.find((d) => d.name === profile.default_division)?.districts.find((d) => d.name === profile.default_district)?.name_bn || profile.default_district}`}
-                            {profile.default_upazila && ` > ${profile.default_upazila}`}
+                            {profile.default_district && ` › ${divisions.find((d) => d.name === profile.default_division)?.districts.find((d) => d.name === profile.default_district)?.name_bn || profile.default_district}`}
+                            {profile.default_upazila && ` › ${profile.default_upazila}`}
                           </p>
                         </div>
                         {profile.default_address && (
-                          <div className="p-3 rounded-xl bg-muted/50">
+                          <div className="p-3 rounded-xl bg-muted/40 border border-border/30">
                             <p className="text-[10px] text-muted-foreground uppercase tracking-wider">ঠিকানা</p>
                             <p className="text-sm text-foreground mt-0.5">{profile.default_address}</p>
                           </div>
                         )}
                       </>
                     ) : (
-                      <div className="py-6 text-center">
+                      <div className="py-8 text-center">
                         <MapPin className="h-8 w-8 text-muted-foreground/20 mx-auto mb-2" />
                         <p className="text-sm text-muted-foreground">ডিফল্ট ঠিকানা সেট করা হয়নি</p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="mt-3"
-                          onClick={() => setProfileEditing(true)}
-                        >
+                        <Button variant="outline" size="sm" className="mt-3" onClick={() => setProfileEditing(true)}>
                           ঠিকানা যোগ করুন
                         </Button>
                       </div>
@@ -485,11 +557,11 @@ const UserDashboard = () => {
               </CardContent>
             </Card>
 
-            {/* Quick Actions - Mobile */}
+            {/* Quick Actions */}
             <Card className="sm:col-span-2 border-border/50">
-              <CardContent className="p-4 sm:p-6">
-                <h3 className="font-semibold text-foreground mb-3">দ্রুত অ্যাকশন</h3>
-                <div className="grid grid-cols-2 gap-3">
+              <CardContent className="p-4 sm:p-5">
+                <h3 className="font-semibold text-foreground mb-3 text-sm">দ্রুত অ্যাকশন</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <Button asChild variant="outline" className="h-auto py-3 flex-col gap-1.5">
                     <Link to="/products">
                       <ShoppingBag className="h-5 w-5 text-primary" />
