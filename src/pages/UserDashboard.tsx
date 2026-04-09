@@ -32,6 +32,10 @@ interface Order {
   payment_method: string;
   shipping_address: string;
   district: string | null;
+  pathao_consignment_id: string | null;
+  pathao_order_status: string | null;
+  pathao_tracking_url: string | null;
+  delivery_fee: number | null;
 }
 
 interface OrderItem {
