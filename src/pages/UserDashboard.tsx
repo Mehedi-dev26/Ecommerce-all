@@ -107,10 +107,10 @@ const UserDashboard = () => {
     try {
       const { data } = await supabase
         .from("orders")
-        .select("id, order_number, total, subtotal, shipping_cost, status, created_at, city, district, payment_method, shipping_address")
+        .select("id, order_number, total, subtotal, shipping_cost, status, created_at, city, district, payment_method, shipping_address, pathao_consignment_id, pathao_order_status, pathao_tracking_url, delivery_fee")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
-      setOrders(data || []);
+      setOrders((data as Order[]) || []);
     } catch {
       // ignore
     } finally {
