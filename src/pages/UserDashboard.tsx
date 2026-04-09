@@ -14,7 +14,8 @@ import {
   Loader2, Package, Clock, CheckCircle, Truck, XCircle, User,
   ShoppingBag, LogOut, MapPin, Phone as PhoneIcon, Pencil, X,
   Calendar, CreditCard, RefreshCw, ChevronRight, Eye,
-  RotateCcw, HelpCircle, Shield, Bell, Copy, ExternalLink
+  RotateCcw, HelpCircle, Shield, Bell, Copy, ExternalLink,
+  Search, ArrowRight
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { divisions } from "@/data/bd-locations";
