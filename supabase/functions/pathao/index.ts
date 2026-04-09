@@ -110,6 +110,17 @@ Deno.serve(async (req) => {
 
         if (!order_id) return errorResponse("order_id required", 400);
 
+        // Auto-fetch store_id if not valid
+        if (!pathaoPayload.store_id || pathaoPayload.store_id <= 1) {
+          const storesData = await pathaoFetch("/aladdin/api/v1/stores");
+          const stores = storesData?.data?.data || storesData?.data || [];
+          if (Array.isArray(stores) && stores.length > 0) {
+            pathaoPayload.store_id = stores[0].store_id;
+          } else {
+            return errorResponse("No Pathao stores found. Please create a store in Pathao merchant panel.", 400);
+          }
+        }
+
         const data = await pathaoFetch("/aladdin/api/v1/orders", {
           method: "POST",
           body: JSON.stringify(pathaoPayload),
