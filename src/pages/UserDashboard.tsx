@@ -188,6 +188,53 @@ const UserDashboard = () => {
     }
   };
 
+  const searchOrderTracking = async () => {
+    if (!trackSearchId.trim()) return;
+    setTrackSearchLoading(true);
+    setTrackError(null);
+    setTrackedOrder(null);
+    setTrackedItems([]);
+    try {
+      const { data: orderData, error: orderErr } = await supabase
+        .from("orders")
+        .select("id, order_number, total, subtotal, shipping_cost, status, created_at, city, district, payment_method, shipping_address, pathao_consignment_id, pathao_order_status, pathao_tracking_url, delivery_fee")
+        .eq("order_number", trackSearchId.trim().toUpperCase())
+        .maybeSingle();
+
+      if (orderErr || !orderData) {
+        setTrackError("এই অর্ডার নম্বর দিয়ে কোনো অর্ডার পাওয়া যায়নি।");
+        return;
+      }
+
+      // If has pathao consignment, fetch live status
+      if (orderData.pathao_consignment_id) {
+        try {
+          const { data: trackData } = await supabase.functions.invoke(
+            `pathao?action=track-order&consignment_id=${orderData.pathao_consignment_id}`,
+            { method: "GET" }
+          );
+          if (trackData?.data?.order_status) {
+            orderData.pathao_order_status = trackData.data.order_status;
+          }
+        } catch {
+          // use cached status
+        }
+      }
+
+      setTrackedOrder(orderData as Order);
+
+      const { data: items } = await supabase
+        .from("order_items")
+        .select("id, product_name, quantity, price, product_id")
+        .eq("order_id", orderData.id);
+      setTrackedItems(items || []);
+    } catch {
+      setTrackError("অর্ডার ট্র্যাক করতে সমস্যা হয়েছে।");
+    } finally {
+      setTrackSearchLoading(false);
+    }
+  };
+
   const handleProfileSave = async () => {
     setSaving(true);
     try {
