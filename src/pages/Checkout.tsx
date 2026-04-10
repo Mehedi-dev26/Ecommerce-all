@@ -101,6 +101,8 @@ const Checkout = () => {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [saveAbandonedCheckout]);
 
+  const shippingCost = totalPrice >= 2000 ? 0 : 120;
+
   // Cascading location data
   const selectedDivision = useMemo(
     () => divisions.find((d) => d.name === form.division),
