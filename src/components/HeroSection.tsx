@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import mangoBanner1 from "@/assets/mango-banner.jpg";
 
 interface BannerSlide {
   image: string;
@@ -14,20 +13,10 @@ interface BannerSlide {
   showTextOverlay: boolean;
 }
 
-const fallbackSlides: BannerSlide[] = [
-  {
-    image: mangoBanner1,
-    title: "সাপাহারের দেশি আম",
-    subtitle: "নওগাঁ জেলার সাপাহার উপজেলার বাগান থেকে সরাসরি আপনার ঘরে",
-    cta: "আম অর্ডার করুন",
-    ctaLink: "/products",
-    showTextOverlay: true,
-  },
-];
-
 const HeroSection = () => {
-  const [slides, setSlides] = useState<BannerSlide[]>(fallbackSlides);
+  const [slides, setSlides] = useState<BannerSlide[]>([]);
   const [current, setCurrent] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     supabase
@@ -39,7 +28,7 @@ const HeroSection = () => {
         if (data && data.length > 0) {
           setSlides(
             data.map((b) => ({
-              image: b.image_url || mangoBanner1,
+              image: b.image_url || "",
               title: b.title,
               subtitle: b.subtitle || "",
               cta: b.cta_text || "অর্ডার করুন",
@@ -47,8 +36,8 @@ const HeroSection = () => {
               showTextOverlay: b.show_text_overlay !== false,
             }))
           );
-          setCurrent(0);
         }
+        setLoading(false);
       });
   }, []);
 
@@ -61,6 +50,12 @@ const HeroSection = () => {
     return () => clearInterval(timer);
   }, [next, slides.length]);
 
+  if (loading) {
+    return <div className="w-full aspect-[16/9] sm:aspect-[21/9] bg-muted animate-pulse" />;
+  }
+
+  if (slides.length === 0) return null;
+
   const slide = slides[current];
 
   return (
@@ -70,14 +65,14 @@ const HeroSection = () => {
           key={i}
           src={s.image}
           alt={s.title}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 h-full w-full object-contain sm:object-cover transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0"}`}
           width={1920}
           height={720}
           {...(i === 0 ? {} : { loading: "lazy" as const })}
         />
       ))}
 
-      <div className="relative aspect-[16/9] sm:aspect-[21/9] lg:h-[520px] lg:aspect-auto">
+      <div className="relative aspect-[16/9] sm:aspect-[21/9] lg:h-[520px] lg:aspect-auto bg-black/5">
         {slide.showTextOverlay && (
           <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-transparent" />
         )}
