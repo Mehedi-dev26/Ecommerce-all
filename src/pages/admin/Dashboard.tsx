@@ -15,6 +15,7 @@ interface Stats {
   totalProducts: number;
   totalOrders: number;
   totalRevenue: number;
+  cancelledTotal: number;
   pendingOrders: number;
   completedOrders: number;
   totalCategories: number;
@@ -37,7 +38,7 @@ interface RecentOrder {
 const Dashboard = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState<Stats>({
-    totalProducts: 0, totalOrders: 0, totalRevenue: 0,
+    totalProducts: 0, totalOrders: 0, totalRevenue: 0, cancelledTotal: 0,
     pendingOrders: 0, completedOrders: 0, totalCategories: 0,
     processingOrders: 0, shippedOrders: 0, cancelledOrders: 0,
   });
@@ -61,17 +62,21 @@ const Dashboard = () => {
       if (categoriesRes.error) throw categoriesRes.error;
 
       const orders = ordersRes.data || [];
-      const totalRevenue = orders.reduce((sum, o) => sum + Number(o.total), 0);
+      const deliveredOrders = orders.filter((o) => o.status === "delivered");
+      const cancelledOrdersList = orders.filter((o) => o.status === "cancelled");
+      const totalRevenue = deliveredOrders.reduce((sum, o) => sum + Number(o.total), 0);
+      const cancelledTotal = cancelledOrdersList.reduce((sum, o) => sum + Number(o.total), 0);
 
       setStats({
         totalProducts: productsRes.count || 0,
         totalOrders: orders.length,
         totalRevenue,
+        cancelledTotal,
         pendingOrders: orders.filter((o) => o.status === "pending").length,
         processingOrders: orders.filter((o) => o.status === "processing").length,
         shippedOrders: orders.filter((o) => o.status === "shipped").length,
-        completedOrders: orders.filter((o) => o.status === "delivered").length,
-        cancelledOrders: orders.filter((o) => o.status === "cancelled").length,
+        completedOrders: deliveredOrders.length,
+        cancelledOrders: cancelledOrdersList.length,
         totalCategories: categoriesRes.count || 0,
       });
 
@@ -99,7 +104,15 @@ const Dashboard = () => {
       icon: DollarSign,
       bg: "bg-primary/10",
       iconColor: "text-primary",
-      desc: "সর্বমোট বিক্রয়",
+      desc: `${stats.completedOrders} টি ডেলিভারড অর্ডার থেকে`,
+    },
+    {
+      title: "বাতিল অর্ডার খরচ",
+      value: `৳${stats.cancelledTotal.toLocaleString()}`,
+      icon: AlertCircle,
+      bg: "bg-destructive/10",
+      iconColor: "text-destructive",
+      desc: `${stats.cancelledOrders} টি বাতিল অর্ডার`,
     },
     {
       title: "মোট অর্ডার",
@@ -116,14 +129,6 @@ const Dashboard = () => {
       bg: "bg-accent/10",
       iconColor: "text-accent",
       desc: `${stats.totalCategories} ক্যাটাগরি`,
-    },
-    {
-      title: "সম্পন্ন অর্ডার",
-      value: stats.completedOrders,
-      icon: CheckCircle,
-      bg: "bg-secondary/10",
-      iconColor: "text-secondary",
-      desc: "ডেলিভারড",
     },
   ];
 
