@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Minus, Plus, Heart, Share2, Truck, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight, Star, User, ThumbsUp, CheckCircle2, Package, Weight, Calculator } from "lucide-react";
+import { ShoppingCart, Minus, Plus, Heart, Share2, Truck, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight, Star, User, ThumbsUp, CheckCircle2, Package, Weight, Calculator, MapPin } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -12,9 +12,11 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { divisions } from "@/data/bd-locations";
 
 const KG_OPTIONS = [5, 10, 20];
-const COURIER_RATE_PER_KG = 10; // ৳10 per kg courier charge
+const DEFAULT_COURIER_RATE = 10;
 
 // Fake reviews for demo
 const fakeReviews = [
@@ -44,6 +46,10 @@ const ProductDetail = () => {
   const [selectedKg, setSelectedKg] = useState(5);
   const [customKg, setCustomKg] = useState("");
   const [isCustom, setIsCustom] = useState(false);
+  const [selDivision, setSelDivision] = useState("");
+  const [selDistrict, setSelDistrict] = useState("");
+  const [courierRate, setCourierRate] = useState<number | null>(null);
+  const [courierLoading, setCourierLoading] = useState(false);
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", id],
@@ -104,8 +110,36 @@ const ProductDetail = () => {
   const activeKg = isCustom ? (Number(customKg) || 0) : selectedKg;
   const pricePerKg = Number(product.price);
   const totalProductPrice = pricePerKg * activeKg;
-  const courierCharge = COURIER_RATE_PER_KG * activeKg;
+  const effectiveRate = courierRate ?? DEFAULT_COURIER_RATE;
+  const courierCharge = effectiveRate * activeKg;
   const grandTotal = totalProductPrice + courierCharge;
+
+  // Cascading location data
+  const divisionData = divisions.find((d) => d.name === selDivision);
+  const districtList = divisionData?.districts || [];
+
+  // Fetch courier charge when district changes
+  const lookupCourierRate = async (div: string, dist: string) => {
+    setCourierLoading(true);
+    try {
+      // Try exact district match first
+      const { data } = await supabase
+        .from("courier_charges")
+        .select("charge_per_kg")
+        .eq("division", div)
+        .eq("district", dist)
+        .limit(1);
+      if (data && data.length > 0) {
+        setCourierRate(Number((data[0] as any).charge_per_kg));
+      } else {
+        setCourierRate(null); // fallback to default
+      }
+    } catch {
+      setCourierRate(null);
+    } finally {
+      setCourierLoading(false);
+    }
+  };
 
   const handleAdd = () => {
     if (activeKg <= 0) {
