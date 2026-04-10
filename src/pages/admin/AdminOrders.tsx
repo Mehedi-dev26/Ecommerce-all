@@ -269,8 +269,73 @@ const AdminOrders = () => {
 
       <p className="text-xs text-muted-foreground">{filtered.length} টি অর্ডার দেখানো হচ্ছে</p>
 
-      {/* Orders Table */}
-      <Card className="border-border/50 overflow-hidden">
+      {/* Mobile Order Cards */}
+      <div className="space-y-3 md:hidden">
+        {filtered.map((o) => (
+          <Card key={o.id} className="border-border/50 overflow-hidden">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <FileText className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <span className="font-semibold text-primary text-sm">#{o.order_number}</span>
+                      <button onClick={() => copyOrderNumber(o.order_number)} className="h-5 w-5 flex items-center justify-center text-muted-foreground">
+                        {copiedId === o.order_number ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      {new Date(o.created_at).toLocaleDateString("bn-BD", { day: "numeric", month: "short" })}
+                    </p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => viewOrder(o)}>
+                  <Eye className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="flex items-center justify-between mb-2">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-sm truncate">{o.customer_name}</p>
+                  <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    <Phone className="h-3 w-3" />{o.customer_phone}
+                  </p>
+                </div>
+                <span className="font-bold text-sm">৳{Number(o.total).toLocaleString()}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Select value={o.status} onValueChange={(v) => updateStatus(o.id, v)}>
+                  <SelectTrigger className="h-auto w-auto border-0 p-0 shadow-none focus:ring-0 [&>svg]:ml-1">
+                    {getStatusBadge(o.status)}
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>
+                        <span className="flex items-center gap-2"><s.icon className="h-3.5 w-3.5" />{s.label}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span className="text-[10px] bg-muted px-2 py-0.5 rounded-md font-medium text-muted-foreground">
+                  {o.payment_method === "cod" ? "COD" : o.payment_method}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        {filtered.length === 0 && (
+          <div className="text-center py-16">
+            <ShoppingCart className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+            <p className="text-muted-foreground">কোনো অর্ডার পাওয়া যায়নি</p>
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Orders Table */}
+      <Card className="border-border/50 overflow-hidden hidden md:block">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -278,7 +343,7 @@ const AdminOrders = () => {
                 <tr className="bg-muted/30 border-b border-border/50">
                   <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">অর্ডার</th>
                   <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">কাস্টমার</th>
-                  <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground hidden md:table-cell">পেমেন্ট</th>
+                  <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">পেমেন্ট</th>
                   <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">মোট</th>
                   <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">স্ট্যাটাস</th>
                   <th className="text-left py-3.5 px-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground hidden lg:table-cell">কুরিয়ার</th>
@@ -296,10 +361,7 @@ const AdminOrders = () => {
                         </div>
                         <div className="flex items-center gap-1">
                           <span className="font-semibold text-primary">#{o.order_number}</span>
-                          <button
-                            onClick={() => copyOrderNumber(o.order_number)}
-                            className="h-5 w-5 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
-                          >
+                          <button onClick={() => copyOrderNumber(o.order_number)} className="h-5 w-5 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors">
                             {copiedId === o.order_number ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
                           </button>
                         </div>
@@ -308,12 +370,10 @@ const AdminOrders = () => {
                     <td className="py-3 px-4">
                       <div>
                         <p className="font-medium">{o.customer_name}</p>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Phone className="h-3 w-3" />{o.customer_phone}
-                        </p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1"><Phone className="h-3 w-3" />{o.customer_phone}</p>
                       </div>
                     </td>
-                    <td className="py-3 px-4 hidden md:table-cell">
+                    <td className="py-3 px-4">
                       <span className="text-xs bg-muted px-2 py-1 rounded-md font-medium">{o.payment_method === "cod" ? "ক্যাশ অন ডেলিভারি" : o.payment_method}</span>
                     </td>
                     <td className="py-3 px-4">
@@ -327,10 +387,7 @@ const AdminOrders = () => {
                         <SelectContent>
                           {statusOptions.map((s) => (
                             <SelectItem key={s.value} value={s.value}>
-                              <span className="flex items-center gap-2">
-                                <s.icon className="h-3.5 w-3.5" />
-                                {s.label}
-                              </span>
+                              <span className="flex items-center gap-2"><s.icon className="h-3.5 w-3.5" />{s.label}</span>
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -370,7 +427,7 @@ const AdminOrders = () => {
 
       {/* Order Detail Dialog */}
       <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
-        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-xl w-[95vw] max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">

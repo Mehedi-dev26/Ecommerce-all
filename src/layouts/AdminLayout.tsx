@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import AdminBottomNav from "@/components/admin/AdminBottomNav";
 import { Menu, Bell, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -93,18 +94,21 @@ const AdminLayout = () => {
         </header>
 
         {/* Content - scrollable */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 pb-20 lg:pb-8">
           <Outlet />
         </main>
 
-        {/* Footer */}
-        <footer className="shrink-0 border-t border-border/50 bg-card/50 px-4 lg:px-8 py-3">
+        {/* Footer - hidden on mobile */}
+        <footer className="shrink-0 border-t border-border/50 bg-card/50 px-4 lg:px-8 py-3 hidden lg:block">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>© {new Date().getFullYear()} Sapahar Mango</span>
             <span>v1.0.0</span>
           </div>
         </footer>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      <AdminBottomNav />
     </div>
   );
 };
