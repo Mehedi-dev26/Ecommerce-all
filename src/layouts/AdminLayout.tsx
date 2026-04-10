@@ -14,6 +14,7 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/admin/customers": { title: "কাস্টমার", subtitle: "গ্রাহক তথ্য ও বিশ্লেষণ" },
   "/admin/payments": { title: "পেমেন্ট", subtitle: "পেমেন্ট ট্র্যাকিং ও ম্যানেজমেন্ট" },
   "/admin/delivery": { title: "ডেলিভারি", subtitle: "ডেলিভারি ট্র্যাকিং ও শিপমেন্ট" },
+  "/admin/courier-charges": { title: "কুরিয়ার চার্জ", subtitle: "এলাকা ভিত্তিক কুরিয়ার চার্জ" },
   "/admin/reports": { title: "রিপোর্ট", subtitle: "ব্যবসায়িক বিশ্লেষণ ও রিপোর্ট" },
   "/admin/settings": { title: "সেটিংস", subtitle: "সাইট কনফিগারেশন" },
 };

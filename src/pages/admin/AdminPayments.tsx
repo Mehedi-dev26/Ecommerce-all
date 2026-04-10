@@ -103,78 +103,80 @@ const AdminPayments = () => {
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
         <Card className="border-border/50">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-              <DollarSign className="h-5 w-5 text-green-600" />
+          <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
+              <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
             </div>
-            <div>
-              <p className="text-xl font-bold">৳{totalRevenue.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">সংগৃহীত পেমেন্ট</p>
+            <div className="min-w-0">
+              <p className="text-lg sm:text-xl font-bold truncate">৳{totalRevenue.toLocaleString()}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">সংগৃহীত পেমেন্ট</p>
             </div>
           </CardContent>
         </Card>
         <Card className="border-border/50">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Clock className="h-5 w-5 text-primary" />
+          <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             </div>
-            <div>
-              <p className="text-xl font-bold">৳{pendingPayments.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">পেন্ডিং পেমেন্ট</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-secondary/10 flex items-center justify-center">
-              <Banknote className="h-5 w-5 text-secondary" />
-            </div>
-            <div>
-              <p className="text-xl font-bold">{codCount}</p>
-              <p className="text-xs text-muted-foreground">ক্যাশ অন ডেলিভারি</p>
+            <div className="min-w-0">
+              <p className="text-lg sm:text-xl font-bold truncate">৳{pendingPayments.toLocaleString()}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">পেন্ডিং পেমেন্ট</p>
             </div>
           </CardContent>
         </Card>
         <Card className="border-border/50">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-destructive/10 flex items-center justify-center">
-              <XCircle className="h-5 w-5 text-destructive" />
+          <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
+              <Banknote className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
             </div>
-            <div>
-              <p className="text-xl font-bold">৳{cancelledTotal.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">বাতিল পেমেন্ট</p>
+            <div className="min-w-0">
+              <p className="text-lg sm:text-xl font-bold">{codCount}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">ক্যাশ অন ডেলিভারি</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-border/50">
+          <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
+              <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-destructive" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-lg sm:text-xl font-bold truncate">৳{cancelledTotal.toLocaleString()}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">বাতিল পেমেন্ট</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="অর্ডার/কাস্টমার খুঁজুন..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-card" />
         </div>
-        <Select value={methodFilter} onValueChange={setMethodFilter}>
-          <SelectTrigger className="w-[180px] bg-card"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">সকল পেমেন্ট</SelectItem>
-            <SelectItem value="cod">ক্যাশ অন ডেলিভারি</SelectItem>
-            <SelectItem value="bkash">বিকাশ</SelectItem>
-            <SelectItem value="nagad">নগদ</SelectItem>
-            <SelectItem value="bank">ব্যাংক</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[160px] bg-card"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">সকল স্ট্যাটাস</SelectItem>
-            <SelectItem value="pending">পেন্ডিং</SelectItem>
-            <SelectItem value="delivered">সম্পন্ন</SelectItem>
-            <SelectItem value="cancelled">বাতিল</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Select value={methodFilter} onValueChange={setMethodFilter}>
+            <SelectTrigger className="flex-1 sm:w-[180px] bg-card"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">সকল পেমেন্ট</SelectItem>
+              <SelectItem value="cod">ক্যাশ অন ডেলিভারি</SelectItem>
+              <SelectItem value="bkash">বিকাশ</SelectItem>
+              <SelectItem value="nagad">নগদ</SelectItem>
+              <SelectItem value="bank">ব্যাংক</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="flex-1 sm:w-[160px] bg-card"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">সকল স্ট্যাটাস</SelectItem>
+              <SelectItem value="pending">পেন্ডিং</SelectItem>
+              <SelectItem value="delivered">সম্পন্ন</SelectItem>
+              <SelectItem value="cancelled">বাতিল</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <p className="text-xs text-muted-foreground">{filtered.length} টি পেমেন্ট দেখানো হচ্ছে</p>
