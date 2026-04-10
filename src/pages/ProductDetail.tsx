@@ -312,6 +312,46 @@ const ProductDetail = () => {
               )}
             </div>
 
+            {/* Location for courier charge */}
+            <div className="mb-4">
+              <span className="mb-2 block text-xs font-semibold text-foreground sm:text-sm">
+                <MapPin className="inline h-4 w-4 mr-1 text-primary" />
+                ডেলিভারি এলাকা (কুরিয়ার চার্জ জানতে)
+              </span>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <Select
+                  value={selDivision}
+                  onValueChange={(v) => { setSelDivision(v); setSelDistrict(""); setCourierRate(null); }}
+                >
+                  <SelectTrigger className="text-xs sm:text-sm"><SelectValue placeholder="বিভাগ" /></SelectTrigger>
+                  <SelectContent>
+                    {divisions.map((d) => (
+                      <SelectItem key={d.name} value={d.name}>{d.name_bn}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={selDistrict}
+                  onValueChange={(v) => { setSelDistrict(v); void lookupCourierRate(selDivision, v); }}
+                  disabled={!selDivision}
+                >
+                  <SelectTrigger className="text-xs sm:text-sm"><SelectValue placeholder="জেলা" /></SelectTrigger>
+                  <SelectContent>
+                    {districtList.map((d) => (
+                      <SelectItem key={d.name} value={d.name}>{d.name_bn}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {courierLoading && <p className="text-xs text-muted-foreground mt-1">চার্জ লোড হচ্ছে...</p>}
+              {!courierLoading && selDistrict && courierRate === null && (
+                <p className="text-xs text-muted-foreground mt-1">ডিফল্ট চার্জ: ৳{DEFAULT_COURIER_RATE}/কেজি</p>
+              )}
+              {!courierLoading && courierRate !== null && (
+                <p className="text-xs text-primary font-medium mt-1">এই এলাকায় কুরিয়ার চার্জ: ৳{courierRate}/কেজি</p>
+              )}
+            </div>
+
             {/* Price & Courier Breakdown */}
             {activeKg > 0 && (
               <div className="mb-4 rounded-xl border-2 border-primary/20 bg-primary/5 p-3 sm:p-4 space-y-2">
@@ -326,7 +366,7 @@ const ProductDetail = () => {
                 <div className="flex justify-between text-sm">
                   <span className="text-foreground/80">
                     <Truck className="inline h-3.5 w-3.5 mr-1" />
-                    কুরিয়ার চার্জ ({activeKg} কেজি × ৳{COURIER_RATE_PER_KG})
+                    কুরিয়ার চার্জ ({activeKg} কেজি × ৳{effectiveRate})
                   </span>
                   <span className="font-semibold text-foreground">৳{courierCharge.toLocaleString()}</span>
                 </div>
