@@ -11,6 +11,7 @@ interface BannerSlide {
   subtitle: string;
   cta: string;
   ctaLink: string;
+  showTextOverlay: boolean;
 }
 
 const fallbackSlides: BannerSlide[] = [
@@ -20,6 +21,7 @@ const fallbackSlides: BannerSlide[] = [
     subtitle: "নওগাঁ জেলার সাপাহার উপজেলার বাগান থেকে সরাসরি আপনার ঘরে",
     cta: "আম অর্ডার করুন",
     ctaLink: "/products",
+    showTextOverlay: true,
   },
 ];
 
@@ -42,6 +44,7 @@ const HeroSection = () => {
               subtitle: b.subtitle || "",
               cta: b.cta_text || "অর্ডার করুন",
               ctaLink: b.cta_link || "/products",
+              showTextOverlay: b.show_text_overlay !== false,
             }))
           );
           setCurrent(0);
@@ -77,27 +80,29 @@ const HeroSection = () => {
       <div className="relative aspect-[16/9] sm:aspect-[21/9] lg:h-[520px] lg:aspect-auto">
         <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-transparent" />
 
-        <div className="absolute inset-0 flex items-center">
-          <div className="container mx-auto px-4">
-            <div className="max-w-lg">
-              <h1
-                key={`title-${current}`}
-                className="mb-2 text-xl font-bold text-white sm:text-4xl lg:text-5xl leading-tight animate-in fade-in slide-in-from-bottom-4 duration-500"
-              >
-                {slide.title}
-              </h1>
-              <p
-                key={`sub-${current}`}
-                className="mb-4 text-xs text-white/90 sm:text-lg lg:text-xl animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150"
-              >
-                {slide.subtitle}
-              </p>
-              <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300 text-xs sm:text-sm">
-                <Link to={slide.ctaLink}>{slide.cta} <ArrowRight className="ml-2 h-4 w-4" /></Link>
-              </Button>
+        {slide.showTextOverlay && (
+          <div className="absolute inset-0 flex items-center">
+            <div className="container mx-auto px-4">
+              <div className="max-w-lg">
+                <h1
+                  key={`title-${current}`}
+                  className="mb-2 text-xl font-bold text-white sm:text-4xl lg:text-5xl leading-tight animate-in fade-in slide-in-from-bottom-4 duration-500"
+                >
+                  {slide.title}
+                </h1>
+                <p
+                  key={`sub-${current}`}
+                  className="mb-4 text-xs text-white/90 sm:text-lg lg:text-xl animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150"
+                >
+                  {slide.subtitle}
+                </p>
+                <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300 text-xs sm:text-sm">
+                  <Link to={slide.ctaLink}>{slide.cta} <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {slides.length > 1 && (
           <>

@@ -8,8 +8,9 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import AdminPageState from "@/components/admin/AdminPageState";
 import { getErrorMessage } from "@/lib/error-message";
-import { Plus, Pencil, Trash2, Upload, Image as ImageIcon, GripVertical, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, Image as ImageIcon, Eye, EyeOff, Crop, Type } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import ImageCropper from "@/components/admin/ImageCropper";
 
 interface Banner {
   id: string;
@@ -20,6 +21,7 @@ interface Banner {
   image_url: string | null;
   sort_order: number;
   is_active: boolean;
+  show_text_overlay: boolean;
 }
 
 const emptyForm = {
@@ -30,6 +32,7 @@ const emptyForm = {
   image_url: "",
   sort_order: 0,
   is_active: true,
+  show_text_overlay: true,
 };
 
 const AdminBanners = () => {
@@ -40,6 +43,8 @@ const AdminBanners = () => {
   const [editing, setEditing] = useState<Banner | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [uploading, setUploading] = useState(false);
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
   const { toast } = useToast();
 
   const fetchBanners = async () => {
@@ -61,7 +66,35 @@ const AdminBanners = () => {
 
   useEffect(() => { void fetchBanners(); }, []);
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setRawImageSrc(reader.result as string);
+      setCropperOpen(true);
+    };
+    reader.readAsDataURL(file);
+    // Reset input so same file can be selected again
+    e.target.value = "";
+  };
+
+  const handleCroppedImage = async (blob: Blob) => {
+    setUploading(true);
+    const path = `banners/${Date.now()}.jpg`;
+    const file = new File([blob], "banner.jpg", { type: "image/jpeg" });
+    const { error } = await supabase.storage.from("product-images").upload(path, file);
+    if (error) {
+      toast({ title: "আপলোড ব্যর্থ", description: error.message, variant: "destructive" });
+    } else {
+      const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+      setForm((f) => ({ ...f, image_url: data.publicUrl }));
+      toast({ title: "ছবি আপলোড সফল" });
+    }
+    setUploading(false);
+  };
+
+  const handleDirectUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
@@ -90,6 +123,7 @@ const AdminBanners = () => {
       image_url: form.image_url || null,
       sort_order: Number(form.sort_order),
       is_active: form.is_active,
+      show_text_overlay: form.show_text_overlay,
     };
 
     let err;
@@ -133,6 +167,18 @@ const AdminBanners = () => {
     }
   };
 
+  const toggleTextOverlay = async (banner: Banner) => {
+    const { error } = await supabase
+      .from("banners")
+      .update({ show_text_overlay: !banner.show_text_overlay })
+      .eq("id", banner.id);
+    if (error) {
+      toast({ title: "ত্রুটি", description: error.message, variant: "destructive" });
+    } else {
+      void fetchBanners();
+    }
+  };
+
   const openEdit = (b: Banner) => {
     setEditing(b);
     setForm({
@@ -143,6 +189,7 @@ const AdminBanners = () => {
       image_url: b.image_url || "",
       sort_order: b.sort_order,
       is_active: b.is_active,
+      show_text_overlay: b.show_text_overlay,
     });
     setDialogOpen(true);
   };
@@ -170,7 +217,7 @@ const AdminBanners = () => {
       {/* Banner List */}
       <div className="space-y-4">
         {banners.map((b) => (
-          <Card key={b.id} className={`overflow-hidden border-border/50 transition-all ${!b.is_active ? "opacity-60" : ""}`}>
+          <Card key={b.id} className={`overflow-hidden border-border/50 rounded-2xl transition-all ${!b.is_active ? "opacity-60" : ""}`}>
             <CardContent className="p-0">
               <div className="flex flex-col sm:flex-row">
                 {/* Image Preview */}
@@ -182,9 +229,16 @@ const AdminBanners = () => {
                       <ImageIcon className="h-10 w-10 text-muted-foreground/30" />
                     </div>
                   )}
-                  <div className="absolute top-2 left-2">
+                  <div className="absolute top-2 left-2 flex gap-1">
                     <span className={`text-xs font-bold px-2 py-1 rounded-lg ${b.is_active ? "bg-green-500/90 text-white" : "bg-muted text-muted-foreground"}`}>
                       #{b.sort_order}
+                    </span>
+                  </div>
+                  {/* Text overlay indicator */}
+                  <div className="absolute top-2 right-2">
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-1 ${b.show_text_overlay ? "bg-blue-500/90 text-white" : "bg-muted/80 text-muted-foreground"}`}>
+                      <Type className="h-3 w-3" />
+                      {b.show_text_overlay ? "লেখা চালু" : "লেখা বন্ধ"}
                     </span>
                   </div>
                 </div>
@@ -200,6 +254,15 @@ const AdminBanners = () => {
                         )}
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => toggleTextOverlay(b)}
+                          title={b.show_text_overlay ? "লেখা বন্ধ করুন" : "লেখা চালু করুন"}
+                        >
+                          <Type className={`h-4 w-4 ${b.show_text_overlay ? "text-blue-500" : "text-muted-foreground"}`} />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -239,7 +302,7 @@ const AdminBanners = () => {
 
       {/* Dialog */}
       <Dialog open={dialogOpen} onOpenChange={(v) => { setDialogOpen(v); if (!v) { setEditing(null); setForm(emptyForm); } }}>
-        <DialogContent className="max-w-lg w-[95vw] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-lg w-[95vw] max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <ImageIcon className="h-5 w-5 text-primary" />
@@ -249,7 +312,7 @@ const AdminBanners = () => {
           <div className="space-y-4 pt-2">
             <div className="space-y-2">
               <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">টাইটেল *</Label>
-              <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="সাপাহারের দেশি আম" />
+              <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="সাপাহারের দেশি আম" className="rounded-xl" />
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">সাবটাইটেল</Label>
@@ -263,47 +326,77 @@ const AdminBanners = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">বাটন টেক্সট</Label>
-                <Input value={form.cta_text} onChange={(e) => setForm({ ...form, cta_text: e.target.value })} placeholder="অর্ডার করুন" />
+                <Input value={form.cta_text} onChange={(e) => setForm({ ...form, cta_text: e.target.value })} placeholder="অর্ডার করুন" className="rounded-xl" />
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">বাটন লিংক</Label>
-                <Input value={form.cta_link} onChange={(e) => setForm({ ...form, cta_link: e.target.value })} placeholder="/products" />
+                <Input value={form.cta_link} onChange={(e) => setForm({ ...form, cta_link: e.target.value })} placeholder="/products" className="rounded-xl" />
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ক্রম</Label>
-                <Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: +e.target.value })} />
+                <Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: +e.target.value })} className="rounded-xl" />
               </div>
               <div className="flex items-center gap-3 pt-6">
                 <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
                 <Label>সক্রিয়</Label>
               </div>
             </div>
+
+            {/* Text overlay toggle */}
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 border border-border/50">
+              <Type className="h-5 w-5 text-blue-500 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium">ব্যানারে লেখা দেখান</p>
+                <p className="text-[10px] text-muted-foreground">টাইটেল, সাবটাইটেল ও বাটন ব্যানারের উপরে দেখাবে</p>
+              </div>
+              <Switch checked={form.show_text_overlay} onCheckedChange={(v) => setForm({ ...form, show_text_overlay: v })} />
+            </div>
+
+            {/* Banner Image with Crop */}
             <div className="space-y-2">
               <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ব্যানার ছবি</Label>
-              <div className="flex flex-col sm:flex-row items-start gap-4">
+              <div className="space-y-3">
                 {form.image_url ? (
-                  <img src={form.image_url} alt="" className="w-full sm:w-48 h-28 rounded-xl object-cover border-2 border-border" />
+                  <img src={form.image_url} alt="" className="w-full h-32 sm:h-40 rounded-xl object-cover border-2 border-border" />
                 ) : (
-                  <div className="w-full sm:w-48 h-28 rounded-xl bg-muted flex items-center justify-center">
+                  <div className="w-full h-32 sm:h-40 rounded-xl bg-muted flex items-center justify-center">
                     <ImageIcon className="h-10 w-10 text-muted-foreground/30" />
                   </div>
                 )}
-                <label className="cursor-pointer flex flex-col items-center justify-center gap-1 px-6 py-4 border-2 border-dashed border-primary/30 rounded-xl text-sm text-primary hover:bg-primary/5 hover:border-primary/50 transition-all w-full sm:w-auto">
-                  <Upload className="h-5 w-5" />
-                  <span className="text-xs">{uploading ? "আপলোড হচ্ছে..." : "ছবি আপলোড"}</span>
-                  <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-                </label>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <label className="cursor-pointer flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-dashed border-primary/30 rounded-xl text-sm text-primary hover:bg-primary/5 hover:border-primary/50 transition-all flex-1">
+                    <Crop className="h-4 w-4" />
+                    <span className="text-xs">{uploading ? "আপলোড হচ্ছে..." : "ক্রপ করে আপলোড"}</span>
+                    <input type="file" className="hidden" accept="image/*" onChange={handleImageSelect} />
+                  </label>
+                  <label className="cursor-pointer flex items-center justify-center gap-2 px-4 py-2.5 border border-border rounded-xl text-sm text-muted-foreground hover:bg-muted/50 transition-all flex-1">
+                    <Upload className="h-4 w-4" />
+                    <span className="text-xs">{uploading ? "আপলোড হচ্ছে..." : "সরাসরি আপলোড"}</span>
+                    <input type="file" className="hidden" accept="image/*" onChange={handleDirectUpload} />
+                  </label>
+                </div>
               </div>
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t border-border">
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>বাতিল</Button>
-            <Button onClick={handleSave} className="shadow-lg shadow-primary/20">{editing ? "আপডেট" : "সেভ"}</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)} className="rounded-xl">বাতিল</Button>
+            <Button onClick={handleSave} className="shadow-lg shadow-primary/20 rounded-xl">{editing ? "আপডেট" : "সেভ"}</Button>
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Image Cropper */}
+      {rawImageSrc && (
+        <ImageCropper
+          open={cropperOpen}
+          onClose={() => { setCropperOpen(false); setRawImageSrc(null); }}
+          imageSrc={rawImageSrc}
+          aspect={21 / 9}
+          onCropComplete={handleCroppedImage}
+        />
+      )}
     </div>
   );
 };

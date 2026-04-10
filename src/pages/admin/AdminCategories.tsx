@@ -128,7 +128,7 @@ const AdminCategories = () => {
           <DialogTrigger asChild>
             <Button className="gap-2 shadow-lg shadow-primary/20"><Plus className="h-4 w-4" />নতুন ক্যাটাগরি</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md w-[95vw] max-h-[90vh] overflow-y-auto rounded-2xl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <FolderTree className="h-5 w-5 text-primary" />

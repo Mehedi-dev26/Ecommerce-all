@@ -1,0 +1,1 @@
+ALTER TABLE public.banners ADD COLUMN IF NOT EXISTS show_text_overlay boolean NOT NULL DEFAULT true;
