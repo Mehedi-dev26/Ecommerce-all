@@ -29,6 +29,11 @@ const Navbar = () => {
               src={mangoLogo}
               alt="Sapahar Mango Logo"
               className="h-10 w-10 rounded-full object-contain bg-white ring-[3px] ring-white/80 ring-offset-2 ring-offset-primary sm:h-11 sm:w-11"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              width={44}
+              height={44}
             />
           </div>
           <div className="flex flex-col">

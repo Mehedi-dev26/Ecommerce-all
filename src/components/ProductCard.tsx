@@ -44,7 +44,16 @@ const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weigh
       <Card className="group h-full overflow-hidden transition-all duration-300 hover:shadow-lg">
         <div className="relative aspect-square overflow-hidden bg-muted">
           {image_url ? (
-            <img src={image_url} alt={name_bn} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+            <img
+              src={image_url}
+              alt={name_bn}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+              decoding="async"
+              width={640}
+              height={640}
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            />
           ) : (
             <div className="flex h-full items-center justify-center text-4xl sm:text-5xl">🥭</div>
           )}
