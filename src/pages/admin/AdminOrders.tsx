@@ -580,6 +580,15 @@ const AdminOrders = () => {
           )}
         </DialogContent>
       </Dialog>
+      {selectedOrder && (
+        <InvoicePrint
+          order={selectedOrder}
+          items={orderItems}
+          open={invoiceOpen}
+          onClose={() => setInvoiceOpen(false)}
+          type={invoiceType}
+        />
+      )}
     </div>
   );
 };
