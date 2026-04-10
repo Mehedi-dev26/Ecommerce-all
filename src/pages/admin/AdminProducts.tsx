@@ -202,28 +202,30 @@ const AdminProducts = () => {
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-center justify-between">
-        <div className="flex flex-col sm:flex-row gap-3 flex-1 w-full lg:w-auto">
-          <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row flex-1 w-full">
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="প্রোডাক্ট খুঁজুন..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-card" />
           </div>
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-[160px] bg-card"><SelectValue placeholder="ক্যাটাগরি" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">সকল ক্যাটাগরি</SelectItem>
-              {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name_bn}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[140px] bg-card"><SelectValue placeholder="স্ট্যাটাস" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">সকল</SelectItem>
-              <SelectItem value="active">সক্রিয়</SelectItem>
-              <SelectItem value="inactive">নিষ্ক্রিয়</SelectItem>
-              <SelectItem value="featured">ফিচারড</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2">
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="flex-1 sm:w-[160px] bg-card"><SelectValue placeholder="ক্যাটাগরি" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">সকল ক্যাটাগরি</SelectItem>
+                {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name_bn}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="flex-1 sm:w-[140px] bg-card"><SelectValue placeholder="স্ট্যাটাস" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">সকল</SelectItem>
+                <SelectItem value="active">সক্রিয়</SelectItem>
+                <SelectItem value="inactive">নিষ্ক্রিয়</SelectItem>
+                <SelectItem value="featured">ফিচারড</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <Dialog open={dialogOpen} onOpenChange={(v) => { setDialogOpen(v); if (!v) { setEditing(null); setForm(emptyProduct); } }}>

@@ -182,13 +182,13 @@ const AdminDelivery = () => {
       )}
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="অর্ডার/কাস্টমার/শহর খুঁজুন..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-card" />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px] bg-card"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[180px] bg-card"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">সকল স্ট্যাটাস</SelectItem>
             {deliveryStatuses.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}

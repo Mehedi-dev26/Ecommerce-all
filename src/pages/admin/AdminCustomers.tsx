@@ -146,22 +146,22 @@ const AdminCustomers = () => {
       </div>
 
       <Tabs defaultValue="customers" className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
-          <TabsList>
-            <TabsTrigger value="customers" className="gap-1.5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="customers" className="gap-1.5 flex-1 sm:flex-none">
               <Users className="h-4 w-4" /> কাস্টমার ({customers.length})
             </TabsTrigger>
-            <TabsTrigger value="abandoned" className="gap-1.5">
+            <TabsTrigger value="abandoned" className="gap-1.5 flex-1 sm:flex-none">
               <AlertTriangle className="h-4 w-4" /> ইনকমপ্লিট ({abandoned.length})
             </TabsTrigger>
           </TabsList>
           <div className="flex items-center gap-2">
-            <div className="relative">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="খুঁজুন..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-card w-48 sm:w-64" />
+              <Input placeholder="খুঁজুন..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-card" />
             </div>
             <Button variant="outline" size="sm" onClick={handlePrintAll} className="gap-1.5 shrink-0">
-              <Printer className="h-4 w-4" /> প্রিন্ট
+              <Printer className="h-4 w-4" /> <span className="hidden sm:inline">প্রিন্ট</span>
             </Button>
           </div>
         </div>
