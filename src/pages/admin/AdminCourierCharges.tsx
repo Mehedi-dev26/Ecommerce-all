@@ -75,7 +75,7 @@ const AdminCourierCharges = () => {
     const payload = {
       division: form.division,
       district: form.district,
-      upazila: form.upazila || null,
+      upazila: (form.upazila && form.upazila !== "__all__") ? form.upazila : null,
       charge_per_kg: Number(form.charge_per_kg),
       label: form.label || null,
     };
