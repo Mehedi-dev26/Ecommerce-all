@@ -78,7 +78,9 @@ const HeroSection = () => {
       ))}
 
       <div className="relative aspect-[16/9] sm:aspect-[21/9] lg:h-[520px] lg:aspect-auto">
-        <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-transparent" />
+        {slide.showTextOverlay && (
+          <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-transparent" />
+        )}
 
         {slide.showTextOverlay && (
           <div className="absolute inset-0 flex items-center">
