@@ -178,33 +178,33 @@ const Dashboard = () => {
       </div>
 
       {/* Main Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
         {statCards.map((stat) => (
           <Card key={stat.title} className="group hover:shadow-lg transition-all duration-300 border-border/50 hover:border-primary/30">
-            <CardContent className="p-5">
-              <div className="flex items-start justify-between mb-4">
-                <div className={`h-12 w-12 rounded-xl ${stat.bg} flex items-center justify-center`}>
-                  <stat.icon className={`h-6 w-6 ${stat.iconColor}`} />
+            <CardContent className="p-3 sm:p-5">
+              <div className="flex items-start justify-between mb-2 sm:mb-4">
+                <div className={`h-9 w-9 sm:h-12 sm:w-12 rounded-lg sm:rounded-xl ${stat.bg} flex items-center justify-center`}>
+                  <stat.icon className={`h-4 w-4 sm:h-6 sm:w-6 ${stat.iconColor}`} />
                 </div>
-                <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block" />
               </div>
-              <p className="text-2xl lg:text-3xl font-bold text-foreground mb-1">{stat.value}</p>
-              <p className="text-sm font-medium text-foreground/80">{stat.title}</p>
-              <p className="text-xs text-muted-foreground mt-1">{stat.desc}</p>
+              <p className="text-lg sm:text-2xl lg:text-3xl font-bold text-foreground mb-0.5 sm:mb-1 truncate">{stat.value}</p>
+              <p className="text-xs sm:text-sm font-medium text-foreground/80">{stat.title}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1 truncate">{stat.desc}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
       {/* Order Status Breakdown */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
         {orderStatusCards.map((item) => (
           <Card key={item.title} className={`${item.className} hover:shadow-md transition-shadow`}>
-            <CardContent className="p-4 flex items-center gap-3">
-              <item.icon className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="text-xl font-bold">{item.value}</p>
-                <p className="text-xs text-muted-foreground">{item.title}</p>
+            <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+              <item.icon className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground shrink-0" />
+              <div className="min-w-0">
+                <p className="text-lg sm:text-xl font-bold">{item.value}</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground">{item.title}</p>
               </div>
             </CardContent>
           </Card>
