@@ -103,48 +103,48 @@ const AdminPayments = () => {
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
         <Card className="border-border/50">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-              <DollarSign className="h-5 w-5 text-green-600" />
+          <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
+              <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
             </div>
-            <div>
-              <p className="text-xl font-bold">৳{totalRevenue.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">সংগৃহীত পেমেন্ট</p>
+            <div className="min-w-0">
+              <p className="text-lg sm:text-xl font-bold truncate">৳{totalRevenue.toLocaleString()}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">সংগৃহীত পেমেন্ট</p>
             </div>
           </CardContent>
         </Card>
         <Card className="border-border/50">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Clock className="h-5 w-5 text-primary" />
+          <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             </div>
-            <div>
-              <p className="text-xl font-bold">৳{pendingPayments.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">পেন্ডিং পেমেন্ট</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/50">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-secondary/10 flex items-center justify-center">
-              <Banknote className="h-5 w-5 text-secondary" />
-            </div>
-            <div>
-              <p className="text-xl font-bold">{codCount}</p>
-              <p className="text-xs text-muted-foreground">ক্যাশ অন ডেলিভারি</p>
+            <div className="min-w-0">
+              <p className="text-lg sm:text-xl font-bold truncate">৳{pendingPayments.toLocaleString()}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">পেন্ডিং পেমেন্ট</p>
             </div>
           </CardContent>
         </Card>
         <Card className="border-border/50">
-          <CardContent className="p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-destructive/10 flex items-center justify-center">
-              <XCircle className="h-5 w-5 text-destructive" />
+          <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
+              <Banknote className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
             </div>
-            <div>
-              <p className="text-xl font-bold">৳{cancelledTotal.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">বাতিল পেমেন্ট</p>
+            <div className="min-w-0">
+              <p className="text-lg sm:text-xl font-bold">{codCount}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">ক্যাশ অন ডেলিভারি</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-border/50">
+          <CardContent className="p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
+              <XCircle className="h-4 w-4 sm:h-5 sm:w-5 text-destructive" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-lg sm:text-xl font-bold truncate">৳{cancelledTotal.toLocaleString()}</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">বাতিল পেমেন্ট</p>
             </div>
           </CardContent>
         </Card>

@@ -182,22 +182,22 @@ const AdminProducts = () => {
   return (
     <div className="space-y-6">
       {/* Stats Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-card rounded-xl border border-border/50 p-4">
-          <p className="text-2xl font-bold">{products.length}</p>
-          <p className="text-xs text-muted-foreground">মোট প্রোডাক্ট</p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+        <div className="bg-card rounded-xl border border-border/50 p-3 sm:p-4">
+          <p className="text-lg sm:text-2xl font-bold">{products.length}</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground">মোট প্রোডাক্ট</p>
         </div>
-        <div className="bg-card rounded-xl border border-border/50 p-4">
-          <p className="text-2xl font-bold text-secondary">{activeCount}</p>
-          <p className="text-xs text-muted-foreground">সক্রিয়</p>
+        <div className="bg-card rounded-xl border border-border/50 p-3 sm:p-4">
+          <p className="text-lg sm:text-2xl font-bold text-secondary">{activeCount}</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground">সক্রিয়</p>
         </div>
-        <div className="bg-card rounded-xl border border-border/50 p-4">
-          <p className="text-2xl font-bold text-primary">{products.length - activeCount}</p>
-          <p className="text-xs text-muted-foreground">নিষ্ক্রিয়</p>
+        <div className="bg-card rounded-xl border border-border/50 p-3 sm:p-4">
+          <p className="text-lg sm:text-2xl font-bold text-primary">{products.length - activeCount}</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground">নিষ্ক্রিয়</p>
         </div>
-        <div className="bg-card rounded-xl border border-border/50 p-4">
-          <p className="text-2xl font-bold text-destructive">{lowStockCount}</p>
-          <p className="text-xs text-muted-foreground">কম স্টক (&lt;10)</p>
+        <div className="bg-card rounded-xl border border-border/50 p-3 sm:p-4">
+          <p className="text-lg sm:text-2xl font-bold text-destructive">{lowStockCount}</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground">কম স্টক (&lt;10)</p>
         </div>
       </div>
 
