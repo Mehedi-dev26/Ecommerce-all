@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Minus, Plus, Heart, Share2, Truck, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight, Star, User, ThumbsUp, CheckCircle2, Package } from "lucide-react";
+import { ShoppingCart, Minus, Plus, Heart, Share2, Truck, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight, Star, User, ThumbsUp, CheckCircle2, Package, Weight, Calculator } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -11,6 +11,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+
+const KG_OPTIONS = [5, 10, 20];
+const COURIER_RATE_PER_KG = 10; // ৳10 per kg courier charge
 
 // Fake reviews for demo
 const fakeReviews = [
@@ -37,6 +41,9 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const [qty, setQty] = useState(1);
   const [selectedImg, setSelectedImg] = useState(0);
+  const [selectedKg, setSelectedKg] = useState(5);
+  const [customKg, setCustomKg] = useState("");
+  const [isCustom, setIsCustom] = useState(false);
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", id],
@@ -94,13 +101,27 @@ const ProductDetail = () => {
     allImages.push(product.image_url);
   }
 
+  const activeKg = isCustom ? (Number(customKg) || 0) : selectedKg;
+  const pricePerKg = Number(product.price);
+  const totalProductPrice = pricePerKg * activeKg;
+  const courierCharge = COURIER_RATE_PER_KG * activeKg;
+  const grandTotal = totalProductPrice + courierCharge;
+
   const handleAdd = () => {
-    addItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: Number(product.price), image_url: product.image_url, weight: product.weight }, qty);
-    toast({ title: "কার্টে যোগ হয়েছে", description: `${product.name_bn} (${qty}টি) কার্টে যোগ করা হয়েছে।` });
+    if (activeKg <= 0) {
+      toast({ title: "ত্রুটি", description: "অনুগ্রহ করে কেজি পরিমাণ নির্বাচন করুন।", variant: "destructive" });
+      return;
+    }
+    addItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: totalProductPrice, image_url: product.image_url, weight: `${activeKg} কেজি` }, qty);
+    toast({ title: "কার্টে যোগ হয়েছে", description: `${product.name_bn} (${activeKg} কেজি) কার্টে যোগ করা হয়েছে।` });
   };
 
   const handleBuyNow = () => {
-    addItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: Number(product.price), image_url: product.image_url, weight: product.weight }, qty);
+    if (activeKg <= 0) {
+      toast({ title: "ত্রুটি", description: "অনুগ্রহ করে কেজি পরিমাণ নির্বাচন করুন।", variant: "destructive" });
+      return;
+    }
+    addItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: totalProductPrice, image_url: product.image_url, weight: `${activeKg} কেজি` }, qty);
     navigate("/checkout");
   };
 
