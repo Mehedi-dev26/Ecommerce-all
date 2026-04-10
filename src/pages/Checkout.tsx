@@ -168,6 +168,11 @@ const Checkout = () => {
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
 
+      // Mark abandoned checkout as recovered
+      if (abandonedId) {
+        await supabase.from("abandoned_checkouts").update({ recovered: true }).eq("id", abandonedId);
+      }
+
       clearCart();
       toast({ title: "অর্ডার সফল!", description: `অর্ডার নম্বর: ${orderNumber}` });
       navigate(`/order-success/${orderNumber}`);
