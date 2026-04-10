@@ -11,8 +11,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import {
   Search, Eye, Package, ShoppingCart, Clock, CheckCircle,
   Truck, XCircle, MapPin, Phone, Mail, CreditCard, FileText, User,
-  Send, RefreshCw, ExternalLink, Copy, Check, Loader2
+  Send, RefreshCw, ExternalLink, Copy, Check, Loader2, Printer
 } from "lucide-react";
+import InvoicePrint from "@/components/admin/InvoicePrint";
 
 interface Order {
   id: string;
@@ -62,6 +63,8 @@ const AdminOrders = () => {
   const [pathaoLoading, setPathaoLoading] = useState(false);
   const [trackingLoading, setTrackingLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
+  const [invoiceType, setInvoiceType] = useState<"shop" | "pathao">("shop");
   const { toast } = useToast();
 
   const fetchOrders = async () => {
@@ -537,6 +540,28 @@ const AdminOrders = () => {
                 </div>
               </div>
 
+              {/* Invoice Buttons */}
+              <div className="flex flex-wrap gap-2 pt-2 border-t border-border/50">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => { setInvoiceType("shop"); setInvoiceOpen(true); }}
+                >
+                  <Printer className="h-4 w-4" /> শপ ইনভয়েস প্রিন্ট
+                </Button>
+                {selectedOrder.pathao_consignment_id && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => { setInvoiceType("pathao"); setInvoiceOpen(true); }}
+                  >
+                    <Truck className="h-4 w-4" /> পাঠাও ইনভয়েস প্রিন্ট
+                  </Button>
+                )}
+              </div>
+
               {/* Status Update */}
               <div className="flex items-center gap-3 pt-2 border-t border-border/50">
                 <span className="text-sm text-muted-foreground">স্ট্যাটাস পরিবর্তন:</span>
@@ -555,6 +580,15 @@ const AdminOrders = () => {
           )}
         </DialogContent>
       </Dialog>
+      {selectedOrder && (
+        <InvoicePrint
+          order={selectedOrder}
+          items={orderItems}
+          open={invoiceOpen}
+          onClose={() => setInvoiceOpen(false)}
+          type={invoiceType}
+        />
+      )}
     </div>
   );
 };
