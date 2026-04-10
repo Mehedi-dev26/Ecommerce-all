@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      abandoned_checkouts: {
+        Row: {
+          cart_items: Json | null
+          cart_total: number | null
+          created_at: string
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          district: string | null
+          division: string | null
+          id: string
+          recovered: boolean
+          shipping_address: string | null
+          upazila: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          cart_items?: Json | null
+          cart_total?: number | null
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          district?: string | null
+          division?: string | null
+          id?: string
+          recovered?: boolean
+          shipping_address?: string | null
+          upazila?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          cart_items?: Json | null
+          cart_total?: number | null
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          district?: string | null
+          division?: string | null
+          id?: string
+          recovered?: boolean
+          shipping_address?: string | null
+          upazila?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       banners: {
         Row: {
           created_at: string
