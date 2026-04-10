@@ -234,7 +234,7 @@ const AdminProducts = () => {
               <Plus className="h-4 w-4" />নতুন প্রোডাক্ট
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto rounded-2xl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Package className="h-5 w-5 text-primary" />
