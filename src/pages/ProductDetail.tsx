@@ -210,18 +210,17 @@ const ProductDetail = () => {
 
             <Separator className="mb-4" />
 
-            {/* Price section */}
+            {/* Price per kg */}
             <div className="mb-4 rounded-lg bg-muted/50 p-3 sm:p-4">
               <div className="flex items-baseline gap-3">
-                <span className="text-2xl font-bold text-primary sm:text-3xl">৳{Number(product.price)}</span>
+                <span className="text-2xl font-bold text-primary sm:text-3xl">৳{pricePerKg}/কেজি</span>
                 {product.compare_price && (
                   <>
-                    <span className="text-sm text-muted-foreground line-through sm:text-base">৳{Number(product.compare_price)}</span>
+                    <span className="text-sm text-muted-foreground line-through sm:text-base">৳{Number(product.compare_price)}/কেজি</span>
                     <Badge variant="secondary" className="text-xs">-{discount}% ছাড়</Badge>
                   </>
                 )}
               </div>
-              {product.weight && <p className="mt-1 text-xs text-muted-foreground sm:text-sm">পরিমাণ: {product.weight}</p>}
             </div>
 
             {/* Short Description */}
@@ -233,20 +232,91 @@ const ProductDetail = () => {
 
             <Separator className="mb-4" />
 
+            {/* KG Selection */}
+            <div className="mb-4">
+              <span className="mb-2 block text-xs font-semibold text-foreground sm:text-sm">
+                <Weight className="inline h-4 w-4 mr-1 text-primary" />
+                কত কেজি নিবেন?
+              </span>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {KG_OPTIONS.map((kg) => (
+                  <button
+                    key={kg}
+                    onClick={() => { setSelectedKg(kg); setIsCustom(false); }}
+                    className={`rounded-lg border-2 px-4 py-2 text-sm font-semibold transition-all ${
+                      !isCustom && selectedKg === kg
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border hover:border-primary/50 text-foreground"
+                    }`}
+                  >
+                    {kg} কেজি
+                  </button>
+                ))}
+                <button
+                  onClick={() => setIsCustom(true)}
+                  className={`rounded-lg border-2 px-4 py-2 text-sm font-semibold transition-all ${
+                    isCustom
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border hover:border-primary/50 text-foreground"
+                  }`}
+                >
+                  কাস্টম
+                </button>
+              </div>
+              {isCustom && (
+                <div className="mt-2 flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min={1}
+                    placeholder="কত কেজি?"
+                    value={customKg}
+                    onChange={(e) => setCustomKg(e.target.value)}
+                    className="w-32"
+                  />
+                  <span className="text-sm text-muted-foreground">কেজি</span>
+                </div>
+              )}
+            </div>
+
+            {/* Price & Courier Breakdown */}
+            {activeKg > 0 && (
+              <div className="mb-4 rounded-xl border-2 border-primary/20 bg-primary/5 p-3 sm:p-4 space-y-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <Calculator className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-bold text-foreground">মূল্য হিসাব</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-foreground/80">আমের মূল্য ({activeKg} কেজি × ৳{pricePerKg})</span>
+                  <span className="font-semibold text-foreground">৳{totalProductPrice.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-foreground/80">
+                    <Truck className="inline h-3.5 w-3.5 mr-1" />
+                    কুরিয়ার চার্জ ({activeKg} কেজি × ৳{COURIER_RATE_PER_KG})
+                  </span>
+                  <span className="font-semibold text-foreground">৳{courierCharge.toLocaleString()}</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between text-base">
+                  <span className="font-bold text-foreground">সর্বমোট</span>
+                  <span className="font-bold text-primary text-lg">৳{grandTotal.toLocaleString()}</span>
+                </div>
+              </div>
+            )}
+
             {/* Quantity */}
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
               <div className="flex items-center gap-1">
-                <span className="mr-2 text-xs font-medium text-foreground sm:text-sm">পরিমাণ:</span>
+                <span className="mr-2 text-xs font-medium text-foreground sm:text-sm">অর্ডার সংখ্যা:</span>
                 <div className="flex items-center rounded-lg border">
                   <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => setQty(Math.max(1, qty - 1))}>
                     <Minus className="h-3.5 w-3.5" />
                   </Button>
                   <span className="w-10 text-center text-sm font-semibold">{qty}</span>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => setQty(Math.min(product.stock, qty + 1))}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => setQty(qty + 1)}>
                     <Plus className="h-3.5 w-3.5" />
                   </Button>
                 </div>
-                <span className="ml-2 text-[11px] text-muted-foreground sm:text-xs">({product.stock}টি স্টকে আছে)</span>
               </div>
             </div>
 
