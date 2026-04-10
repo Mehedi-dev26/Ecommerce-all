@@ -50,8 +50,21 @@ const HeroSection = () => {
     return () => clearInterval(timer);
   }, [next, slides.length]);
 
+  // Preload first image
+  useEffect(() => {
+    if (slides.length > 0 && slides[0].image) {
+      const img = new Image();
+      img.src = slides[0].image;
+    }
+  }, [slides]);
+
   if (loading) {
-    return <div className="w-full aspect-[16/9] sm:aspect-[21/9] bg-muted animate-pulse" />;
+    return (
+      <div className="w-full aspect-[16/9] sm:aspect-[21/9] bg-muted relative overflow-hidden">
+        <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-muted via-muted-foreground/5 to-muted" />
+        <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+      </div>
+    );
   }
 
   if (slides.length === 0) return null;
