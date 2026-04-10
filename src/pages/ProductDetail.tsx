@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Minus, Plus, Heart, Share2, Truck, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight, Star, User, ThumbsUp, CheckCircle2, Package, Weight, Calculator } from "lucide-react";
+import { ShoppingCart, Minus, Plus, Heart, Share2, Truck, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight, Star, User, ThumbsUp, CheckCircle2, Package, Weight, Calculator, MapPin } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -12,9 +12,11 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { divisions } from "@/data/bd-locations";
 
 const KG_OPTIONS = [5, 10, 20];
-const COURIER_RATE_PER_KG = 10; // ৳10 per kg courier charge
+const DEFAULT_COURIER_RATE = 10;
 
 // Fake reviews for demo
 const fakeReviews = [
@@ -44,6 +46,10 @@ const ProductDetail = () => {
   const [selectedKg, setSelectedKg] = useState(5);
   const [customKg, setCustomKg] = useState("");
   const [isCustom, setIsCustom] = useState(false);
+  const [selDivision, setSelDivision] = useState("");
+  const [selDistrict, setSelDistrict] = useState("");
+  const [courierRate, setCourierRate] = useState<number | null>(null);
+  const [courierLoading, setCourierLoading] = useState(false);
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", id],
@@ -104,8 +110,36 @@ const ProductDetail = () => {
   const activeKg = isCustom ? (Number(customKg) || 0) : selectedKg;
   const pricePerKg = Number(product.price);
   const totalProductPrice = pricePerKg * activeKg;
-  const courierCharge = COURIER_RATE_PER_KG * activeKg;
+  const effectiveRate = courierRate ?? DEFAULT_COURIER_RATE;
+  const courierCharge = effectiveRate * activeKg;
   const grandTotal = totalProductPrice + courierCharge;
+
+  // Cascading location data
+  const divisionData = divisions.find((d) => d.name === selDivision);
+  const districtList = divisionData?.districts || [];
+
+  // Fetch courier charge when district changes
+  const lookupCourierRate = async (div: string, dist: string) => {
+    setCourierLoading(true);
+    try {
+      // Try exact district match first
+      const { data } = await supabase
+        .from("courier_charges")
+        .select("charge_per_kg")
+        .eq("division", div)
+        .eq("district", dist)
+        .limit(1);
+      if (data && data.length > 0) {
+        setCourierRate(Number((data[0] as any).charge_per_kg));
+      } else {
+        setCourierRate(null); // fallback to default
+      }
+    } catch {
+      setCourierRate(null);
+    } finally {
+      setCourierLoading(false);
+    }
+  };
 
   const handleAdd = () => {
     if (activeKg <= 0) {
@@ -278,6 +312,46 @@ const ProductDetail = () => {
               )}
             </div>
 
+            {/* Location for courier charge */}
+            <div className="mb-4">
+              <span className="mb-2 block text-xs font-semibold text-foreground sm:text-sm">
+                <MapPin className="inline h-4 w-4 mr-1 text-primary" />
+                ডেলিভারি এলাকা (কুরিয়ার চার্জ জানতে)
+              </span>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <Select
+                  value={selDivision}
+                  onValueChange={(v) => { setSelDivision(v); setSelDistrict(""); setCourierRate(null); }}
+                >
+                  <SelectTrigger className="text-xs sm:text-sm"><SelectValue placeholder="বিভাগ" /></SelectTrigger>
+                  <SelectContent>
+                    {divisions.map((d) => (
+                      <SelectItem key={d.name} value={d.name}>{d.name_bn}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={selDistrict}
+                  onValueChange={(v) => { setSelDistrict(v); void lookupCourierRate(selDivision, v); }}
+                  disabled={!selDivision}
+                >
+                  <SelectTrigger className="text-xs sm:text-sm"><SelectValue placeholder="জেলা" /></SelectTrigger>
+                  <SelectContent>
+                    {districtList.map((d) => (
+                      <SelectItem key={d.name} value={d.name}>{d.name_bn}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {courierLoading && <p className="text-xs text-muted-foreground mt-1">চার্জ লোড হচ্ছে...</p>}
+              {!courierLoading && selDistrict && courierRate === null && (
+                <p className="text-xs text-muted-foreground mt-1">ডিফল্ট চার্জ: ৳{DEFAULT_COURIER_RATE}/কেজি</p>
+              )}
+              {!courierLoading && courierRate !== null && (
+                <p className="text-xs text-primary font-medium mt-1">এই এলাকায় কুরিয়ার চার্জ: ৳{courierRate}/কেজি</p>
+              )}
+            </div>
+
             {/* Price & Courier Breakdown */}
             {activeKg > 0 && (
               <div className="mb-4 rounded-xl border-2 border-primary/20 bg-primary/5 p-3 sm:p-4 space-y-2">
@@ -292,7 +366,7 @@ const ProductDetail = () => {
                 <div className="flex justify-between text-sm">
                   <span className="text-foreground/80">
                     <Truck className="inline h-3.5 w-3.5 mr-1" />
-                    কুরিয়ার চার্জ ({activeKg} কেজি × ৳{COURIER_RATE_PER_KG})
+                    কুরিয়ার চার্জ ({activeKg} কেজি × ৳{effectiveRate})
                   </span>
                   <span className="font-semibold text-foreground">৳{courierCharge.toLocaleString()}</span>
                 </div>
