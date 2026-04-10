@@ -63,6 +63,8 @@ const AdminOrders = () => {
   const [pathaoLoading, setPathaoLoading] = useState(false);
   const [trackingLoading, setTrackingLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
+  const [invoiceType, setInvoiceType] = useState<"shop" | "pathao">("shop");
   const { toast } = useToast();
 
   const fetchOrders = async () => {
