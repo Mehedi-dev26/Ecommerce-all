@@ -731,44 +731,21 @@ const UserDashboard = () => {
                     </div>
                   )}
 
-                  {/* Pathao Live Tracking */}
-                  {trackedOrder.pathao_consignment_id && (
-                    <div className="p-4 rounded-xl border border-primary/20 bg-primary/5">
-                      <div className="flex items-center justify-between mb-3">
-                        <p className="text-sm font-semibold text-foreground flex items-center gap-2">
-                          <Truck className="h-4 w-4 text-primary" /> পাঠাও কুরিয়ার লাইভ স্ট্যাটাস
-                        </p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-7 gap-1 text-[10px]"
-                          disabled={trackSearchLoading}
-                          onClick={searchOrderTracking}
-                        >
-                          <RefreshCw className="h-3 w-3" /> রিফ্রেশ
-                        </Button>
+                  {/* Courier Info (simplified - no separate status) */}
+                  {trackedOrder.pathao_consignment_id && trackedOrder.pathao_tracking_url && (
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/30">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Truck className="h-4 w-4 text-primary" />
+                        <span>কুরিয়ার ট্র্যাকিং নম্বর: <span className="font-medium text-foreground">{trackedOrder.pathao_consignment_id}</span></span>
                       </div>
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        <Badge variant="outline" className="text-xs gap-1">
-                          <Package className="h-3 w-3" />
-                          কনসাইনমেন্ট: {trackedOrder.pathao_consignment_id}
-                        </Badge>
-                        {trackedOrder.pathao_order_status && (
-                          <Badge className="text-xs bg-primary/10 text-primary border-primary/20">
-                            {trackedOrder.pathao_order_status}
-                          </Badge>
-                        )}
-                      </div>
-                      {trackedOrder.pathao_tracking_url && (
-                        <a
-                          href={trackedOrder.pathao_tracking_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium"
-                        >
-                          <ExternalLink className="h-3 w-3" /> পাঠাও ওয়েবসাইটে বিস্তারিত দেখুন
-                        </a>
-                      )}
+                      <a
+                        href={trackedOrder.pathao_tracking_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium"
+                      >
+                        <ExternalLink className="h-3 w-3" /> বিস্তারিত
+                      </a>
                     </div>
                   )}
 
