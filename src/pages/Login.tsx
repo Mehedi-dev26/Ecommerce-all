@@ -102,63 +102,63 @@ const Login = () => {
         </div>
 
         <div className="relative z-10 flex flex-col justify-center px-10 xl:px-16 py-12 w-full">
-          {/* Logo */}
-          <div className="flex items-center gap-3 mb-10">
-            <div className="h-14 w-14 rounded-2xl bg-primary-foreground/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-primary-foreground/30 overflow-hidden">
-              <img src={mangoLogo} alt="Sapahar Mango" className="h-10 w-10 object-contain" />
+          {/* Logo & Brand */}
+          <div className="flex items-center gap-4 mb-12">
+            <div className="h-16 w-16 rounded-full bg-primary-foreground/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-yellow-400/60 overflow-hidden shadow-lg">
+              <img src={mangoLogo} alt="Sapahar Mango" className="h-12 w-12 object-contain" />
             </div>
             <div>
-              <h2 className="text-xl font-bold tracking-tight">সাপাহার ম্যাঙ্গো</h2>
-              <p className="text-xs text-primary-foreground/70">Sapahar Mango</p>
+              <h2 className="text-2xl font-bold tracking-tight text-white">সাপাহার ম্যাঙ্গো</h2>
+              <p className="text-sm text-white/70 font-['Dancing_Script'] italic tracking-wide">Sapahar Mango</p>
             </div>
           </div>
 
           {/* Heading */}
-          <h1 className="text-3xl xl:text-4xl font-bold leading-tight mb-4">
-            সাপাহারের সেরা আম,<br />
-            <span className="text-primary-foreground/80">সরাসরি আপনার ঘরে 🥭</span>
+          <h1 className="text-3xl xl:text-[2.5rem] font-bold leading-[1.3] mb-5">
+            <span className="text-white">সাপাহারের প্রিমিয়াম আম</span><br />
+            <span className="text-yellow-200/90">সরাসরি আপনার ঘরে পৌঁছে যাবে</span>
           </h1>
-          <p className="text-primary-foreground/70 text-sm leading-relaxed mb-10 max-w-md">
-            রাজশাহীর সাপাহার থেকে সরাসরি আপনার দোরগোড়ায় — ১০০% প্রাকৃতিক, রাসায়নিকমুক্ত, গাছপাকা আম। বাগান থেকে সরাসরি আপনার টেবিলে।
+          <p className="text-white/75 text-[15px] leading-relaxed mb-12 max-w-md">
+            রাজশাহীর সাপাহার থেকে বাছাইকৃত গাছপাকা আম — ১০০% প্রাকৃতিক ও রাসায়নিকমুক্ত। বাগান থেকে সরাসরি আপনার দোরগোড়ায়।
           </p>
 
           {/* Features */}
           <div className="space-y-5">
             {[
-              { icon: Leaf, title: "১০০% প্রাকৃতিক", desc: "কোনো রাসায়নিক বা কার্বাইড ব্যবহার হয় না" },
-              { icon: Truck, title: "দ্রুত ডেলিভারি", desc: "সারাদেশে পাঠাও কুরিয়ারে হোম ডেলিভারি" },
-              { icon: ShieldCheck, title: "গুণগত মান নিশ্চিত", desc: "প্রতিটি আম হাতে বাছাই করা ও মান যাচাইকৃত" },
-              { icon: Award, title: "সেরা দাম", desc: "মধ্যস্বত্বভোগী ছাড়াই সরাসরি বাগান থেকে" },
+              { icon: Leaf, title: "১০০% প্রাকৃতিক ও রাসায়নিকমুক্ত", desc: "কোনো কার্বাইড বা ক্ষতিকর রাসায়নিক নেই" },
+              { icon: Truck, title: "সারাদেশে দ্রুত হোম ডেলিভারি", desc: "পাঠাও কুরিয়ারে নিরাপদ ও দ্রুত ডেলিভারি" },
+              { icon: ShieldCheck, title: "প্রতিটি আম মান যাচাইকৃত", desc: "হাতে বাছাই করা ও গুণগত মান নিশ্চিত" },
+              { icon: Award, title: "বাগান থেকে সরাসরি সেরা দামে", desc: "মধ্যস্বত্বভোগী ছাড়া ন্যায্য মূল্যে আম" },
             ].map((item, i) => (
-              <div key={i} className="flex items-start gap-4">
-                <div className="h-10 w-10 rounded-xl bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
-                  <item.icon className="h-5 w-5" />
+              <div key={i} className="flex items-start gap-4 group">
+                <div className="h-10 w-10 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:bg-white/25 transition-colors">
+                  <item.icon className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm">{item.title}</h3>
-                  <p className="text-xs text-primary-foreground/60 mt-0.5">{item.desc}</p>
+                  <h3 className="font-semibold text-[15px] text-white">{item.title}</h3>
+                  <p className="text-[13px] text-white/60 mt-0.5">{item.desc}</p>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Testimonial */}
-          <div className="mt-10 p-4 rounded-2xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/10">
-            <div className="flex items-center gap-1 mb-2">
+          <div className="mt-12 p-5 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
+            <div className="flex items-center gap-1 mb-2.5">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="h-3.5 w-3.5 fill-primary-foreground text-primary-foreground" />
+                <Star key={i} className="h-4 w-4 fill-yellow-300 text-yellow-300" />
               ))}
             </div>
-            <p className="text-xs text-primary-foreground/80 italic leading-relaxed">
-              "এত সুস্বাদু আম আগে কখনো খাইনি! সত্যিই গাছপাকা আমের স্বাদ পেয়েছি। ডেলিভারিও খুব দ্রুত ছিল।"
+            <p className="text-[13px] text-white/85 italic leading-relaxed">
+              "এত সুস্বাদু ও তাজা আম আগে কখনো পাইনি! সত্যিকারের গাছপাকা আমের স্বাদ। প্যাকেজিং ও ডেলিভারি দুটোই অসাধারণ ছিল।"
             </p>
-            <div className="flex items-center gap-2 mt-3">
-              <div className="h-7 w-7 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-                <Heart className="h-3.5 w-3.5" />
+            <div className="flex items-center gap-2.5 mt-3">
+              <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
+                <Heart className="h-4 w-4 text-white" />
               </div>
               <div>
-                <p className="text-xs font-semibold">সন্তুষ্ট গ্রাহক</p>
-                <p className="text-[10px] text-primary-foreground/50">ঢাকা, বাংলাদেশ</p>
+                <p className="text-[13px] font-semibold text-white">সন্তুষ্ট গ্রাহক</p>
+                <p className="text-[11px] text-white/50">ঢাকা, বাংলাদেশ</p>
               </div>
             </div>
           </div>
@@ -166,13 +166,14 @@ const Login = () => {
       </div>
 
       {/* Right Panel - Auth Form */}
-      <div className="w-full lg:w-[55%] xl:w-[50%] flex items-center justify-center px-4 sm:px-8 py-8">
+      <div className="w-full lg:w-[55%] xl:w-[50%] flex items-center justify-center px-4 sm:px-8 py-8 bg-background">
         <div className="w-full max-w-[420px]">
           {/* Mobile Logo */}
           <div className="text-center mb-6 lg:hidden">
-            <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-primary/10 ring-4 ring-primary/20 mb-3 overflow-hidden">
+            <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 ring-4 ring-yellow-400/30 mb-3 overflow-hidden">
               <img src={mangoLogo} alt="Sapahar Mango" className="h-12 w-12 object-contain" />
             </div>
+            <p className="text-sm text-muted-foreground font-['Dancing_Script'] italic">Sapahar Mango</p>
           </div>
 
           {/* Heading */}
@@ -191,7 +192,7 @@ const Login = () => {
           </div>
 
           {/* Auth Card */}
-          <div className="bg-card rounded-2xl border border-border/50 shadow-lg p-5 sm:p-7 space-y-5">
+          <div className="rounded-2xl border border-border/50 shadow-lg p-5 sm:p-7 space-y-5 bg-card">
             {/* Back button */}
             {mode !== "login" && (
               <button
@@ -202,14 +203,13 @@ const Login = () => {
               </button>
             )}
 
-            {/* Google Button - Show first for login */}
+            {/* Google Button */}
             {mode !== "forgot" && (
               <>
-                <Button
+                <button
                   onClick={handleGoogleLogin}
                   disabled={signingIn}
-                  className="w-full h-12 gap-3 rounded-xl transition-all duration-200 text-sm font-medium bg-card hover:bg-muted border border-border text-foreground shadow-sm hover:shadow-md"
-                  variant="outline"
+                  className="w-full h-12 flex items-center justify-center gap-3 rounded-xl text-sm font-medium border-2 border-border bg-background text-foreground hover:bg-muted/60 hover:border-primary/30 transition-all duration-200 shadow-sm disabled:opacity-50"
                 >
                   {signingIn ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
@@ -222,7 +222,7 @@ const Login = () => {
                     </svg>
                   )}
                   Google দিয়ে {mode === "register" ? "রেজিস্টার" : "লগইন"} করুন
-                </Button>
+                </button>
 
                 {/* Divider */}
                 <div className="relative">
