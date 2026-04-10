@@ -28,6 +28,7 @@ const Checkout = () => {
   const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [abandonedId, setAbandonedId] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
     phone: "",
