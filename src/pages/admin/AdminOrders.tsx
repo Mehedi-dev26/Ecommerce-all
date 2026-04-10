@@ -213,41 +213,41 @@ const AdminOrders = () => {
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-card rounded-xl border border-border/50 p-4 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <ShoppingCart className="h-5 w-5 text-primary" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+        <div className="bg-card rounded-xl border border-border/50 p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
           </div>
-          <div>
-            <p className="text-xl font-bold">{orders.length}</p>
-            <p className="text-xs text-muted-foreground">মোট অর্ডার</p>
-          </div>
-        </div>
-        <div className="bg-card rounded-xl border border-border/50 p-4 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Clock className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <p className="text-xl font-bold">{pendingCount}</p>
-            <p className="text-xs text-muted-foreground">পেন্ডিং</p>
+          <div className="min-w-0">
+            <p className="text-lg sm:text-xl font-bold truncate">{orders.length}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">মোট অর্ডার</p>
           </div>
         </div>
-        <div className="bg-card rounded-xl border border-border/50 p-4 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-secondary/10 flex items-center justify-center">
-            <Package className="h-5 w-5 text-secondary" />
+        <div className="bg-card rounded-xl border border-border/50 p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
           </div>
-          <div>
-            <p className="text-xl font-bold">{processingCount}</p>
-            <p className="text-xs text-muted-foreground">প্রসেসিং</p>
+          <div className="min-w-0">
+            <p className="text-lg sm:text-xl font-bold">{pendingCount}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">পেন্ডিং</p>
           </div>
         </div>
-        <div className="bg-card rounded-xl border border-border/50 p-4 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-accent/10 flex items-center justify-center">
-            <CreditCard className="h-5 w-5 text-accent" />
+        <div className="bg-card rounded-xl border border-border/50 p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-secondary/10 flex items-center justify-center shrink-0">
+            <Package className="h-4 w-4 sm:h-5 sm:w-5 text-secondary" />
           </div>
-          <div>
-            <p className="text-xl font-bold">৳{totalRevenue.toLocaleString()}</p>
-            <p className="text-xs text-muted-foreground">মোট আয়</p>
+          <div className="min-w-0">
+            <p className="text-lg sm:text-xl font-bold">{processingCount}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">প্রসেসিং</p>
+          </div>
+        </div>
+        <div className="bg-card rounded-xl border border-border/50 p-3 sm:p-4 flex items-center gap-2 sm:gap-3">
+          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+            <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-lg sm:text-xl font-bold truncate">৳{totalRevenue.toLocaleString()}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">মোট আয়</p>
           </div>
         </div>
       </div>
