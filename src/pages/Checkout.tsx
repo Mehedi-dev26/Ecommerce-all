@@ -57,7 +57,49 @@ const Checkout = () => {
     }
   }, [profile, user]);
 
-  const shippingCost = totalPrice >= 2000 ? 0 : 120;
+  // Save abandoned checkout data when user fills fields
+  const saveAbandonedCheckout = useCallback(async () => {
+    // Only save if at least name or phone is filled
+    if (!form.name.trim() && !form.phone.trim()) return;
+
+    const payload = {
+      customer_name: form.name.trim() || null,
+      customer_phone: form.phone.trim() || null,
+      customer_email: form.email.trim() || null,
+      division: form.division || null,
+      district: form.district || null,
+      upazila: form.upazila || null,
+      shipping_address: form.address.trim() || null,
+      cart_items: items.map(i => ({ id: i.id, name: i.name_bn, qty: i.quantity, price: i.price })),
+      cart_total: totalPrice,
+      user_id: user?.id || null,
+    };
+
+    try {
+      if (abandonedId) {
+        await supabase.from("abandoned_checkouts").update(payload).eq("id", abandonedId);
+      } else {
+        const { data } = await supabase.from("abandoned_checkouts").insert(payload).select("id").single();
+        if (data) setAbandonedId(data.id);
+      }
+    } catch {
+      // silently fail - don't disrupt checkout
+    }
+  }, [form, items, totalPrice, user, abandonedId]);
+
+  // Debounced save on form changes
+  useEffect(() => {
+    if (!form.name.trim() && !form.phone.trim()) return;
+    const timer = setTimeout(() => { saveAbandonedCheckout(); }, 3000);
+    return () => clearTimeout(timer);
+  }, [form.name, form.phone, form.email, form.division, form.district, form.upazila, form.address]);
+
+  // Save on page leave
+  useEffect(() => {
+    const handleBeforeUnload = () => { saveAbandonedCheckout(); };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [saveAbandonedCheckout]);
 
   // Cascading location data
   const selectedDivision = useMemo(
