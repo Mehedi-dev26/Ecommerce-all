@@ -60,7 +60,7 @@ const HeroSection = () => {
 
   if (loading) {
     return (
-      <div className="w-full aspect-[16/9] sm:aspect-[21/9] bg-muted relative overflow-hidden">
+      <div className="w-full aspect-[2/1] sm:aspect-[21/9] bg-muted relative overflow-hidden">
         <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-muted via-muted-foreground/5 to-muted" />
         <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
       </div>
@@ -78,14 +78,15 @@ const HeroSection = () => {
           key={i}
           src={s.image}
           alt={s.title}
-          className={`absolute inset-0 h-full w-full object-contain sm:object-cover transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${i === current ? "opacity-100" : "opacity-0"}`}
           width={1920}
-          height={720}
+          height={820}
+          fetchPriority={i === 0 ? "high" : undefined}
           {...(i === 0 ? {} : { loading: "lazy" as const })}
         />
       ))}
 
-      <div className="relative aspect-[16/9] sm:aspect-[21/9] lg:h-[520px] lg:aspect-auto bg-black/5">
+      <div className="relative aspect-[2/1] sm:aspect-[21/9] bg-muted">
         {slide.showTextOverlay && (
           <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-transparent" />
         )}
