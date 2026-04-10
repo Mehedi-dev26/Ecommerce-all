@@ -37,8 +37,10 @@ const CategorySection = () => {
                   alt={cat.name_bn}
                   className="h-full w-full object-cover"
                   loading="lazy"
+                  decoding="async"
                   width={512}
                   height={512}
+                  sizes="(max-width: 640px) 20vw, 72px"
                 />
               </div>
               <span className="text-center text-[11px] font-semibold leading-tight text-foreground sm:text-sm">
