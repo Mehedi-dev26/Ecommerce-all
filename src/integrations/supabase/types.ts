@@ -134,6 +134,39 @@ export type Database = {
         }
         Relationships: []
       }
+      courier_charges: {
+        Row: {
+          charge_per_kg: number
+          created_at: string
+          district: string
+          division: string
+          id: string
+          label: string | null
+          upazila: string | null
+          updated_at: string
+        }
+        Insert: {
+          charge_per_kg?: number
+          created_at?: string
+          district: string
+          division: string
+          id?: string
+          label?: string | null
+          upazila?: string | null
+          updated_at?: string
+        }
+        Update: {
+          charge_per_kg?: number
+          created_at?: string
+          district?: string
+          division?: string
+          id?: string
+          label?: string | null
+          upazila?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
