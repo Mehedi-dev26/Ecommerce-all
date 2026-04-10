@@ -357,6 +357,7 @@ const AdminBanners = () => {
             {/* Banner Image with Crop */}
             <div className="space-y-2">
               <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ব্যানার ছবি</Label>
+              <p className="text-[10px] text-muted-foreground">প্রস্তাবিত রেজুলেশন: <strong>1920 × 820 px</strong> (21:9 রেশিও)</p>
               <div className="space-y-3">
                 {form.image_url ? (
                   <img src={form.image_url} alt="" className="w-full h-32 sm:h-40 rounded-xl object-cover border-2 border-border" />
