@@ -11,8 +11,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import {
   Search, Eye, Package, ShoppingCart, Clock, CheckCircle,
   Truck, XCircle, MapPin, Phone, Mail, CreditCard, FileText, User,
-  Send, RefreshCw, ExternalLink, Copy, Check, Loader2
+  Send, RefreshCw, ExternalLink, Copy, Check, Loader2, Printer
 } from "lucide-react";
+import InvoicePrint from "@/components/admin/InvoicePrint";
 
 interface Order {
   id: string;
