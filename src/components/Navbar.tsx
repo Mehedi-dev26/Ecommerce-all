@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import mangoLogo from "@/assets/mango-logo.png";
+import { ShoppingBag } from "lucide-react";
 
 const Navbar = () => {
   const { totalItems } = useCart();
@@ -15,7 +15,7 @@ const Navbar = () => {
 
   const navLinks = [
     { to: "/", label: "হোম" },
-    { to: "/products", label: "আম সমূহ" },
+    { to: "/products", label: "পণ্য সমূহ" },
     { to: "/about", label: "আমাদের সম্পর্কে" },
     { to: "/contact", label: "যোগাযোগ" },
   ];
@@ -24,21 +24,12 @@ const Navbar = () => {
     <header className="sticky top-0 z-50 border-b border-primary/20 bg-primary shadow-lg">
       <div className="container mx-auto flex items-center justify-between px-3 py-2 sm:px-4 sm:py-2.5">
         <Link to="/" className="flex items-center gap-2.5">
-          <div className="relative">
-            <img
-              src={mangoLogo}
-              alt="Sapahar Mango Logo"
-              className="h-10 w-10 rounded-full object-contain bg-white ring-[3px] ring-white/80 ring-offset-2 ring-offset-primary sm:h-11 sm:w-11"
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-              width={44}
-              height={44}
-            />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 ring-2 ring-white/30 sm:h-11 sm:w-11">
+            <ShoppingBag className="h-5 w-5 text-white sm:h-6 sm:w-6" strokeWidth={2.5} />
           </div>
           <div className="flex flex-col">
-            <span className="font-brand text-2xl font-bold leading-none text-white sm:text-3xl drop-shadow-md">Sapahar Mango</span>
-            <span className="text-[9px] font-medium tracking-wider text-white/80 sm:text-[10px]">সাপাহারের দেশি আম</span>
+            <span className="font-brand text-xl font-extrabold leading-none text-white sm:text-2xl drop-shadow-sm">Surzo Shop</span>
+            <span className="text-[9px] font-medium tracking-wider text-white/80 sm:text-[10px]">সেরা পণ্য, সেরা দামে</span>
           </div>
         </Link>
 
@@ -121,10 +112,12 @@ const Navbar = () => {
             <SheetContent side="left" className="w-72 border-r-primary/30 bg-primary">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2 text-left">
-                  <img src={mangoLogo} alt="Sapahar Mango" className="h-8 w-8 rounded-full object-contain bg-white ring-2 ring-white/80" />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/15 ring-2 ring-white/30">
+                    <ShoppingBag className="h-5 w-5 text-white" strokeWidth={2.5} />
+                  </div>
                   <div className="flex flex-col">
-                    <span className="font-brand text-xl text-white">Sapahar Mango</span>
-                    <span className="text-[9px] text-white/70">সাপাহারের দেশি আম</span>
+                    <span className="font-brand text-lg font-extrabold text-white">Surzo Shop</span>
+                    <span className="text-[9px] text-white/70">সেরা পণ্য, সেরা দামে</span>
                   </div>
                 </SheetTitle>
               </SheetHeader>
