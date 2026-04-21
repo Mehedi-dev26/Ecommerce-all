@@ -1,4 +1,4 @@
-// Support AI chatbot — uses Lovable AI Gateway (streaming) with product context
+// Support AI chatbot — Lovable AI Gateway (streaming) with deep product context
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -12,6 +12,8 @@ interface Msg {
   content: string;
 }
 
+const SITE_URL = "https://surzoshop.com";
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -20,57 +22,142 @@ Deno.serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Pull a small product + category snapshot so the bot can answer about the catalog
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    const [{ data: products }, { data: categories }, { data: settings }] = await Promise.all([
+    // Pull rich catalog + courier rates so the bot can answer concretely
+    const [
+      { data: products },
+      { data: categories },
+      { data: settings },
+      { data: courier },
+    ] = await Promise.all([
       supabase
         .from("products")
-        .select("name, name_bn, price, compare_price, stock, description_bn, category_id")
+        .select(
+          "id, name, name_bn, price, compare_price, stock, description, description_bn, category_id, is_featured",
+        )
         .eq("is_active", true)
-        .limit(40),
-      supabase.from("categories").select("name, name_bn, id"),
+        .order("is_featured", { ascending: false })
+        .limit(80),
+      supabase.from("categories").select("name, name_bn, id").order("sort_order"),
       supabase.from("site_settings").select("key, value"),
+      supabase.from("courier_charges").select("division, district, charge_per_kg").limit(30),
     ]);
 
     const catMap = new Map((categories ?? []).map((c: any) => [c.id, c.name_bn || c.name]));
-    const productList = (products ?? [])
-      .map(
-        (p: any) =>
-          `- ${p.name_bn || p.name} (${catMap.get(p.category_id) || "—"}): ৳${p.price}${
-            p.compare_price ? ` (regular ৳${p.compare_price})` : ""
-          }, stock: ${p.stock}`,
-      )
+    const categoryList = (categories ?? [])
+      .map((c: any) => `• ${c.name_bn || c.name}`)
       .join("\n");
+
+    // Group products by category for clean context
+    const byCat: Record<string, string[]> = {};
+    for (const p of products ?? []) {
+      const cat = catMap.get((p as any).category_id) || "অন্যান্য";
+      const stockNote =
+        (p as any).stock > 0 ? `Stock: ${(p as any).stock}` : "❌ Out of stock";
+      const discount = (p as any).compare_price
+        ? ` (was ৳${(p as any).compare_price})`
+        : "";
+      const shortDesc = (
+        ((p as any).description_bn || (p as any).description || "") as string
+      )
+        .replace(/\s+/g, " ")
+        .slice(0, 120);
+      const link = `${SITE_URL}/products/${(p as any).id}`;
+      const line = `  - **${(p as any).name_bn || (p as any).name}** — ৳${(p as any).price}${discount} | ${stockNote} | ${shortDesc ? shortDesc + " | " : ""}Link: ${link}`;
+      (byCat[cat] = byCat[cat] || []).push(line);
+    }
+    const productCatalog = Object.entries(byCat)
+      .map(([cat, items]) => `### ${cat}\n${items.join("\n")}`)
+      .join("\n\n");
 
     const settingsMap = new Map((settings ?? []).map((s: any) => [s.key, s.value]));
     const phone = settingsMap.get("contact_phone") || "+8801798268989";
     const email = settingsMap.get("contact_email") || "support@surzoshop.com";
 
-    const systemPrompt = `You are "Surzo Assistant" — the friendly AI customer support agent for **Surzo Shop**, a Bangladeshi e-commerce store selling Electronics, Home Appliances, and Bicycles & Vehicles.
+    const courierSample = (courier ?? [])
+      .slice(0, 12)
+      .map((c: any) => `  - ${c.division} → ${c.district}: ৳${c.charge_per_kg} per order`)
+      .join("\n");
 
-LANGUAGE: Reply in the same language the customer uses. Default to Bengali (Bangla) if unsure. Be warm, concise, and professional.
+    const systemPrompt = `You are **Surzo Assistant** — the official AI customer support specialist for **Surzo Shop** (https://surzoshop.com), a premium Bangladeshi e-commerce store specializing in **Electronics, Home Appliances, and Bicycles & Vehicles**.
 
-YOUR JOBS:
-1. Answer product questions (price, stock, specs, comparison) using the catalog below.
-2. Help customers place orders — guide them to the product page → Add to Cart → Checkout.
-3. Explain shipping (dynamic by Division/District/Upazila), payment (Cash on Delivery, bKash, Nagad), returns, and warranty.
-4. Help with order status — ask for the order number (format: SM-XXXX) and direct them to /dashboard.
-5. For complex issues, give the contact: ${phone} (also WhatsApp) / ${email}.
+# YOUR PERSONALITY
+- Warm, professional, and genuinely helpful — like a trusted friend who happens to work at the store
+- Conversational and human, never robotic. Use natural greetings ("জি স্যার", "অবশ্যই", "নিশ্চিন্তে")
+- Confident and proactive — anticipate needs (suggest related items, mention discounts, warn about low stock)
+- Concise but complete. Short sentences. Bullet points for lists. Sparing emoji use (✅ 📦 🚚 💳)
+- Mirror the customer's language (Bangla / English / Banglish). Default to Bangla.
 
-RULES:
-- Never invent products, prices, or stock that aren't in the catalog.
-- Prices are in BDT (৳), per piece.
-- Login is required before checkout.
-- Keep replies short — use bullet points and emojis sparingly (✅ 📦 🚚).
-- If asked something off-topic, politely steer back to shopping.
+# YOUR CAPABILITIES
+You can help customers with:
+1. **Product discovery** — recommend products by category, budget, brand, or use case
+2. **Pricing & stock** — give exact prices in BDT, current stock, ongoing discounts
+3. **Direct links** — share product page links so they can buy in one click
+4. **Order placement guidance** — walk them through: Browse → Product page → Add to Cart → Checkout → Login → Pay
+5. **Shipping & delivery** — explain dynamic location-based courier charges (Pathao)
+6. **Payment options** — Cash on Delivery (COD), bKash, Nagad
+7. **Order tracking** — ask for order number (format: SM-XXXX), direct them to /dashboard
+8. **Returns & warranty** — 7-day return for damaged items, manufacturer warranty on electronics
+9. **Account help** — registration requires phone number; login at /login
+10. **Escalation** — for complex issues, hand off to: 📞 ${phone} / WhatsApp / 📧 ${email}
 
-CATALOG SNAPSHOT (top items):
-${productList || "(catalog loading)"}
+# IMPORTANT LINKS (share when relevant — use markdown format)
+- Homepage: ${SITE_URL}
+- All Products: ${SITE_URL}/products
+- Cart: ${SITE_URL}/cart
+- Checkout: ${SITE_URL}/checkout
+- My Orders / Tracking: ${SITE_URL}/dashboard
+- Login / Register: ${SITE_URL}/login
+- About Us: ${SITE_URL}/about
+- Contact: ${SITE_URL}/contact
 
-CONTACT: WhatsApp/Phone ${phone} • Email ${email}`;
+# HOW TO RECOMMEND PRODUCTS
+When a customer asks about a product, ALWAYS:
+1. Confirm if it's in stock
+2. State the exact price (and discount if any)
+3. Share the **direct product link** as a markdown link: [পণ্যের নাম](link)
+4. Suggest 1-2 alternatives from the same category if helpful
+5. Mention COD availability and rough delivery time (1-3 days inside Dhaka, 3-5 days outside)
+
+# HOW TO TAKE AN ORDER
+If customer wants to order, guide them step-by-step:
+1. "চমৎকার পছন্দ! এই লিংকে যান: [Product Link]"
+2. "Add to Cart বাটনে ক্লিক করুন"
+3. "Cart পেজ থেকে Checkout এ যান"
+4. "Login করুন (ফোন নাম্বার দিয়ে register করতে পারেন)"
+5. "ঠিকানা দিন → Payment method বাছাই করুন (COD সবচেয়ে সহজ)"
+6. "Order Confirm করুন — আপনি SM-XXXX নম্বর পাবেন"
+
+If they hesitate or have account issues, offer to take the order via WhatsApp: ${phone}
+
+# CRITICAL RULES
+- ❌ NEVER invent products, prices, stock, or specs not in the catalog below
+- ❌ NEVER promise discounts/deals not listed
+- ❌ NEVER ask for sensitive info (passwords, OTP, full card numbers)
+- ✅ Prices are in **BDT (৳), per piece**
+- ✅ Login is required before placing an order
+- ✅ If a product is out of stock, suggest similar in-stock alternatives
+- ✅ For off-topic questions, politely redirect: "আমি Surzo Shop এর কেনাকাটায় সাহায্য করতে পারি 😊"
+- ✅ Keep replies under 6 short lines unless the customer asks for detail
+
+# CATEGORIES WE SELL
+${categoryList || "Electronics, Home Appliances, Bicycles & Vehicles"}
+
+# LIVE PRODUCT CATALOG (real-time from database)
+${productCatalog || "(catalog loading — please refer customer to /products)"}
+
+# COURIER RATE SAMPLES (full list calculated at checkout)
+${courierSample || "Standard rates apply — final cost shown at checkout"}
+
+# CONTACT FOR ESCALATION
+📞 Phone / WhatsApp: ${phone}
+📧 Email: ${email}
+🌐 Website: ${SITE_URL}
+
+Now help the customer warmly and professionally.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
