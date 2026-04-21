@@ -42,12 +42,31 @@ const SupportChatPanel = ({ open, onClose }: Props) => {
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  // Esc closes
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Esc closes + desktop outside-click closes
   useEffect(() => {
     if (!open) return;
     const onEsc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const onClick = (e: MouseEvent) => {
+      // Desktop only — mobile uses backdrop
+      if (window.innerWidth < 640) return;
+      const target = e.target as Node;
+      if (panelRef.current && !panelRef.current.contains(target)) {
+        // Ignore clicks on the support widget trigger area (bottom-right)
+        const widget = document.querySelector('[aria-label="Open support"], [aria-label="Close support"]');
+        if (widget && (widget.contains(target) || widget === target)) return;
+        onClose();
+      }
+    };
     document.addEventListener("keydown", onEsc);
-    return () => document.removeEventListener("keydown", onEsc);
+    // Delay binding so the opening click doesn't immediately close it
+    const t = setTimeout(() => document.addEventListener("mousedown", onClick), 0);
+    return () => {
+      document.removeEventListener("keydown", onEsc);
+      document.removeEventListener("mousedown", onClick);
+      clearTimeout(t);
+    };
   }, [open, onClose]);
 
   const send = async (text: string) => {

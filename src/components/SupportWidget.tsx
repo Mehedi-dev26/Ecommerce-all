@@ -12,12 +12,10 @@ const SupportWidget = () => {
   const [chatMounted, setChatMounted] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  // Preload chat panel when menu opens for instant launch
   useEffect(() => {
     if (open && !chatMounted) setChatMounted(true);
   }, [open, chatMounted]);
 
-  // Close menu on outside click / Esc
   useEffect(() => {
     if (!open) return;
     const onClick = (e: MouseEvent) => {
@@ -40,10 +38,11 @@ const SupportWidget = () => {
     setOpen(false);
   };
 
-  // Uniform button styling — same width, height, alignment
-  const btnBase =
-    "flex w-44 items-center gap-2.5 rounded-full py-2 pl-2 pr-3 text-xs font-semibold shadow-lg transition-transform hover:scale-105";
-  const iconWrap = "flex h-7 w-7 shrink-0 items-center justify-center rounded-full";
+  // Compact icon-only circular buttons — uniform size & alignment
+  const iconBtn =
+    "group relative flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg transition-all hover:scale-110 active:scale-95";
+  const tooltip =
+    "pointer-events-none absolute right-full mr-3 whitespace-nowrap rounded-md bg-foreground/90 px-2 py-1 text-[11px] font-medium text-background opacity-0 shadow-md transition-opacity group-hover:opacity-100";
 
   return (
     <>
@@ -51,10 +50,10 @@ const SupportWidget = () => {
         ref={ref}
         className="fixed bottom-4 right-4 z-[60] flex flex-col items-end gap-2.5 sm:bottom-6 sm:right-6"
       >
-        {/* Action menu */}
+        {/* Action menu — icon-only buttons */}
         <div
           className={cn(
-            "flex flex-col items-end gap-2 transition-all duration-300",
+            "flex flex-col items-end gap-2.5 transition-all duration-300",
             open
               ? "pointer-events-auto translate-y-0 opacity-100"
               : "pointer-events-none translate-y-3 opacity-0",
@@ -67,34 +66,31 @@ const SupportWidget = () => {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => setOpen(false)}
-            className={cn(btnBase, "bg-[#25D366] text-white shadow-[#25D366]/30")}
+            aria-label="WhatsApp"
+            className={cn(iconBtn, "bg-[#25D366] shadow-[#25D366]/40")}
           >
-            <span className={cn(iconWrap, "bg-white/20")}>
-              <MessageCircle className="h-3.5 w-3.5" />
-            </span>
-            <span className="flex-1 text-left">WhatsApp</span>
+            <MessageCircle className="h-5 w-5" />
+            <span className={tooltip}>WhatsApp</span>
           </a>
 
           <button
             type="button"
             onClick={openChat}
-            className={cn(btnBase, "bg-primary text-primary-foreground shadow-primary/30")}
+            aria-label="AI Assistant"
+            className={cn(iconBtn, "bg-primary shadow-primary/40")}
           >
-            <span className={cn(iconWrap, "bg-white/20")}>
-              <Bot className="h-3.5 w-3.5" />
-            </span>
-            <span className="flex-1 text-left">AI Assistant</span>
+            <Bot className="h-5 w-5" />
+            <span className={tooltip}>AI Assistant</span>
           </button>
 
           <a
-            href="tel:+8801798268989"
+            href={`tel:+${WHATSAPP_NUMBER}`}
             onClick={() => setOpen(false)}
-            className={cn(btnBase, "bg-accent text-accent-foreground shadow-accent/30")}
+            aria-label="Call Us"
+            className={cn(iconBtn, "bg-accent text-accent-foreground shadow-accent/40")}
           >
-            <span className={cn(iconWrap, "bg-black/10")}>
-              <Phone className="h-3.5 w-3.5" />
-            </span>
-            <span className="flex-1 text-left">Call Us</span>
+            <Phone className="h-5 w-5" />
+            <span className={tooltip}>Call Us</span>
           </a>
         </div>
 
@@ -115,7 +111,6 @@ const SupportWidget = () => {
         </button>
       </div>
 
-      {/* Chat panel — mounted once opened, kept in DOM for instant reopen */}
       {chatMounted && (
         <Suspense fallback={null}>
           <SupportChatPanel open={chatOpen} onClose={() => setChatOpen(false)} />
