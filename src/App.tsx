@@ -36,7 +36,6 @@ const AdminDelivery = lazy(() => import("./pages/admin/AdminDelivery"));
 const AdminBanners = lazy(() => import("./pages/admin/AdminBanners"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminCourierCharges = lazy(() => import("./pages/admin/AdminCourierCharges"));
-const SupportChat = lazy(() => import("./pages/SupportChat"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -98,7 +97,6 @@ const App = () => (
                           <Route path="/login" element={<Login />} />
                           <Route path="/reset-password" element={<ResetPassword />} />
                           <Route path="/dashboard" element={<UserDashboard />} />
-                          <Route path="/support-chat" element={<SupportChat />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>
