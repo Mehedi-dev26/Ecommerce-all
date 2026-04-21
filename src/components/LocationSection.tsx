@@ -18,22 +18,8 @@ const LocationSection = () => (
       </div>
 
       <div className="grid gap-6 lg:grid-cols-5 lg:gap-8 items-stretch">
-        {/* Map */}
-        <div className="lg:col-span-3 rounded-2xl overflow-hidden shadow-lg border border-border bg-card">
-          <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] lg:aspect-auto lg:h-full lg:min-h-[360px]">
-            <iframe
-              title="Surzo Shop Location"
-              src={MAP_EMBED}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              className="absolute inset-0 h-full w-full border-0"
-              allowFullScreen
-            />
-          </div>
-        </div>
-
-        {/* Info */}
-        <div className="lg:col-span-2 flex flex-col gap-4">
+        {/* Info — left on desktop, top on mobile */}
+        <div className="order-1 lg:order-1 lg:col-span-2 flex flex-col gap-4">
           <div className="rounded-2xl bg-card border border-border p-5 sm:p-6 shadow-sm">
             <div className="flex items-start gap-3">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10">
@@ -78,6 +64,20 @@ const LocationSection = () => (
               Direction দেখুন
             </a>
           </Button>
+        </div>
+
+        {/* Map — right on desktop, bottom on mobile */}
+        <div className="order-2 lg:order-2 lg:col-span-3 rounded-2xl overflow-hidden shadow-lg border border-border bg-card">
+          <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] lg:aspect-auto lg:h-full lg:min-h-[360px]">
+            <iframe
+              title="Surzo Shop Location"
+              src={MAP_EMBED}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="absolute inset-0 h-full w-full border-0"
+              allowFullScreen
+            />
+          </div>
         </div>
       </div>
     </div>
