@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Facebook } from "lucide-react";
-import mangoLogo from "@/assets/mango-logo.png";
+import { ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -36,30 +36,30 @@ const Footer = () => {
         <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <img src={mangoLogo} alt="Sapahar Mango" className="h-12 w-12 rounded-full object-contain bg-white ring-2 ring-primary" />
-              <span className="font-brand text-2xl font-bold text-primary sm:text-3xl">Sapahar Mango</span>
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 ring-2 ring-primary/40">
+                <ShoppingBag className="h-6 w-6 text-primary" strokeWidth={2.5} />
+              </div>
+              <span className="font-brand text-2xl font-extrabold text-primary sm:text-3xl">Surzo Shop</span>
             </div>
             <p className="text-base text-white/90 leading-relaxed">
-              নওগাঁর সাপাহারের খাঁটি দেশি আম সরাসরি বাগান থেকে আপনার দোরগোড়ায়।
+              ইলেকট্রনিক্স, হোম অ্যাপ্লায়েন্স ও সাইকেল — সেরা পণ্য সরাসরি আপনার দোরগোড়ায়।
             </p>
           </div>
           <div>
             <h4 className="mb-4 text-base font-bold text-primary uppercase tracking-wider">দ্রুত লিংক</h4>
             <ul className="space-y-3 text-base">
               <li><Link to="/" className="text-white/90 hover:text-primary transition-colors font-medium">হোম</Link></li>
-              <li><Link to="/products" className="text-white/90 hover:text-primary transition-colors font-medium">আম সমূহ</Link></li>
+              <li><Link to="/products" className="text-white/90 hover:text-primary transition-colors font-medium">পণ্য সমূহ</Link></li>
               <li><Link to="/about" className="text-white/90 hover:text-primary transition-colors font-medium">আমাদের সম্পর্কে</Link></li>
               <li><Link to="/contact" className="text-white/90 hover:text-primary transition-colors font-medium">যোগাযোগ</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="mb-4 text-base font-bold text-primary uppercase tracking-wider">আমের জাত</h4>
+            <h4 className="mb-4 text-base font-bold text-primary uppercase tracking-wider">ক্যাটাগরি</h4>
             <ul className="space-y-3 text-base">
-              <li className="text-white/90 font-medium">ল্যাংড়া</li>
-              <li className="text-white/90 font-medium">হিমসাগর</li>
-              <li className="text-white/90 font-medium">গোপালভোগ</li>
-              <li className="text-white/90 font-medium">আম্রপালি</li>
-              <li className="text-white/90 font-medium">ফজলি</li>
+              <li><Link to="/products?category=Electronics" className="text-white/90 hover:text-primary transition-colors font-medium">ইলেকট্রনিক্স</Link></li>
+              <li><Link to="/products?category=Home%20Appliances" className="text-white/90 hover:text-primary transition-colors font-medium">হোম অ্যাপ্লায়েন্স</Link></li>
+              <li><Link to="/products?category=Bicycles%20%26%20Vehicles" className="text-white/90 hover:text-primary transition-colors font-medium">সাইকেল ও যানবাহন</Link></li>
             </ul>
           </div>
           <div className="col-span-2 sm:col-span-1">

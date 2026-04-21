@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,66 +6,66 @@
 
 @layer base {
   :root {
-    --background: 45 40% 97%;
-    --foreground: 25 50% 10%;
+    --background: 0 0% 100%;
+    --foreground: 240 25% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 25 50% 10%;
+    --card-foreground: 240 25% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 25 50% 10%;
+    --popover-foreground: 240 25% 12%;
 
-    --primary: 38 85% 45%;
+    --primary: 243 75% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 100 45% 30%;
+    --secondary: 240 30% 18%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 45 25% 92%;
-    --muted-foreground: 25 15% 45%;
+    --muted: 240 15% 96%;
+    --muted-foreground: 240 10% 45%;
 
-    --accent: 25 90% 50%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 38 95% 55%;
+    --accent-foreground: 240 30% 12%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 40 25% 88%;
-    --input: 40 25% 88%;
-    --ring: 38 85% 45%;
+    --border: 240 15% 90%;
+    --input: 240 15% 90%;
+    --ring: 243 75% 55%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 100 45% 22%;
-    --sidebar-foreground: 45 40% 97%;
-    --sidebar-primary: 38 85% 50%;
+    --sidebar-background: 240 30% 14%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 243 75% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 100 35% 30%;
-    --sidebar-accent-foreground: 45 40% 97%;
-    --sidebar-border: 100 30% 35%;
-    --sidebar-ring: 38 85% 50%;
+    --sidebar-accent: 240 25% 22%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 25% 26%;
+    --sidebar-ring: 243 75% 60%;
   }
 
   .dark {
-    --background: 25 30% 6%;
-    --foreground: 45 40% 95%;
-    --card: 25 25% 10%;
-    --card-foreground: 45 40% 95%;
-    --popover: 25 25% 10%;
-    --popover-foreground: 45 40% 95%;
-    --primary: 38 80% 50%;
+    --background: 240 25% 8%;
+    --foreground: 0 0% 98%;
+    --card: 240 25% 12%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 25% 12%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 243 80% 65%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 100 40% 35%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 25 15% 15%;
-    --muted-foreground: 45 10% 60%;
-    --accent: 25 85% 50%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 25 15% 20%;
-    --input: 25 15% 20%;
-    --ring: 38 80% 50%;
+    --secondary: 240 25% 18%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 20% 16%;
+    --muted-foreground: 240 10% 65%;
+    --accent: 38 95% 60%;
+    --accent-foreground: 240 30% 12%;
+    --destructive: 0 62.8% 45%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 20% 22%;
+    --input: 240 20% 22%;
+    --ring: 243 80% 65%;
   }
 }
 
@@ -80,7 +80,8 @@
 }
 
 .font-brand {
-  font-family: 'Dancing Script', cursive;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: -0.02em;
 }
 
 @keyframes shimmer {
