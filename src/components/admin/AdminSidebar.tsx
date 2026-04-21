@@ -82,16 +82,16 @@ const AdminSidebar = ({ open, onToggle, onSignOut, userEmail }: AdminSidebarProp
         )}
       >
         {/* Logo */}
-        <div className="shrink-0 flex items-center gap-3 px-5 py-5 border-b border-sidebar-border/50">
+        <div className="shrink-0 flex items-center gap-3 px-5 py-5 border-b border-sidebar-border/50 bg-gradient-to-r from-sidebar-accent/40 to-transparent">
           <div className="relative">
-            <div className="h-11 w-11 rounded-xl bg-sidebar-primary/20 flex items-center justify-center ring-2 ring-sidebar-primary/30">
-              <ShoppingBag className="h-6 w-6 text-sidebar-primary" strokeWidth={2.5} />
+            <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-sidebar-primary to-sidebar-primary/70 flex items-center justify-center ring-2 ring-sidebar-primary/40 shadow-lg shadow-sidebar-primary/20">
+              <ShoppingBag className="h-6 w-6 text-sidebar-primary-foreground" strokeWidth={2.5} />
             </div>
             <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-500 rounded-full border-2 border-sidebar" />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="font-brand text-2xl text-sidebar-primary leading-tight">Surzo Shop</h1>
-            <p className="text-[10px] text-sidebar-foreground/50 uppercase tracking-widest font-semibold">Admin Panel</p>
+            <h1 className="font-brand text-2xl text-sidebar-primary leading-tight drop-shadow-sm">Surzo Shop</h1>
+            <p className="text-[10px] text-white/60 uppercase tracking-widest font-semibold">Admin Panel</p>
           </div>
         </div>
 
@@ -104,7 +104,7 @@ const AdminSidebar = ({ open, onToggle, onSignOut, userEmail }: AdminSidebarProp
               <div key={group.label} className="mb-1">
                 <button
                   onClick={() => toggleGroup(group.label)}
-                  className="flex items-center justify-between w-full px-3 py-2 text-[11px] uppercase tracking-wider font-bold text-sidebar-foreground/40 hover:text-sidebar-foreground/70 transition-colors"
+                  className="flex items-center justify-between w-full px-3 py-2 text-[11px] uppercase tracking-wider font-bold text-white/50 hover:text-white/90 transition-colors"
                 >
                   <span>{group.label}</span>
                   {isCollapsed ? (
@@ -130,8 +130,8 @@ const AdminSidebar = ({ open, onToggle, onSignOut, userEmail }: AdminSidebarProp
                           className={cn(
                             "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group relative",
                             isActive
-                              ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-lg shadow-sidebar-primary/25"
-                              : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground hover:translate-x-0.5"
+                              ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-lg shadow-sidebar-primary/30 font-semibold"
+                              : "text-white/80 hover:bg-sidebar-accent hover:text-white hover:translate-x-0.5"
                           )}
                         >
                           <item.icon
@@ -160,7 +160,7 @@ const AdminSidebar = ({ open, onToggle, onSignOut, userEmail }: AdminSidebarProp
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 px-4 py-2 rounded-xl text-sm text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground transition-colors"
+            className="flex items-center gap-3 px-4 py-2 rounded-xl text-sm text-white/70 hover:bg-sidebar-accent hover:text-white transition-colors"
           >
             <Globe className="h-4 w-4" />
             <span>ওয়েবসাইট দেখুন</span>
@@ -169,20 +169,20 @@ const AdminSidebar = ({ open, onToggle, onSignOut, userEmail }: AdminSidebarProp
 
         {/* User Section */}
         <div className="shrink-0 p-3 border-t border-sidebar-border/30">
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-sidebar-accent/30 mb-2">
-            <div className="h-9 w-9 rounded-full bg-sidebar-primary/20 flex items-center justify-center">
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-sidebar-accent/50 mb-2">
+            <div className="h-9 w-9 rounded-full bg-sidebar-primary/20 flex items-center justify-center ring-1 ring-sidebar-primary/30">
               <Shield className="h-4 w-4 text-sidebar-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-sidebar-foreground/90 truncate">
+              <p className="text-xs font-semibold text-white truncate">
                 {userEmail || "Admin"}
               </p>
-              <p className="text-[10px] text-sidebar-foreground/50">অ্যাডমিনিস্ট্রেটর</p>
+              <p className="text-[10px] text-white/60">অ্যাডমিনিস্ট্রেটর</p>
             </div>
           </div>
           <button
             onClick={onSignOut}
-            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-sidebar-foreground/60 hover:bg-red-500/15 hover:text-red-400 w-full transition-all duration-200"
+            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:bg-red-500/20 hover:text-red-300 w-full transition-all duration-200"
           >
             <LogOut className="h-4 w-4" />
             লগআউট
