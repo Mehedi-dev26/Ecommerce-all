@@ -136,7 +136,7 @@ const InvoicePrint = ({ order, items, open, onClose, type }: InvoicePrintProps) 
               <div className="info-box">
                 <h3>প্রেরক (From)</h3>
                 <p className="name">সাপাহার ম্যাঙ্গো</p>
-                <p>সাপাহার, নওগাঁ</p>
+                <p>আশুরন্দ বাজার, সাপাহার, নওগাঁ</p>
                 <p>রাজশাহী বিভাগ</p>
               </div>
               <div className="info-box">

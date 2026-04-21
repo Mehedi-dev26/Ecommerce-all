@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 const defaults: Record<string, string> = {
   footer_phone: "+880 1798-268989",
   footer_email: "info@sapaharmango.com",
-  footer_location: "সাপাহার, নওগাঁ, বাংলাদেশ",
+  footer_location: "আশুরন্দ বাজার, সাপাহার, নওগাঁ",
   footer_facebook: "#",
   footer_copyright: "© {year} Sapahar Mango — সাপাহারের দেশি আম। সর্বস্বত্ব সংরক্ষিত।",
 };
