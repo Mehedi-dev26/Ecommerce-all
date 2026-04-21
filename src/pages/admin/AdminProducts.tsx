@@ -326,8 +326,65 @@ const AdminProducts = () => {
         {filtered.length} টি প্রোডাক্ট দেখানো হচ্ছে
       </p>
 
+      {/* Mobile Product Cards */}
+      <div className="space-y-3 md:hidden">
+        {filtered.map((p) => (
+          <Card key={p.id} className="border-border/50 overflow-hidden">
+            <CardContent className="p-3">
+              <div className="flex items-start gap-3">
+                <div className="relative shrink-0">
+                  <img src={p.image_url || "/placeholder.svg"} alt={p.name_bn} className="h-16 w-16 rounded-xl object-cover border border-border/50" />
+                  {p.is_featured && <Star className="absolute -top-1 -right-1 h-4 w-4 text-primary fill-primary" />}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground truncate">{p.name_bn}</p>
+                      <p className="text-xs text-muted-foreground truncate">{p.name}</p>
+                    </div>
+                    <div className="flex gap-1 shrink-0">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(p)}>
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(p.id)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                    <div className="rounded-lg bg-muted/40 p-2">
+                      <p className="text-muted-foreground">দাম</p>
+                      <p className="font-bold text-foreground">৳{p.price.toLocaleString()}</p>
+                    </div>
+                    <div className="rounded-lg bg-muted/40 p-2">
+                      <p className="text-muted-foreground">স্টক</p>
+                      <p className={p.stock < 10 ? "font-bold text-destructive" : "font-bold text-foreground"}>{p.stock}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {getCategoryName(p.category_id) ? <Badge variant="secondary">{getCategoryName(p.category_id)}</Badge> : null}
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${p.is_active ? "bg-secondary/15 text-secondary" : "bg-destructive/15 text-destructive"}`}>
+                      {p.is_active ? "সক্রিয়" : "নিষ্ক্রিয়"}
+                    </span>
+                    {p.compare_price ? <span className="text-xs text-muted-foreground line-through">৳{p.compare_price.toLocaleString()}</span> : null}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        {filtered.length === 0 && (
+          <div className="text-center py-16">
+            <Package className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+            <p className="text-muted-foreground">কোনো প্রোডাক্ট পাওয়া যায়নি</p>
+          </div>
+        )}
+      </div>
+
       {/* Product Table */}
-      <Card className="border-border/50 overflow-hidden">
+      <Card className="border-border/50 overflow-hidden hidden md:block">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

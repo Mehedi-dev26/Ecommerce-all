@@ -181,8 +181,49 @@ const AdminPayments = () => {
 
       <p className="text-xs text-muted-foreground">{filtered.length} টি পেমেন্ট দেখানো হচ্ছে</p>
 
+      {/* Mobile Payment Cards */}
+      <div className="space-y-3 md:hidden">
+        {filtered.map((p) => (
+          <Card key={p.id} className="border-border/50">
+            <CardContent className="p-3 space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex items-center gap-2">
+                  <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <FileText className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-primary truncate">#{p.order_number}</p>
+                    <p className="text-xs text-muted-foreground truncate">{p.customer_name}</p>
+                  </div>
+                </div>
+                <span className="font-bold text-foreground shrink-0">৳{Number(p.total).toLocaleString()}</span>
+              </div>
+
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Phone className="h-3 w-3" />{p.customer_phone}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                {getPaymentMethodBadge(p.payment_method)}
+                {getPaymentStatus(p.status)}
+              </div>
+
+              <p className="text-[11px] text-muted-foreground">
+                {new Date(p.created_at).toLocaleDateString("bn-BD", { day: "numeric", month: "short", year: "numeric" })}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
+        {filtered.length === 0 && (
+          <div className="text-center py-16">
+            <CreditCard className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+            <p className="text-muted-foreground">কোনো পেমেন্ট পাওয়া যায়নি</p>
+          </div>
+        )}
+      </div>
+
       {/* Payment Table */}
-      <Card className="border-border/50 overflow-hidden">
+      <Card className="border-border/50 overflow-hidden hidden md:block">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
