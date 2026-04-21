@@ -6,8 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, Mail } from "lucide-react";
-import logo from "@/assets/Green_Mango_Logo_1.png";
+import { Lock, Mail, ShoppingBag } from "lucide-react";
 import { hasAdminRole } from "@/lib/admin-auth";
 import { getErrorMessage } from "@/lib/error-message";
 
@@ -48,10 +47,12 @@ const AdminLogin = () => {
       <Card className="w-full max-w-md shadow-2xl border-primary/20">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
-            <img src={logo} alt="Sapahar Mango" className="h-16 w-16 rounded-full" />
+            <div className="h-16 w-16 rounded-2xl bg-primary/10 ring-4 ring-primary/20 flex items-center justify-center shadow-md">
+              <ShoppingBag className="h-8 w-8 text-primary" strokeWidth={2.5} />
+            </div>
           </div>
           <CardTitle className="text-2xl font-bold text-foreground">
-            <span className="font-brand text-primary text-3xl">Sapahar Mango</span>
+            <span className="font-brand text-primary text-4xl">Surzo Shop</span>
             <br />
             <span className="text-lg text-muted-foreground">অ্যাডমিন প্যানেল</span>
           </CardTitle>

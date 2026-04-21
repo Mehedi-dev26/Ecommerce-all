@@ -4,21 +4,21 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, ShieldCheck, Truck, Headphones, Eye, EyeOff, Mail, Lock, User, ArrowLeft, Leaf, Star, Award, Heart } from "lucide-react";
-import mangoLogo from "@/assets/mango-logo.png";
+import { Loader2, ShieldCheck, Truck, Headphones, Eye, EyeOff, Mail, Lock, User, ArrowLeft, ShoppingBag, Star, Award, Heart, Phone, Zap } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 type AuthMode = "login" | "register" | "forgot";
 
 const Login = () => {
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail, resetPassword, user, loading } = useAuth();
+  const { signInWithGoogle, signInWithEmail, resetPassword, user, loading, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   const [mode, setMode] = useState<AuthMode>("login");
   const [signingIn, setSigningIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
 
   const from = (location.state as any)?.from || "/";
 
@@ -37,9 +37,15 @@ const Login = () => {
     }
   };
 
+  const validatePhone = (phone: string) => {
+    // Bangladesh phone: 11 digits starting with 01
+    const cleaned = phone.replace(/\D/g, "");
+    return /^01[3-9]\d{8}$/.test(cleaned);
+  };
+
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.email.trim()) return;
+    if (!form.email.trim() && mode !== "register") return;
 
     setSigningIn(true);
     try {
@@ -57,16 +63,43 @@ const Login = () => {
           setSigningIn(false);
           return;
         }
+        if (!validatePhone(form.phone)) {
+          toast({ title: "ত্রুটি", description: "সঠিক মোবাইল নম্বর দিন (যেমন: 01XXXXXXXXX)", variant: "destructive" });
+          setSigningIn(false);
+          return;
+        }
+        if (!form.email.trim()) {
+          toast({ title: "ত্রুটি", description: "ইমেইল দিন", variant: "destructive" });
+          setSigningIn(false);
+          return;
+        }
         if (form.password.length < 6) {
           toast({ title: "ত্রুটি", description: "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে", variant: "destructive" });
           setSigningIn(false);
           return;
         }
-        const { error } = await signUpWithEmail(form.email, form.password, form.name);
+
+        const cleanedPhone = form.phone.replace(/\D/g, "");
+        const { data, error } = await supabase.auth.signUp({
+          email: form.email,
+          password: form.password,
+          options: {
+            data: { full_name: form.name, phone: cleanedPhone },
+            emailRedirectTo: window.location.origin,
+          },
+        });
+
         if (error) {
-          toast({ title: "ত্রুটি", description: error, variant: "destructive" });
+          toast({ title: "ত্রুটি", description: error.message, variant: "destructive" });
         } else {
-          toast({ title: "✅ রেজিস্ট্রেশন সফল!", description: "আপনার ইমেইলে ভেরিফিকেশন লিংক পাঠানো হয়েছে।" });
+          // Save phone to profile if user created
+          if (data.user) {
+            await supabase
+              .from("profiles")
+              .upsert({ user_id: data.user.id, full_name: form.name, phone: cleanedPhone }, { onConflict: "user_id" });
+            await refreshProfile();
+          }
+          toast({ title: "✅ রেজিস্ট্রেশন সফল!", description: "আপনার ইমেইল চেক করুন ভেরিফিকেশন লিংকের জন্য।" });
           setMode("login");
         }
       } else {
@@ -102,29 +135,29 @@ const Login = () => {
 
         <div className="relative z-10 flex flex-col justify-center px-10 xl:px-16 py-12 w-full">
           <div className="flex items-center gap-4 mb-12">
-            <div className="h-16 w-16 rounded-full bg-primary-foreground/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-yellow-400/60 overflow-hidden shadow-lg">
-              <img src={mangoLogo} alt="Sapahar Mango" className="h-12 w-12 object-contain" />
+            <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/30 shadow-lg">
+              <ShoppingBag className="h-8 w-8 text-white" strokeWidth={2.5} />
             </div>
             <div>
-              <h2 className="text-2xl font-bold tracking-tight text-white">সাপাহার ম্যাঙ্গো</h2>
-              <p className="text-sm text-white/70 font-['Dancing_Script'] italic tracking-wide">Sapahar Mango</p>
+              <h2 className="font-brand text-4xl font-bold tracking-tight text-white drop-shadow-md">Surzo Shop</h2>
+              <p className="text-sm text-white/80 tracking-wide">সেরা পণ্য, সেরা দামে</p>
             </div>
           </div>
 
           <h1 className="text-3xl xl:text-[2.5rem] font-bold leading-[1.3] mb-5">
-            <span className="text-white">সাপাহারের প্রিমিয়াম আম</span><br />
-            <span className="text-yellow-200/90">সরাসরি আপনার ঘরে পৌঁছে যাবে</span>
+            <span className="text-white">আপনার পছন্দের সব পণ্য</span><br />
+            <span className="text-yellow-200/90">এখন এক ক্লিকেই হাতের নাগালে</span>
           </h1>
           <p className="text-white/75 text-[15px] leading-relaxed mb-12 max-w-md">
-            রাজশাহীর সাপাহার থেকে বাছাইকৃত গাছপাকা আম — ১০০% প্রাকৃতিক ও রাসায়নিকমুক্ত। বাগান থেকে সরাসরি আপনার দোরগোড়ায়।
+            স্মার্টফোন, ল্যাপটপ, হোম অ্যাপ্লায়েন্স এবং আরও অনেক কিছু — অরিজিনাল প্রোডাক্ট, সেরা দামে সারাদেশে দ্রুত ডেলিভারি।
           </p>
 
           <div className="space-y-5">
             {[
-              { icon: Leaf, title: "১০০% প্রাকৃতিক ও রাসায়নিকমুক্ত", desc: "কোনো কার্বাইড বা ক্ষতিকর রাসায়নিক নেই" },
-              { icon: Truck, title: "সারাদেশে দ্রুত হোম ডেলিভারি", desc: "পাঠাও কুরিয়ারে নিরাপদ ও দ্রুত ডেলিভারি" },
-              { icon: ShieldCheck, title: "প্রতিটি আম মান যাচাইকৃত", desc: "হাতে বাছাই করা ও গুণগত মান নিশ্চিত" },
-              { icon: Award, title: "বাগান থেকে সরাসরি সেরা দামে", desc: "মধ্যস্বত্বভোগী ছাড়া ন্যায্য মূল্যে আম" },
+              { icon: ShieldCheck, title: "১০০% অরিজিনাল প্রোডাক্ট", desc: "অথেন্টিক ও মান যাচাইকৃত পণ্য" },
+              { icon: Truck, title: "সারাদেশে দ্রুত হোম ডেলিভারি", desc: "নিরাপদ ও দ্রুত কুরিয়ার সার্ভিস" },
+              { icon: Zap, title: "ক্যাশ অন ডেলিভারি সুবিধা", desc: "পণ্য হাতে পেয়ে পেমেন্টের অপশন" },
+              { icon: Award, title: "প্রতিযোগিতামূলক সেরা দাম", desc: "মার্কেটে সবচেয়ে সাশ্রয়ী মূল্য" },
             ].map((item, i) => (
               <div key={i} className="flex items-start gap-4 group">
                 <div className="h-10 w-10 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:bg-white/25 transition-colors">
@@ -145,7 +178,7 @@ const Login = () => {
               ))}
             </div>
             <p className="text-[13px] text-white/85 italic leading-relaxed">
-              "এত সুস্বাদু ও তাজা আম আগে কখনো পাইনি! সত্যিকারের গাছপাকা আমের স্বাদ। প্যাকেজিং ও ডেলিভারি দুটোই অসাধারণ ছিল।"
+              "অসাধারণ সার্ভিস! অরিজিনাল প্রোডাক্ট এবং দ্রুত ডেলিভারি পেয়েছি। প্যাকেজিং খুবই ভালো ছিল। নিশ্চয়ই আবার অর্ডার করবো।"
             </p>
             <div className="flex items-center gap-2.5 mt-3">
               <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
@@ -160,9 +193,8 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Right Panel - Auth Form with full texture background */}
+      {/* Right Panel - Auth Form */}
       <div className="w-full lg:w-[55%] xl:w-[50%] relative overflow-hidden">
-        {/* Full texture background matching card style */}
         <div className="absolute inset-0 bg-gradient-to-br from-muted/80 via-background to-muted/50" />
         <div className="absolute inset-0 opacity-[0.03]" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
@@ -170,23 +202,23 @@ const Login = () => {
 
         <div className="relative z-10 min-h-full flex items-center justify-center px-4 sm:px-8 py-8">
           <div className="w-full max-w-[420px]">
-            {/* Logo - visible on both mobile and desktop */}
+            {/* Logo */}
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-primary/10 ring-4 ring-yellow-400/30 mb-3 overflow-hidden shadow-md">
-                <img src={mangoLogo} alt="Sapahar Mango" className="h-14 w-14 object-contain" />
+              <div className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-primary/10 ring-4 ring-primary/20 mb-3 shadow-md">
+                <ShoppingBag className="h-10 w-10 text-primary" strokeWidth={2.5} />
               </div>
-              <p className="text-base text-foreground/60 font-['Dancing_Script'] italic tracking-wide">Sapahar Mango</p>
+              <p className="font-brand text-3xl text-primary font-bold">Surzo Shop</p>
+              <p className="text-xs text-muted-foreground tracking-wide mt-0.5">সেরা পণ্য, সেরা দামে</p>
             </div>
 
-            {/* Heading - centered */}
+            {/* Heading */}
             <div className="mb-6 text-center">
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
                 {mode === "register" ? "অ্যাকাউন্ট তৈরি করুন" : mode === "forgot" ? "পাসওয়ার্ড রিসেট" : "লগইন করুন"}
-                <span className="ml-2">{mode === "forgot" ? "🔑" : "🥭"}</span>
               </h1>
               <p className="text-sm text-muted-foreground mt-1.5">
                 {mode === "register"
-                  ? "নতুন অ্যাকাউন্ট তৈরি করে আম অর্ডার শুরু করুন"
+                  ? "মোবাইল নম্বর দিয়ে অ্যাকাউন্ট খুলে কেনাকাটা শুরু করুন"
                   : mode === "forgot"
                   ? "আপনার ইমেইল দিন, রিসেট লিংক পাঠানো হবে"
                   : "আপনার অ্যাকাউন্টে লগইন করুন"}
@@ -195,7 +227,6 @@ const Login = () => {
 
             {/* Auth Card */}
             <div className="rounded-2xl border border-border/50 shadow-xl p-5 sm:p-7 space-y-5 bg-card/95 backdrop-blur-sm">
-              {/* Back button */}
               {mode !== "login" && (
                 <button
                   onClick={() => setMode("login")}
@@ -205,7 +236,6 @@ const Login = () => {
                 </button>
               )}
 
-              {/* Google Button */}
               {mode !== "forgot" && (
                 <>
                   <button
@@ -237,20 +267,44 @@ const Login = () => {
                 </>
               )}
 
-              {/* Email/Password Form */}
+              {/* Form */}
               <form onSubmit={handleEmailSubmit} className="space-y-4">
                 {mode === "register" && (
-                  <div className="space-y-1.5">
-                    <Label htmlFor="name" className="text-xs font-medium text-muted-foreground">নাম</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input id="name" placeholder="আপনার পুরো নাম" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="pl-10 h-11 rounded-xl" />
+                  <>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="name" className="text-xs font-medium text-muted-foreground">পুরো নাম <span className="text-destructive">*</span></Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input id="name" placeholder="আপনার পুরো নাম" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="pl-10 h-11 rounded-xl" required />
+                      </div>
                     </div>
-                  </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="phone" className="text-xs font-medium text-foreground flex items-center gap-1">
+                        মোবাইল নম্বর <span className="text-destructive">*</span>
+                        <span className="text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded-full ml-1">অর্ডারের জন্য জরুরি</span>
+                      </Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+                        <Input
+                          id="phone"
+                          type="tel"
+                          inputMode="numeric"
+                          placeholder="01XXXXXXXXX"
+                          value={form.phone}
+                          onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "").slice(0, 11) })}
+                          className="pl-10 h-11 rounded-xl border-primary/30 focus-visible:ring-primary"
+                          maxLength={11}
+                          required
+                        />
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">ডেলিভারি ও যোগাযোগের জন্য ব্যবহৃত হবে</p>
+                    </div>
+                  </>
                 )}
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">ইমেইল</Label>
+                  <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">ইমেইল {mode === "register" && <span className="text-destructive">*</span>}</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input id="email" type="email" placeholder="example@email.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="pl-10 h-11 rounded-xl" required />
@@ -290,7 +344,6 @@ const Login = () => {
                 </Button>
               </form>
 
-              {/* Switch mode */}
               {mode !== "forgot" && (
                 <p className="text-center text-sm text-muted-foreground">
                   {mode === "login" ? (
@@ -312,7 +365,6 @@ const Login = () => {
               )}
             </div>
 
-            {/* Mobile Benefits */}
             {mode === "login" && (
               <div className="mt-5 grid grid-cols-3 gap-3 lg:hidden">
                 {[
@@ -330,7 +382,6 @@ const Login = () => {
               </div>
             )}
 
-            {/* Footer */}
             <p className="text-center text-[11px] text-muted-foreground mt-5 px-4">
               {mode === "register" ? "রেজিস্টার" : "লগইন"} করলে আপনি আমাদের{" "}
               <Link to="/about" className="text-primary hover:underline">শর্তাবলী</Link> ও{" "}
