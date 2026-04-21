@@ -115,18 +115,18 @@ const AdminCategories = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
             <FolderTree className="h-5 w-5 text-primary" />
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-sm text-muted-foreground">{categories.length} টি ক্যাটাগরি</p>
           </div>
         </div>
         <Dialog open={dialogOpen} onOpenChange={(v) => { setDialogOpen(v); if (!v) { setEditing(null); setForm({ name: "", name_bn: "", description: "", image_url: "", sort_order: 0 }); } }}>
           <DialogTrigger asChild>
-            <Button className="gap-2 shadow-lg shadow-primary/20"><Plus className="h-4 w-4" />নতুন ক্যাটাগরি</Button>
+            <Button className="w-full gap-2 shadow-lg shadow-primary/20 sm:w-auto"><Plus className="h-4 w-4" />নতুন ক্যাটাগরি</Button>
           </DialogTrigger>
           <DialogContent className="max-w-md w-[95vw] max-h-[90vh] overflow-y-auto rounded-2xl">
             <DialogHeader>
