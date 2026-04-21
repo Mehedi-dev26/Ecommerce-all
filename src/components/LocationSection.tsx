@@ -65,6 +65,20 @@ const LocationSection = () => (
             </a>
           </Button>
         </div>
+
+        {/* Map — right on desktop, bottom on mobile */}
+        <div className="order-2 lg:order-2 lg:col-span-3 rounded-2xl overflow-hidden shadow-lg border border-border bg-card">
+          <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] lg:aspect-auto lg:h-full lg:min-h-[360px]">
+            <iframe
+              title="Surzo Shop Location"
+              src={MAP_EMBED}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="absolute inset-0 h-full w-full border-0"
+              allowFullScreen
+            />
+          </div>
+        </div>
       </div>
     </div>
   </section>
