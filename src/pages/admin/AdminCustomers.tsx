@@ -45,51 +45,53 @@ const AdminCustomers = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const [ordersRes, abandonedRes] = await Promise.all([
-          supabase.from("orders").select("customer_name, customer_phone, customer_email, city, total, status, order_number, created_at"),
-          supabase.from("abandoned_checkouts").select("*").eq("recovered", false).order("created_at", { ascending: false }),
-        ]);
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [ordersRes, abandonedRes] = await Promise.all([
+        supabase.from("orders").select("customer_name, customer_phone, customer_email, city, total, status, order_number, created_at"),
+        supabase.from("abandoned_checkouts").select("*").eq("recovered", false).order("created_at", { ascending: false }),
+      ]);
 
-        if (ordersRes.error) throw ordersRes.error;
+      if (ordersRes.error) throw ordersRes.error;
+      if (abandonedRes.error) throw abandonedRes.error;
 
-        const map = new Map<string, Customer>();
-        for (const o of ordersRes.data || []) {
-          const key = o.customer_phone;
-          const orderInfo = { order_number: o.order_number, total: Number(o.total), status: o.status, created_at: o.created_at };
-          const existing = map.get(key);
-          if (existing) {
-            existing.totalOrders++;
-            existing.totalSpent += Number(o.total);
-            existing.orders.push(orderInfo);
-            if (o.created_at > existing.lastOrder) existing.lastOrder = o.created_at;
-          } else {
-            map.set(key, {
-              customer_name: o.customer_name,
-              customer_phone: o.customer_phone,
-              customer_email: o.customer_email,
-              city: o.city,
-              totalOrders: 1,
-              totalSpent: Number(o.total),
-              lastOrder: o.created_at,
-              orders: [orderInfo],
-            });
-          }
+      const map = new Map<string, Customer>();
+      for (const o of ordersRes.data || []) {
+        const key = o.customer_phone;
+        const orderInfo = { order_number: o.order_number, total: Number(o.total), status: o.status, created_at: o.created_at };
+        const existing = map.get(key);
+        if (existing) {
+          existing.totalOrders++;
+          existing.totalSpent += Number(o.total);
+          existing.orders.push(orderInfo);
+          if (o.created_at > existing.lastOrder) existing.lastOrder = o.created_at;
+        } else {
+          map.set(key, {
+            customer_name: o.customer_name,
+            customer_phone: o.customer_phone,
+            customer_email: o.customer_email,
+            city: o.city,
+            totalOrders: 1,
+            totalSpent: Number(o.total),
+            lastOrder: o.created_at,
+            orders: [orderInfo],
+          });
         }
-
-        setCustomers(Array.from(map.values()).sort((a, b) => b.totalSpent - a.totalSpent));
-        setAbandoned((abandonedRes.data as AbandonedCheckout[]) || []);
-      } catch (err) {
-        console.error("Failed to load customers", err);
-        setError(getErrorMessage(err, "কাস্টমার ডেটা লোড করা যায়নি।"));
-      } finally {
-        setLoading(false);
       }
-    };
+
+      setCustomers(Array.from(map.values()).sort((a, b) => b.totalSpent - a.totalSpent));
+      setAbandoned((abandonedRes.data as AbandonedCheckout[]) || []);
+    } catch (err) {
+      console.error("Failed to load customers", err);
+      setError(getErrorMessage(err, "কাস্টমার ডেটা লোড করা যায়নি।"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     void fetchData();
   }, []);
 
@@ -133,7 +135,7 @@ const AdminCustomers = () => {
   };
 
   if (loading) return <AdminPageState loading message="কাস্টমার লোড হচ্ছে..." />;
-  if (error) return <AdminPageState title="কাস্টমার লোড করা যায়নি" message={error} onRetry={() => window.location.reload()} />;
+  if (error) return <AdminPageState title="কাস্টমার লোড করা যায়নি" message={error} onRetry={fetchData} />;
 
   return (
     <div className="space-y-6">
@@ -382,10 +384,17 @@ const AdminCustomers = () => {
   );
 };
 
-const StatCard = ({ icon: Icon, label, value, color }: { icon: any; label: string; value: string | number; color: string }) => (
+const statColorMap = {
+  primary: "bg-primary/10 text-primary",
+  secondary: "bg-secondary/10 text-secondary",
+  accent: "bg-accent/10 text-accent",
+  destructive: "bg-destructive/10 text-destructive",
+} as const;
+
+const StatCard = ({ icon: Icon, label, value, color }: { icon: any; label: string; value: string | number; color: keyof typeof statColorMap }) => (
   <div className="bg-card rounded-xl border border-border/50 p-4 flex items-center gap-3">
-    <div className={`h-10 w-10 rounded-lg bg-${color}/10 flex items-center justify-center`}>
-      <Icon className={`h-5 w-5 text-${color}`} />
+    <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${statColorMap[color]}`}>
+      <Icon className="h-5 w-5" />
     </div>
     <div>
       <p className="text-xl font-bold">{value}</p>
