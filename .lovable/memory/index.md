@@ -1,21 +1,25 @@
 # Project Memory
 
 ## Core
-- Brand: Surzo Shop. Modern Indigo (primary 243 75% 55%) + White, Poppins (brand) & Hind Siliguri (body).
-- General e-commerce: Electronics, Home Appliances, Bicycles & Vehicles. Sold by piece (some by weight where relevant).
+- Brand: Surzo Shop. E-commerce store selling electronics & vehicles.
+- Products: Mobile phones, laptops, TVs, ACs, fridges, washing machines, bicycles, electric scooters.
+- Categories: Home Appliances, Bicycles & Vehicles.
+- Shop Location: আশুরন্দ বাজার, সাপাহার, নওগাঁ.
 - Auth: Google OAuth + Email. Login required before checkout.
 - Dynamic shipping by location (Division > District > Upazila) & weight. Real-time calculation.
 - Orders manually verified by admin before sending to Pathao via Supabase Edge Function.
 - Revenue analytics ONLY count 'delivered' orders.
 - Caching: React.lazy, QueryClient (5m), updated_at cache busting for banners.
-- Vite constraint: Dedupe `@radix-ui` to avoid hook errors.
+- Vite constraint: Dedupe `@radix-ui` and pre-bundle embla packages to avoid hook errors.
 
 ## Memories
+- [Brand Identity](mem://brand/identity) — Colors, typography, logo, and navigation styling
 - [Contact Info](mem://brand/contact-info) — Official business phone numbers
 - [Product Descriptions](mem://content/product-descriptions) — Bilingual (Bengali/English) requirements
 - [Mobile Layout](mem://ui/mobile-layout) — Mobile grid and banner behavior
 - [Hero Banner](mem://ui/hero-banner) — Slider specs, dimensions, and shimmer effects
 - [Product Page Layout](mem://ui/product-page) — 5-column grid, trust signals, descriptions
+- [Category Layout](mem://ui/category-layout) — Humanized design with real images
 - [Shop Filters](mem://ui/shop-filters) — Sidebar and mobile drawer layout
 - [Checkout System](mem://features/checkout-system) — Validation and order verification flow
 - [Abandoned Checkout](mem://features/abandoned-checkout) — 3s debounce auto-save for incomplete orders
