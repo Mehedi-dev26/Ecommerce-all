@@ -198,8 +198,61 @@ const AdminDelivery = () => {
 
       <p className="text-xs text-muted-foreground">{filtered.length} টি ডেলিভারি দেখানো হচ্ছে</p>
 
+      {/* Mobile Delivery Cards */}
+      <div className="space-y-3 md:hidden">
+        {filtered.map((o) => (
+          <Card key={o.id} className="border-border/50">
+            <CardContent className="p-3 space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex items-center gap-2">
+                  <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <FileText className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-primary truncate">#{o.order_number}</p>
+                    <p className="text-sm font-medium truncate">{o.customer_name}</p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => setSelectedOrder(o)}>
+                  <Eye className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="space-y-1.5 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1"><Phone className="h-3 w-3" />{o.customer_phone}</div>
+                <div className="flex items-start gap-1"><MapPin className="h-3 w-3 mt-0.5" />
+                  <span className="line-clamp-2">{o.shipping_address}, {o.city}{o.district ? `, ${o.district}` : ""}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Select value={o.status} onValueChange={(v) => updateStatus(o.id, v)}>
+                  <SelectTrigger className="h-auto w-auto border-0 p-0 shadow-none focus:ring-0 [&>svg]:ml-1">
+                    {getStatusBadge(o.status)}
+                  </SelectTrigger>
+                  <SelectContent>
+                    {deliveryStatuses.map((s) => (
+                      <SelectItem key={s.value} value={s.value}>
+                        <span className="flex items-center gap-2"><s.icon className="h-3.5 w-3.5" />{s.label}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span className="text-[11px] text-muted-foreground">{new Date(o.created_at).toLocaleDateString("bn-BD", { day: "numeric", month: "short", year: "numeric" })}</span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        {filtered.length === 0 && (
+          <div className="text-center py-16">
+            <Truck className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+            <p className="text-muted-foreground">কোনো ডেলিভারি পাওয়া যায়নি</p>
+          </div>
+        )}
+      </div>
+
       {/* Delivery Table */}
-      <Card className="border-border/50 overflow-hidden">
+      <Card className="border-border/50 overflow-hidden hidden md:block">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

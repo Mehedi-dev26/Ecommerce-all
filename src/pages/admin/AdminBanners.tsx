@@ -200,14 +200,14 @@ const AdminBanners = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row items-start sm:items-center justify-between">
         <div>
           <p className="text-sm text-muted-foreground">
             {banners.length} টি ব্যানার • {banners.filter((b) => b.is_active).length} টি সক্রিয়
           </p>
         </div>
         <Button
-          className="gap-2 shadow-lg shadow-primary/20"
+          className="w-full gap-2 shadow-lg shadow-primary/20 sm:w-auto"
           onClick={() => { setEditing(null); setForm(emptyForm); setDialogOpen(true); }}
         >
           <Plus className="h-4 w-4" />নতুন ব্যানার
