@@ -36,10 +36,10 @@ const Footer = () => {
         <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 ring-2 ring-primary/40">
-                <ShoppingBag className="h-6 w-6 text-primary" strokeWidth={2.5} />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/20 ring-2 ring-accent/40">
+                <ShoppingBag className="h-6 w-6 text-accent" strokeWidth={2.5} />
               </div>
-              <span className="font-brand text-2xl font-extrabold text-primary sm:text-3xl">Surzo Shop</span>
+              <span className="font-brand text-3xl font-bold text-accent sm:text-4xl">Surzo Shop</span>
             </div>
             <p className="text-base text-white/90 leading-relaxed">
               ইলেকট্রনিক্স, হোম অ্যাপ্লায়েন্স ও সাইকেল — সেরা পণ্য সরাসরি আপনার দোরগোড়ায়।
