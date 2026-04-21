@@ -1,18 +1,18 @@
 import { Shield, Truck, Leaf, Heart } from "lucide-react";
 
 const features = [
-  { icon: Leaf, title: "১০০% গাছপাকা", desc: "কেমিক্যালমুক্ত প্রাকৃতিক দেশি আম" },
-  { icon: Truck, title: "দ্রুত ডেলিভারি", desc: "বাগান থেকে সরাসরি আপনার ঘরে" },
-  { icon: Shield, title: "মান নিশ্চিত", desc: "প্রতিটি আম হাতে বাছাই করা" },
-  { icon: Heart, title: "গ্রাহক সেবা", desc: "যেকোনো সমস্যায় আমরা পাশে" },
+  { icon: Shield, title: "১০০% অরিজিনাল", desc: "সকল পণ্য অফিসিয়াল ওয়ারেন্টি সহ" },
+  { icon: Truck, title: "দ্রুত ডেলিভারি", desc: "সারাদেশে দ্রুত হোম ডেলিভারি" },
+  { icon: Leaf, title: "সেরা দাম", desc: "বাজারের সবচেয়ে কম্পিটিটিভ দাম" },
+  { icon: Heart, title: "২৪/৭ সাপোর্ট", desc: "যেকোনো সমস্যায় আমরা পাশে আছি" },
 ];
 
 const WhyChooseUs = () => (
   <section className="py-12 sm:py-16">
     <div className="container mx-auto px-4">
       <div className="mb-8 text-center sm:mb-10">
-        <h2 className="mb-2 text-2xl font-bold text-foreground sm:text-3xl">কেন <span className="font-brand text-primary text-3xl sm:text-4xl">Mawra</span> আম?</h2>
-        <p className="text-sm text-muted-foreground sm:text-base">সাপাহারের সেরা আম, সেরা মানে</p>
+        <h2 className="mb-2 text-2xl font-bold text-foreground sm:text-3xl">কেন <span className="font-brand text-primary text-3xl sm:text-4xl">Surzo Shop</span>?</h2>
+        <p className="text-sm text-muted-foreground sm:text-base">আপনার পছন্দের পণ্য, সেরা মানে</p>
       </div>
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 sm:gap-6">
         {features.map((f, i) => (
