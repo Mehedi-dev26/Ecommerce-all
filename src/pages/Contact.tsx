@@ -20,7 +20,7 @@ const Contact = () => {
           {[
             { icon: Phone, title: "ফোন", info: "+880 1798-268989" },
             { icon: Mail, title: "ইমেইল", info: "info@sapaharmango.com" },
-            { icon: MapPin, title: "ঠিকানা", info: "সাপাহার, নওগাঁ, বাংলাদেশ" },
+            { icon: MapPin, title: "ঠিকানা", info: "আশুরন্দ বাজার, সাপাহার, নওগাঁ" },
             { icon: Clock, title: "সময়সূচী", info: "সকাল ৯টা - রাত ১০টা (প্রতিদিন)" },
           ].map((item, i) => (
             <div key={i} className="flex items-start gap-4 rounded-lg bg-card p-4 shadow-sm">
