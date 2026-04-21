@@ -9,6 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SupportWidget from "@/components/SupportWidget";
+import ScrollToTop from "@/components/ScrollToTop";
 import { Loader2 } from "lucide-react";
 
 // Lazy load all pages
@@ -62,6 +63,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ScrollToTop />
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 {/* Admin Routes */}
