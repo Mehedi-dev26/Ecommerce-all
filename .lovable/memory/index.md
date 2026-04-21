@@ -11,6 +11,8 @@
 - Revenue analytics ONLY count 'delivered' orders.
 - Caching: React.lazy, QueryClient (5m), updated_at cache busting for banners.
 - Vite constraint: Dedupe `@radix-ui` and pre-bundle embla packages to avoid hook errors.
+- ScrollToTop component in App.tsx — resets scroll on route change so SPA navigation feels instant (no perceived refresh).
+- Admin sidebar: dark slate theme (HSL 222 47% 11%), white text (text-white/80), amber-gold primary accent for active items & logo.
 
 ## Memories
 - [Brand Identity](mem://brand/identity) — Colors, typography, logo, and navigation styling
