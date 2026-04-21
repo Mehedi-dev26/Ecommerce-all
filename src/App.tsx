@@ -97,7 +97,6 @@ const App = () => (
                           <Route path="/login" element={<Login />} />
                           <Route path="/reset-password" element={<ResetPassword />} />
                           <Route path="/dashboard" element={<UserDashboard />} />
-                          <Route path="/support-chat" element={<SupportChat />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>
