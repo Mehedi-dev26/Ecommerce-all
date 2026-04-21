@@ -52,17 +52,13 @@ const CustomerReviews = () => {
   return (
     <section className="py-12 md:py-20 bg-gradient-to-b from-background via-secondary/20 to-background">
       <div className="container mx-auto px-4">
-        {/* Heading */}
-        <div className="text-center mb-10 md:mb-14">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-4">
-            <Star className="h-3.5 w-3.5 fill-primary" />
-            গ্রাহকদের মতামত
-          </div>
-          <h2 className="font-brand text-3xl md:text-5xl text-foreground mb-3">
-            আমাদের সম্মানিত গ্রাহকেরা যা বলছেন
+        {/* Heading — matches LocationSection typography */}
+        <div className="mb-8 text-center sm:mb-10">
+          <h2 className="mb-2 text-2xl font-bold text-foreground sm:text-3xl">
+            বিশ্বস্ত <span className="font-brand text-primary text-3xl sm:text-4xl">Customers</span> এর মতামত
           </h2>
-          <p className="text-muted-foreground text-sm md:text-base max-w-2xl mx-auto">
-            হাজারো সন্তুষ্ট গ্রাহকের আস্থা ও ভালোবাসায় আমাদের পথচলা
+          <p className="text-sm text-muted-foreground sm:text-base">
+            আমাদের সেবায় সন্তুষ্ট গ্রাহকদের প্রকৃত অভিজ্ঞতা
           </p>
         </div>
 
@@ -73,19 +69,19 @@ const CustomerReviews = () => {
               {reviews.map((review) => (
                 <div
                   key={review.id}
-                  className="pl-4 min-w-0 shrink-0 grow-0 basis-full md:basis-1/2 lg:basis-1/3"
+                  className="pl-3 sm:pl-4 min-w-0 shrink-0 grow-0 basis-1/2 md:basis-1/2 lg:basis-1/3"
                 >
-                  <div className="group h-full bg-card border border-border/60 rounded-2xl p-6 md:p-7 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 relative overflow-hidden">
+                  <div className="group h-full bg-card border border-border/60 rounded-2xl p-3 sm:p-6 md:p-7 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 relative overflow-hidden">
                     {/* Decorative quote */}
-                    <Quote className="absolute top-4 right-4 h-12 w-12 text-primary/5 group-hover:text-primary/10 transition-colors" />
+                    <Quote className="absolute top-3 right-3 h-8 w-8 sm:h-12 sm:w-12 text-primary/5 group-hover:text-primary/10 transition-colors" />
 
                     {/* Rating */}
-                    <div className="flex items-center gap-0.5 mb-4">
+                    <div className="flex items-center gap-0.5 mb-2 sm:mb-4">
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star
                           key={i}
                           className={cn(
-                            "h-4 w-4",
+                            "h-3 w-3 sm:h-4 sm:w-4",
                             i < review.rating
                               ? "fill-amber-400 text-amber-400"
                               : "text-muted-foreground/30"
@@ -95,13 +91,13 @@ const CustomerReviews = () => {
                     </div>
 
                     {/* Review text */}
-                    <p className="text-sm md:text-[15px] text-foreground/85 leading-relaxed mb-6 line-clamp-5 min-h-[110px]">
+                    <p className="text-[12px] sm:text-sm md:text-[15px] text-foreground/85 leading-relaxed mb-3 sm:mb-6 line-clamp-4 sm:line-clamp-5 min-h-[72px] sm:min-h-[110px]">
                       "{review.review_text}"
                     </p>
 
                     {/* Customer info */}
-                    <div className="flex items-center gap-3 pt-4 border-t border-border/50">
-                      <div className="h-12 w-12 rounded-full overflow-hidden ring-2 ring-primary/20 shrink-0 bg-muted">
+                    <div className="flex items-center gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-border/50">
+                      <div className="h-9 w-9 sm:h-12 sm:w-12 rounded-full overflow-hidden ring-2 ring-primary/20 shrink-0 bg-muted">
                         {review.customer_image ? (
                           <img
                             src={review.customer_image}
@@ -110,18 +106,18 @@ const CustomerReviews = () => {
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <div className="h-full w-full flex items-center justify-center bg-primary/10 text-primary font-bold text-lg">
+                          <div className="h-full w-full flex items-center justify-center bg-primary/10 text-primary font-bold text-sm sm:text-lg">
                             {review.customer_name.charAt(0)}
                           </div>
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-foreground text-sm truncate">
+                        <p className="font-semibold text-foreground text-xs sm:text-sm truncate">
                           {review.customer_name}
                         </p>
                         {review.location && (
-                          <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
-                            <MapPin className="h-3 w-3 shrink-0" />
+                          <p className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1 truncate">
+                            <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
                             {review.location}
                           </p>
                         )}
