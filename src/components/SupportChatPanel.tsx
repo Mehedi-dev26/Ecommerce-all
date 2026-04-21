@@ -175,6 +175,7 @@ const SupportChatPanel = ({ open, onClose }: Props) => {
 
       {/* Panel: full-screen on mobile, compact side-panel on desktop */}
       <div
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
         className={cn(
