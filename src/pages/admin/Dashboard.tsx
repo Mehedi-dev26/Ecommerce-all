@@ -168,7 +168,7 @@ const Dashboard = () => {
       {/* Welcome Banner */}
       <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary/90 via-primary to-accent/80 p-4 sm:p-6 lg:p-8 text-primary-foreground">
         <div className="relative z-10">
-          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-1">স্বাগতম, অ্যাডমিন! 🥭</h2>
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-1">স্বাগতম, অ্যাডমিন! 👋</h2>
           <p className="text-primary-foreground/80 text-xs sm:text-sm lg:text-base">
             আজকের ব্যবসায়িক সারসংক্ষেপ দেখুন এবং আপনার স্টোর পরিচালনা করুন।
           </p>

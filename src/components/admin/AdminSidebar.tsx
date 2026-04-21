@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import logo from "@/assets/Green_Mango_Logo_1.png";
+import { ShoppingBag } from "lucide-react";
 import { useState } from "react";
 
 const navGroups = [
@@ -83,13 +83,13 @@ const AdminSidebar = ({ open, onToggle, onSignOut, userEmail }: AdminSidebarProp
         {/* Logo */}
         <div className="shrink-0 flex items-center gap-3 px-5 py-5 border-b border-sidebar-border/50">
           <div className="relative">
-            <div className="h-11 w-11 rounded-xl bg-sidebar-primary/20 flex items-center justify-center overflow-hidden ring-2 ring-sidebar-primary/30">
-              <img src={logo} alt="Logo" className="h-9 w-9 rounded-lg object-cover" />
+            <div className="h-11 w-11 rounded-xl bg-sidebar-primary/20 flex items-center justify-center ring-2 ring-sidebar-primary/30">
+              <ShoppingBag className="h-6 w-6 text-sidebar-primary" strokeWidth={2.5} />
             </div>
             <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-500 rounded-full border-2 border-sidebar" />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="font-brand text-xl text-sidebar-primary leading-tight">Sapahar Mango</h1>
+            <h1 className="font-brand text-2xl text-sidebar-primary leading-tight">Surzo Shop</h1>
             <p className="text-[10px] text-sidebar-foreground/50 uppercase tracking-widest font-semibold">Admin Panel</p>
           </div>
         </div>
