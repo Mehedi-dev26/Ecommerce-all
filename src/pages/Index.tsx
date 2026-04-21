@@ -3,6 +3,7 @@ import CategorySection from "@/components/CategorySection";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import LocationSection from "@/components/LocationSection";
+import CustomerReviews from "@/components/CustomerReviews";
 
 const Index = () => (
   <>
@@ -11,6 +12,7 @@ const Index = () => (
     <FeaturedProducts />
     <WhyChooseUs />
     <LocationSection />
+    <CustomerReviews />
   </>
 );
 
