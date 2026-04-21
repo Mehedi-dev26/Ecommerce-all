@@ -19,4 +19,7 @@ export default defineConfig(({ mode }) => ({
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core", "@radix-ui/react-tooltip", "@radix-ui/react-slider"],
   },
+  optimizeDeps: {
+    include: ["embla-carousel-react", "embla-carousel-autoplay", "embla-carousel"],
+  },
 }));
