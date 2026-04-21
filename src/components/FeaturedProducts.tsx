@@ -24,8 +24,8 @@ const FeaturedProducts = () => {
     <section className="bg-muted/50 py-10 sm:py-16">
       <div className="container mx-auto px-4">
         <div className="mb-6 text-center sm:mb-10">
-          <h2 className="mb-1 text-xl font-bold text-foreground sm:mb-2 sm:text-3xl">জনপ্রিয় আম সমূহ</h2>
-          <p className="text-xs text-muted-foreground sm:text-base">সাপাহারের সবচেয়ে জনপ্রিয় দেশি আম</p>
+          <h2 className="mb-1 text-xl font-bold text-foreground sm:mb-2 sm:text-3xl">জনপ্রিয় পণ্য সমূহ</h2>
+          <p className="text-xs text-muted-foreground sm:text-base">আমাদের সবচেয়ে জনপ্রিয় ও সেরা পণ্যসমূহ</p>
         </div>
         {isLoading ? (
           <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
@@ -52,7 +52,7 @@ const FeaturedProducts = () => {
         )}
         <div className="mt-6 text-center sm:mt-10">
           <Button asChild variant="outline" className="sm:h-11 sm:px-6">
-            <Link to="/products">সব আম দেখুন <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            <Link to="/products">সব পণ্য দেখুন <ArrowRight className="ml-2 h-4 w-4" /></Link>
           </Button>
         </div>
       </div>
