@@ -55,7 +55,7 @@ const CustomerReviews = () => {
         {/* Heading — matches LocationSection typography */}
         <div className="mb-8 text-center sm:mb-10">
           <h2 className="mb-2 text-2xl font-bold text-foreground sm:text-3xl">
-            বিশ্বস্ত <span className="font-brand text-primary text-3xl sm:text-4xl">Customers</span> এর মতামত
+            আমাদের <span className="font-brand text-primary text-3xl sm:text-4xl">Customers</span> দের মতামত
           </h2>
           <p className="text-sm text-muted-foreground sm:text-base">
             আমাদের সেবায় সন্তুষ্ট গ্রাহকদের প্রকৃত অভিজ্ঞতা
