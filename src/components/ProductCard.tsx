@@ -55,7 +55,7 @@ const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weigh
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-4xl sm:text-5xl">🥭</div>
+            <div className="flex h-full items-center justify-center"><ShoppingCart className="h-12 w-12 text-muted-foreground/40" /></div>
           )}
           {discount > 0 && (
             <Badge className="absolute left-1.5 top-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 sm:left-2 sm:top-2 sm:text-xs sm:px-2 sm:py-0.5">{discount}% ছাড়</Badge>

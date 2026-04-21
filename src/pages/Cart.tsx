@@ -29,7 +29,7 @@ const Cart = () => {
                 {item.image_url ? (
                   <img src={item.image_url} alt={item.name_bn} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-2xl">🥭</div>
+                  <div className="flex h-full items-center justify-center"><ShoppingBag className="h-8 w-8 text-muted-foreground/50" /></div>
                 )}
               </div>
               <div className="flex flex-1 flex-col justify-between">

@@ -36,41 +36,41 @@ const Footer = () => {
         <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20 ring-2 ring-primary/40">
-                <ShoppingBag className="h-6 w-6 text-primary" strokeWidth={2.5} />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/20 ring-2 ring-accent/40">
+                <ShoppingBag className="h-6 w-6 text-accent" strokeWidth={2.5} />
               </div>
-              <span className="font-brand text-2xl font-extrabold text-primary sm:text-3xl">Surzo Shop</span>
+              <span className="font-brand text-3xl font-bold text-accent sm:text-4xl">Surzo Shop</span>
             </div>
             <p className="text-base text-white/90 leading-relaxed">
               ইলেকট্রনিক্স, হোম অ্যাপ্লায়েন্স ও সাইকেল — সেরা পণ্য সরাসরি আপনার দোরগোড়ায়।
             </p>
           </div>
           <div>
-            <h4 className="mb-4 text-base font-bold text-primary uppercase tracking-wider">দ্রুত লিংক</h4>
+            <h4 className="mb-4 text-base font-bold text-accent uppercase tracking-wider">দ্রুত লিংক</h4>
             <ul className="space-y-3 text-base">
-              <li><Link to="/" className="text-white/90 hover:text-primary transition-colors font-medium">হোম</Link></li>
-              <li><Link to="/products" className="text-white/90 hover:text-primary transition-colors font-medium">পণ্য সমূহ</Link></li>
-              <li><Link to="/about" className="text-white/90 hover:text-primary transition-colors font-medium">আমাদের সম্পর্কে</Link></li>
-              <li><Link to="/contact" className="text-white/90 hover:text-primary transition-colors font-medium">যোগাযোগ</Link></li>
+              <li><Link to="/" className="text-white/90 hover:text-accent transition-colors font-medium">হোম</Link></li>
+              <li><Link to="/products" className="text-white/90 hover:text-accent transition-colors font-medium">পণ্য সমূহ</Link></li>
+              <li><Link to="/about" className="text-white/90 hover:text-accent transition-colors font-medium">আমাদের সম্পর্কে</Link></li>
+              <li><Link to="/contact" className="text-white/90 hover:text-accent transition-colors font-medium">যোগাযোগ</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="mb-4 text-base font-bold text-primary uppercase tracking-wider">ক্যাটাগরি</h4>
+            <h4 className="mb-4 text-base font-bold text-accent uppercase tracking-wider">ক্যাটাগরি</h4>
             <ul className="space-y-3 text-base">
-              <li><Link to="/products?category=Electronics" className="text-white/90 hover:text-primary transition-colors font-medium">ইলেকট্রনিক্স</Link></li>
-              <li><Link to="/products?category=Home%20Appliances" className="text-white/90 hover:text-primary transition-colors font-medium">হোম অ্যাপ্লায়েন্স</Link></li>
-              <li><Link to="/products?category=Bicycles%20%26%20Vehicles" className="text-white/90 hover:text-primary transition-colors font-medium">সাইকেল ও যানবাহন</Link></li>
+              <li><Link to="/products?category=Electronics" className="text-white/90 hover:text-accent transition-colors font-medium">ইলেকট্রনিক্স</Link></li>
+              <li><Link to="/products?category=Home%20Appliances" className="text-white/90 hover:text-accent transition-colors font-medium">হোম অ্যাপ্লায়েন্স</Link></li>
+              <li><Link to="/products?category=Bicycles%20%26%20Vehicles" className="text-white/90 hover:text-accent transition-colors font-medium">সাইকেল ও যানবাহন</Link></li>
             </ul>
           </div>
           <div className="col-span-2 sm:col-span-1">
-            <h4 className="mb-4 text-base font-bold text-primary uppercase tracking-wider">যোগাযোগ</h4>
+            <h4 className="mb-4 text-base font-bold text-accent uppercase tracking-wider">যোগাযোগ</h4>
             <ul className="space-y-3 text-base">
-              <li className="flex items-center gap-2 text-white/90 font-medium"><Phone className="h-5 w-5 text-primary shrink-0" /> {settings.footer_phone}</li>
-              <li className="flex items-center gap-2 text-white/90 font-medium"><Mail className="h-5 w-5 text-primary shrink-0" /> {settings.footer_email}</li>
-              <li className="flex items-center gap-2 text-white/90 font-medium"><MapPin className="h-5 w-5 text-primary shrink-0" /> {settings.footer_location}</li>
+              <li className="flex items-center gap-2 text-white/90 font-medium"><Phone className="h-5 w-5 text-accent shrink-0" /> {settings.footer_phone}</li>
+              <li className="flex items-center gap-2 text-white/90 font-medium"><Mail className="h-5 w-5 text-accent shrink-0" /> {settings.footer_email}</li>
+              <li className="flex items-center gap-2 text-white/90 font-medium"><MapPin className="h-5 w-5 text-accent shrink-0" /> {settings.footer_location}</li>
               <li>
-                <a href={settings.footer_facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/90 hover:text-primary transition-colors font-medium">
-                  <Facebook className="h-5 w-5 text-primary shrink-0" /> Facebook Page
+                <a href={settings.footer_facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/90 hover:text-accent transition-colors font-medium">
+                  <Facebook className="h-5 w-5 text-accent shrink-0" /> Facebook Page
                 </a>
               </li>
             </ul>

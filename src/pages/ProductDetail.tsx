@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Minus, Plus, Heart, Share2, Truck, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight, Star, User, ThumbsUp, CheckCircle2, Package, Weight, Calculator, MapPin } from "lucide-react";
+import { ShoppingCart, Minus, Plus, Heart, Share2, Truck, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight, Star, ThumbsUp, CheckCircle2, Package, Calculator, MapPin } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -11,19 +11,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { divisions } from "@/data/bd-locations";
 
-const KG_OPTIONS = [5, 10, 20];
-const DEFAULT_COURIER_RATE = 10;
+const DEFAULT_DELIVERY_FEE = 120;
 
-// Fake reviews for demo
+// Generic product reviews
 const fakeReviews = [
-  { id: 1, name: "রহিম উদ্দিন", rating: 5, date: "২০ মে, ২০২৬", comment: "সাপাহারের আম অসাধারণ! গাছপাকা আমের স্বাদই আলাদা। আবার অর্ডার করবো।", verified: true },
-  { id: 2, name: "ফাতেমা বেগম", rating: 4, date: "১৫ মে, ২০২৬", comment: "আমের মান ভালো, প্যাকেজিংও সুন্দর ছিল। ডেলিভারি সময়মতো হয়েছে।", verified: true },
-  { id: 3, name: "কামরুল হাসান", rating: 5, date: "১০ মে, ২০২৬", comment: "সাপাহার Mango থেকে নিলে ভেজাল নিয়ে চিন্তা নেই। ল্যাংড়া আম পরিবারের সবাই পছন্দ করেছে।", verified: true },
-  { id: 4, name: "সাবিনা আক্তার", rating: 4, date: "৫ মে, ২০২৬", comment: "হিমসাগর আমটা দারুণ ছিল, তবে আরেকটু বেশি পরিমাণে থাকলে ভালো হতো। স্বাদে কোনো অভিযোগ নেই।", verified: false },
+  { id: 1, name: "রহিম উদ্দিন", rating: 5, date: "২০ মে, ২০২৬", comment: "পণ্যটি অসাধারণ! ঠিক যেমনটি চেয়েছিলাম। আবার অর্ডার করবো।", verified: true },
+  { id: 2, name: "ফাতেমা বেগম", rating: 4, date: "১৫ মে, ২০২৬", comment: "মান ভালো, প্যাকেজিংও সুন্দর ছিল। ডেলিভারি সময়মতো হয়েছে।", verified: true },
+  { id: 3, name: "কামরুল হাসান", rating: 5, date: "১০ মে, ২০২৬", comment: "Surzo Shop থেকে নিলে নিশ্চিন্তে অরিজিনাল পণ্য পাওয়া যায়। সেরা দাম।", verified: true },
+  { id: 4, name: "সাবিনা আক্তার", rating: 4, date: "৫ মে, ২০২৬", comment: "ছবির সাথে মিল আছে, কোয়ালিটি সন্তোষজনক। সাপোর্ট টিমও দারুণ।", verified: false },
 ];
 
 const StarRating = ({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" | "lg" }) => {
@@ -31,7 +29,7 @@ const StarRating = ({ rating, size = "sm" }: { rating: number; size?: "sm" | "md
   return (
     <div className="flex gap-0.5">
       {[1, 2, 3, 4, 5].map((s) => (
-        <Star key={s} className={`${sizeClass} ${s <= rating ? "fill-secondary text-secondary" : "text-muted-foreground/30"}`} />
+        <Star key={s} className={`${sizeClass} ${s <= rating ? "fill-accent text-accent" : "text-muted-foreground/30"}`} />
       ))}
     </div>
   );
@@ -43,13 +41,10 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const [qty, setQty] = useState(1);
   const [selectedImg, setSelectedImg] = useState(0);
-  const [selectedKg, setSelectedKg] = useState(5);
-  const [customKg, setCustomKg] = useState("");
-  const [isCustom, setIsCustom] = useState(false);
   const [selDivision, setSelDivision] = useState("");
   const [selDistrict, setSelDistrict] = useState("");
-  const [courierRate, setCourierRate] = useState<number | null>(null);
-  const [courierLoading, setCourierLoading] = useState(false);
+  const [deliveryFee, setDeliveryFee] = useState<number | null>(null);
+  const [feeLoading, setFeeLoading] = useState(false);
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", id],
@@ -107,22 +102,17 @@ const ProductDetail = () => {
     allImages.push(product.image_url);
   }
 
-  const activeKg = isCustom ? (Number(customKg) || 0) : selectedKg;
-  const pricePerKg = Number(product.price);
-  const totalProductPrice = pricePerKg * activeKg;
-  const effectiveRate = courierRate ?? DEFAULT_COURIER_RATE;
-  const courierCharge = effectiveRate * activeKg;
-  const grandTotal = totalProductPrice + courierCharge;
+  const unitPrice = Number(product.price);
+  const totalProductPrice = unitPrice * qty;
+  const effectiveFee = deliveryFee ?? DEFAULT_DELIVERY_FEE;
+  const grandTotal = totalProductPrice + effectiveFee;
 
-  // Cascading location data
   const divisionData = divisions.find((d) => d.name === selDivision);
   const districtList = divisionData?.districts || [];
 
-  // Fetch courier charge when district changes
-  const lookupCourierRate = async (div: string, dist: string) => {
-    setCourierLoading(true);
+  const lookupDeliveryFee = async (div: string, dist: string) => {
+    setFeeLoading(true);
     try {
-      // Try exact district match first
       const { data } = await supabase
         .from("courier_charges")
         .select("charge_per_kg")
@@ -130,32 +120,25 @@ const ProductDetail = () => {
         .eq("district", dist)
         .limit(1);
       if (data && data.length > 0) {
-        setCourierRate(Number((data[0] as any).charge_per_kg));
+        // Treat stored value as flat fee per order for general products
+        setDeliveryFee(Number((data[0] as any).charge_per_kg));
       } else {
-        setCourierRate(null); // fallback to default
+        setDeliveryFee(null);
       }
     } catch {
-      setCourierRate(null);
+      setDeliveryFee(null);
     } finally {
-      setCourierLoading(false);
+      setFeeLoading(false);
     }
   };
 
   const handleAdd = () => {
-    if (activeKg <= 0) {
-      toast({ title: "ত্রুটি", description: "অনুগ্রহ করে কেজি পরিমাণ নির্বাচন করুন।", variant: "destructive" });
-      return;
-    }
-    addItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: totalProductPrice, image_url: product.image_url, weight: `${activeKg} কেজি` }, qty);
-    toast({ title: "কার্টে যোগ হয়েছে", description: `${product.name_bn} (${activeKg} কেজি) কার্টে যোগ করা হয়েছে।` });
+    addItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: unitPrice, image_url: product.image_url, weight: product.weight || null }, qty);
+    toast({ title: "কার্টে যোগ হয়েছে", description: `${product.name_bn} (${qty} পিস) কার্টে যোগ করা হয়েছে।` });
   };
 
   const handleBuyNow = () => {
-    if (activeKg <= 0) {
-      toast({ title: "ত্রুটি", description: "অনুগ্রহ করে কেজি পরিমাণ নির্বাচন করুন।", variant: "destructive" });
-      return;
-    }
-    addItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: totalProductPrice, image_url: product.image_url, weight: `${activeKg} কেজি` }, qty);
+    addItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: unitPrice, image_url: product.image_url, weight: product.weight || null }, qty);
     navigate("/checkout");
   };
 
@@ -188,7 +171,6 @@ const ProductDetail = () => {
       </div>
 
       <div className="container mx-auto px-4 py-4 sm:py-8">
-        {/* Main product section - 2 col on desktop, 3 col on lg */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 lg:gap-10">
           {/* Image Gallery */}
           <div className="lg:col-span-2">
@@ -196,7 +178,7 @@ const ProductDetail = () => {
               {allImages.length > 0 ? (
                 <img src={allImages[selectedImg]} alt={product.name_bn} className="h-full w-full object-contain p-2 transition-transform duration-300 hover:scale-110" />
               ) : (
-                <div className="flex h-full items-center justify-center text-8xl">🥭</div>
+                <div className="flex h-full items-center justify-center"><Package className="h-24 w-24 text-muted-foreground/40" /></div>
               )}
               {discount > 0 && (
                 <Badge className="absolute left-3 top-3 bg-destructive text-destructive-foreground px-2.5 py-1 text-xs sm:text-sm">-{discount}%</Badge>
@@ -244,17 +226,18 @@ const ProductDetail = () => {
 
             <Separator className="mb-4" />
 
-            {/* Price per kg */}
+            {/* Price */}
             <div className="mb-4 rounded-lg bg-muted/50 p-3 sm:p-4">
-              <div className="flex items-baseline gap-3">
-                <span className="text-2xl font-bold text-primary sm:text-3xl">৳{pricePerKg}/কেজি</span>
+              <div className="flex items-baseline gap-3 flex-wrap">
+                <span className="text-2xl font-bold text-primary sm:text-3xl">৳{unitPrice.toLocaleString()}</span>
                 {product.compare_price && (
                   <>
-                    <span className="text-sm text-muted-foreground line-through sm:text-base">৳{Number(product.compare_price)}/কেজি</span>
+                    <span className="text-sm text-muted-foreground line-through sm:text-base">৳{Number(product.compare_price).toLocaleString()}</span>
                     <Badge variant="secondary" className="text-xs">-{discount}% ছাড়</Badge>
                   </>
                 )}
               </div>
+              <p className="mt-1 text-xs text-muted-foreground">প্রতি পিস</p>
             </div>
 
             {/* Short Description */}
@@ -266,62 +249,33 @@ const ProductDetail = () => {
 
             <Separator className="mb-4" />
 
-            {/* KG Selection */}
-            <div className="mb-4">
-              <span className="mb-2 block text-xs font-semibold text-foreground sm:text-sm">
-                <Weight className="inline h-4 w-4 mr-1 text-primary" />
-                কত কেজি নিবেন?
-              </span>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {KG_OPTIONS.map((kg) => (
-                  <button
-                    key={kg}
-                    onClick={() => { setSelectedKg(kg); setIsCustom(false); }}
-                    className={`rounded-lg border-2 px-4 py-2 text-sm font-semibold transition-all ${
-                      !isCustom && selectedKg === kg
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border hover:border-primary/50 text-foreground"
-                    }`}
-                  >
-                    {kg} কেজি
-                  </button>
-                ))}
-                <button
-                  onClick={() => setIsCustom(true)}
-                  className={`rounded-lg border-2 px-4 py-2 text-sm font-semibold transition-all ${
-                    isCustom
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border hover:border-primary/50 text-foreground"
-                  }`}
-                >
-                  কাস্টম
-                </button>
-              </div>
-              {isCustom && (
-                <div className="mt-2 flex items-center gap-2">
-                  <Input
-                    type="number"
-                    min={1}
-                    placeholder="কত কেজি?"
-                    value={customKg}
-                    onChange={(e) => setCustomKg(e.target.value)}
-                    className="w-32"
-                  />
-                  <span className="text-sm text-muted-foreground">কেজি</span>
+            {/* Quantity */}
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="flex items-center gap-1">
+                <span className="mr-2 text-xs font-medium text-foreground sm:text-sm">পরিমাণ:</span>
+                <div className="flex items-center rounded-lg border">
+                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setQty(Math.max(1, qty - 1))}>
+                    <Minus className="h-3.5 w-3.5" />
+                  </Button>
+                  <span className="w-12 text-center text-sm font-semibold">{qty}</span>
+                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setQty(qty + 1)}>
+                    <Plus className="h-3.5 w-3.5" />
+                  </Button>
                 </div>
-              )}
+                <span className="ml-2 text-xs text-muted-foreground">পিস</span>
+              </div>
             </div>
 
-            {/* Location for courier charge */}
+            {/* Location for delivery fee */}
             <div className="mb-4">
               <span className="mb-2 block text-xs font-semibold text-foreground sm:text-sm">
                 <MapPin className="inline h-4 w-4 mr-1 text-primary" />
-                ডেলিভারি এলাকা (কুরিয়ার চার্জ জানতে)
+                ডেলিভারি এলাকা (চার্জ জানতে)
               </span>
               <div className="grid grid-cols-2 gap-2 mt-2">
                 <Select
                   value={selDivision}
-                  onValueChange={(v) => { setSelDivision(v); setSelDistrict(""); setCourierRate(null); }}
+                  onValueChange={(v) => { setSelDivision(v); setSelDistrict(""); setDeliveryFee(null); }}
                 >
                   <SelectTrigger className="text-xs sm:text-sm"><SelectValue placeholder="বিভাগ" /></SelectTrigger>
                   <SelectContent>
@@ -332,7 +286,7 @@ const ProductDetail = () => {
                 </Select>
                 <Select
                   value={selDistrict}
-                  onValueChange={(v) => { setSelDistrict(v); void lookupCourierRate(selDivision, v); }}
+                  onValueChange={(v) => { setSelDistrict(v); void lookupDeliveryFee(selDivision, v); }}
                   disabled={!selDivision}
                 >
                   <SelectTrigger className="text-xs sm:text-sm"><SelectValue placeholder="জেলা" /></SelectTrigger>
@@ -343,60 +297,42 @@ const ProductDetail = () => {
                   </SelectContent>
                 </Select>
               </div>
-              {courierLoading && <p className="text-xs text-muted-foreground mt-1">চার্জ লোড হচ্ছে...</p>}
-              {!courierLoading && selDistrict && courierRate === null && (
-                <p className="text-xs text-muted-foreground mt-1">ডিফল্ট চার্জ: ৳{DEFAULT_COURIER_RATE}/কেজি</p>
+              {feeLoading && <p className="text-xs text-muted-foreground mt-1">চার্জ লোড হচ্ছে...</p>}
+              {!feeLoading && selDistrict && deliveryFee === null && (
+                <p className="text-xs text-muted-foreground mt-1">ডিফল্ট ডেলিভারি চার্জ: ৳{DEFAULT_DELIVERY_FEE}</p>
               )}
-              {!courierLoading && courierRate !== null && (
-                <p className="text-xs text-primary font-medium mt-1">এই এলাকায় কুরিয়ার চার্জ: ৳{courierRate}/কেজি</p>
+              {!feeLoading && deliveryFee !== null && (
+                <p className="text-xs text-primary font-medium mt-1">এই এলাকায় ডেলিভারি চার্জ: ৳{deliveryFee}</p>
               )}
             </div>
 
-            {/* Price & Courier Breakdown */}
-            {activeKg > 0 && (
-              <div className="mb-4 rounded-xl border-2 border-primary/20 bg-primary/5 p-3 sm:p-4 space-y-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <Calculator className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-bold text-foreground">মূল্য হিসাব</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-foreground/80">আমের মূল্য ({activeKg} কেজি × ৳{pricePerKg})</span>
-                  <span className="font-semibold text-foreground">৳{totalProductPrice.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-foreground/80">
-                    <Truck className="inline h-3.5 w-3.5 mr-1" />
-                    কুরিয়ার চার্জ ({activeKg} কেজি × ৳{effectiveRate})
-                  </span>
-                  <span className="font-semibold text-foreground">৳{courierCharge.toLocaleString()}</span>
-                </div>
-                <Separator />
-                <div className="flex justify-between text-base">
-                  <span className="font-bold text-foreground">সর্বমোট</span>
-                  <span className="font-bold text-primary text-lg">৳{grandTotal.toLocaleString()}</span>
-                </div>
+            {/* Price Breakdown */}
+            <div className="mb-4 rounded-xl border-2 border-primary/20 bg-primary/5 p-3 sm:p-4 space-y-2">
+              <div className="flex items-center gap-2 mb-2">
+                <Calculator className="h-4 w-4 text-primary" />
+                <span className="text-sm font-bold text-foreground">মূল্য হিসাব</span>
               </div>
-            )}
-
-            {/* Quantity */}
-            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="flex items-center gap-1">
-                <span className="mr-2 text-xs font-medium text-foreground sm:text-sm">অর্ডার সংখ্যা:</span>
-                <div className="flex items-center rounded-lg border">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => setQty(Math.max(1, qty - 1))}>
-                    <Minus className="h-3.5 w-3.5" />
-                  </Button>
-                  <span className="w-10 text-center text-sm font-semibold">{qty}</span>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => setQty(qty + 1)}>
-                    <Plus className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-foreground/80">পণ্যের মূল্য ({qty} পিস × ৳{unitPrice.toLocaleString()})</span>
+                <span className="font-semibold text-foreground">৳{totalProductPrice.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-foreground/80">
+                  <Truck className="inline h-3.5 w-3.5 mr-1" />
+                  ডেলিভারি চার্জ
+                </span>
+                <span className="font-semibold text-foreground">৳{effectiveFee.toLocaleString()}</span>
+              </div>
+              <Separator />
+              <div className="flex justify-between text-base">
+                <span className="font-bold text-foreground">সর্বমোট</span>
+                <span className="font-bold text-primary text-lg">৳{grandTotal.toLocaleString()}</span>
               </div>
             </div>
 
             {/* Buy buttons */}
             <div className="mb-4 flex gap-2 sm:gap-3">
-              <Button onClick={handleBuyNow} size="lg" className="flex-1 bg-secondary text-secondary-foreground hover:bg-secondary/90 text-xs sm:text-sm h-10 sm:h-12">
+              <Button onClick={handleBuyNow} size="lg" className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90 text-xs sm:text-sm h-10 sm:h-12 font-semibold">
                 এখনই কিনুন
               </Button>
               <Button onClick={handleAdd} size="lg" variant="outline" className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm h-10 sm:h-12">
@@ -418,7 +354,7 @@ const ProductDetail = () => {
             <div className="flex flex-wrap gap-2 sm:gap-3">
               {[
                 { icon: Truck, label: "সারাদেশে ডেলিভারি" },
-                { icon: ShieldCheck, label: "১০০% খাঁটি" },
+                { icon: ShieldCheck, label: "১০০% অরিজিনাল" },
                 { icon: RotateCcw, label: "ক্যাশ অন ডেলিভারি" },
                 { icon: Package, label: "নিরাপদ প্যাকেজিং" },
               ].map(({ icon: Icon, label }) => (
@@ -433,7 +369,7 @@ const ProductDetail = () => {
 
         {/* Tabs: Description + Reviews */}
         <div className="mt-8 sm:mt-12">
-          <Tabs defaultValue="reviews" className="w-full">
+          <Tabs defaultValue="description" className="w-full">
             <TabsList className="w-full justify-start border-b bg-transparent p-0 h-auto">
               <TabsTrigger value="description" className="rounded-none border-b-2 border-transparent px-4 py-3 text-sm font-medium data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none sm:text-base">
                 বিস্তারিত বিবরণ
@@ -446,30 +382,29 @@ const ProductDetail = () => {
             <TabsContent value="description" className="mt-6">
               <div className="rounded-lg border bg-card p-4 sm:p-6">
                 <h3 className="mb-3 text-base font-semibold text-foreground sm:text-lg">পণ্যের বিস্তারিত</h3>
-                <p className="text-sm leading-relaxed text-foreground/80 sm:text-base">{product.description_bn || product.description || "কোনো বিবরণ নেই।"}</p>
+                <p className="text-sm leading-relaxed text-foreground/80 sm:text-base whitespace-pre-line">{product.description_bn || product.description || "কোনো বিবরণ নেই।"}</p>
                 <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div className="flex items-center gap-2 rounded-md bg-muted/50 p-3">
                     <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
-                    <span className="text-xs sm:text-sm text-foreground">কোনো কেমিক্যাল বা প্রিজারভেটিভ নেই</span>
+                    <span className="text-xs sm:text-sm text-foreground">১০০% অরিজিনাল ও ব্র্যান্ড নিউ</span>
                   </div>
                   <div className="flex items-center gap-2 rounded-md bg-muted/50 p-3">
                     <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
-                    <span className="text-xs sm:text-sm text-foreground">সম্পূর্ণ হাতে তৈরি</span>
+                    <span className="text-xs sm:text-sm text-foreground">অফিসিয়াল ওয়ারেন্টি সহ</span>
                   </div>
                   <div className="flex items-center gap-2 rounded-md bg-muted/50 p-3">
                     <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
-                    <span className="text-xs sm:text-sm text-foreground">ঐতিহ্যবাহী রেসিপি</span>
+                    <span className="text-xs sm:text-sm text-foreground">নিরাপদ ও দ্রুত ডেলিভারি</span>
                   </div>
                   <div className="flex items-center gap-2 rounded-md bg-muted/50 p-3">
                     <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
-                    <span className="text-xs sm:text-sm text-foreground">প্রিমিয়াম প্যাকেজিং</span>
+                    <span className="text-xs sm:text-sm text-foreground">ক্যাশ অন ডেলিভারি সুবিধা</span>
                   </div>
                 </div>
               </div>
             </TabsContent>
 
             <TabsContent value="reviews" className="mt-6">
-              {/* Review Summary */}
               <div className="mb-6 flex flex-col gap-4 rounded-lg border bg-card p-4 sm:flex-row sm:items-center sm:p-6">
                 <div className="flex flex-col items-center gap-1 sm:min-w-[120px]">
                   <span className="text-4xl font-bold text-foreground">{avgRating}</span>
@@ -485,9 +420,9 @@ const ProductDetail = () => {
                     return (
                       <div key={star} className="flex items-center gap-2">
                         <span className="w-3 text-xs text-muted-foreground">{star}</span>
-                        <Star className="h-3 w-3 fill-secondary text-secondary" />
+                        <Star className="h-3 w-3 fill-accent text-accent" />
                         <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                          <div className="h-full rounded-full bg-secondary transition-all" style={{ width: `${pct}%` }} />
+                          <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${pct}%` }} />
                         </div>
                         <span className="w-6 text-right text-[11px] text-muted-foreground">{count}</span>
                       </div>
@@ -496,7 +431,6 @@ const ProductDetail = () => {
                 </div>
               </div>
 
-              {/* Individual Reviews */}
               <div className="space-y-4">
                 {fakeReviews.map((review) => (
                   <div key={review.id} className="rounded-lg border bg-card p-4 sm:p-5">
@@ -545,15 +479,15 @@ const ProductDetail = () => {
                       {rp.image_url ? (
                         <img src={rp.image_url} alt={rp.name_bn} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
                       ) : (
-                        <div className="flex h-full items-center justify-center text-4xl">🥭</div>
+                        <div className="flex h-full items-center justify-center"><Package className="h-12 w-12 text-muted-foreground/40" /></div>
                       )}
                       {rpDiscount > 0 && <Badge className="absolute left-2 top-2 bg-destructive text-destructive-foreground text-[10px]">-{rpDiscount}%</Badge>}
                     </div>
                     <div className="p-2.5 sm:p-3">
                       <h3 className="text-xs font-semibold text-foreground line-clamp-1 sm:text-sm">{rp.name_bn}</h3>
                       <div className="mt-1 flex items-baseline gap-1.5">
-                        <span className="text-sm font-bold text-primary">৳{Number(rp.price)}</span>
-                        {rp.compare_price && <span className="text-[10px] text-muted-foreground line-through">৳{Number(rp.compare_price)}</span>}
+                        <span className="text-sm font-bold text-primary">৳{Number(rp.price).toLocaleString()}</span>
+                        {rp.compare_price && <span className="text-[10px] text-muted-foreground line-through">৳{Number(rp.compare_price).toLocaleString()}</span>}
                       </div>
                     </div>
                   </Link>

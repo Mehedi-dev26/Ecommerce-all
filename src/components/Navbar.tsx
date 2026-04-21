@@ -28,7 +28,7 @@ const Navbar = () => {
             <ShoppingBag className="h-5 w-5 text-white sm:h-6 sm:w-6" strokeWidth={2.5} />
           </div>
           <div className="flex flex-col">
-            <span className="font-brand text-xl font-extrabold leading-none text-white sm:text-2xl drop-shadow-sm">Surzo Shop</span>
+            <span className="font-brand text-3xl font-bold leading-none text-white sm:text-4xl drop-shadow-md">Surzo Shop</span>
             <span className="text-[9px] font-medium tracking-wider text-white/80 sm:text-[10px]">সেরা পণ্য, সেরা দামে</span>
           </div>
         </Link>
@@ -116,7 +116,7 @@ const Navbar = () => {
                     <ShoppingBag className="h-5 w-5 text-white" strokeWidth={2.5} />
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-brand text-lg font-extrabold text-white">Surzo Shop</span>
+                    <span className="font-brand text-2xl font-bold text-white">Surzo Shop</span>
                     <span className="text-[9px] text-white/70">সেরা পণ্য, সেরা দামে</span>
                   </div>
                 </SheetTitle>

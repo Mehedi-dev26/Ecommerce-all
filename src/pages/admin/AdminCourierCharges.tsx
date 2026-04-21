@@ -206,7 +206,7 @@ const AdminCourierCharges = () => {
               </div>
               <div className="flex items-baseline gap-1 mt-2 p-2 rounded-lg bg-primary/5">
                 <span className="text-xl font-bold text-primary">৳{c.charge_per_kg}</span>
-                <span className="text-xs text-muted-foreground">/কেজি</span>
+                <span className="text-xs text-muted-foreground">/অর্ডার</span>
               </div>
             </CardContent>
           </Card>
@@ -293,7 +293,7 @@ const AdminCourierCharges = () => {
 
             {/* Charge per kg */}
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">চার্জ (প্রতি কেজি) ৳</Label>
+              <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ডেলিভারি চার্জ (প্রতি অর্ডার) ৳</Label>
               <Input
                 type="number"
                 min={0}

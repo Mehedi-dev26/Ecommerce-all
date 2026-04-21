@@ -117,9 +117,9 @@ const InvoicePrint = ({ order, items, open, onClose, type }: InvoicePrintProps) 
             {/* Header */}
             <div className="header">
               <div className="logo-section">
-                <h1>🥭 সাপাহার ম্যাঙ্গো</h1>
-                <p>Sapahar Mango — Premium Rajshahi Mangoes</p>
-                <p>সাপাহার, নওগাঁ, রাজশাহী বিভাগ</p>
+                <h1>🛍️ Surzo Shop</h1>
+                <p>Surzo Shop — Electronics, Appliances & Bicycles</p>
+                <p>ঢাকা, বাংলাদেশ</p>
               </div>
               <div className="invoice-meta">
                 <h2>{type === "pathao" ? "Shipping Label" : "Invoice"}</h2>
@@ -212,8 +212,8 @@ const InvoicePrint = ({ order, items, open, onClose, type }: InvoicePrintProps) 
                   <strong>নোট:</strong> {order.notes}
                 </p>
               )}
-              <p>ধন্যবাদ আপনার অর্ডারের জন্য! — সাপাহার ম্যাঙ্গো 🥭</p>
-              <p style={{ marginTop: 4 }}>www.sapaharmango.com</p>
+              <p>ধন্যবাদ আপনার অর্ডারের জন্য! — Surzo Shop 🛍️</p>
+              <p style={{ marginTop: 4 }}>www.surzoshop.com</p>
             </div>
           </div>
         </div>
