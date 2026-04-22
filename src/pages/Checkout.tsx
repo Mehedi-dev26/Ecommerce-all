@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,11 +8,16 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Phone, User, Mail, FileText, AlertCircle, LogIn } from "lucide-react";
+import { Loader2, MapPin, Phone, User, Mail, FileText, AlertCircle, Lock, Shield } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { divisions } from "@/data/bd-locations";
 
 const BD_PHONE_REGEX = /^01[3-9]\d{8}$/;
+
+// Convert phone number to a synthetic email for Supabase auth
+const phoneToEmail = (phone: string) => `${phone}@sapahar-customer.local`;
+// Convert 4-digit PIN to a Supabase-compatible password (min 6 chars)
+const pinToPassword = (pin: string) => `pin_${pin}`;
 
 async function generateOrderNumber(): Promise<string> {
   const { count, error } = await supabase
