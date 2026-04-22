@@ -14,11 +14,6 @@ import { divisions } from "@/data/bd-locations";
 
 const BD_PHONE_REGEX = /^01[3-9]\d{8}$/;
 
-// Convert phone number to a synthetic email for Supabase auth
-const phoneToEmail = (phone: string) => `${phone}@sapahar-customer.local`;
-// Convert 4-digit PIN to a Supabase-compatible password (min 6 chars)
-const pinToPassword = (pin: string) => `pin_${pin}`;
-
 async function generateOrderNumber(): Promise<string> {
   const { count, error } = await supabase
     .from("orders")
