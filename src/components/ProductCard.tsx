@@ -16,9 +16,10 @@ interface ProductCardProps {
   image_url?: string | null;
   weight?: string | null;
   category_name_bn?: string;
+  grade?: string | null;
 }
 
-const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weight, category_name_bn }: ProductCardProps) => {
+const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weight, category_name_bn, grade }: ProductCardProps) => {
   const { addItem } = useCart();
   const [wishlisted, setWishlisted] = useState(false);
 
@@ -60,6 +61,11 @@ const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weigh
           {discount > 0 && (
             <Badge className="absolute left-1.5 top-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 sm:left-2 sm:top-2 sm:text-xs sm:px-2 sm:py-0.5">{discount}% ছাড়</Badge>
           )}
+          {grade && (
+            <span className="absolute left-1.5 bottom-1.5 inline-flex items-center gap-0.5 rounded-md bg-gradient-to-r from-primary to-accent px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground shadow-md ring-1 ring-primary/30 sm:left-2 sm:bottom-2 sm:text-xs sm:px-2">
+              ★ Grade {grade}
+            </span>
+          )}
           {/* Wishlist heart icon */}
           <button
             onClick={handleWishlist}
@@ -70,7 +76,10 @@ const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weigh
         </div>
         <CardContent className="p-2.5 sm:p-3">
           {category_name_bn && <p className="mb-0.5 text-[10px] text-muted-foreground">{category_name_bn}</p>}
-          <h3 className="mb-0.5 text-xs font-semibold text-foreground sm:text-sm line-clamp-1">{name_bn}</h3>
+          <h3 className="mb-0.5 text-xs font-semibold text-foreground sm:text-sm line-clamp-1">
+            {name_bn}
+            {grade && <span className="ml-1 text-primary font-bold">• Grade {grade}</span>}
+          </h3>
           {weight && <p className="mb-1 text-[10px] text-muted-foreground">{weight}</p>}
           <div className="flex items-center justify-between gap-1">
             <div className="flex items-baseline gap-1">

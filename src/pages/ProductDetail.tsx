@@ -212,7 +212,15 @@ const ProductDetail = () => {
                 {(product as any).categories?.name_bn}
               </Link>
             )}
-            <h1 className="mb-1 text-xl font-bold text-foreground sm:text-2xl lg:text-3xl">{product.name_bn}</h1>
+            <div className="mb-1 flex flex-wrap items-center gap-2">
+              <h1 className="text-xl font-bold text-foreground sm:text-2xl lg:text-3xl">{product.name_bn}</h1>
+              {(product as any).grade && (
+                <span className="inline-flex items-center gap-1 rounded-md bg-gradient-to-r from-primary to-accent px-2.5 py-1 text-sm sm:text-base font-bold text-primary-foreground shadow-md ring-2 ring-primary/30">
+                  <Star className="h-3.5 w-3.5 fill-current" />
+                  Grade {(product as any).grade}
+                </span>
+              )}
+            </div>
             <p className="mb-2 text-xs text-muted-foreground sm:text-sm">{product.name}</p>
 
             {/* Rating summary */}
