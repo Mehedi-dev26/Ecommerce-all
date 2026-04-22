@@ -10,7 +10,15 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SupportWidget from "@/components/SupportWidget";
 import ScrollToTop from "@/components/ScrollToTop";
-import PageLoader from "@/components/PageLoader";
+
+// Minimal top progress bar shown ONLY during route lazy-load.
+// We deliberately avoid a full-screen PageLoader on every navigation —
+// users should perceive instant transitions (Daraz/Amazon style).
+const RouteFallback = () => (
+  <div className="fixed top-0 left-0 right-0 z-[70] h-0.5 overflow-hidden bg-transparent">
+    <div className="h-full w-1/3 bg-primary animate-[loader-slide_1s_ease-in-out_infinite]" />
+  </div>
+);
 
 // Lazy load public pages
 const Index = lazy(() => import("./pages/Index"));
@@ -72,7 +80,7 @@ const App = () => {
           <Sonner />
           <BrowserRouter>
             <ScrollToTop />
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<RouteFallback />}>
               <Routes>
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />
