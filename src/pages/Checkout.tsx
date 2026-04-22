@@ -661,18 +661,19 @@ const Checkout = () => {
                 placeholder="বাড়ি নং, রোড, এলাকা, পোস্ট অফিস..."
                 className={errors.address ? "border-destructive" : ""}
               />
-              <FieldError field="address" />
             </div>
+          </div>
+          )}
 
-            <div className="mt-4">
-              <Label htmlFor="notes" className="text-base font-semibold mb-1.5 block">বিশেষ নোট <span className="text-xs font-normal text-muted-foreground">(ঐচ্ছিক)</span></Label>
-              <Textarea
-                id="notes"
-                value={form.notes}
-                onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                placeholder="অর্ডার সম্পর্কে কিছু জানাতে চাইলে লিখুন..."
-              />
-            </div>
+          {/* Notes — always available */}
+          <div className="rounded-xl border bg-card p-4 sm:p-6">
+            <Label htmlFor="notes" className="text-base font-semibold mb-1.5 block">বিশেষ নোট <span className="text-xs font-normal text-muted-foreground">(ঐচ্ছিক)</span></Label>
+            <Textarea
+              id="notes"
+              value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              placeholder="অর্ডার সম্পর্কে কিছু জানাতে চাইলে লিখুন..."
+            />
           </div>
 
           {/* Account PIN - only for guests */}
