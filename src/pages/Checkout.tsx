@@ -16,7 +16,7 @@ import { getGuestAuthEmail, getGuestAuthPassword } from "@/lib/guest-auth";
 const BD_PHONE_REGEX = /^01[3-9]\d{8}$/;
 
 async function generateOrderNumber(): Promise<string> {
-  const { count, error } = await supabase
+  const { count } = await supabase
     .from("orders")
     .select("*", { count: "exact", head: true });
 
