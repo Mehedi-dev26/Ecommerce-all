@@ -175,6 +175,7 @@ export type Database = {
       }
       customer_reviews: {
         Row: {
+          contact_info: string | null
           created_at: string
           customer_image: string | null
           customer_name: string
@@ -184,9 +185,12 @@ export type Database = {
           rating: number
           review_text: string
           sort_order: number
+          status: string
+          submitted_by_customer: boolean
           updated_at: string
         }
         Insert: {
+          contact_info?: string | null
           created_at?: string
           customer_image?: string | null
           customer_name: string
@@ -196,9 +200,12 @@ export type Database = {
           rating?: number
           review_text: string
           sort_order?: number
+          status?: string
+          submitted_by_customer?: boolean
           updated_at?: string
         }
         Update: {
+          contact_info?: string | null
           created_at?: string
           customer_image?: string | null
           customer_name?: string
@@ -208,6 +215,8 @@ export type Database = {
           rating?: number
           review_text?: string
           sort_order?: number
+          status?: string
+          submitted_by_customer?: boolean
           updated_at?: string
         }
         Relationships: []
