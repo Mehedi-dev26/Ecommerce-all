@@ -14,16 +14,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { divisions } from "@/data/bd-locations";
 import GradeBadge from "@/components/GradeBadge";
+import ProductReviews from "@/components/ProductReviews";
 
 const DEFAULT_DELIVERY_FEE = 120;
-
-// Generic product reviews
-const fakeReviews = [
-  { id: 1, name: "রহিম উদ্দিন", rating: 5, date: "২০ মে, ২০২৬", comment: "পণ্যটি অসাধারণ! ঠিক যেমনটি চেয়েছিলাম। আবার অর্ডার করবো।", verified: true },
-  { id: 2, name: "ফাতেমা বেগম", rating: 4, date: "১৫ মে, ২০২৬", comment: "মান ভালো, প্যাকেজিংও সুন্দর ছিল। ডেলিভারি সময়মতো হয়েছে।", verified: true },
-  { id: 3, name: "কামরুল হাসান", rating: 5, date: "১০ মে, ২০২৬", comment: "Surzo Shop থেকে নিলে নিশ্চিন্তে অরিজিনাল পণ্য পাওয়া যায়। সেরা দাম।", verified: true },
-  { id: 4, name: "সাবিনা আক্তার", rating: 4, date: "৫ মে, ২০২৬", comment: "ছবির সাথে মিল আছে, কোয়ালিটি সন্তোষজনক। সাপোর্ট টিমও দারুণ।", verified: false },
-];
 
 const StarRating = ({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" | "lg" }) => {
   const sizeClass = size === "lg" ? "h-5 w-5" : size === "md" ? "h-4 w-4" : "h-3.5 w-3.5";
