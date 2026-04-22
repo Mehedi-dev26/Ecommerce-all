@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, ShieldCheck, Truck, Headphones, Eye, EyeOff, Mail, Lock, User, ArrowLeft, ShoppingBag, Star, Award, Heart, Phone, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { getGuestAuthEmail, getGuestAuthPassword } from "@/lib/guest-auth";
 
 type AuthMode = "login" | "register" | "forgot" | "phone";
 
@@ -61,10 +62,9 @@ const Login = () => {
           return;
         }
         const cleanedPhone = form.phone.replace(/\D/g, "");
-        const syntheticEmail = `sapahar.customer.${cleanedPhone}@gmail.com`;
         const { error } = await supabase.auth.signInWithPassword({
-          email: syntheticEmail,
-          password: `Pin${form.pin}_SapaharShop2024!`,
+          email: getGuestAuthEmail(cleanedPhone),
+          password: getGuestAuthPassword(form.pin),
         });
         if (error) {
           toast({ title: "লগইন ব্যর্থ", description: "মোবাইল নম্বর বা PIN ভুল। অনুগ্রহ করে আবার চেষ্টা করুন।", variant: "destructive" });

@@ -11,6 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, MapPin, Phone, User, Mail, FileText, AlertCircle, Lock, Shield, Eye, EyeOff } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { divisions } from "@/data/bd-locations";
+import { getGuestAuthEmail, getGuestAuthPassword } from "@/lib/guest-auth";
 
 const BD_PHONE_REGEX = /^01[3-9]\d{8}$/;
 
@@ -130,57 +131,53 @@ const Checkout = () => {
     return Object.keys(errs).length === 0;
   };
 
-  // Ensure user is signed in: try login with phone+pin, else create account
-  // Uses phone-based synthetic email with a domain that passes Supabase email validation
+  // Ensure user is signed in: fast sign-in first, otherwise create guest account server-side and sign in instantly
   const ensureAccount = async (phone: string, pin: string, name: string, email: string): Promise<string | null> => {
     if (user) return user.id;
-    // Use gmail.com subdomain pattern that passes Supabase's strict email validator
-    const syntheticEmail = `sapahar.customer.${phone}@gmail.com`;
-    const password = `Pin${pin}_SapaharShop2024!`;
 
-    // Try sign-in first (in case account already exists)
+    const syntheticEmail = getGuestAuthEmail(phone);
+    const password = getGuestAuthPassword(pin);
+
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email: syntheticEmail,
       password,
     });
-    if (signInData?.user) return signInData.user.id;
 
-    // If invalid credentials, the account either doesn't exist OR user typed wrong PIN
+    if (signInData.user) {
+      return signInData.user.id;
+    }
+
     if (signInError && !signInError.message.toLowerCase().includes("invalid")) {
       throw signInError;
     }
 
-    // Try to create new account
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email: syntheticEmail,
-      password,
-      options: {
-        data: { full_name: name, phone },
-        emailRedirectTo: window.location.origin,
+    const { data: createData, error: createError } = await supabase.functions.invoke("guest-auth", {
+      body: {
+        phone,
+        pin,
+        name,
+        email: email || null,
       },
     });
 
-    if (signUpError) {
-      // Account already exists but PIN is wrong
-      if (signUpError.message.toLowerCase().includes("already") || signUpError.message.toLowerCase().includes("registered")) {
-        throw new Error("এই মোবাইল নম্বর দিয়ে আগেই অ্যাকাউন্ট আছে। সঠিক ৪ ডিজিটের PIN দিন।");
-      }
-      throw signUpError;
+    if (createError) {
+      throw createError;
     }
 
-    if (!signUpData.user) throw new Error("অ্যাকাউন্ট তৈরি করতে সমস্যা হয়েছে");
+    if (createData?.error) {
+      throw new Error(createData.error);
+    }
 
-    // Save profile data
-    await supabase.from("profiles").upsert(
-      {
-        user_id: signUpData.user.id,
-        full_name: name,
-        phone,
-      },
-      { onConflict: "user_id" }
-    );
+    const { data: finalSignInData, error: finalSignInError } = await supabase.auth.signInWithPassword({
+      email: syntheticEmail,
+      password,
+    });
 
-    return signUpData.user.id;
+    if (finalSignInError || !finalSignInData.user) {
+      throw finalSignInError || new Error("অ্যাকাউন্টে স্বয়ংক্রিয় লগইন করতে সমস্যা হয়েছে");
+    }
+
+    return finalSignInData.user.id;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -284,13 +281,14 @@ const Checkout = () => {
     );
   }
 
-  const FieldError = ({ field }: { field: string }) =>
-    errors[field] ? (
-      <p className="text-xs text-destructive flex items-center gap-1 mt-1">
+  function FieldError({ field }: { field: string }) {
+    return errors[field] ? (
+      <p className="mt-1 flex items-center gap-1 text-xs text-destructive">
         <AlertCircle className="h-3 w-3" />
         {errors[field]}
       </p>
     ) : null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-6 sm:py-10">
