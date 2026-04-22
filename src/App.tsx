@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -10,7 +10,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SupportWidget from "@/components/SupportWidget";
 import ScrollToTop from "@/components/ScrollToTop";
-import { Loader2 } from "lucide-react";
+import PageLoader from "@/components/PageLoader";
 
 // Lazy load public pages
 const Index = lazy(() => import("./pages/Index"));
@@ -53,13 +53,17 @@ const queryClient = new QueryClient({
   },
 });
 
-const PageLoader = () => (
-  <div className="flex min-h-[50vh] items-center justify-center">
-    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-  </div>
-);
+const App = () => {
+  // Remove the initial HTML loader once React has mounted
+  useEffect(() => {
+    const el = document.getElementById("initial-loader");
+    if (!el) return;
+    el.classList.add("fade-out");
+    const t = setTimeout(() => el.remove(), 400);
+    return () => clearTimeout(t);
+  }, []);
 
-const App = () => (
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
@@ -121,6 +125,7 @@ const App = () => (
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

@@ -68,25 +68,27 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        "loader-slide": {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(450%)" },
+        },
+        "loader-dot": {
+          "0%, 80%, 100%": { opacity: "0.25" },
+          "40%": { opacity: "1" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "loader-slide": "loader-slide 1.1s ease-in-out infinite",
+        "loader-dot": "loader-dot 1.4s infinite both",
       },
     },
   },

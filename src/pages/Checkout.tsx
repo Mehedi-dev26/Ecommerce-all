@@ -8,10 +8,23 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Phone, User, Mail, FileText, AlertCircle, Lock, Shield, Eye, EyeOff } from "lucide-react";
+import { Loader2, MapPin, Phone, User, Mail, FileText, AlertCircle, Lock, Shield, Eye, EyeOff, Plus, Home, Pencil, Trash2, CheckCircle2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { divisions } from "@/data/bd-locations";
 import { getGuestAuthEmail, getGuestAuthEmailCandidates, getGuestAuthPassword } from "@/lib/guest-auth";
+
+interface SavedAddress {
+  id: string;
+  label: string;
+  full_name: string;
+  phone: string;
+  email: string | null;
+  division: string;
+  district: string;
+  upazila: string;
+  address: string;
+  is_default: boolean;
+}
 
 const BD_PHONE_REGEX = /^01[3-9]\d{8}$/;
 
@@ -43,10 +56,69 @@ const Checkout = () => {
     pin: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>("");
+  const [addressMode, setAddressMode] = useState<"saved" | "new">("saved");
+  const [savedLoading, setSavedLoading] = useState(false);
 
-  // Pre-fill from profile
+  // Fetch saved addresses for logged-in users
   useEffect(() => {
-    if (profile) {
+    if (!user) {
+      setSavedAddresses([]);
+      setAddressMode("new");
+      return;
+    }
+    setSavedLoading(true);
+    supabase
+      .from("saved_addresses")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("is_default", { ascending: false })
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        const list = (data || []) as SavedAddress[];
+        setSavedAddresses(list);
+        if (list.length > 0) {
+          const defaultAddr = list.find((a) => a.is_default) || list[0];
+          setSelectedAddressId(defaultAddr.id);
+          setAddressMode("saved");
+          setForm((prev) => ({
+            ...prev,
+            name: defaultAddr.full_name,
+            phone: defaultAddr.phone,
+            email: defaultAddr.email || prev.email,
+            division: defaultAddr.division,
+            district: defaultAddr.district,
+            upazila: defaultAddr.upazila,
+            address: defaultAddr.address,
+          }));
+        } else {
+          setAddressMode("new");
+        }
+        setSavedLoading(false);
+      });
+  }, [user]);
+
+  // When user picks a different saved address, sync form
+  useEffect(() => {
+    if (addressMode !== "saved" || !selectedAddressId) return;
+    const addr = savedAddresses.find((a) => a.id === selectedAddressId);
+    if (!addr) return;
+    setForm((prev) => ({
+      ...prev,
+      name: addr.full_name,
+      phone: addr.phone,
+      email: addr.email || prev.email,
+      division: addr.division,
+      district: addr.district,
+      upazila: addr.upazila,
+      address: addr.address,
+    }));
+  }, [selectedAddressId, addressMode, savedAddresses]);
+
+  // Pre-fill from profile (only if no saved addresses available)
+  useEffect(() => {
+    if (profile && savedAddresses.length === 0) {
       setForm((prev) => ({
         ...prev,
         name: prev.name || profile.full_name || "",
@@ -58,7 +130,7 @@ const Checkout = () => {
         address: prev.address || profile.default_address || "",
       }));
     }
-  }, [profile, user]);
+  }, [profile, user, savedAddresses.length]);
 
   // Save abandoned checkout data when user fills fields
   const saveAbandonedCheckout = useCallback(async () => {
@@ -241,6 +313,17 @@ const Checkout = () => {
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
 
+      // Save the new address to the user's address book if they typed a fresh one
+      const shouldSaveAddress =
+        userId &&
+        addressMode === "new" &&
+        !savedAddresses.some(
+          (a) =>
+            a.address.trim() === form.address.trim() &&
+            a.upazila === form.upazila &&
+            a.district === form.district
+        );
+
       await Promise.allSettled([
         userId
           ? supabase.from("profiles").upsert(
@@ -258,6 +341,20 @@ const Checkout = () => {
           : Promise.resolve(),
         abandonedId
           ? supabase.from("abandoned_checkouts").update({ recovered: true }).eq("id", abandonedId)
+          : Promise.resolve(),
+        shouldSaveAddress
+          ? supabase.from("saved_addresses").insert({
+              user_id: userId,
+              label: savedAddresses.length === 0 ? "বাসা" : "নতুন ঠিকানা",
+              full_name: form.name.trim(),
+              phone: form.phone.trim(),
+              email: form.email.trim() || null,
+              division: form.division,
+              district: form.district,
+              upazila: form.upazila,
+              address: form.address.trim(),
+              is_default: savedAddresses.length === 0,
+            })
           : Promise.resolve(),
       ]);
 
@@ -299,12 +396,141 @@ const Checkout = () => {
     ) : null;
   }
 
+  const handleDeleteSavedAddress = async (id: string) => {
+    if (!user) return;
+    const remaining = savedAddresses.filter((a) => a.id !== id);
+    setSavedAddresses(remaining);
+    if (selectedAddressId === id) {
+      if (remaining.length > 0) {
+        setSelectedAddressId(remaining[0].id);
+      } else {
+        setSelectedAddressId("");
+        setAddressMode("new");
+        setForm((p) => ({ ...p, name: "", phone: "", email: "", division: "", district: "", upazila: "", address: "" }));
+      }
+    }
+    await supabase.from("saved_addresses").delete().eq("id", id);
+    toast({ title: "ঠিকানা মুছে ফেলা হয়েছে" });
+  };
+
+  const showSavedPicker = !!user && savedAddresses.length > 0;
+  const showFullForm = !showSavedPicker || addressMode === "new";
+
   return (
     <div className="container mx-auto px-4 py-6 sm:py-10">
       <h1 className="mb-6 sm:mb-8 text-2xl sm:text-3xl font-bold text-foreground">চেকআউট</h1>
       <form onSubmit={handleSubmit} className="grid gap-6 lg:gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          {/* Customer Info */}
+          {/* Saved Addresses Picker — Daraz-style */}
+          {showSavedPicker && (
+            <div className="rounded-xl border bg-card p-4 sm:p-6">
+              <div className="mb-4 flex items-center justify-between gap-3 flex-wrap">
+                <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+                  <Home className="h-6 w-6 text-primary" />
+                  সংরক্ষিত ঠিকানা
+                </h2>
+                <Button
+                  type="button"
+                  variant={addressMode === "new" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    if (addressMode === "saved") {
+                      setAddressMode("new");
+                      setSelectedAddressId("");
+                      setForm((p) => ({ ...p, name: "", phone: "", email: user?.email || "", division: "", district: "", upazila: "", address: "" }));
+                    } else if (savedAddresses.length > 0) {
+                      setAddressMode("saved");
+                      setSelectedAddressId(savedAddresses[0].id);
+                    }
+                  }}
+                  className="gap-1.5"
+                >
+                  {addressMode === "new" ? (
+                    <><CheckCircle2 className="h-4 w-4" />সংরক্ষিত ব্যবহার করুন</>
+                  ) : (
+                    <><Plus className="h-4 w-4" />নতুন ঠিকানা যোগ করুন</>
+                  )}
+                </Button>
+              </div>
+
+              {addressMode === "saved" && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {savedAddresses.map((addr) => {
+                    const isSelected = selectedAddressId === addr.id;
+                    const divBn = divisions.find((d) => d.name === addr.division)?.name_bn || addr.division;
+                    return (
+                      <button
+                        key={addr.id}
+                        type="button"
+                        onClick={() => setSelectedAddressId(addr.id)}
+                        className={`relative text-left rounded-xl border-2 p-3.5 transition-all ${
+                          isSelected
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border hover:border-primary/40 hover:bg-muted/40"
+                        }`}
+                      >
+                        {isSelected && (
+                          <CheckCircle2 className="absolute right-2 top-2 h-5 w-5 text-primary fill-primary/10" />
+                        )}
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                            <Home className="h-3 w-3" />{addr.label}
+                          </span>
+                          {addr.is_default && (
+                            <span className="rounded-md bg-accent/20 px-2 py-0.5 text-[10px] font-semibold text-accent-foreground">
+                              ডিফল্ট
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm font-semibold text-foreground truncate">{addr.full_name}</p>
+                        <p className="text-xs text-muted-foreground mb-1">{addr.phone}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                          {addr.address}, {addr.upazila}, {addr.district}, {divBn}
+                        </p>
+                        <div className="mt-2 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setAddressMode("new");
+                              setSelectedAddressId("");
+                              setForm((p) => ({
+                                ...p,
+                                name: addr.full_name,
+                                phone: addr.phone,
+                                email: addr.email || p.email,
+                                division: addr.division,
+                                district: addr.district,
+                                upazila: addr.upazila,
+                                address: addr.address,
+                              }));
+                            }}
+                            className="inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline"
+                          >
+                            <Pencil className="h-3 w-3" />সম্পাদনা
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteSavedAddress(addr.id);
+                            }}
+                            className="inline-flex items-center gap-1 text-[11px] font-medium text-destructive hover:underline"
+                          >
+                            <Trash2 className="h-3 w-3" />মুছুন
+                          </button>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Customer Info — only when filling new address (or no saved addresses) */}
+          {showFullForm && (
+          <>
           <div className="rounded-xl border bg-card p-4 sm:p-6">
             <h2 className="mb-5 text-xl sm:text-2xl font-bold flex items-center gap-2">
               <User className="h-6 w-6 text-primary" />
@@ -436,18 +662,20 @@ const Checkout = () => {
                 placeholder="বাড়ি নং, রোড, এলাকা, পোস্ট অফিস..."
                 className={errors.address ? "border-destructive" : ""}
               />
-              <FieldError field="address" />
             </div>
+          </div>
+          </>
+          )}
 
-            <div className="mt-4">
-              <Label htmlFor="notes" className="text-base font-semibold mb-1.5 block">বিশেষ নোট <span className="text-xs font-normal text-muted-foreground">(ঐচ্ছিক)</span></Label>
-              <Textarea
-                id="notes"
-                value={form.notes}
-                onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                placeholder="অর্ডার সম্পর্কে কিছু জানাতে চাইলে লিখুন..."
-              />
-            </div>
+          {/* Notes — always available */}
+          <div className="rounded-xl border bg-card p-4 sm:p-6">
+            <Label htmlFor="notes" className="text-base font-semibold mb-1.5 block">বিশেষ নোট <span className="text-xs font-normal text-muted-foreground">(ঐচ্ছিক)</span></Label>
+            <Textarea
+              id="notes"
+              value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              placeholder="অর্ডার সম্পর্কে কিছু জানাতে চাইলে লিখুন..."
+            />
           </div>
 
           {/* Account PIN - only for guests */}
