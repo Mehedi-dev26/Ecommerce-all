@@ -360,14 +360,6 @@ const Login = () => {
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input id="name" placeholder="আপনার পুরো নাম" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="pl-10 h-11 rounded-xl" required />
                       </div>
-                {mode === "register" && (
-                  <>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="name" className="text-xs font-medium text-muted-foreground">পুরো নাম <span className="text-destructive">*</span></Label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="name" placeholder="আপনার পুরো নাম" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="pl-10 h-11 rounded-xl" required />
-                      </div>
                     </div>
 
                     <div className="space-y-1.5">
