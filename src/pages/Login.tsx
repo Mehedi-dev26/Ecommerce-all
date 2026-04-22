@@ -270,16 +270,14 @@ const Login = () => {
             {/* Heading */}
             <div className="mb-6 text-center">
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                {mode === "register" ? "অ্যাকাউন্ট তৈরি করুন" : mode === "forgot" ? "পাসওয়ার্ড রিসেট" : mode === "phone" ? "দ্রুত লগইন" : "ইমেইল লগইন"}
+                {mode === "register" ? "অ্যাকাউন্ট তৈরি করুন" : mode === "forgot" ? "পাসওয়ার্ড রিসেট" : "লগইন করুন"}
               </h1>
               <p className="text-sm text-muted-foreground mt-1.5">
                 {mode === "register"
                   ? "মোবাইল নম্বর দিয়ে অ্যাকাউন্ট খুলে কেনাকাটা শুরু করুন"
                   : mode === "forgot"
                   ? "আপনার ইমেইল দিন, রিসেট লিংক পাঠানো হবে"
-                  : mode === "phone"
-                  ? "মোবাইল নম্বর ও ৪ ডিজিটের PIN দিয়ে লগইন করুন"
-                  : "ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন"}
+                  : "ইমেইল বা মোবাইল নম্বর দিয়ে লগইন করুন"}
               </p>
             </div>
 
@@ -287,34 +285,14 @@ const Login = () => {
             <div className="rounded-2xl border border-border/50 shadow-xl p-5 sm:p-7 space-y-5 bg-card/95 backdrop-blur-sm">
               {(mode === "forgot" || mode === "register") && (
                 <button
-                  onClick={() => setMode("phone")}
+                  onClick={() => setMode("login")}
                   className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" /> লগইনে ফিরে যান
                 </button>
               )}
 
-              {/* Tab switcher between Phone and Email login */}
-              {(mode === "phone" || mode === "login") && (
-                <div className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-muted/50">
-                  <button
-                    type="button"
-                    onClick={() => setMode("phone")}
-                    className={`h-9 rounded-lg text-xs font-medium transition-all ${mode === "phone" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-                  >
-                    📱 মোবাইল + PIN
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMode("login")}
-                    className={`h-9 rounded-lg text-xs font-medium transition-all ${mode === "login" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-                  >
-                    ✉️ ইমেইল
-                  </button>
-                </div>
-              )}
-
-              {mode !== "forgot" && mode !== "phone" && (
+              {mode !== "forgot" && (
                 <>
                   <button
                     onClick={handleGoogleLogin}
@@ -339,7 +317,7 @@ const Login = () => {
                       <div className="w-full border-t border-border/50" />
                     </div>
                     <div className="relative flex justify-center text-xs">
-                      <span className="bg-card px-3 text-muted-foreground">অথবা ইমেইল দিয়ে</span>
+                      <span className="bg-card px-3 text-muted-foreground">অথবা</span>
                     </div>
                   </div>
                 </>
@@ -347,46 +325,6 @@ const Login = () => {
 
               {/* Form */}
               <form onSubmit={handleEmailSubmit} className="space-y-4">
-                {mode === "phone" && (
-                  <>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="phone-login" className="text-xs font-medium text-muted-foreground">মোবাইল নম্বর <span className="text-destructive">*</span></Label>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
-                        <Input
-                          id="phone-login"
-                          type="tel"
-                          inputMode="numeric"
-                          placeholder="01XXXXXXXXX"
-                          value={form.phone}
-                          onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "").slice(0, 11) })}
-                          className="pl-10 h-11 rounded-xl"
-                          maxLength={11}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="pin-login" className="text-xs font-medium text-muted-foreground">৪ ডিজিটের PIN <span className="text-destructive">*</span></Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
-                        <Input
-                          id="pin-login"
-                          type="password"
-                          inputMode="numeric"
-                          placeholder="••••"
-                          value={form.pin}
-                          onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, "").slice(0, 4) })}
-                          className="pl-10 h-11 rounded-xl text-center tracking-[0.4em] font-mono"
-                          maxLength={4}
-                          required
-                        />
-                      </div>
-                      <p className="text-[11px] text-muted-foreground">অর্ডার করার সময় যে PIN সেট করেছিলেন সেটি দিন</p>
-                    </div>
-                  </>
-                )}
-
                 {mode === "register" && (
                   <>
                     <div className="space-y-1.5">
@@ -421,9 +359,28 @@ const Login = () => {
                   </>
                 )}
 
-                {mode !== "phone" && (
+                {mode === "login" && (
                   <div className="space-y-1.5">
-                    <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">ইমেইল {mode === "register" && <span className="text-destructive">*</span>}</Label>
+                    <Label htmlFor="identifier" className="text-xs font-medium text-muted-foreground">ইমেইল বা মোবাইল নম্বর</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="identifier"
+                        type="text"
+                        autoComplete="username"
+                        placeholder="example@email.com বা 01XXXXXXXXX"
+                        value={form.identifier}
+                        onChange={(e) => setForm({ ...form, identifier: e.target.value })}
+                        className="pl-10 h-11 rounded-xl"
+                        required
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {mode === "forgot" && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">ইমেইল</Label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input id="email" type="email" placeholder="example@email.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="pl-10 h-11 rounded-xl" required />
@@ -431,7 +388,17 @@ const Login = () => {
                   </div>
                 )}
 
-                {mode !== "forgot" && mode !== "phone" && (
+                {mode === "register" && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">ইমেইল <span className="text-destructive">*</span></Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input id="email" type="email" placeholder="example@email.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="pl-10 h-11 rounded-xl" required />
+                    </div>
+                  </div>
+                )}
+
+                {mode !== "forgot" && (
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="password" className="text-xs font-medium text-muted-foreground">পাসওয়ার্ড</Label>
@@ -443,7 +410,7 @@ const Login = () => {
                     </div>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input id="password" type={showPassword ? "text" : "password"} placeholder={mode === "register" ? "কমপক্ষে ৬ অক্ষর" : "আপনার পাসওয়ার্ড"} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="pl-10 pr-10 h-11 rounded-xl" required minLength={mode === "register" ? 6 : undefined} />
+                      <Input id="password" type={showPassword ? "text" : "password"} autoComplete={mode === "register" ? "new-password" : "current-password"} placeholder={mode === "register" ? "কমপক্ষে ৬ অক্ষর" : "আপনার পাসওয়ার্ড"} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="pl-10 pr-10 h-11 rounded-xl" required minLength={mode === "register" ? 6 : undefined} />
                       <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
