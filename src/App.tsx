@@ -11,20 +11,6 @@ import Footer from "@/components/Footer";
 import SupportWidget from "@/components/SupportWidget";
 import ScrollToTop from "@/components/ScrollToTop";
 import { Loader2 } from "lucide-react";
-import AdminLogin from "./pages/AdminLogin";
-import AdminLayout from "./layouts/AdminLayout";
-import Dashboard from "./pages/admin/Dashboard";
-import AdminProducts from "./pages/admin/AdminProducts";
-import AdminOrders from "./pages/admin/AdminOrders";
-import AdminCategories from "./pages/admin/AdminCategories";
-import AdminCustomers from "./pages/admin/AdminCustomers";
-import AdminPayments from "./pages/admin/AdminPayments";
-import AdminDelivery from "./pages/admin/AdminDelivery";
-import AdminBanners from "./pages/admin/AdminBanners";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminCourierCharges from "./pages/admin/AdminCourierCharges";
-import AdminReviews from "./pages/admin/AdminReviews";
-import AdminReports from "./pages/admin/AdminReports";
 
 // Lazy load public pages
 const Index = lazy(() => import("./pages/Index"));
@@ -40,12 +26,29 @@ const Login = lazy(() => import("./pages/Login"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 
+// Lazy load admin pages — bundled separately to avoid bloating the public bundle
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
+const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
+const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
+const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
+const AdminCategories = lazy(() => import("./pages/admin/AdminCategories"));
+const AdminCustomers = lazy(() => import("./pages/admin/AdminCustomers"));
+const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
+const AdminDelivery = lazy(() => import("./pages/admin/AdminDelivery"));
+const AdminBanners = lazy(() => import("./pages/admin/AdminBanners"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminCourierCharges = lazy(() => import("./pages/admin/AdminCourierCharges"));
+const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
+const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000,
       gcTime: 10 * 60 * 1000,
       refetchOnWindowFocus: false,
+      retry: 1,
     },
   },
 });
