@@ -45,11 +45,32 @@ const Login = () => {
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.email.trim() && mode !== "register") return;
 
     setSigningIn(true);
     try {
-      if (mode === "forgot") {
+      if (mode === "phone") {
+        // Phone + 4-digit PIN login (for accounts auto-created at checkout)
+        if (!validatePhone(form.phone)) {
+          toast({ title: "ত্রুটি", description: "সঠিক মোবাইল নম্বর দিন (01XXXXXXXXX)", variant: "destructive" });
+          setSigningIn(false);
+          return;
+        }
+        if (!/^\d{4}$/.test(form.pin)) {
+          toast({ title: "ত্রুটি", description: "৪ ডিজিটের PIN দিন", variant: "destructive" });
+          setSigningIn(false);
+          return;
+        }
+        const cleanedPhone = form.phone.replace(/\D/g, "");
+        const syntheticEmail = `${cleanedPhone}@sapahar-customer.local`;
+        const { error } = await supabase.auth.signInWithPassword({
+          email: syntheticEmail,
+          password: `pin_${form.pin}`,
+        });
+        if (error) {
+          toast({ title: "লগইন ব্যর্থ", description: "মোবাইল নম্বর বা PIN ভুল। অনুগ্রহ করে আবার চেষ্টা করুন।", variant: "destructive" });
+        }
+      } else if (mode === "forgot") {
+        if (!form.email.trim()) return;
         const { error } = await resetPassword(form.email);
         if (error) {
           toast({ title: "ত্রুটি", description: error, variant: "destructive" });
@@ -92,7 +113,6 @@ const Login = () => {
         if (error) {
           toast({ title: "ত্রুটি", description: error.message, variant: "destructive" });
         } else {
-          // Save phone to profile if user created
           if (data.user) {
             await supabase
               .from("profiles")
@@ -103,6 +123,7 @@ const Login = () => {
           setMode("login");
         }
       } else {
+        if (!form.email.trim()) return;
         const { error } = await signInWithEmail(form.email, form.password);
         if (error) {
           toast({ title: "ত্রুটি", description: error, variant: "destructive" });
