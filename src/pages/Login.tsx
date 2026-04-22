@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, ShieldCheck, Truck, Headphones, Eye, EyeOff, Mail, Lock, User, ArrowLeft, ShoppingBag, Star, Award, Heart, Phone, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { getGuestAuthEmailCandidates, getGuestAuthPassword } from "@/lib/guest-auth";
+import { getGuestAuthEmail, getGuestAuthPassword } from "@/lib/guest-auth";
 
 type AuthMode = "login" | "register" | "forgot";
 
@@ -121,37 +121,21 @@ const Login = () => {
             return;
           }
           const cleanedPhone = raw.replace(/\D/g, "");
-          let loginError: Error | null = null;
+          const syntheticEmail = getGuestAuthEmail(cleanedPhone);
 
-          // Try the user's chosen password against all known synthetic email formats.
-          for (const emailCandidate of getGuestAuthEmailCandidates(cleanedPhone)) {
-            const { error } = await supabase.auth.signInWithPassword({
-              email: emailCandidate,
-              password: form.password,
-            });
-            if (!error) {
-              loginError = null;
-              break;
-            }
-            loginError = error;
-            if (!error.message.toLowerCase().includes("invalid")) break;
-          }
+          // Single fast request — try user password first
+          let { error: loginError } = await supabase.auth.signInWithPassword({
+            email: syntheticEmail,
+            password: form.password,
+          });
 
-          // Backwards-compat: legacy accounts created with a 4-digit PIN used a fixed
-          // `guest-pin-XXXX` password. If user typed exactly 4 digits, also try that.
+          // Backwards-compat: legacy 4-digit PIN accounts only — single retry
           if (loginError && /^\d{4}$/.test(form.password)) {
-            const legacyPassword = getGuestAuthPassword(form.password);
-            for (const emailCandidate of getGuestAuthEmailCandidates(cleanedPhone)) {
-              const { error } = await supabase.auth.signInWithPassword({
-                email: emailCandidate,
-                password: legacyPassword,
-              });
-              if (!error) {
-                loginError = null;
-                break;
-              }
-              loginError = error;
-            }
+            const { error: legacyError } = await supabase.auth.signInWithPassword({
+              email: syntheticEmail,
+              password: getGuestAuthPassword(form.password),
+            });
+            loginError = legacyError;
           }
 
           if (loginError) {
