@@ -431,18 +431,18 @@ const Login = () => {
 
               {mode !== "forgot" && (
                 <p className="text-center text-sm text-muted-foreground">
-                  {mode === "login" ? (
+                  {mode === "register" ? (
                     <>
-                      নতুন ইউজার?{" "}
-                      <button onClick={() => setMode("register")} className="text-primary font-semibold hover:underline">
-                        অ্যাকাউন্ট তৈরি করুন
+                      ইতোমধ্যে অ্যাকাউন্ট আছে?{" "}
+                      <button type="button" onClick={() => setMode("phone")} className="text-primary font-semibold hover:underline">
+                        লগইন করুন
                       </button>
                     </>
                   ) : (
                     <>
-                      ইতোমধ্যে অ্যাকাউন্ট আছে?{" "}
-                      <button onClick={() => setMode("login")} className="text-primary font-semibold hover:underline">
-                        লগইন করুন
+                      নতুন ইউজার?{" "}
+                      <button type="button" onClick={() => setMode("register")} className="text-primary font-semibold hover:underline">
+                        অ্যাকাউন্ট তৈরি করুন
                       </button>
                     </>
                   )}
@@ -450,7 +450,7 @@ const Login = () => {
               )}
             </div>
 
-            {mode === "login" && (
+            {(mode === "login" || mode === "phone") && (
               <div className="mt-5 grid grid-cols-3 gap-3 lg:hidden">
                 {[
                   { icon: Truck, text: "দ্রুত ডেলিভারি", color: "text-primary", bg: "bg-primary/10" },
