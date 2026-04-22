@@ -46,6 +46,7 @@ const FeaturedProducts = () => {
                 image_url={p.image_url}
                 weight={p.weight}
                 category_name_bn={p.categories?.name_bn}
+                grade={p.grade}
               />
             ))}
           </div>
