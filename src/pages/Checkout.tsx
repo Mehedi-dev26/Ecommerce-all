@@ -396,12 +396,140 @@ const Checkout = () => {
     ) : null;
   }
 
+  const handleDeleteSavedAddress = async (id: string) => {
+    if (!user) return;
+    const remaining = savedAddresses.filter((a) => a.id !== id);
+    setSavedAddresses(remaining);
+    if (selectedAddressId === id) {
+      if (remaining.length > 0) {
+        setSelectedAddressId(remaining[0].id);
+      } else {
+        setSelectedAddressId("");
+        setAddressMode("new");
+        setForm((p) => ({ ...p, name: "", phone: "", email: "", division: "", district: "", upazila: "", address: "" }));
+      }
+    }
+    await supabase.from("saved_addresses").delete().eq("id", id);
+    toast({ title: "ঠিকানা মুছে ফেলা হয়েছে" });
+  };
+
+  const showSavedPicker = !!user && savedAddresses.length > 0;
+  const showFullForm = !showSavedPicker || addressMode === "new";
+
   return (
     <div className="container mx-auto px-4 py-6 sm:py-10">
       <h1 className="mb-6 sm:mb-8 text-2xl sm:text-3xl font-bold text-foreground">চেকআউট</h1>
       <form onSubmit={handleSubmit} className="grid gap-6 lg:gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          {/* Customer Info */}
+          {/* Saved Addresses Picker — Daraz-style */}
+          {showSavedPicker && (
+            <div className="rounded-xl border bg-card p-4 sm:p-6">
+              <div className="mb-4 flex items-center justify-between gap-3 flex-wrap">
+                <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+                  <Home className="h-6 w-6 text-primary" />
+                  সংরক্ষিত ঠিকানা
+                </h2>
+                <Button
+                  type="button"
+                  variant={addressMode === "new" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    if (addressMode === "saved") {
+                      setAddressMode("new");
+                      setSelectedAddressId("");
+                      setForm((p) => ({ ...p, name: "", phone: "", email: user?.email || "", division: "", district: "", upazila: "", address: "" }));
+                    } else if (savedAddresses.length > 0) {
+                      setAddressMode("saved");
+                      setSelectedAddressId(savedAddresses[0].id);
+                    }
+                  }}
+                  className="gap-1.5"
+                >
+                  {addressMode === "new" ? (
+                    <><CheckCircle2 className="h-4 w-4" />সংরক্ষিত ব্যবহার করুন</>
+                  ) : (
+                    <><Plus className="h-4 w-4" />নতুন ঠিকানা যোগ করুন</>
+                  )}
+                </Button>
+              </div>
+
+              {addressMode === "saved" && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {savedAddresses.map((addr) => {
+                    const isSelected = selectedAddressId === addr.id;
+                    const divBn = divisions.find((d) => d.name === addr.division)?.name_bn || addr.division;
+                    return (
+                      <button
+                        key={addr.id}
+                        type="button"
+                        onClick={() => setSelectedAddressId(addr.id)}
+                        className={`relative text-left rounded-xl border-2 p-3.5 transition-all ${
+                          isSelected
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border hover:border-primary/40 hover:bg-muted/40"
+                        }`}
+                      >
+                        {isSelected && (
+                          <CheckCircle2 className="absolute right-2 top-2 h-5 w-5 text-primary fill-primary/10" />
+                        )}
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                            <Home className="h-3 w-3" />{addr.label}
+                          </span>
+                          {addr.is_default && (
+                            <span className="rounded-md bg-accent/20 px-2 py-0.5 text-[10px] font-semibold text-accent-foreground">
+                              ডিফল্ট
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm font-semibold text-foreground truncate">{addr.full_name}</p>
+                        <p className="text-xs text-muted-foreground mb-1">{addr.phone}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                          {addr.address}, {addr.upazila}, {addr.district}, {divBn}
+                        </p>
+                        <div className="mt-2 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setAddressMode("new");
+                              setSelectedAddressId("");
+                              setForm((p) => ({
+                                ...p,
+                                name: addr.full_name,
+                                phone: addr.phone,
+                                email: addr.email || p.email,
+                                division: addr.division,
+                                district: addr.district,
+                                upazila: addr.upazila,
+                                address: addr.address,
+                              }));
+                            }}
+                            className="inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:underline"
+                          >
+                            <Pencil className="h-3 w-3" />সম্পাদনা
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteSavedAddress(addr.id);
+                            }}
+                            className="inline-flex items-center gap-1 text-[11px] font-medium text-destructive hover:underline"
+                          >
+                            <Trash2 className="h-3 w-3" />মুছুন
+                          </button>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Customer Info — only when filling new address (or no saved addresses) */}
+          {showFullForm && (
           <div className="rounded-xl border bg-card p-4 sm:p-6">
             <h2 className="mb-5 text-xl sm:text-2xl font-bold flex items-center gap-2">
               <User className="h-6 w-6 text-primary" />
