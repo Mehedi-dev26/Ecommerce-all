@@ -236,7 +236,7 @@ const ProductDetail = () => {
             <div className="mb-4 flex items-center gap-2">
               <StarRating rating={Math.round(Number(avgRating))} size="md" />
               <span className="text-sm font-medium text-foreground">{avgRating}</span>
-              <span className="text-xs text-muted-foreground">({fakeReviews.length}টি রিভিউ)</span>
+              <span className="text-xs text-muted-foreground">({totalReviews}টি রিভিউ)</span>
               <Separator orientation="vertical" className="h-4" />
               <span className="text-xs text-muted-foreground">{product.stock > 0 ? <span className="text-green-600 font-medium">স্টকে আছে</span> : <span className="text-destructive font-medium">স্টকে নেই</span>}</span>
             </div>
@@ -392,7 +392,7 @@ const ProductDetail = () => {
                 বিস্তারিত বিবরণ
               </TabsTrigger>
               <TabsTrigger value="reviews" className="rounded-none border-b-2 border-transparent px-4 py-3 text-sm font-medium data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none sm:text-base">
-                রিভিউ ({fakeReviews.length})
+                রিভিউ ({totalReviews})
               </TabsTrigger>
             </TabsList>
 
@@ -422,63 +422,7 @@ const ProductDetail = () => {
             </TabsContent>
 
             <TabsContent value="reviews" className="mt-6">
-              <div className="mb-6 flex flex-col gap-4 rounded-lg border bg-card p-4 sm:flex-row sm:items-center sm:p-6">
-                <div className="flex flex-col items-center gap-1 sm:min-w-[120px]">
-                  <span className="text-4xl font-bold text-foreground">{avgRating}</span>
-                  <StarRating rating={Math.round(Number(avgRating))} size="md" />
-                  <span className="text-xs text-muted-foreground">{fakeReviews.length}টি রিভিউ</span>
-                </div>
-                <Separator orientation="vertical" className="hidden h-20 sm:block" />
-                <Separator className="sm:hidden" />
-                <div className="flex-1 space-y-1.5">
-                  {[5, 4, 3, 2, 1].map((star) => {
-                    const count = fakeReviews.filter((r) => r.rating === star).length;
-                    const pct = (count / fakeReviews.length) * 100;
-                    return (
-                      <div key={star} className="flex items-center gap-2">
-                        <span className="w-3 text-xs text-muted-foreground">{star}</span>
-                        <Star className="h-3 w-3 fill-accent text-accent" />
-                        <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                          <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${pct}%` }} />
-                        </div>
-                        <span className="w-6 text-right text-[11px] text-muted-foreground">{count}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                {fakeReviews.map((review) => (
-                  <div key={review.id} className="rounded-lg border bg-card p-4 sm:p-5">
-                    <div className="mb-3 flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9">
-                          <AvatarFallback className="bg-primary/10 text-primary text-xs">{review.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-foreground">{review.name}</span>
-                            {review.verified && (
-                              <Badge variant="secondary" className="text-[10px] gap-0.5 px-1.5 py-0">
-                                <CheckCircle2 className="h-2.5 w-2.5" /> যাচাইকৃত
-                              </Badge>
-                            )}
-                          </div>
-                          <span className="text-[11px] text-muted-foreground">{review.date}</span>
-                        </div>
-                      </div>
-                      <StarRating rating={review.rating} />
-                    </div>
-                    <p className="text-sm leading-relaxed text-foreground/80">{review.comment}</p>
-                    <div className="mt-3 flex items-center gap-3">
-                      <button className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary transition-colors">
-                        <ThumbsUp className="h-3 w-3" /> সহায়ক
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <ProductReviews productId={product.id} productName={product.name_bn} />
             </TabsContent>
           </Tabs>
         </div>
