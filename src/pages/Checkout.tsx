@@ -11,11 +11,12 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, MapPin, Phone, User, Mail, FileText, AlertCircle, Lock, Shield, Eye, EyeOff } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { divisions } from "@/data/bd-locations";
+import { getGuestAuthEmail, getGuestAuthPassword } from "@/lib/guest-auth";
 
 const BD_PHONE_REGEX = /^01[3-9]\d{8}$/;
 
 async function generateOrderNumber(): Promise<string> {
-  const { count, error } = await supabase
+  const { count } = await supabase
     .from("orders")
     .select("*", { count: "exact", head: true });
 
@@ -89,12 +90,20 @@ const Checkout = () => {
     }
   }, [form, items, totalPrice, user, abandonedId]);
 
-  // Debounced save on form changes
   useEffect(() => {
     if (!form.name.trim() && !form.phone.trim()) return;
     const timer = setTimeout(() => { saveAbandonedCheckout(); }, 3000);
     return () => clearTimeout(timer);
-  }, [form.name, form.phone, form.email, form.division, form.district, form.upazila, form.address]);
+  }, [
+    form.name,
+    form.phone,
+    form.email,
+    form.division,
+    form.district,
+    form.upazila,
+    form.address,
+    saveAbandonedCheckout,
+  ]);
 
   // Save on page leave
   useEffect(() => {
@@ -130,57 +139,53 @@ const Checkout = () => {
     return Object.keys(errs).length === 0;
   };
 
-  // Ensure user is signed in: try login with phone+pin, else create account
-  // Uses phone-based synthetic email with a domain that passes Supabase email validation
+  // Ensure user is signed in: fast sign-in first, otherwise create guest account server-side and sign in instantly
   const ensureAccount = async (phone: string, pin: string, name: string, email: string): Promise<string | null> => {
     if (user) return user.id;
-    // Use gmail.com subdomain pattern that passes Supabase's strict email validator
-    const syntheticEmail = `sapahar.customer.${phone}@gmail.com`;
-    const password = `Pin${pin}_SapaharShop2024!`;
 
-    // Try sign-in first (in case account already exists)
+    const syntheticEmail = getGuestAuthEmail(phone);
+    const password = getGuestAuthPassword(pin);
+
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email: syntheticEmail,
       password,
     });
-    if (signInData?.user) return signInData.user.id;
 
-    // If invalid credentials, the account either doesn't exist OR user typed wrong PIN
+    if (signInData.user) {
+      return signInData.user.id;
+    }
+
     if (signInError && !signInError.message.toLowerCase().includes("invalid")) {
       throw signInError;
     }
 
-    // Try to create new account
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-      email: syntheticEmail,
-      password,
-      options: {
-        data: { full_name: name, phone },
-        emailRedirectTo: window.location.origin,
+    const { data: createData, error: createError } = await supabase.functions.invoke("guest-auth", {
+      body: {
+        phone,
+        pin,
+        name,
+        email: email || null,
       },
     });
 
-    if (signUpError) {
-      // Account already exists but PIN is wrong
-      if (signUpError.message.toLowerCase().includes("already") || signUpError.message.toLowerCase().includes("registered")) {
-        throw new Error("এই মোবাইল নম্বর দিয়ে আগেই অ্যাকাউন্ট আছে। সঠিক ৪ ডিজিটের PIN দিন।");
-      }
-      throw signUpError;
+    if (createError) {
+      throw createError;
     }
 
-    if (!signUpData.user) throw new Error("অ্যাকাউন্ট তৈরি করতে সমস্যা হয়েছে");
+    if (createData?.error) {
+      throw new Error(createData.error);
+    }
 
-    // Save profile data
-    await supabase.from("profiles").upsert(
-      {
-        user_id: signUpData.user.id,
-        full_name: name,
-        phone,
-      },
-      { onConflict: "user_id" }
-    );
+    const { data: finalSignInData, error: finalSignInError } = await supabase.auth.signInWithPassword({
+      email: syntheticEmail,
+      password,
+    });
 
-    return signUpData.user.id;
+    if (finalSignInError || !finalSignInData.user) {
+      throw finalSignInError || new Error("অ্যাকাউন্টে স্বয়ংক্রিয় লগইন করতে সমস্যা হয়েছে");
+    }
+
+    return finalSignInData.user.id;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -234,26 +239,25 @@ const Checkout = () => {
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
 
-      // Save default address to profile for future orders
-      if (userId) {
-        await supabase.from("profiles").upsert(
-          {
-            user_id: userId,
-            full_name: form.name.trim(),
-            phone: form.phone.trim(),
-            default_division: form.division,
-            default_district: form.district,
-            default_upazila: form.upazila,
-            default_address: form.address.trim(),
-          },
-          { onConflict: "user_id" }
-        );
-      }
-
-      // Mark abandoned checkout as recovered
-      if (abandonedId) {
-        await supabase.from("abandoned_checkouts").update({ recovered: true }).eq("id", abandonedId);
-      }
+      await Promise.allSettled([
+        userId
+          ? supabase.from("profiles").upsert(
+              {
+                user_id: userId,
+                full_name: form.name.trim(),
+                phone: form.phone.trim(),
+                default_division: form.division,
+                default_district: form.district,
+                default_upazila: form.upazila,
+                default_address: form.address.trim(),
+              },
+              { onConflict: "user_id" }
+            )
+          : Promise.resolve(),
+        abandonedId
+          ? supabase.from("abandoned_checkouts").update({ recovered: true }).eq("id", abandonedId)
+          : Promise.resolve(),
+      ]);
 
       clearCart();
       toast({ title: "অর্ডার সফল!", description: `অর্ডার নম্বর: ${orderNumber}` });
@@ -284,13 +288,14 @@ const Checkout = () => {
     );
   }
 
-  const FieldError = ({ field }: { field: string }) =>
-    errors[field] ? (
-      <p className="text-xs text-destructive flex items-center gap-1 mt-1">
+  function FieldError({ field }: { field: string }) {
+    return errors[field] ? (
+      <p className="mt-1 flex items-center gap-1 text-xs text-destructive">
         <AlertCircle className="h-3 w-3" />
         {errors[field]}
       </p>
     ) : null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-6 sm:py-10">
