@@ -440,6 +440,39 @@ const Checkout = () => {
             </div>
           </div>
 
+          {/* Account PIN - only for guests */}
+          {!user && (
+            <div className="rounded-xl border-2 border-primary/20 bg-primary/5 p-4 sm:p-6">
+              <h2 className="mb-1 text-lg font-semibold flex items-center gap-2">
+                <Shield className="h-5 w-5 text-primary" />
+                একটি ৪-ডিজিটের PIN সেট করুন
+              </h2>
+              <p className="text-xs text-muted-foreground mb-4">
+                অর্ডার complete হলে স্বয়ংক্রিয়ভাবে আপনার অ্যাকাউন্ট তৈরি হবে। পরবর্তীতে এই মোবাইল নম্বর ও PIN দিয়ে লগইন করে অর্ডার ট্র্যাক করতে পারবেন।
+              </p>
+              <div className="max-w-[240px]">
+                <Label htmlFor="pin" className="flex items-center gap-1">
+                  <Lock className="h-3.5 w-3.5" />৪ ডিজিটের PIN *
+                </Label>
+                <Input
+                  id="pin"
+                  type="password"
+                  inputMode="numeric"
+                  autoComplete="new-password"
+                  value={form.pin}
+                  onChange={(e) => {
+                    const v = e.target.value.replace(/\D/g, "").slice(0, 4);
+                    setForm({ ...form, pin: v });
+                  }}
+                  placeholder="••••"
+                  maxLength={4}
+                  className={`text-center text-2xl tracking-[0.5em] font-mono ${errors.pin ? "border-destructive" : ""}`}
+                />
+                <FieldError field="pin" />
+              </div>
+            </div>
+          )}
+
           {/* Payment */}
           <div className="rounded-xl border bg-card p-4 sm:p-6">
             <h2 className="mb-2 text-lg font-semibold">পেমেন্ট পদ্ধতি</h2>
