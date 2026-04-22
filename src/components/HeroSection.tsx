@@ -74,17 +74,12 @@ const HeroSection = () => {
 
         setSlides(mappedSlides);
         setCurrent(0);
-
-        if (mappedSlides.length === 0) {
-          setLoading(false);
-          return;
-        }
-
-        await preloadImage(mappedSlides[0].image);
-        if (cancelled) return;
-
         setLoading(false);
-        void Promise.allSettled(mappedSlides.slice(1).map((slide) => preloadImage(slide.image)));
+
+        // Warm cache for remaining slides in background — don't block first paint
+        if (mappedSlides.length > 1) {
+          void Promise.allSettled(mappedSlides.slice(1).map((slide) => preloadImage(slide.image)));
+        }
       } catch {
         if (!cancelled) {
           setSlides([]);
