@@ -8,17 +8,17 @@ import { Loader2, ShieldCheck, Truck, Headphones, Eye, EyeOff, Mail, Lock, User,
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-type AuthMode = "login" | "register" | "forgot";
+type AuthMode = "login" | "register" | "forgot" | "phone";
 
 const Login = () => {
   const { signInWithGoogle, signInWithEmail, resetPassword, user, loading, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const [mode, setMode] = useState<AuthMode>("login");
+  const [mode, setMode] = useState<AuthMode>("phone");
   const [signingIn, setSigningIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", pin: "" });
 
   const from = (location.state as any)?.from || "/";
 
