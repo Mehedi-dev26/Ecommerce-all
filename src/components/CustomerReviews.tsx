@@ -180,7 +180,9 @@ const CustomerReviews = () => {
             ))}
           </div>
         </div>
+        )}
       </div>
+      <ReviewSubmissionDialog open={submitOpen} onOpenChange={setSubmitOpen} />
     </section>
   );
 };
