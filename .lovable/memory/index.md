@@ -5,7 +5,7 @@
 - Products: Mobile phones, laptops, TVs, ACs, fridges, washing machines, bicycles, electric scooters.
 - Categories: Home Appliances, Bicycles & Vehicles.
 - Shop Location: আশুরন্দ বাজার, সাপাহার, নওগাঁ.
-- Auth: Google OAuth + Email. Login required before checkout.
+- Auth: Google + Email + Phone-PIN. Checkout is guest-friendly — account auto-created via 4-digit PIN on order submit, user auto-logged in.
 - Dynamic shipping by location (Division > District > Upazila) & weight. Real-time calculation.
 - Orders manually verified by admin before sending to Pathao via Supabase Edge Function.
 - Revenue analytics ONLY count 'delivered' orders.
