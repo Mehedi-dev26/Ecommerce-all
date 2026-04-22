@@ -43,6 +43,7 @@ const Checkout = () => {
     district: "",
     upazila: "",
     notes: "",
+    pin: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -127,8 +128,61 @@ const Checkout = () => {
     if (!form.district) errs.district = "জেলা সিলেক্ট করুন";
     if (!form.upazila) errs.upazila = "উপজেলা সিলেক্ট করুন";
     if (!form.address.trim() || form.address.trim().length < 10) errs.address = "সম্পূর্ণ ঠিকানা লিখুন (কমপক্ষে ১০ অক্ষর)";
+    // PIN required only if user is not already logged in
+    if (!user && !/^\d{4}$/.test(form.pin)) errs.pin = "৪ ডিজিটের PIN দিন";
     setErrors(errs);
     return Object.keys(errs).length === 0;
+  };
+
+  // Ensure user is signed in: try login with phone+pin, else create account
+  const ensureAccount = async (phone: string, pin: string, name: string, email: string): Promise<string | null> => {
+    if (user) return user.id;
+    const syntheticEmail = `${phone}@sapahar-customer.local`;
+    const password = `pin_${pin}`;
+
+    // Try sign-in first (in case account already exists)
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: syntheticEmail,
+      password,
+    });
+    if (signInData?.user) return signInData.user.id;
+
+    // If invalid credentials, the account either doesn't exist OR user typed wrong PIN
+    if (signInError && !signInError.message.toLowerCase().includes("invalid")) {
+      throw signInError;
+    }
+
+    // Try to create new account
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email: syntheticEmail,
+      password,
+      options: {
+        data: { full_name: name, phone },
+        emailRedirectTo: window.location.origin,
+      },
+    });
+
+    if (signUpError) {
+      // Account already exists but PIN is wrong
+      if (signUpError.message.toLowerCase().includes("already") || signUpError.message.toLowerCase().includes("registered")) {
+        throw new Error("এই মোবাইল নম্বর দিয়ে আগেই অ্যাকাউন্ট আছে। সঠিক ৪ ডিজিটের PIN দিন।");
+      }
+      throw signUpError;
+    }
+
+    if (!signUpData.user) throw new Error("অ্যাকাউন্ট তৈরি করতে সমস্যা হয়েছে");
+
+    // Save profile data
+    await supabase.from("profiles").upsert(
+      {
+        user_id: signUpData.user.id,
+        full_name: name,
+        phone,
+      },
+      { onConflict: "user_id" }
+    );
+
+    return signUpData.user.id;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -138,6 +192,15 @@ const Checkout = () => {
 
     setLoading(true);
     try {
+      // Step 1: Ensure user has an account (auto-create or sign in if needed)
+      const userId = await ensureAccount(
+        form.phone.trim(),
+        form.pin,
+        form.name.trim(),
+        form.email.trim()
+      );
+
+      // Step 2: Create order
       const orderNumber = await generateOrderNumber();
       const divBn = selectedDivision?.name_bn || "";
       const distBn = selectedDistrict?.name_bn || "";
@@ -157,7 +220,7 @@ const Checkout = () => {
         shipping_cost: shippingCost,
         total: totalPrice + shippingCost,
         payment_method: "cod",
-        user_id: user?.id || null,
+        user_id: userId,
       }).select().single();
 
       if (orderError) throw orderError;
@@ -173,6 +236,22 @@ const Checkout = () => {
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
 
+      // Save default address to profile for future orders
+      if (userId) {
+        await supabase.from("profiles").upsert(
+          {
+            user_id: userId,
+            full_name: form.name.trim(),
+            phone: form.phone.trim(),
+            default_division: form.division,
+            default_district: form.district,
+            default_upazila: form.upazila,
+            default_address: form.address.trim(),
+          },
+          { onConflict: "user_id" }
+        );
+      }
+
       // Mark abandoned checkout as recovered
       if (abandonedId) {
         await supabase.from("abandoned_checkouts").update({ recovered: true }).eq("id", abandonedId);
@@ -182,7 +261,7 @@ const Checkout = () => {
       toast({ title: "অর্ডার সফল!", description: `অর্ডার নম্বর: ${orderNumber}` });
       navigate(`/order-success/${orderNumber}`);
     } catch (err: any) {
-      toast({ title: "ত্রুটি", description: err.message, variant: "destructive" });
+      toast({ title: "ত্রুটি", description: err.message || "অর্ডার করতে সমস্যা হয়েছে", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -198,19 +277,11 @@ const Checkout = () => {
     return null;
   }
 
-  // Auth gate - require login to checkout
-  if (!authLoading && !user) {
+  // Wait for auth check (no gate — guests can checkout)
+  if (authLoading) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
-        <LogIn className="h-16 w-16 text-primary/30 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-foreground mb-2">অর্ডার করতে লগইন করুন</h2>
-        <p className="text-muted-foreground mb-6">অর্ডার কনফার্ম করতে এবং আপনার অর্ডার ট্র্যাক করতে লগইন প্রয়োজন</p>
-        <Button asChild size="lg" className="gap-2">
-          <Link to="/login" state={{ from: "/checkout" }}>
-            <LogIn className="h-5 w-5" />
-            লগইন করুন
-          </Link>
-        </Button>
+        <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
       </div>
     );
   }
