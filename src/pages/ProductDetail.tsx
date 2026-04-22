@@ -65,6 +65,25 @@ const ProductDetail = () => {
     enabled: !!product?.category_id,
   });
 
+  // Real review aggregates from approved reviews for this product
+  // IMPORTANT: This hook MUST be called before any early returns to comply with Rules of Hooks.
+  const { data: reviewStats } = useQuery({
+    queryKey: ["product-review-stats", id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("customer_reviews")
+        .select("rating")
+        .eq("product_id", id!)
+        .eq("is_active", true)
+        .eq("status", "approved");
+      const list = (data || []) as { rating: number }[];
+      const total = list.length;
+      const avg = total > 0 ? list.reduce((s, r) => s + r.rating, 0) / total : 0;
+      return { total, avg };
+    },
+    enabled: !!id,
+  });
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-6 sm:py-10">
