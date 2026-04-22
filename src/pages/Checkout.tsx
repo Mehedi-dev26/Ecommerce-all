@@ -11,7 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import { Loader2, MapPin, Phone, User, Mail, FileText, AlertCircle, Lock, Shield, Eye, EyeOff } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { divisions } from "@/data/bd-locations";
-import { getGuestAuthEmail, getGuestAuthPassword } from "@/lib/guest-auth";
+import { getGuestAuthEmail, getGuestAuthEmailCandidates, getGuestAuthPassword } from "@/lib/guest-auth";
 
 const BD_PHONE_REGEX = /^01[3-9]\d{8}$/;
 
@@ -146,17 +146,19 @@ const Checkout = () => {
     const syntheticEmail = getGuestAuthEmail(phone);
     const password = getGuestAuthPassword(pin);
 
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email: syntheticEmail,
-      password,
-    });
+    for (const emailCandidate of getGuestAuthEmailCandidates(phone)) {
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: emailCandidate,
+        password,
+      });
 
-    if (signInData.user) {
-      return signInData.user.id;
-    }
+      if (signInData.user) {
+        return signInData.user.id;
+      }
 
-    if (signInError && !signInError.message.toLowerCase().includes("invalid")) {
-      throw signInError;
+      if (signInError && !signInError.message.toLowerCase().includes("invalid")) {
+        throw signInError;
+      }
     }
 
     const { data: createData, error: createError } = await supabase.functions.invoke("guest-auth", {
@@ -176,16 +178,16 @@ const Checkout = () => {
       throw new Error(createData.error);
     }
 
-    const { data: finalSignInData, error: finalSignInError } = await supabase.auth.signInWithPassword({
+    const finalSignInResult = await supabase.auth.signInWithPassword({
       email: syntheticEmail,
       password,
     });
 
-    if (finalSignInError || !finalSignInData.user) {
-      throw finalSignInError || new Error("অ্যাকাউন্টে স্বয়ংক্রিয় লগইন করতে সমস্যা হয়েছে");
+    if (finalSignInResult.data.user) {
+      return finalSignInResult.data.user.id;
     }
 
-    return finalSignInData.user.id;
+    throw finalSignInResult.error || new Error("অ্যাকাউন্টে স্বয়ংক্রিয় লগইন করতে সমস্যা হয়েছে");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
