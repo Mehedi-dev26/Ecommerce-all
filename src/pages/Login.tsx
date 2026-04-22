@@ -61,7 +61,7 @@ const Login = () => {
           return;
         }
         const cleanedPhone = form.phone.replace(/\D/g, "");
-        const syntheticEmail = `${cleanedPhone}@sapahar-customer.local`;
+        const syntheticEmail = `customer.${cleanedPhone}@surzoshop.com`;
         const { error } = await supabase.auth.signInWithPassword({
           email: syntheticEmail,
           password: `pin_${form.pin}`,
