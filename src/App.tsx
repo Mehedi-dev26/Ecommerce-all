@@ -53,13 +53,28 @@ const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000,
-      gcTime: 10 * 60 * 1000,
+      staleTime: 10 * 60 * 1000,
+      gcTime: 30 * 60 * 1000,
       refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchOnMount: false,
       retry: 1,
     },
   },
 });
+
+// Prefetch likely-next routes on idle so navigation feels instant
+const prefetchRoutes = () => {
+  const idle = (cb: () => void) =>
+    "requestIdleCallback" in window
+      ? (window as any).requestIdleCallback(cb)
+      : setTimeout(cb, 1500);
+  idle(() => {
+    void import("./pages/Products");
+    void import("./pages/ProductDetail");
+    void import("./pages/Cart");
+  });
+};
 
 const App = () => {
   // Remove the initial HTML loader once React has mounted
