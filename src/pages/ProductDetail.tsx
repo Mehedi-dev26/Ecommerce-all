@@ -157,23 +157,6 @@ const ProductDetail = () => {
   const prevImg = () => setSelectedImg((p) => (p - 1 + allImages.length) % allImages.length);
   const nextImg = () => setSelectedImg((p) => (p + 1) % allImages.length);
 
-  // Real review aggregates from approved reviews for this product
-  const { data: reviewStats } = useQuery({
-    queryKey: ["product-review-stats", id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("customer_reviews")
-        .select("rating")
-        .eq("product_id", id!)
-        .eq("is_active", true)
-        .eq("status", "approved");
-      const list = (data || []) as { rating: number }[];
-      const total = list.length;
-      const avg = total > 0 ? list.reduce((s, r) => s + r.rating, 0) / total : 0;
-      return { total, avg };
-    },
-    enabled: !!id,
-  });
   const avgRating = (reviewStats?.avg ?? 0).toFixed(1);
   const totalReviews = reviewStats?.total ?? 0;
 
