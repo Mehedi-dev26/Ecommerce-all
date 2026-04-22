@@ -115,6 +115,7 @@ export type Database = {
           image_url: string | null
           name: string
           name_bn: string
+          requires_weight: boolean
           sort_order: number
         }
         Insert: {
@@ -124,6 +125,7 @@ export type Database = {
           image_url?: string | null
           name: string
           name_bn: string
+          requires_weight?: boolean
           sort_order?: number
         }
         Update: {
@@ -133,6 +135,7 @@ export type Database = {
           image_url?: string | null
           name?: string
           name_bn?: string
+          requires_weight?: boolean
           sort_order?: number
         }
         Relationships: []
@@ -333,6 +336,7 @@ export type Database = {
           created_at: string
           description: string | null
           description_bn: string | null
+          grade: string | null
           id: string
           image_url: string | null
           images: string[] | null
@@ -352,6 +356,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           description_bn?: string | null
+          grade?: string | null
           id?: string
           image_url?: string | null
           images?: string[] | null
@@ -371,6 +376,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           description_bn?: string | null
+          grade?: string | null
           id?: string
           image_url?: string | null
           images?: string[] | null

@@ -7,8 +7,9 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import AdminPageState from "@/components/admin/AdminPageState";
 import { getErrorMessage } from "@/lib/error-message";
-import { Plus, Pencil, Trash2, Upload, FolderTree, GripVertical, Image as ImageIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, FolderTree, GripVertical, Image as ImageIcon, Weight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 
 interface Category {
   id: string;
@@ -17,7 +18,10 @@ interface Category {
   description: string | null;
   image_url: string | null;
   sort_order: number;
+  requires_weight: boolean;
 }
+
+const emptyForm = { name: "", name_bn: "", description: "", image_url: "", sort_order: 0, requires_weight: false };
 
 const AdminCategories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -25,7 +29,7 @@ const AdminCategories = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Category | null>(null);
-  const [form, setForm] = useState({ name: "", name_bn: "", description: "", image_url: "", sort_order: 0 });
+  const [form, setForm] = useState(emptyForm);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
@@ -71,6 +75,7 @@ const AdminCategories = () => {
       description: form.description || null,
       image_url: form.image_url || null,
       sort_order: Number(form.sort_order),
+      requires_weight: form.requires_weight,
     };
 
     let error;
@@ -86,7 +91,7 @@ const AdminCategories = () => {
       toast({ title: editing ? "আপডেট সফল" : "ক্যাটাগরি যোগ হয়েছে" });
       setDialogOpen(false);
       setEditing(null);
-      setForm({ name: "", name_bn: "", description: "", image_url: "", sort_order: 0 });
+      setForm(emptyForm);
       void fetchCategories();
     }
   };
@@ -104,7 +109,7 @@ const AdminCategories = () => {
 
   const openEdit = (c: Category) => {
     setEditing(c);
-    setForm({ name: c.name, name_bn: c.name_bn, description: c.description || "", image_url: c.image_url || "", sort_order: c.sort_order });
+    setForm({ name: c.name, name_bn: c.name_bn, description: c.description || "", image_url: c.image_url || "", sort_order: c.sort_order, requires_weight: c.requires_weight ?? false });
     setDialogOpen(true);
   };
 
@@ -124,7 +129,7 @@ const AdminCategories = () => {
             <p className="text-sm text-muted-foreground">{categories.length} টি ক্যাটাগরি</p>
           </div>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={(v) => { setDialogOpen(v); if (!v) { setEditing(null); setForm({ name: "", name_bn: "", description: "", image_url: "", sort_order: 0 }); } }}>
+        <Dialog open={dialogOpen} onOpenChange={(v) => { setDialogOpen(v); if (!v) { setEditing(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>
             <Button className="w-full gap-2 shadow-lg shadow-primary/20 sm:w-auto"><Plus className="h-4 w-4" />নতুন ক্যাটাগরি</Button>
           </DialogTrigger>
@@ -168,6 +173,16 @@ const AdminCategories = () => {
                     <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
                   </label>
                 </div>
+              </div>
+              <div className="flex items-center justify-between rounded-xl border border-border/50 bg-muted/30 p-3">
+                <div className="flex items-center gap-2">
+                  <Weight className="h-4 w-4 text-primary" />
+                  <div>
+                    <Label className="text-sm font-semibold cursor-pointer">ওজন প্রয়োজন</Label>
+                    <p className="text-[11px] text-muted-foreground">এই ক্যাটাগরির পণ্যে ওজন field দেখাবে (যেমন: সাইকেল, ফ্রিজ)</p>
+                  </div>
+                </div>
+                <Switch checked={form.requires_weight} onCheckedChange={(v) => setForm({ ...form, requires_weight: v })} />
               </div>
             </div>
             <div className="flex justify-end gap-3 pt-4 border-t border-border">

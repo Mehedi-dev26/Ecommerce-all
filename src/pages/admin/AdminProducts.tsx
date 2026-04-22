@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Upload, Search, Package, Filter, Star } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, Search, Package, Star, X, TrendingDown, Award } from "lucide-react";
 import AdminPageState from "@/components/admin/AdminPageState";
 import { getErrorMessage } from "@/lib/error-message";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -22,26 +22,41 @@ interface Product {
   price: number;
   compare_price: number | null;
   image_url: string | null;
+  images: string[] | null;
   category_id: string | null;
   stock: number;
   is_active: boolean;
   is_featured: boolean;
   weight: string | null;
   unit: string | null;
+  grade: string | null;
 }
 
 interface Category {
   id: string;
   name: string;
   name_bn: string;
+  requires_weight: boolean;
 }
+
+const MAX_IMAGES = 5;
 
 const emptyProduct = {
   name: "", name_bn: "", description: "", description_bn: "",
-  price: 0, compare_price: 0, image_url: "",
+  price: 0, compare_price: 0,
+  images: [] as string[],
   category_id: "", stock: 0, is_active: true, is_featured: false,
   weight: "", unit: "kg",
+  grade: "none",
 };
+
+const GRADE_OPTIONS = [
+  { value: "none", label: "কোনোটি নয়" },
+  { value: "A", label: "A Grade (প্রিমিয়াম)" },
+  { value: "B", label: "B Grade (স্ট্যান্ডার্ড)" },
+  { value: "C", label: "C Grade (ইকোনমি)" },
+  { value: "D", label: "D Grade (বেসিক)" },
+];
 
 const AdminProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -64,14 +79,14 @@ const AdminProducts = () => {
     try {
       const [prodRes, catRes] = await Promise.all([
         supabase.from("products").select("*").order("created_at", { ascending: false }),
-        supabase.from("categories").select("id, name, name_bn").order("sort_order"),
+        supabase.from("categories").select("id, name, name_bn, requires_weight").order("sort_order"),
       ]);
 
       if (prodRes.error) throw prodRes.error;
       if (catRes.error) throw catRes.error;
 
-      setProducts(prodRes.data || []);
-      setCategories(catRes.data || []);
+      setProducts((prodRes.data || []) as Product[]);
+      setCategories((catRes.data || []) as Category[]);
     } catch (error) {
       console.error("Failed to load products", error);
       setError(getErrorMessage(error, "প্রোডাক্ট ডেটা লোড করা যায়নি।"));
@@ -83,22 +98,62 @@ const AdminProducts = () => {
   useEffect(() => { void fetchData(); }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const remaining = MAX_IMAGES - form.images.length;
+    if (remaining <= 0) {
+      toast({ title: "সর্বোচ্চ সীমা", description: `সর্বোচ্চ ${MAX_IMAGES}টি ছবি যোগ করা যাবে।`, variant: "destructive" });
+      return;
+    }
+
     setUploading(true);
-    const ext = file.name.split(".").pop();
-    const path = `products/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("product-images").upload(path, file);
-    if (error) {
-      toast({ title: "আপলোড ব্যর্থ", description: error.message, variant: "destructive" });
-    } else {
+    const toUpload = files.slice(0, remaining);
+    const uploaded: string[] = [];
+
+    for (const file of toUpload) {
+      const ext = file.name.split(".").pop();
+      const path = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("product-images").upload(path, file);
+      if (error) {
+        toast({ title: "আপলোড ব্যর্থ", description: error.message, variant: "destructive" });
+        continue;
+      }
       const { data } = supabase.storage.from("product-images").getPublicUrl(path);
-      setForm((current) => ({ ...current, image_url: data.publicUrl }));
+      uploaded.push(data.publicUrl);
+    }
+
+    if (uploaded.length > 0) {
+      setForm((current) => ({ ...current, images: [...current.images, ...uploaded] }));
     }
     setUploading(false);
+    // reset the input so re-selecting same files works
+    e.target.value = "";
   };
 
+  const removeImage = (idx: number) => {
+    setForm((current) => ({ ...current, images: current.images.filter((_, i) => i !== idx) }));
+  };
+
+  const selectedCategory = useMemo(
+    () => categories.find((c) => c.id === form.category_id),
+    [categories, form.category_id],
+  );
+  const showWeight = selectedCategory?.requires_weight ?? false;
+
+  const discountPercent = useMemo(() => {
+    const p = Number(form.price);
+    const cp = Number(form.compare_price);
+    if (!p || !cp || cp <= p) return 0;
+    return Math.round(((cp - p) / cp) * 100);
+  }, [form.price, form.compare_price]);
+
   const handleSave = async () => {
+    if (form.images.length === 0) {
+      toast({ title: "ছবি প্রয়োজন", description: "অন্তত একটি ছবি যোগ করুন।", variant: "destructive" });
+      return;
+    }
+
     const payload = {
       name: form.name,
       name_bn: form.name_bn,
@@ -106,13 +161,15 @@ const AdminProducts = () => {
       description_bn: form.description_bn || null,
       price: Number(form.price),
       compare_price: form.compare_price ? Number(form.compare_price) : null,
-      image_url: form.image_url || null,
+      image_url: form.images[0] || null,
+      images: form.images,
       category_id: form.category_id || null,
       stock: Number(form.stock),
       is_active: form.is_active,
       is_featured: form.is_featured,
-      weight: form.weight || null,
-      unit: form.unit || null,
+      weight: showWeight ? (form.weight || null) : null,
+      unit: showWeight ? (form.unit || null) : null,
+      grade: form.grade && form.grade !== "none" ? form.grade : null,
     };
 
     let error;
@@ -146,13 +203,16 @@ const AdminProducts = () => {
 
   const openEdit = (p: Product) => {
     setEditing(p);
+    const existingImages = p.images && p.images.length > 0 ? p.images : (p.image_url ? [p.image_url] : []);
     setForm({
       name: p.name, name_bn: p.name_bn, description: p.description || "",
       description_bn: p.description_bn || "", price: p.price,
-      compare_price: p.compare_price || 0, image_url: p.image_url || "",
+      compare_price: p.compare_price || 0,
+      images: existingImages,
       category_id: p.category_id || "", stock: p.stock,
       is_active: p.is_active, is_featured: p.is_featured,
       weight: p.weight || "", unit: p.unit || "kg",
+      grade: p.grade || "none",
     });
     setDialogOpen(true);
   };
@@ -250,22 +310,7 @@ const AdminProducts = () => {
                 <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">নাম (বাংলা)</Label>
                 <Input value={form.name_bn} onChange={(e) => setForm({ ...form, name_bn: e.target.value })} />
               </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">বিবরণ (English)</Label>
-                <textarea className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">বিবরণ (বাংলা)</Label>
-                <textarea className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" rows={2} value={form.description_bn} onChange={(e) => setForm({ ...form, description_bn: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">দাম (৳)</Label>
-                <Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: +e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">তুলনামূলক দাম (৳)</Label>
-                <Input type="number" value={form.compare_price} onChange={(e) => setForm({ ...form, compare_price: +e.target.value })} />
-              </div>
+
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ক্যাটাগরি</Label>
                 <Select value={form.category_id} onValueChange={(v) => setForm({ ...form, category_id: v })}>
@@ -275,33 +320,117 @@ const AdminProducts = () => {
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+                  <Award className="h-3.5 w-3.5 text-primary" /> গ্রেড (ঐচ্ছিক)
+                </Label>
+                <Select value={form.grade} onValueChange={(v) => setForm({ ...form, grade: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {GRADE_OPTIONS.map((g) => <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground">একই পণ্যের বিভিন্ন কোয়ালিটি (যেমন: A Grade সাইকেল, B Grade সাইকেল) আলাদা করতে গ্রেড ব্যবহার করুন।</p>
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">বিবরণ (English)</Label>
+                <textarea className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">বিবরণ (বাংলা)</Label>
+                <textarea className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" rows={2} value={form.description_bn} onChange={(e) => setForm({ ...form, description_bn: e.target.value })} />
+              </div>
+
+              {/* Pricing block with live discount */}
+              <div className="md:col-span-2 rounded-xl border border-border/50 bg-muted/30 p-3 space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">বিক্রয় মূল্য (৳)</Label>
+                    <Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: +e.target.value })} placeholder="যেমন: 9500" />
+                    <p className="text-[11px] text-muted-foreground">গ্রাহক যে দামে পণ্যটি কিনবে।</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">তুলনামূলক দাম / MRP (৳)</Label>
+                    <Input type="number" value={form.compare_price} onChange={(e) => setForm({ ...form, compare_price: +e.target.value })} placeholder="যেমন: 11000" />
+                    <p className="text-[11px] text-muted-foreground">পুরাতন/মার্কেট দাম। কাটাকাটি করে দেখানো হবে।</p>
+                  </div>
+                </div>
+                {discountPercent > 0 && (
+                  <div className="flex items-center justify-between rounded-lg bg-secondary/15 px-3 py-2">
+                    <div className="flex items-center gap-2 text-sm">
+                      <TrendingDown className="h-4 w-4 text-secondary" />
+                      <span className="font-medium text-foreground">গ্রাহক সাশ্রয় করবে</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-foreground">৳{(Number(form.compare_price) - Number(form.price)).toLocaleString()}</span>
+                      <Badge className="bg-destructive text-destructive-foreground">-{discountPercent}% ছাড়</Badge>
+                    </div>
+                  </div>
+                )}
+                {form.compare_price > 0 && form.price > 0 && form.compare_price <= form.price && (
+                  <p className="text-[11px] text-destructive">⚠ তুলনামূলক দাম বিক্রয় মূল্যের বেশি হতে হবে, নাহলে ছাড় দেখাবে না।</p>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">স্টক</Label>
                 <Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: +e.target.value })} />
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ওজন</Label>
-                <Input value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} placeholder="3kg" />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ইউনিট</Label>
-                <Input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} placeholder="kg" />
-              </div>
+
+              {showWeight ? (
+                <>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ওজন</Label>
+                    <Input value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} placeholder="যেমন: 14kg" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ইউনিট</Label>
+                    <Input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} placeholder="kg / piece" />
+                  </div>
+                </>
+              ) : (
+                form.category_id && (
+                  <div className="md:col-span-1 rounded-lg bg-muted/30 border border-dashed border-border p-2.5 text-[11px] text-muted-foreground">
+                    এই ক্যাটাগরিতে ওজন প্রয়োজন নেই। প্রয়োজন হলে ক্যাটাগরি settings থেকে "ওজন প্রয়োজন" toggle on করুন।
+                  </div>
+                )
+              )}
+
+              {/* Multi-image upload */}
               <div className="space-y-2 md:col-span-2">
-                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ছবি</Label>
-                <div className="flex items-center gap-4">
-                  {form.image_url && (
-                    <div className="relative group">
-                      <img src={form.image_url} alt="" className="h-24 w-24 rounded-xl object-cover border-2 border-border" />
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  পণ্যের ছবি ({form.images.length}/{MAX_IMAGES}) — প্রথমটি প্রধান ছবি হবে
+                </Label>
+                <div className="flex flex-wrap items-center gap-3">
+                  {form.images.map((url, idx) => (
+                    <div key={url + idx} className="relative group">
+                      <img src={url} alt="" className="h-24 w-24 rounded-xl object-cover border-2 border-border" />
+                      {idx === 0 && (
+                        <span className="absolute left-1 top-1 rounded-md bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground">প্রধান</span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeImage(idx)}
+                        className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-md hover:scale-110 transition"
+                        aria-label="ছবি সরান"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
                     </div>
+                  ))}
+                  {form.images.length < MAX_IMAGES && (
+                    <label className="cursor-pointer flex flex-col items-center justify-center gap-2 px-6 py-4 h-24 w-24 border-2 border-dashed border-primary/30 rounded-xl text-sm text-primary hover:bg-primary/5 hover:border-primary/50 transition-all">
+                      <Upload className="h-5 w-5" />
+                      <span className="text-[10px] text-center leading-tight">{uploading ? "আপলোড..." : "ছবি যোগ করুন"}</span>
+                      <input type="file" multiple className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
+                    </label>
                   )}
-                  <label className="cursor-pointer flex flex-col items-center justify-center gap-2 px-6 py-4 border-2 border-dashed border-primary/30 rounded-xl text-sm text-primary hover:bg-primary/5 hover:border-primary/50 transition-all">
-                    <Upload className="h-5 w-5" />
-                    <span className="text-xs">{uploading ? "আপলোড হচ্ছে..." : "ছবি আপলোড"}</span>
-                    <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-                  </label>
                 </div>
+                <p className="text-[11px] text-muted-foreground">একসাথে একাধিক ছবি সিলেক্ট করতে পারেন (সর্বোচ্চ {MAX_IMAGES}টি)।</p>
               </div>
+
               <div className="flex items-center gap-6 md:col-span-2 pt-2 border-t border-border">
                 <div className="flex items-center gap-2">
                   <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
@@ -339,7 +468,10 @@ const AdminProducts = () => {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <p className="font-semibold text-foreground truncate">{p.name_bn}</p>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="font-semibold text-foreground truncate">{p.name_bn}</p>
+                        {p.grade && <Badge className="bg-primary/15 text-primary border-primary/30 text-[10px] px-1.5 py-0">Grade {p.grade}</Badge>}
+                      </div>
                       <p className="text-xs text-muted-foreground truncate">{p.name}</p>
                     </div>
                     <div className="flex gap-1 shrink-0">
@@ -410,7 +542,10 @@ const AdminProducts = () => {
                           )}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-semibold text-foreground truncate">{p.name_bn}</p>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <p className="font-semibold text-foreground truncate">{p.name_bn}</p>
+                            {p.grade && <Badge className="bg-primary/15 text-primary border-primary/30 text-[10px] px-1.5 py-0">Grade {p.grade}</Badge>}
+                          </div>
                           <p className="text-xs text-muted-foreground truncate">{p.name}</p>
                         </div>
                       </div>
