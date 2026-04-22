@@ -436,6 +436,54 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_addresses: {
+        Row: {
+          address: string
+          created_at: string
+          district: string
+          division: string
+          email: string | null
+          full_name: string
+          id: string
+          is_default: boolean
+          label: string
+          phone: string
+          upazila: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          district: string
+          division: string
+          email?: string | null
+          full_name: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          phone: string
+          upazila: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          district?: string
+          division?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          phone?: string
+          upazila?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           created_at: string
