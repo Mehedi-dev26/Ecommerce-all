@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, ShieldCheck, Truck, Headphones, Eye, EyeOff, Mail, Lock, User, ArrowLeft, ShoppingBag, Star, Award, Heart, Phone, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { getGuestAuthEmail, getGuestAuthPassword } from "@/lib/guest-auth";
+import { getGuestAuthEmailCandidates, getGuestAuthPassword } from "@/lib/guest-auth";
 
 type AuthMode = "login" | "register" | "forgot" | "phone";
 
@@ -62,11 +62,27 @@ const Login = () => {
           return;
         }
         const cleanedPhone = form.phone.replace(/\D/g, "");
-        const { error } = await supabase.auth.signInWithPassword({
-          email: getGuestAuthEmail(cleanedPhone),
-          password: getGuestAuthPassword(form.pin),
-        });
-        if (error) {
+        const password = getGuestAuthPassword(form.pin);
+        let loginError: Error | null = null;
+
+        for (const emailCandidate of getGuestAuthEmailCandidates(cleanedPhone)) {
+          const { error } = await supabase.auth.signInWithPassword({
+            email: emailCandidate,
+            password,
+          });
+
+          if (!error) {
+            loginError = null;
+            break;
+          }
+
+          loginError = error;
+          if (!error.message.toLowerCase().includes("invalid")) {
+            break;
+          }
+        }
+
+        if (loginError) {
           toast({ title: "লগইন ব্যর্থ", description: "মোবাইল নম্বর বা PIN ভুল। অনুগ্রহ করে আবার চেষ্টা করুন।", variant: "destructive" });
         }
       } else if (mode === "forgot") {
