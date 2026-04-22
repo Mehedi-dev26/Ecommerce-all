@@ -452,7 +452,7 @@ const Login = () => {
               )}
             </div>
 
-            {(mode === "login" || mode === "phone") && (
+            {mode === "login" && (
               <div className="mt-5 grid grid-cols-3 gap-3 lg:hidden">
                 {[
                   { icon: Truck, text: "দ্রুত ডেলিভারি", color: "text-primary", bg: "bg-primary/10" },
