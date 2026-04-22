@@ -386,15 +386,17 @@ const Login = () => {
                   </>
                 )}
 
-                <div className="space-y-1.5">
-                  <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">ইমেইল {mode === "register" && <span className="text-destructive">*</span>}</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input id="email" type="email" placeholder="example@email.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="pl-10 h-11 rounded-xl" required />
+                {mode !== "phone" && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">ইমেইল {mode === "register" && <span className="text-destructive">*</span>}</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input id="email" type="email" placeholder="example@email.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="pl-10 h-11 rounded-xl" required />
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {mode !== "forgot" && (
+                {mode !== "forgot" && mode !== "phone" && (
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="password" className="text-xs font-medium text-muted-foreground">পাসওয়ার্ড</Label>
