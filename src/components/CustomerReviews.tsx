@@ -79,9 +79,8 @@ const CustomerReviews = () => {
             প্রথম রিভিউটি আপনিই দিন!
           </div>
         ) : (
-
-        {/* Carousel */}
-        <div className="relative max-w-6xl mx-auto">
+          /* Carousel */
+          <div className="relative max-w-6xl mx-auto">
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex -ml-4">
               {reviews.map((review) => (
