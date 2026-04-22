@@ -8,7 +8,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Phone, User, Mail, FileText, AlertCircle, Lock, Shield } from "lucide-react";
+import { Loader2, MapPin, Phone, User, Mail, FileText, AlertCircle, Lock, Shield, Eye, EyeOff } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { divisions } from "@/data/bd-locations";
 
@@ -28,6 +28,7 @@ const Checkout = () => {
   const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [showPin, setShowPin] = useState(false);
   const [abandonedId, setAbandonedId] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
@@ -132,7 +133,7 @@ const Checkout = () => {
   // Ensure user is signed in: try login with phone+pin, else create account
   const ensureAccount = async (phone: string, pin: string, name: string, email: string): Promise<string | null> => {
     if (user) return user.id;
-    const syntheticEmail = `${phone}@sapahar-customer.local`;
+    const syntheticEmail = `customer.${phone}@surzoshop.com`;
     const password = `pin_${pin}`;
 
     // Try sign-in first (in case account already exists)
