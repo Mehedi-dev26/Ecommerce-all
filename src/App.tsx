@@ -83,6 +83,7 @@ const App = () => {
     if (!el) return;
     el.classList.add("fade-out");
     const t = setTimeout(() => el.remove(), 400);
+    prefetchRoutes();
     return () => clearTimeout(t);
   }, []);
 
