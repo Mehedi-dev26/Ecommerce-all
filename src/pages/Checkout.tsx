@@ -239,26 +239,25 @@ const Checkout = () => {
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
 
-      // Save default address to profile for future orders
-      if (userId) {
-        await supabase.from("profiles").upsert(
-          {
-            user_id: userId,
-            full_name: form.name.trim(),
-            phone: form.phone.trim(),
-            default_division: form.division,
-            default_district: form.district,
-            default_upazila: form.upazila,
-            default_address: form.address.trim(),
-          },
-          { onConflict: "user_id" }
-        );
-      }
-
-      // Mark abandoned checkout as recovered
-      if (abandonedId) {
-        await supabase.from("abandoned_checkouts").update({ recovered: true }).eq("id", abandonedId);
-      }
+      await Promise.allSettled([
+        userId
+          ? supabase.from("profiles").upsert(
+              {
+                user_id: userId,
+                full_name: form.name.trim(),
+                phone: form.phone.trim(),
+                default_division: form.division,
+                default_district: form.district,
+                default_upazila: form.upazila,
+                default_address: form.address.trim(),
+              },
+              { onConflict: "user_id" }
+            )
+          : Promise.resolve(),
+        abandonedId
+          ? supabase.from("abandoned_checkouts").update({ recovered: true }).eq("id", abandonedId)
+          : Promise.resolve(),
+      ]);
 
       clearCart();
       toast({ title: "অর্ডার সফল!", description: `অর্ডার নম্বর: ${orderNumber}` });
