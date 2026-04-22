@@ -8,17 +8,17 @@ import { Loader2, ShieldCheck, Truck, Headphones, Eye, EyeOff, Mail, Lock, User,
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-type AuthMode = "login" | "register" | "forgot";
+type AuthMode = "login" | "register" | "forgot" | "phone";
 
 const Login = () => {
   const { signInWithGoogle, signInWithEmail, resetPassword, user, loading, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const [mode, setMode] = useState<AuthMode>("login");
+  const [mode, setMode] = useState<AuthMode>("phone");
   const [signingIn, setSigningIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", pin: "" });
 
   const from = (location.state as any)?.from || "/";
 
@@ -45,11 +45,32 @@ const Login = () => {
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.email.trim() && mode !== "register") return;
 
     setSigningIn(true);
     try {
-      if (mode === "forgot") {
+      if (mode === "phone") {
+        // Phone + 4-digit PIN login (for accounts auto-created at checkout)
+        if (!validatePhone(form.phone)) {
+          toast({ title: "ত্রুটি", description: "সঠিক মোবাইল নম্বর দিন (01XXXXXXXXX)", variant: "destructive" });
+          setSigningIn(false);
+          return;
+        }
+        if (!/^\d{4}$/.test(form.pin)) {
+          toast({ title: "ত্রুটি", description: "৪ ডিজিটের PIN দিন", variant: "destructive" });
+          setSigningIn(false);
+          return;
+        }
+        const cleanedPhone = form.phone.replace(/\D/g, "");
+        const syntheticEmail = `${cleanedPhone}@sapahar-customer.local`;
+        const { error } = await supabase.auth.signInWithPassword({
+          email: syntheticEmail,
+          password: `pin_${form.pin}`,
+        });
+        if (error) {
+          toast({ title: "লগইন ব্যর্থ", description: "মোবাইল নম্বর বা PIN ভুল। অনুগ্রহ করে আবার চেষ্টা করুন।", variant: "destructive" });
+        }
+      } else if (mode === "forgot") {
+        if (!form.email.trim()) return;
         const { error } = await resetPassword(form.email);
         if (error) {
           toast({ title: "ত্রুটি", description: error, variant: "destructive" });
@@ -92,7 +113,6 @@ const Login = () => {
         if (error) {
           toast({ title: "ত্রুটি", description: error.message, variant: "destructive" });
         } else {
-          // Save phone to profile if user created
           if (data.user) {
             await supabase
               .from("profiles")
@@ -103,6 +123,7 @@ const Login = () => {
           setMode("login");
         }
       } else {
+        if (!form.email.trim()) return;
         const { error } = await signInWithEmail(form.email, form.password);
         if (error) {
           toast({ title: "ত্রুটি", description: error, variant: "destructive" });
@@ -214,29 +235,51 @@ const Login = () => {
             {/* Heading */}
             <div className="mb-6 text-center">
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                {mode === "register" ? "অ্যাকাউন্ট তৈরি করুন" : mode === "forgot" ? "পাসওয়ার্ড রিসেট" : "লগইন করুন"}
+                {mode === "register" ? "অ্যাকাউন্ট তৈরি করুন" : mode === "forgot" ? "পাসওয়ার্ড রিসেট" : mode === "phone" ? "দ্রুত লগইন" : "ইমেইল লগইন"}
               </h1>
               <p className="text-sm text-muted-foreground mt-1.5">
                 {mode === "register"
                   ? "মোবাইল নম্বর দিয়ে অ্যাকাউন্ট খুলে কেনাকাটা শুরু করুন"
                   : mode === "forgot"
                   ? "আপনার ইমেইল দিন, রিসেট লিংক পাঠানো হবে"
-                  : "আপনার অ্যাকাউন্টে লগইন করুন"}
+                  : mode === "phone"
+                  ? "মোবাইল নম্বর ও ৪ ডিজিটের PIN দিয়ে লগইন করুন"
+                  : "ইমেইল ও পাসওয়ার্ড দিয়ে লগইন করুন"}
               </p>
             </div>
 
             {/* Auth Card */}
             <div className="rounded-2xl border border-border/50 shadow-xl p-5 sm:p-7 space-y-5 bg-card/95 backdrop-blur-sm">
-              {mode !== "login" && (
+              {(mode === "forgot" || mode === "register") && (
                 <button
-                  onClick={() => setMode("login")}
+                  onClick={() => setMode("phone")}
                   className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" /> লগইনে ফিরে যান
                 </button>
               )}
 
-              {mode !== "forgot" && (
+              {/* Tab switcher between Phone and Email login */}
+              {(mode === "phone" || mode === "login") && (
+                <div className="grid grid-cols-2 gap-1 p-1 rounded-xl bg-muted/50">
+                  <button
+                    type="button"
+                    onClick={() => setMode("phone")}
+                    className={`h-9 rounded-lg text-xs font-medium transition-all ${mode === "phone" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    📱 মোবাইল + PIN
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMode("login")}
+                    className={`h-9 rounded-lg text-xs font-medium transition-all ${mode === "login" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  >
+                    ✉️ ইমেইল
+                  </button>
+                </div>
+              )}
+
+              {mode !== "forgot" && mode !== "phone" && (
                 <>
                   <button
                     onClick={handleGoogleLogin}
@@ -269,6 +312,46 @@ const Login = () => {
 
               {/* Form */}
               <form onSubmit={handleEmailSubmit} className="space-y-4">
+                {mode === "phone" && (
+                  <>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="phone-login" className="text-xs font-medium text-muted-foreground">মোবাইল নম্বর <span className="text-destructive">*</span></Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+                        <Input
+                          id="phone-login"
+                          type="tel"
+                          inputMode="numeric"
+                          placeholder="01XXXXXXXXX"
+                          value={form.phone}
+                          onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "").slice(0, 11) })}
+                          className="pl-10 h-11 rounded-xl"
+                          maxLength={11}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="pin-login" className="text-xs font-medium text-muted-foreground">৪ ডিজিটের PIN <span className="text-destructive">*</span></Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+                        <Input
+                          id="pin-login"
+                          type="password"
+                          inputMode="numeric"
+                          placeholder="••••"
+                          value={form.pin}
+                          onChange={(e) => setForm({ ...form, pin: e.target.value.replace(/\D/g, "").slice(0, 4) })}
+                          className="pl-10 h-11 rounded-xl text-center tracking-[0.4em] font-mono"
+                          maxLength={4}
+                          required
+                        />
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">অর্ডার করার সময় যে PIN সেট করেছিলেন সেটি দিন</p>
+                    </div>
+                  </>
+                )}
+
                 {mode === "register" && (
                   <>
                     <div className="space-y-1.5">
@@ -303,15 +386,17 @@ const Login = () => {
                   </>
                 )}
 
-                <div className="space-y-1.5">
-                  <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">ইমেইল {mode === "register" && <span className="text-destructive">*</span>}</Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input id="email" type="email" placeholder="example@email.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="pl-10 h-11 rounded-xl" required />
+                {mode !== "phone" && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">ইমেইল {mode === "register" && <span className="text-destructive">*</span>}</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input id="email" type="email" placeholder="example@email.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="pl-10 h-11 rounded-xl" required />
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {mode !== "forgot" && (
+                {mode !== "forgot" && mode !== "phone" && (
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="password" className="text-xs font-medium text-muted-foreground">পাসওয়ার্ড</Label>
@@ -346,18 +431,18 @@ const Login = () => {
 
               {mode !== "forgot" && (
                 <p className="text-center text-sm text-muted-foreground">
-                  {mode === "login" ? (
+                  {mode === "register" ? (
                     <>
-                      নতুন ইউজার?{" "}
-                      <button onClick={() => setMode("register")} className="text-primary font-semibold hover:underline">
-                        অ্যাকাউন্ট তৈরি করুন
+                      ইতোমধ্যে অ্যাকাউন্ট আছে?{" "}
+                      <button type="button" onClick={() => setMode("phone")} className="text-primary font-semibold hover:underline">
+                        লগইন করুন
                       </button>
                     </>
                   ) : (
                     <>
-                      ইতোমধ্যে অ্যাকাউন্ট আছে?{" "}
-                      <button onClick={() => setMode("login")} className="text-primary font-semibold hover:underline">
-                        লগইন করুন
+                      নতুন ইউজার?{" "}
+                      <button type="button" onClick={() => setMode("register")} className="text-primary font-semibold hover:underline">
+                        অ্যাকাউন্ট তৈরি করুন
                       </button>
                     </>
                   )}
@@ -365,7 +450,7 @@ const Login = () => {
               )}
             </div>
 
-            {mode === "login" && (
+            {(mode === "login" || mode === "phone") && (
               <div className="mt-5 grid grid-cols-3 gap-3 lg:hidden">
                 {[
                   { icon: Truck, text: "দ্রুত ডেলিভারি", color: "text-primary", bg: "bg-primary/10" },
