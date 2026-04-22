@@ -182,7 +182,9 @@ export type Database = {
           id: string
           is_active: boolean
           location: string | null
+          product_id: string | null
           rating: number
+          review_images: string[]
           review_text: string
           sort_order: number
           status: string
@@ -197,7 +199,9 @@ export type Database = {
           id?: string
           is_active?: boolean
           location?: string | null
+          product_id?: string | null
           rating?: number
+          review_images?: string[]
           review_text: string
           sort_order?: number
           status?: string
@@ -212,14 +216,24 @@ export type Database = {
           id?: string
           is_active?: boolean
           location?: string | null
+          product_id?: string | null
           rating?: number
+          review_images?: string[]
           review_text?: string
           sort_order?: number
           status?: string
           submitted_by_customer?: boolean
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "customer_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       order_items: {
         Row: {
