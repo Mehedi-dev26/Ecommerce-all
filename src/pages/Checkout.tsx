@@ -297,27 +297,27 @@ const Checkout = () => {
         <div className="space-y-6 lg:col-span-2">
           {/* Customer Info */}
           <div className="rounded-xl border bg-card p-4 sm:p-6">
-            <h2 className="mb-4 text-lg font-semibold flex items-center gap-2">
-              <User className="h-5 w-5 text-primary" />
+            <h2 className="mb-5 text-xl sm:text-2xl font-bold flex items-center gap-2">
+              <User className="h-6 w-6 text-primary" />
               ব্যক্তিগত তথ্য
             </h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <Label htmlFor="name" className="flex items-center gap-1">
-                  <User className="h-3.5 w-3.5" />নাম *
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="lg:col-span-1">
+                <Label htmlFor="name" className="text-base font-semibold flex items-center gap-1.5 mb-1.5">
+                  <User className="h-4 w-4" />নাম *
                 </Label>
                 <Input
                   id="name"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="আপনার সম্পূর্ণ নাম"
-                  className={errors.name ? "border-destructive" : ""}
+                  className={`h-10 ${errors.name ? "border-destructive" : ""}`}
                 />
                 <FieldError field="name" />
               </div>
-              <div>
-                <Label htmlFor="phone" className="flex items-center gap-1">
-                  <Phone className="h-3.5 w-3.5" />মোবাইল নম্বর *
+              <div className="lg:col-span-1">
+                <Label htmlFor="phone" className="text-base font-semibold flex items-center gap-1.5 mb-1.5">
+                  <Phone className="h-4 w-4" />মোবাইল নম্বর *
                 </Label>
                 <Input
                   id="phone"
@@ -328,13 +328,13 @@ const Checkout = () => {
                   }}
                   placeholder="01XXXXXXXXX"
                   maxLength={11}
-                  className={errors.phone ? "border-destructive" : ""}
+                  className={`h-10 ${errors.phone ? "border-destructive" : ""}`}
                 />
                 <FieldError field="phone" />
               </div>
-              <div className="sm:col-span-2">
-                <Label htmlFor="email" className="flex items-center gap-1">
-                  <Mail className="h-3.5 w-3.5" />ইমেইল (ঐচ্ছিক)
+              <div className="sm:col-span-2 lg:col-span-1">
+                <Label htmlFor="email" className="text-base font-semibold flex items-center gap-1.5 mb-1.5">
+                  <Mail className="h-4 w-4" />ইমেইল <span className="text-xs font-normal text-muted-foreground">(ঐচ্ছিক)</span>
                 </Label>
                 <Input
                   id="email"
@@ -342,7 +342,7 @@ const Checkout = () => {
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="example@email.com"
-                  className={errors.email ? "border-destructive" : ""}
+                  className={`h-10 ${errors.email ? "border-destructive" : ""}`}
                 />
                 <FieldError field="email" />
               </div>
