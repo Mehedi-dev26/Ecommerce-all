@@ -436,7 +436,7 @@ const Login = () => {
                   {mode === "register" ? (
                     <>
                       ইতোমধ্যে অ্যাকাউন্ট আছে?{" "}
-                      <button type="button" onClick={() => setMode("phone")} className="text-primary font-semibold hover:underline">
+                      <button type="button" onClick={() => setMode("login")} className="text-primary font-semibold hover:underline">
                         লগইন করুন
                       </button>
                     </>
