@@ -9,17 +9,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getGuestAuthEmailCandidates, getGuestAuthPassword } from "@/lib/guest-auth";
 
-type AuthMode = "login" | "register" | "forgot" | "phone";
+type AuthMode = "login" | "register" | "forgot";
 
 const Login = () => {
   const { signInWithGoogle, signInWithEmail, resetPassword, user, loading, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const [mode, setMode] = useState<AuthMode>("phone");
+  const [mode, setMode] = useState<AuthMode>("login");
   const [signingIn, setSigningIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", pin: "" });
+  // `identifier` accepts either an email OR a Bangladesh mobile number (01XXXXXXXXX)
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", identifier: "" });
 
   const from = (location.state as any)?.from || "/";
 
