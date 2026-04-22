@@ -530,6 +530,7 @@ const Checkout = () => {
 
           {/* Customer Info — only when filling new address (or no saved addresses) */}
           {showFullForm && (
+          <>
           <div className="rounded-xl border bg-card p-4 sm:p-6">
             <h2 className="mb-5 text-xl sm:text-2xl font-bold flex items-center gap-2">
               <User className="h-6 w-6 text-primary" />
@@ -663,6 +664,7 @@ const Checkout = () => {
               />
             </div>
           </div>
+          </>
           )}
 
           {/* Notes — always available */}
