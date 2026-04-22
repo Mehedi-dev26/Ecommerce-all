@@ -56,10 +56,69 @@ const Checkout = () => {
     pin: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>("");
+  const [addressMode, setAddressMode] = useState<"saved" | "new">("saved");
+  const [savedLoading, setSavedLoading] = useState(false);
 
-  // Pre-fill from profile
+  // Fetch saved addresses for logged-in users
   useEffect(() => {
-    if (profile) {
+    if (!user) {
+      setSavedAddresses([]);
+      setAddressMode("new");
+      return;
+    }
+    setSavedLoading(true);
+    supabase
+      .from("saved_addresses")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("is_default", { ascending: false })
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        const list = (data || []) as SavedAddress[];
+        setSavedAddresses(list);
+        if (list.length > 0) {
+          const defaultAddr = list.find((a) => a.is_default) || list[0];
+          setSelectedAddressId(defaultAddr.id);
+          setAddressMode("saved");
+          setForm((prev) => ({
+            ...prev,
+            name: defaultAddr.full_name,
+            phone: defaultAddr.phone,
+            email: defaultAddr.email || prev.email,
+            division: defaultAddr.division,
+            district: defaultAddr.district,
+            upazila: defaultAddr.upazila,
+            address: defaultAddr.address,
+          }));
+        } else {
+          setAddressMode("new");
+        }
+        setSavedLoading(false);
+      });
+  }, [user]);
+
+  // When user picks a different saved address, sync form
+  useEffect(() => {
+    if (addressMode !== "saved" || !selectedAddressId) return;
+    const addr = savedAddresses.find((a) => a.id === selectedAddressId);
+    if (!addr) return;
+    setForm((prev) => ({
+      ...prev,
+      name: addr.full_name,
+      phone: addr.phone,
+      email: addr.email || prev.email,
+      division: addr.division,
+      district: addr.district,
+      upazila: addr.upazila,
+      address: addr.address,
+    }));
+  }, [selectedAddressId, addressMode, savedAddresses]);
+
+  // Pre-fill from profile (only if no saved addresses available)
+  useEffect(() => {
+    if (profile && savedAddresses.length === 0) {
       setForm((prev) => ({
         ...prev,
         name: prev.name || profile.full_name || "",
@@ -71,7 +130,7 @@ const Checkout = () => {
         address: prev.address || profile.default_address || "",
       }));
     }
-  }, [profile, user]);
+  }, [profile, user, savedAddresses.length]);
 
   // Save abandoned checkout data when user fills fields
   const saveAbandonedCheckout = useCallback(async () => {
