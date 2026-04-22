@@ -50,43 +50,7 @@ const Login = () => {
 
     setSigningIn(true);
     try {
-      if (mode === "phone") {
-        // Phone + 4-digit PIN login (for accounts auto-created at checkout)
-        if (!validatePhone(form.phone)) {
-          toast({ title: "ত্রুটি", description: "সঠিক মোবাইল নম্বর দিন (01XXXXXXXXX)", variant: "destructive" });
-          setSigningIn(false);
-          return;
-        }
-        if (!/^\d{4}$/.test(form.pin)) {
-          toast({ title: "ত্রুটি", description: "৪ ডিজিটের PIN দিন", variant: "destructive" });
-          setSigningIn(false);
-          return;
-        }
-        const cleanedPhone = form.phone.replace(/\D/g, "");
-        const password = getGuestAuthPassword(form.pin);
-        let loginError: Error | null = null;
-
-        for (const emailCandidate of getGuestAuthEmailCandidates(cleanedPhone)) {
-          const { error } = await supabase.auth.signInWithPassword({
-            email: emailCandidate,
-            password,
-          });
-
-          if (!error) {
-            loginError = null;
-            break;
-          }
-
-          loginError = error;
-          if (!error.message.toLowerCase().includes("invalid")) {
-            break;
-          }
-        }
-
-        if (loginError) {
-          toast({ title: "লগইন ব্যর্থ", description: "মোবাইল নম্বর বা PIN ভুল। অনুগ্রহ করে আবার চেষ্টা করুন।", variant: "destructive" });
-        }
-      } else if (mode === "forgot") {
+      if (mode === "forgot") {
         if (!form.email.trim()) return;
         const { error } = await resetPassword(form.email);
         if (error) {
@@ -140,10 +104,64 @@ const Login = () => {
           setMode("login");
         }
       } else {
-        if (!form.email.trim()) return;
-        const { error } = await signInWithEmail(form.email, form.password);
-        if (error) {
-          toast({ title: "ত্রুটি", description: error, variant: "destructive" });
+        // Unified login: identifier can be email OR mobile number (01XXXXXXXXX)
+        const raw = form.identifier.trim();
+        if (!raw || !form.password) {
+          toast({ title: "ত্রুটি", description: "ইমেইল/মোবাইল ও পাসওয়ার্ড দিন", variant: "destructive" });
+          setSigningIn(false);
+          return;
+        }
+
+        const looksLikePhone = /^\d[\d\s-]*$/.test(raw);
+
+        if (looksLikePhone) {
+          if (!validatePhone(raw)) {
+            toast({ title: "ত্রুটি", description: "সঠিক মোবাইল নম্বর দিন (01XXXXXXXXX)", variant: "destructive" });
+            setSigningIn(false);
+            return;
+          }
+          const cleanedPhone = raw.replace(/\D/g, "");
+          let loginError: Error | null = null;
+
+          // Try the user's chosen password against all known synthetic email formats.
+          for (const emailCandidate of getGuestAuthEmailCandidates(cleanedPhone)) {
+            const { error } = await supabase.auth.signInWithPassword({
+              email: emailCandidate,
+              password: form.password,
+            });
+            if (!error) {
+              loginError = null;
+              break;
+            }
+            loginError = error;
+            if (!error.message.toLowerCase().includes("invalid")) break;
+          }
+
+          // Backwards-compat: legacy accounts created with a 4-digit PIN used a fixed
+          // `guest-pin-XXXX` password. If user typed exactly 4 digits, also try that.
+          if (loginError && /^\d{4}$/.test(form.password)) {
+            const legacyPassword = getGuestAuthPassword(form.password);
+            for (const emailCandidate of getGuestAuthEmailCandidates(cleanedPhone)) {
+              const { error } = await supabase.auth.signInWithPassword({
+                email: emailCandidate,
+                password: legacyPassword,
+              });
+              if (!error) {
+                loginError = null;
+                break;
+              }
+              loginError = error;
+            }
+          }
+
+          if (loginError) {
+            toast({ title: "লগইন ব্যর্থ", description: "মোবাইল নম্বর বা পাসওয়ার্ড ভুল।", variant: "destructive" });
+          }
+        } else {
+          const { error } = await signInWithEmail(raw, form.password);
+          if (error) {
+            toast({ title: "ত্রুটি", description: error, variant: "destructive" });
+          }
         }
       }
     } finally {
