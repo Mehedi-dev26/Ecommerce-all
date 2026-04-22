@@ -61,10 +61,10 @@ const Login = () => {
           return;
         }
         const cleanedPhone = form.phone.replace(/\D/g, "");
-        const syntheticEmail = `customer.${cleanedPhone}@surzoshop.com`;
+        const syntheticEmail = `sapahar.customer.${cleanedPhone}@gmail.com`;
         const { error } = await supabase.auth.signInWithPassword({
           email: syntheticEmail,
-          password: `pin_${form.pin}`,
+          password: `Pin${form.pin}_SapaharShop2024!`,
         });
         if (error) {
           toast({ title: "লগইন ব্যর্থ", description: "মোবাইল নম্বর বা PIN ভুল। অনুগ্রহ করে আবার চেষ্টা করুন।", variant: "destructive" });
