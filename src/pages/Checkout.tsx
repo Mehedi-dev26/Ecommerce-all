@@ -351,19 +351,19 @@ const Checkout = () => {
 
           {/* Delivery Address */}
           <div className="rounded-xl border bg-card p-4 sm:p-6">
-            <h2 className="mb-4 text-lg font-semibold flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-primary" />
+            <h2 className="mb-5 text-xl sm:text-2xl font-bold flex items-center gap-2">
+              <MapPin className="h-6 w-6 text-primary" />
               ডেলিভারি ঠিকানা
             </h2>
             <div className="grid gap-4 sm:grid-cols-3">
               {/* Division */}
               <div>
-                <Label>বিভাগ *</Label>
+                <Label className="text-base font-semibold mb-1.5 block">বিভাগ *</Label>
                 <Select
                   value={form.division}
                   onValueChange={(v) => setForm({ ...form, division: v, district: "", upazila: "" })}
                 >
-                  <SelectTrigger className={errors.division ? "border-destructive" : ""}>
+                  <SelectTrigger className={`h-10 ${errors.division ? "border-destructive" : ""}`}>
                     <SelectValue placeholder="বিভাগ সিলেক্ট করুন" />
                   </SelectTrigger>
                   <SelectContent>
@@ -377,13 +377,13 @@ const Checkout = () => {
 
               {/* District */}
               <div>
-                <Label>জেলা *</Label>
+                <Label className="text-base font-semibold mb-1.5 block">জেলা *</Label>
                 <Select
                   value={form.district}
                   onValueChange={(v) => setForm({ ...form, district: v, upazila: "" })}
                   disabled={!form.division}
                 >
-                  <SelectTrigger className={errors.district ? "border-destructive" : ""}>
+                  <SelectTrigger className={`h-10 ${errors.district ? "border-destructive" : ""}`}>
                     <SelectValue placeholder="জেলা সিলেক্ট করুন" />
                   </SelectTrigger>
                   <SelectContent>
@@ -397,13 +397,13 @@ const Checkout = () => {
 
               {/* Upazila */}
               <div>
-                <Label>উপজেলা *</Label>
+                <Label className="text-base font-semibold mb-1.5 block">উপজেলা *</Label>
                 <Select
                   value={form.upazila}
                   onValueChange={(v) => setForm({ ...form, upazila: v })}
                   disabled={!form.district}
                 >
-                  <SelectTrigger className={errors.upazila ? "border-destructive" : ""}>
+                  <SelectTrigger className={`h-10 ${errors.upazila ? "border-destructive" : ""}`}>
                     <SelectValue placeholder="উপজেলা সিলেক্ট করুন" />
                   </SelectTrigger>
                   <SelectContent>
@@ -417,8 +417,8 @@ const Checkout = () => {
             </div>
 
             <div className="mt-4">
-              <Label htmlFor="address" className="flex items-center gap-1">
-                <FileText className="h-3.5 w-3.5" />সম্পূর্ণ ঠিকানা *
+              <Label htmlFor="address" className="text-base font-semibold flex items-center gap-1.5 mb-1.5">
+                <FileText className="h-4 w-4" />সম্পূর্ণ ঠিকানা *
               </Label>
               <Textarea
                 id="address"
@@ -431,7 +431,7 @@ const Checkout = () => {
             </div>
 
             <div className="mt-4">
-              <Label htmlFor="notes">বিশেষ নোট (ঐচ্ছিক)</Label>
+              <Label htmlFor="notes" className="text-base font-semibold mb-1.5 block">বিশেষ নোট <span className="text-xs font-normal text-muted-foreground">(ঐচ্ছিক)</span></Label>
               <Textarea
                 id="notes"
                 value={form.notes}
@@ -444,31 +444,42 @@ const Checkout = () => {
           {/* Account PIN - only for guests */}
           {!user && (
             <div className="rounded-xl border-2 border-primary/20 bg-primary/5 p-4 sm:p-6">
-              <h2 className="mb-1 text-lg font-semibold flex items-center gap-2">
-                <Shield className="h-5 w-5 text-primary" />
+              <h2 className="mb-1 text-xl sm:text-2xl font-bold flex items-center gap-2">
+                <Shield className="h-6 w-6 text-primary" />
                 একটি ৪-ডিজিটের PIN সেট করুন
               </h2>
-              <p className="text-xs text-muted-foreground mb-4">
+              <p className="text-sm text-muted-foreground mb-4">
                 অর্ডার complete হলে স্বয়ংক্রিয়ভাবে আপনার অ্যাকাউন্ট তৈরি হবে। পরবর্তীতে এই মোবাইল নম্বর ও PIN দিয়ে লগইন করে অর্ডার ট্র্যাক করতে পারবেন।
               </p>
-              <div className="max-w-[240px]">
-                <Label htmlFor="pin" className="flex items-center gap-1">
-                  <Lock className="h-3.5 w-3.5" />৪ ডিজিটের PIN *
+              <div className="max-w-[280px]">
+                <Label htmlFor="pin" className="text-base font-semibold flex items-center gap-1.5 mb-1.5">
+                  <Lock className="h-4 w-4" />৪ ডিজিটের PIN *
                 </Label>
-                <Input
-                  id="pin"
-                  type="password"
-                  inputMode="numeric"
-                  autoComplete="new-password"
-                  value={form.pin}
-                  onChange={(e) => {
-                    const v = e.target.value.replace(/\D/g, "").slice(0, 4);
-                    setForm({ ...form, pin: v });
-                  }}
-                  placeholder="••••"
-                  maxLength={4}
-                  className={`text-center text-2xl tracking-[0.5em] font-mono ${errors.pin ? "border-destructive" : ""}`}
-                />
+                <div className="relative">
+                  <Input
+                    id="pin"
+                    type={showPin ? "text" : "password"}
+                    inputMode="numeric"
+                    autoComplete="new-password"
+                    value={form.pin}
+                    onChange={(e) => {
+                      const v = e.target.value.replace(/\D/g, "").slice(0, 4);
+                      setForm({ ...form, pin: v });
+                    }}
+                    placeholder={showPin ? "1234" : "••••"}
+                    maxLength={4}
+                    className={`h-12 pr-12 text-center text-2xl tracking-[0.6em] font-mono ${errors.pin ? "border-destructive" : ""}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPin((v) => !v)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                    aria-label={showPin ? "PIN লুকান" : "PIN দেখুন"}
+                    tabIndex={-1}
+                  >
+                    {showPin ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 <FieldError field="pin" />
               </div>
             </div>
