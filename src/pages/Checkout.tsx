@@ -90,12 +90,20 @@ const Checkout = () => {
     }
   }, [form, items, totalPrice, user, abandonedId]);
 
-  // Debounced save on form changes
   useEffect(() => {
     if (!form.name.trim() && !form.phone.trim()) return;
     const timer = setTimeout(() => { saveAbandonedCheckout(); }, 3000);
     return () => clearTimeout(timer);
-  }, [form.name, form.phone, form.email, form.division, form.district, form.upazila, form.address]);
+  }, [
+    form.name,
+    form.phone,
+    form.email,
+    form.division,
+    form.district,
+    form.upazila,
+    form.address,
+    saveAbandonedCheckout,
+  ]);
 
   // Save on page leave
   useEffect(() => {
