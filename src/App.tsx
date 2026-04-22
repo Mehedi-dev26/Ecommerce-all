@@ -80,7 +80,7 @@ const App = () => {
           <Sonner />
           <BrowserRouter>
             <ScrollToTop />
-            <Suspense fallback={<PageLoader />}>
+            <Suspense fallback={<RouteFallback />}>
               <Routes>
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />
