@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
-import { Star, Quote, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import { Star, Quote, ChevronLeft, ChevronRight, MapPin, PenLine } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import ReviewSubmissionDialog from "@/components/ReviewSubmissionDialog";
 
 interface Review {
   id: string;
@@ -18,6 +20,7 @@ const CustomerReviews = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [submitOpen, setSubmitOpen] = useState(false);
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
     { loop: true, align: "start", slidesToScroll: 1 },
@@ -47,7 +50,8 @@ const CustomerReviews = () => {
     };
   }, [emblaApi]);
 
-  if (loading || reviews.length === 0) return null;
+  // Don't hide the section while loading — we still want the "Write a review" button visible
+  if (loading) return null;
 
   return (
     <section className="py-12 md:py-20 bg-gradient-to-b from-background via-secondary/20 to-background">
@@ -57,13 +61,26 @@ const CustomerReviews = () => {
           <h2 className="mb-2 text-2xl font-bold text-foreground sm:text-3xl">
             আমাদের <span className="font-brand text-primary text-3xl sm:text-4xl">Customers</span> দের মতামত
           </h2>
-          <p className="text-sm text-muted-foreground sm:text-base">
+          <p className="text-sm text-muted-foreground sm:text-base mb-4">
             আমাদের সেবায় সন্তুষ্ট গ্রাহকদের প্রকৃত অভিজ্ঞতা
           </p>
+          <Button
+            onClick={() => setSubmitOpen(true)}
+            variant="outline"
+            className="gap-2 rounded-full border-primary/30 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all"
+          >
+            <PenLine className="h-4 w-4" />
+            আপনার মতামত দিন
+          </Button>
         </div>
 
-        {/* Carousel */}
-        <div className="relative max-w-6xl mx-auto">
+        {reviews.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground text-sm">
+            প্রথম রিভিউটি আপনিই দিন!
+          </div>
+        ) : (
+          /* Carousel */
+          <div className="relative max-w-6xl mx-auto">
           <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex -ml-4">
               {reviews.map((review) => (
@@ -162,7 +179,9 @@ const CustomerReviews = () => {
             ))}
           </div>
         </div>
+        )}
       </div>
+      <ReviewSubmissionDialog open={submitOpen} onOpenChange={setSubmitOpen} />
     </section>
   );
 };

@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { divisions } from "@/data/bd-locations";
+import GradeBadge from "@/components/GradeBadge";
 
 const DEFAULT_DELIVERY_FEE = 120;
 
@@ -215,10 +216,7 @@ const ProductDetail = () => {
             <div className="mb-1 flex flex-wrap items-center gap-2">
               <h1 className="text-xl font-bold text-foreground sm:text-2xl lg:text-3xl">{product.name_bn}</h1>
               {(product as any).grade && (
-                <span className="inline-flex items-center gap-1 rounded-md bg-gradient-to-r from-primary to-accent px-2.5 py-1 text-sm sm:text-base font-bold text-primary-foreground shadow-md ring-2 ring-primary/30">
-                  <Star className="h-3.5 w-3.5 fill-current" />
-                  Grade {(product as any).grade}
-                </span>
+                <GradeBadge grade={(product as any).grade} size="md" showLabel />
               )}
             </div>
             <p className="mb-2 text-xs text-muted-foreground sm:text-sm">{product.name}</p>
