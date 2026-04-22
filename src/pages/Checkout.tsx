@@ -313,6 +313,17 @@ const Checkout = () => {
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
       if (itemsError) throw itemsError;
 
+      // Save the new address to the user's address book if they typed a fresh one
+      const shouldSaveAddress =
+        userId &&
+        addressMode === "new" &&
+        !savedAddresses.some(
+          (a) =>
+            a.address.trim() === form.address.trim() &&
+            a.upazila === form.upazila &&
+            a.district === form.district
+        );
+
       await Promise.allSettled([
         userId
           ? supabase.from("profiles").upsert(
@@ -330,6 +341,20 @@ const Checkout = () => {
           : Promise.resolve(),
         abandonedId
           ? supabase.from("abandoned_checkouts").update({ recovered: true }).eq("id", abandonedId)
+          : Promise.resolve(),
+        shouldSaveAddress
+          ? supabase.from("saved_addresses").insert({
+              user_id: userId,
+              label: savedAddresses.length === 0 ? "বাসা" : "নতুন ঠিকানা",
+              full_name: form.name.trim(),
+              phone: form.phone.trim(),
+              email: form.email.trim() || null,
+              division: form.division,
+              district: form.district,
+              upazila: form.upazila,
+              address: form.address.trim(),
+              is_default: savedAddresses.length === 0,
+            })
           : Promise.resolve(),
       ]);
 
