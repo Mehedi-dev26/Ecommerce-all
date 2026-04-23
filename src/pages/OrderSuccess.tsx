@@ -24,7 +24,7 @@ const OrderSuccess = () => {
     <div className="container mx-auto flex flex-col items-center px-4 py-20 text-center">
       <CheckCircle className="mb-6 h-20 w-20 text-primary" />
       <h1 className="mb-2 text-3xl font-bold text-foreground">অর্ডার সফল হয়েছে! 🎉</h1>
-      <p className="mb-2 text-muted-foreground">আপনার অর্ডার Sapahar Mango পেয়েছে।</p>
+      <p className="mb-2 text-muted-foreground">আপনার অর্ডার Surzo Shop সফলভাবে গ্রহণ করেছে।</p>
       <div className="mb-6 flex items-center gap-2">
         <p className="text-lg font-semibold text-primary">অর্ডার নম্বর: {orderNumber}</p>
         <Button
@@ -42,7 +42,7 @@ const OrderSuccess = () => {
         <p>💰 পণ্য হাতে পেয়ে টাকা পরিশোধ করবেন।</p>
       </div>
       <div className="flex gap-4">
-        <Button asChild><Link to="/products">আরও আম দেখুন</Link></Button>
+        <Button asChild><Link to="/products">আরও পণ্য দেখুন</Link></Button>
         <Button asChild variant="outline"><Link to="/">হোম পেজে যান</Link></Button>
       </div>
     </div>

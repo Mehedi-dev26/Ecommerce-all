@@ -102,7 +102,7 @@ const AdminLayout = () => {
         {/* Footer - hidden on mobile */}
         <footer className="shrink-0 border-t border-border/50 bg-card/50 px-4 lg:px-8 py-3 hidden lg:block">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>© {new Date().getFullYear()} Sapahar Mango</span>
+            <span>© {new Date().getFullYear()} Surzo Shop</span>
             <span>v1.0.0</span>
           </div>
         </footer>
