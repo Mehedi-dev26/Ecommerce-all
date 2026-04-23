@@ -4,10 +4,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, ShieldCheck, Truck, Headphones, Eye, EyeOff, Mail, Lock, User, ArrowLeft, ShoppingBag, Star, Award, Heart, Phone, Zap } from "lucide-react";
+import { Loader2, ShieldCheck, Truck, Headphones, Eye, EyeOff, Mail, Lock, User, ArrowLeft, Star, Award, Heart, Phone, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getGuestAuthEmail, getGuestAuthPassword } from "@/lib/guest-auth";
+import brandLogo from "@/assets/brand-logo.png";
 
 type AuthMode = "login" | "register" | "forgot";
 
@@ -175,8 +176,8 @@ const Login = () => {
 
         <div className="relative z-10 flex flex-col justify-center px-10 xl:px-16 py-12 w-full">
           <div className="flex items-center gap-4 mb-12">
-            <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/30 shadow-lg">
-              <ShoppingBag className="h-8 w-8 text-white" strokeWidth={2.5} />
+            <div className="h-16 w-16 rounded-full bg-white overflow-hidden flex items-center justify-center ring-2 ring-white/40 shadow-lg">
+              <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
             </div>
             <div>
               <h2 className="font-brand text-4xl font-bold tracking-tight text-white drop-shadow-md">Surzo Shop</h2>
@@ -244,8 +245,8 @@ const Login = () => {
           <div className="w-full max-w-[420px]">
             {/* Logo */}
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-primary/10 ring-4 ring-primary/20 mb-3 shadow-md">
-                <ShoppingBag className="h-10 w-10 text-primary" strokeWidth={2.5} />
+              <div className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-white ring-4 ring-primary/20 mb-3 shadow-md overflow-hidden">
+                <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
               </div>
               <p className="font-brand text-3xl text-primary font-bold">Surzo Shop</p>
               <p className="text-xs text-muted-foreground tracking-wide mt-0.5">সেরা পণ্য, সেরা দামে</p>

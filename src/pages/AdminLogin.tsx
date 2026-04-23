@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, Mail, ShoppingBag } from "lucide-react";
+import { Lock, Mail } from "lucide-react";
 import { hasAdminRole } from "@/lib/admin-auth";
 import { getErrorMessage } from "@/lib/error-message";
+import brandLogo from "@/assets/brand-logo.png";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -47,8 +48,8 @@ const AdminLogin = () => {
       <Card className="w-full max-w-md shadow-2xl border-primary/20">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
-            <div className="h-16 w-16 rounded-2xl bg-primary/10 ring-4 ring-primary/20 flex items-center justify-center shadow-md">
-              <ShoppingBag className="h-8 w-8 text-primary" strokeWidth={2.5} />
+            <div className="h-16 w-16 rounded-full bg-white ring-4 ring-primary/20 flex items-center justify-center shadow-md overflow-hidden">
+              <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
             </div>
           </div>
           <CardTitle className="text-2xl font-bold text-foreground">
