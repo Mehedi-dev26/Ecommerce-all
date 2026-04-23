@@ -176,12 +176,12 @@ const HeroSection = () => {
           <div className="absolute inset-0 flex items-center">
             <div className="container mx-auto px-4">
               <div className="max-w-lg">
-                <h1
+                <h2
                   key={`title-${current}`}
                   className="mb-2 text-xl font-bold leading-tight text-white animate-in fade-in slide-in-from-bottom-4 duration-500 sm:text-4xl lg:text-5xl"
                 >
                   {slide.title}
-                </h1>
+                </h2>
                 <p
                   key={`sub-${current}`}
                   className="mb-4 text-xs text-white/90 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150 sm:text-lg lg:text-xl"
