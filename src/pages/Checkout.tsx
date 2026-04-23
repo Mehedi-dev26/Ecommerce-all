@@ -312,7 +312,16 @@ const Checkout = () => {
       }));
 
       const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        // Stock trigger ব্যর্থ হলে orphan order delete করি যাতে database clean থাকে
+        await supabase.from("orders").delete().eq("id", order.id);
+        // Database থেকে আসা Bangla error message preserve করি
+        const msg = itemsError.message || "";
+        if (msg.includes("স্টক")) {
+          throw new Error(msg.replace(/^.*?:\s*/, ""));
+        }
+        throw itemsError;
+      }
 
       // Save the new address to the user's address book if they typed a fresh one
       const shouldSaveAddress =
