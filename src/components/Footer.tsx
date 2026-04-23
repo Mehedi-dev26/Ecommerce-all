@@ -5,11 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import brandLogo from "@/assets/brand-logo.png";
 
 const defaults: Record<string, string> = {
-  footer_phone: "+880 1798-268989",
-  footer_email: "info@sapaharmango.com",
+  footer_phone: "+880 1779-80168",
+  footer_email: "surzoshop@gmail.com",
   footer_location: "আশুরন্দ বাজার, সাপাহার, নওগাঁ",
   footer_facebook: "#",
-  footer_copyright: "© {year} Sapahar Mango — সাপাহারের দেশি আম। সর্বস্বত্ব সংরক্ষিত।",
+  footer_copyright: "© {year} Surzo Shop — সেরা পণ্য, সেরা দামে। সর্বস্বত্ব সংরক্ষিত।",
 };
 
 const Footer = () => {

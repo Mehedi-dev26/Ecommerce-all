@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 const SupportChatPanel = lazy(() => import("./SupportChatPanel"));
 
-const WHATSAPP_NUMBER = "8801798268989";
+const WHATSAPP_NUMBER = "8801779801680";
 
 const SupportWidget = () => {
   const [open, setOpen] = useState(false);
