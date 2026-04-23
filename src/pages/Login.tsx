@@ -181,7 +181,7 @@ const Login = () => {
             </div>
             <div>
               <h2 className="font-brand text-4xl font-bold tracking-tight text-white drop-shadow-md">Surzo Shop</h2>
-              <p className="text-sm text-white/80 tracking-wide">সেরা পণ্য, সেরা দামে</p>
+              <p className="text-sm text-white/80 tracking-wide">স্বল্প মূল্যে সেরা পণ্য</p>
             </div>
           </div>
 
@@ -249,7 +249,7 @@ const Login = () => {
                 <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
               </div>
               <p className="font-brand text-3xl text-primary font-bold">Surzo Shop</p>
-              <p className="text-xs text-muted-foreground tracking-wide mt-0.5">সেরা পণ্য, সেরা দামে</p>
+              <p className="text-xs text-muted-foreground tracking-wide mt-0.5">স্বল্প মূল্যে সেরা পণ্য</p>
             </div>
 
             {/* Heading */}

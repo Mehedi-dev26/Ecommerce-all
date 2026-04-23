@@ -21,7 +21,7 @@ const PageLoader = ({ fullScreen = false, message = "লোড হচ্ছে" 
         </div>
         <div className="flex flex-col leading-none">
           <span className="font-brand text-3xl font-bold text-primary">Surzo Shop</span>
-          <span className="mt-1 text-[11px] tracking-widest text-primary/80">সেরা পণ্য, সেরা দামে</span>
+          <span className="mt-1 text-[11px] tracking-widest text-primary/80">স্বল্প মূল্যে সেরা পণ্য</span>
         </div>
       </div>
 

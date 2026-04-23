@@ -29,7 +29,7 @@ const Navbar = () => {
           </div>
           <div className="flex flex-col">
             <span className="font-brand text-3xl font-bold leading-none text-white sm:text-4xl drop-shadow-md">Surzo Shop</span>
-            <span className="text-[9px] font-medium tracking-wider text-white/80 sm:text-[10px]">সেরা পণ্য, সেরা দামে</span>
+            <span className="text-[9px] font-medium tracking-wider text-white/80 sm:text-[10px]">স্বল্প মূল্যে সেরা পণ্য</span>
           </div>
         </Link>
 
@@ -117,7 +117,7 @@ const Navbar = () => {
                   </div>
                   <div className="flex flex-col">
                     <span className="font-brand text-2xl font-bold text-white">Surzo Shop</span>
-                    <span className="text-[9px] text-white/70">সেরা পণ্য, সেরা দামে</span>
+                    <span className="text-[9px] text-white/70">স্বল্প মূল্যে সেরা পণ্য</span>
                   </div>
                 </SheetTitle>
               </SheetHeader>
