@@ -52,6 +52,8 @@ const Footer = () => {
               <li><Link to="/products" className="text-white/90 hover:text-accent transition-colors font-medium">পণ্য সমূহ</Link></li>
               <li><Link to="/about" className="text-white/90 hover:text-accent transition-colors font-medium">আমাদের সম্পর্কে</Link></li>
               <li><Link to="/contact" className="text-white/90 hover:text-accent transition-colors font-medium">যোগাযোগ</Link></li>
+              <li><Link to="/privacy-policy" className="text-white/90 hover:text-accent transition-colors font-medium">গোপনীয়তা নীতি</Link></li>
+              <li><Link to="/terms-conditions" className="text-white/90 hover:text-accent transition-colors font-medium">শর্তাবলী</Link></li>
             </ul>
           </div>
           <div>
