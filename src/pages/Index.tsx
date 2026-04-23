@@ -22,18 +22,18 @@ const Index = () => (
       jsonLd={[organizationSchema, websiteSchema, breadcrumb([{ name: "হোম", path: "/" }])]}
     />
     <HeroSection />
-    <CategorySection />
+    <div className="cv-auto"><CategorySection /></div>
     <Suspense fallback={<SectionFallback />}>
-      <FeaturedProducts />
+      <div className="cv-auto"><FeaturedProducts /></div>
     </Suspense>
     <Suspense fallback={<SectionFallback />}>
-      <WhyChooseUs />
+      <div className="cv-auto"><WhyChooseUs /></div>
     </Suspense>
     <Suspense fallback={<SectionFallback />}>
-      <LocationSection />
+      <div className="cv-auto"><LocationSection /></div>
     </Suspense>
     <Suspense fallback={<SectionFallback />}>
-      <CustomerReviews />
+      <div className="cv-auto"><CustomerReviews /></div>
     </Suspense>
   </>
 );
