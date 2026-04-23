@@ -8,7 +8,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import SupportWidget from "@/components/SupportWidget";
+const SupportWidget = lazy(() => import("@/components/SupportWidget"));
 import ScrollToTop from "@/components/ScrollToTop";
 
 // Minimal top progress bar shown ONLY during route lazy-load.
@@ -142,7 +142,7 @@ const App = () => {
                         </Routes>
                       </main>
                       <Footer />
-                      <SupportWidget />
+                      <Suspense fallback={null}><SupportWidget /></Suspense>
                     </div>
                   }
                 />
