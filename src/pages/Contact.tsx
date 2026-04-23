@@ -4,8 +4,23 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Contact = () => {
+  const [facebookUrl, setFacebookUrl] = useState("#");
+
+  useEffect(() => {
+    supabase
+      .from("site_settings")
+      .select("key, value")
+      .eq("key", "footer_facebook")
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.value) setFacebookUrl(data.value);
+      });
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     toast({ title: "মেসেজ পাঠানো হয়েছে!", description: "আমরা শীঘ্রই আপনার সাথে যোগাযোগ করব।" });
@@ -33,7 +48,12 @@ const Contact = () => {
               </div>
             </div>
           ))}
-          <a href="#" className="flex items-center gap-3 rounded-lg bg-primary p-4 text-primary-foreground hover:bg-primary/90">
+          <a
+            href={facebookUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-lg bg-primary p-4 text-primary-foreground hover:bg-primary/90"
+          >
             <Facebook className="h-5 w-5" />
             <span className="font-medium">আমাদের Facebook পেজ ভিজিট করুন</span>
           </a>
