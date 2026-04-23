@@ -105,9 +105,6 @@ const SupportWidget = () => {
           )}
         >
           {open ? <X className="h-6 w-6" /> : <Headphones className="h-6 w-6" />}
-          {!open && !chatOpen && (
-            <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-primary/40" />
-          )}
         </button>
       </div>
 

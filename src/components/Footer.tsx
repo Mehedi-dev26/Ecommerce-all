@@ -45,7 +45,7 @@ const Footer = () => {
           <div className="col-span-2 sm:col-span-1">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-white ring-2 ring-accent/40 shrink-0">
-                <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
+                <img src={brandLogo} alt="Surzo Shop logo" width="56" height="56" loading="lazy" decoding="async" className="h-full w-full object-contain" />
               </div>
               <span className="font-brand text-3xl font-bold text-accent sm:text-4xl">Surzo Shop</span>
             </div>
@@ -103,7 +103,7 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        <div className="mt-10 border-t border-white/20 pt-6 text-center text-sm text-white/70 sm:text-base font-medium">
+        <div className="mt-10 border-t border-white/20 pt-6 text-center text-sm text-white/85 sm:text-base font-medium">
           {copyright}
         </div>
       </div>

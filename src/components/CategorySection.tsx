@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { optimizeRemoteImage } from "@/lib/image-url";
 
 const CategorySection = () => {
   const { data: categories, isLoading } = useQuery({
@@ -40,13 +41,13 @@ const CategorySection = () => {
               >
                 <div className="h-16 w-16 overflow-hidden rounded-2xl border-2 border-primary/20 transition-transform duration-200 group-hover:scale-110 sm:h-20 sm:w-20">
                   <img
-                    src={cat.image_url || "/placeholder.svg"}
+                    src={optimizeRemoteImage(cat.image_url, 200) || "/placeholder.svg"}
                     alt={cat.name_bn}
                     className="h-full w-full object-cover"
                     loading="lazy"
                     decoding="async"
-                    width={512}
-                    height={512}
+                    width={160}
+                    height={160}
                     sizes="(max-width: 640px) 25vw, 96px"
                   />
                 </div>

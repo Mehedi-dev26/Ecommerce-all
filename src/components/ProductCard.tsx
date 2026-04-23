@@ -7,6 +7,7 @@ import GradeBadge from "@/components/GradeBadge";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { optimizeRemoteImage } from "@/lib/image-url";
 
 interface ProductCardProps {
   id: string;
@@ -47,13 +48,13 @@ const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weigh
         <div className="relative aspect-square overflow-hidden bg-muted">
           {image_url ? (
             <img
-              src={image_url}
+              src={optimizeRemoteImage(image_url, 480)}
               alt={name_bn}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
               decoding="async"
-              width={640}
-              height={640}
+              width={480}
+              height={480}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           ) : (
