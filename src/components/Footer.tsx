@@ -103,7 +103,7 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        <div className="mt-10 border-t border-white/20 pt-6 text-center text-sm text-white/70 sm:text-base font-medium">
+        <div className="mt-10 border-t border-white/20 pt-6 text-center text-sm text-white/85 sm:text-base font-medium">
           {copyright}
         </div>
       </div>
