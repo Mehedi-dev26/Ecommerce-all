@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Facebook } from "lucide-react";
-import { ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import brandLogo from "@/assets/brand-logo.png";
 
 const defaults: Record<string, string> = {
   footer_phone: "+880 1798-268989",
@@ -36,8 +36,8 @@ const Footer = () => {
         <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/20 ring-2 ring-accent/40">
-                <ShoppingBag className="h-6 w-6 text-accent" strokeWidth={2.5} />
+              <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-white ring-2 ring-accent/40 shrink-0">
+                <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
               </div>
               <span className="font-brand text-3xl font-bold text-accent sm:text-4xl">Surzo Shop</span>
             </div>

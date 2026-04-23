@@ -1,4 +1,4 @@
-import { ShoppingBag } from "lucide-react";
+import brandLogo from "@/assets/brand-logo.png";
 
 interface PageLoaderProps {
   /** When true, fills the whole viewport (used for initial app boot). Otherwise sits inside the page. */
@@ -16,8 +16,8 @@ const PageLoader = ({ fullScreen = false, message = "লোড হচ্ছে" 
       }
     >
       <div className="flex items-center gap-3">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/40 animate-[pulse_1s_ease-in-out_infinite]">
-          <ShoppingBag className="h-7 w-7 text-primary-foreground" strokeWidth={2.5} />
+        <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-white shadow-lg shadow-primary/40 ring-2 ring-primary/30 animate-[pulse_1s_ease-in-out_infinite]">
+          <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
         </div>
         <div className="flex flex-col leading-none">
           <span className="font-brand text-3xl font-bold text-primary">Surzo Shop</span>
