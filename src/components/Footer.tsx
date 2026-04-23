@@ -9,7 +9,7 @@ const defaults: Record<string, string> = {
   footer_email: "surzoshop@gmail.com",
   footer_location: "আশুরন্দ বাজার, সাপাহার, নওগাঁ",
   footer_facebook: "#",
-  footer_copyright: "© {year} Surzo Shop — সেরা পণ্য, সেরা দামে। সর্বস্বত্ব সংরক্ষিত।",
+  footer_copyright: "© {year} Surzo Shop — স্বল্প মূল্যে সেরা পণ্য। সর্বস্বত্ব সংরক্ষিত।",
 };
 
 const Footer = () => {
