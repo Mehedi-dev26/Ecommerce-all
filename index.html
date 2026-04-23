@@ -17,9 +17,15 @@
     <link rel="icon" type="image/png" href="/brand-logo.png" />
     <link rel="apple-touch-icon" href="/brand-logo.png" />
 
+    <!-- Preload critical brand assets for faster LCP -->
+    <link rel="preload" as="image" href="/brand-logo.png" fetchpriority="high" />
+
     <!-- Performance hints -->
     <link rel="preconnect" href="https://lmfbirdlpfpuoumxgcfd.supabase.co" crossorigin />
-    <link rel="preconnect" href="https://www.googletagmanager.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
     <link rel="dns-prefetch" href="https://www.google-analytics.com" />
 
     <!-- Geo / locale -->
@@ -27,13 +33,21 @@
     <meta name="geo.placename" content="Sapahar, Naogaon, Bangladesh" />
     <meta name="language" content="Bengali" />
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HL3G3PBWRV"></script>
+    <!-- Google tag (gtag.js) — deferred until after load to avoid render-blocking & improve FCP/LCP -->
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-HL3G3PBWRV');
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=G-HL3G3PBWRV';
+          document.head.appendChild(s);
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){ dataLayer.push(arguments); }
+          window.gtag = gtag;
+          gtag('js', new Date());
+          gtag('config', 'G-HL3G3PBWRV', { transport_type: 'beacon' });
+        }, 1500);
+      });
     </script>
 
     <!-- Open Graph defaults (overridden per page by react-helmet-async) -->
