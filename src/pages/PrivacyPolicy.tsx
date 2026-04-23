@@ -60,6 +60,12 @@ const sections = [
 const PrivacyPolicy = () => {
   return (
     <div className="bg-background">
+      <SEO
+        title="গোপনীয়তা নীতি — Surzo Shop"
+        description="Surzo Shop কীভাবে আপনার ব্যক্তিগত তথ্য সংগ্রহ, ব্যবহার ও সুরক্ষা করে — সম্পূর্ণ গোপনীয়তা নীতি পড়ুন।"
+        path="/privacy-policy"
+        jsonLd={breadcrumb([{ name: "হোম", path: "/" }, { name: "গোপনীয়তা নীতি", path: "/privacy-policy" }])}
+      />
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 py-12 sm:py-16">
         <div className="container mx-auto px-4">
