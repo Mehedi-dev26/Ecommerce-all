@@ -12,6 +12,7 @@ import { Loader2, MapPin, Phone, User, Mail, FileText, AlertCircle, Lock, Shield
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { divisions } from "@/data/bd-locations";
 import { getGuestAuthEmail, getGuestAuthEmailCandidates, getGuestAuthPassword } from "@/lib/guest-auth";
+import SEO from "@/components/SEO";
 
 interface SavedAddress {
   id: string;
