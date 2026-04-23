@@ -71,14 +71,40 @@ const AdminCourierCharges = () => {
       toast({ title: "ত্রুটি", description: "বিভাগ ও জেলা আবশ্যক", variant: "destructive" });
       return;
     }
+    if (!form.charge_per_kg || Number(form.charge_per_kg) <= 0) {
+      toast({ title: "ত্রুটি", description: "ডেলিভারি চার্জ ০ এর বেশি হতে হবে", variant: "destructive" });
+      return;
+    }
+
+    const upazilaValue = (form.upazila && form.upazila !== "__all__") ? form.upazila : null;
 
     const payload = {
       division: form.division,
       district: form.district,
-      upazila: (form.upazila && form.upazila !== "__all__") ? form.upazila : null,
+      upazila: upazilaValue,
       charge_per_kg: Number(form.charge_per_kg),
-      label: form.label || null,
+      label: form.label?.trim() || null,
     };
+
+    // Pre-check duplicate (PostgreSQL UNIQUE doesn't treat NULL as equal,
+    // so we must guard manually for the "all upazilas" case).
+    if (!editing) {
+      let dupQuery = supabase
+        .from("courier_charges")
+        .select("id")
+        .eq("division", payload.division)
+        .eq("district", payload.district);
+      dupQuery = upazilaValue ? dupQuery.eq("upazila", upazilaValue) : dupQuery.is("upazila", null);
+      const { data: existing } = await dupQuery.maybeSingle();
+      if (existing) {
+        toast({
+          title: "ডুপ্লিকেট চার্জ",
+          description: "এই বিভাগ + জেলা" + (upazilaValue ? " + উপজেলা" : "") + " এর জন্য চার্জ আগে থেকেই আছে। এডিট করুন বা ভিন্ন উপজেলা বাছুন।",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
 
     let err;
     if (editing) {
@@ -88,7 +114,10 @@ const AdminCourierCharges = () => {
     }
 
     if (err) {
-      toast({ title: "ত্রুটি", description: err.message, variant: "destructive" });
+      const friendly = err.code === "23505"
+        ? "এই এলাকার জন্য চার্জ আগে থেকেই আছে। আগের এন্ট্রি এডিট করুন।"
+        : err.message;
+      toast({ title: "সংরক্ষণ ব্যর্থ", description: friendly, variant: "destructive" });
     } else {
       toast({ title: editing ? "আপডেট সফল" : "কুরিয়ার চার্জ যোগ হয়েছে" });
       setDialogOpen(false);
