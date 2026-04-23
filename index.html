@@ -17,26 +17,40 @@
     <link rel="icon" type="image/png" href="/brand-logo.png" />
     <link rel="apple-touch-icon" href="/brand-logo.png" />
 
-    <!-- Preload critical brand assets for faster LCP -->
-    <link rel="preload" as="image" href="/brand-logo.png" fetchpriority="high" />
+    <!-- Preload critical brand asset (WebP – 14KB vs 79KB PNG) for instant LCP -->
+    <link rel="preload" as="image" href="/brand-logo.webp" type="image/webp" fetchpriority="high" />
 
-    <!-- Performance hints -->
+    <!-- Performance hints — only essentials. Fonts loaded async via JS to avoid render block. -->
     <link rel="preconnect" href="https://lmfbirdlpfpuoumxgcfd.supabase.co" crossorigin />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://images.unsplash.com" />
-    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-    <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+    <link rel="dns-prefetch" href="https://images.unsplash.com" />
 
     <!-- Geo / locale -->
     <meta name="geo.region" content="BD" />
     <meta name="geo.placename" content="Sapahar, Naogaon, Bangladesh" />
     <meta name="language" content="Bengali" />
 
-    <!-- Google tag (gtag.js) — deferred until after load to avoid render-blocking & improve FCP/LCP -->
+    <!--
+      Fonts: load asynchronously so they NEVER block first paint.
+      System font stack is used until the webfont arrives, then it swaps in.
+      This is the single biggest FCP win on slow mobile.
+    -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Dancing+Script:wght@700&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Dancing+Script:wght@700&display=swap" />
+    </noscript>
+
+    <!-- Google Analytics — deferred until first user interaction (zero impact on FCP/LCP/TBT) -->
     <script>
-      window.addEventListener('load', function () {
-        setTimeout(function () {
+      (function () {
+        var loaded = false;
+        function loadGA() {
+          if (loaded) return;
+          loaded = true;
           var s = document.createElement('script');
           s.async = true;
           s.src = 'https://www.googletagmanager.com/gtag/js?id=G-HL3G3PBWRV';
@@ -46,8 +60,13 @@
           window.gtag = gtag;
           gtag('js', new Date());
           gtag('config', 'G-HL3G3PBWRV', { transport_type: 'beacon' });
-        }, 1500);
-      });
+        }
+        ['scroll','mousemove','touchstart','keydown','click'].forEach(function (e) {
+          window.addEventListener(e, loadGA, { once: true, passive: true });
+        });
+        // Fallback after 5s of inactivity so GA still fires even if user is idle
+        setTimeout(loadGA, 5000);
+      })();
     </script>
 
     <!-- Open Graph defaults (overridden per page by react-helmet-async) -->
@@ -109,31 +128,36 @@
       }
     }
     </script>
-  </head>
 
-  <body>
     <style>
-      #initial-loader{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:#fffaf0;z-index:9999;font-family:'Hind Siliguri',-apple-system,BlinkMacSystemFont,sans-serif;transition:opacity .35s ease}
+      /* System font stack used until webfont swaps in — eliminates FOIT and avoids render block */
+      :root { font-family: 'Hind Siliguri', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Bengali', sans-serif; }
+      body { margin: 0; background: #fffaf0; color: #1f2937; }
+      #initial-loader{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:#fffaf0;z-index:9999;transition:opacity .3s ease}
       #initial-loader.fade-out{opacity:0;pointer-events:none}
       .il-logo{display:flex;align-items:center;gap:12px}
-      .il-badge{width:64px;height:64px;border-radius:16px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 8px 24px rgba(245,158,11,.35);animation:il-pop .9s ease infinite alternate}
+      .il-badge{width:64px;height:64px;border-radius:16px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 8px 24px rgba(245,158,11,.35)}
       .il-badge img{width:100%;height:100%;object-fit:contain}
       .il-text{display:flex;flex-direction:column;line-height:1}
       .il-name{font-family:'Dancing Script',cursive;font-size:34px;font-weight:700;color:#b45309}
       .il-tag{font-size:11px;letter-spacing:.12em;color:#92400e;margin-top:4px}
       .il-bar{width:200px;height:4px;border-radius:999px;background:rgba(245,158,11,.18);overflow:hidden}
       .il-bar-fill{width:40%;height:100%;border-radius:999px;background:linear-gradient(90deg,#f59e0b,#fbbf24);animation:il-slide 1.1s ease-in-out infinite}
-      .il-msg{font-size:13px;color:#92400e;font-weight:500;letter-spacing:.02em}
+      .il-msg{font-size:13px;color:#92400e;font-weight:500}
       @keyframes il-slide{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
-      @keyframes il-pop{from{transform:scale(1)}to{transform:scale(1.06)}}
-      @media (prefers-reduced-motion:reduce){.il-badge,.il-bar-fill{animation:none!important}}
+      @media (prefers-reduced-motion:reduce){.il-bar-fill{animation:none!important}}
     </style>
+  </head>
+
+  <body>
     <div id="root">
-      <span style="position:absolute;left:-9999px;top:-9999px">Surzo Shop — স্বল্প মূল্যে সেরা পণ্য</span>
       <div id="initial-loader" role="status" aria-label="লোড হচ্ছে">
         <div class="il-logo">
           <div class="il-badge">
-            <img src="/brand-logo.png" alt="" width="64" height="64" />
+            <picture>
+              <source srcset="/brand-logo.webp" type="image/webp" />
+              <img src="/brand-logo.png" alt="Surzo Shop" width="64" height="64" decoding="async" />
+            </picture>
           </div>
           <div class="il-text">
             <span class="il-name">Surzo Shop</span>
