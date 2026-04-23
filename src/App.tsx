@@ -96,8 +96,10 @@ const App = () => {
     <TooltipProvider>
       <AuthProvider>
         <CartProvider>
-          <Toaster />
-          <Sonner />
+          <Suspense fallback={null}>
+            <Toaster />
+            <Sonner />
+          </Suspense>
           <BrowserRouter>
             <ScrollToTop />
             <Suspense fallback={<RouteFallback />}>
