@@ -145,7 +145,7 @@ const App = () => {
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>
-                      <Footer />
+                      <Suspense fallback={<div className="h-64" aria-hidden />}><Footer /></Suspense>
                       <Suspense fallback={null}><SupportWidget /></Suspense>
                     </div>
                   }
