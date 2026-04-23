@@ -156,26 +156,32 @@ const AdminBanners = () => {
   };
 
   const toggleActive = async (banner: Banner) => {
+    // Optimistic update for instant UX
+    const next = !banner.is_active;
+    setBanners((prev) => prev.map((b) => (b.id === banner.id ? { ...b, is_active: next } : b)));
     const { error } = await supabase
       .from("banners")
-      .update({ is_active: !banner.is_active })
+      .update({ is_active: next })
       .eq("id", banner.id);
     if (error) {
-      toast({ title: "ত্রুটি", description: error.message, variant: "destructive" });
+      // Rollback on failure
+      setBanners((prev) => prev.map((b) => (b.id === banner.id ? { ...b, is_active: !next } : b)));
+      toast({ title: "পরিবর্তন ব্যর্থ", description: error.message, variant: "destructive" });
     } else {
-      void fetchBanners();
+      toast({ title: next ? "ব্যানার সক্রিয় হয়েছে" : "ব্যানার নিষ্ক্রিয় হয়েছে" });
     }
   };
 
   const toggleTextOverlay = async (banner: Banner) => {
+    const next = !banner.show_text_overlay;
+    setBanners((prev) => prev.map((b) => (b.id === banner.id ? { ...b, show_text_overlay: next } : b)));
     const { error } = await supabase
       .from("banners")
-      .update({ show_text_overlay: !banner.show_text_overlay })
+      .update({ show_text_overlay: next })
       .eq("id", banner.id);
     if (error) {
-      toast({ title: "ত্রুটি", description: error.message, variant: "destructive" });
-    } else {
-      void fetchBanners();
+      setBanners((prev) => prev.map((b) => (b.id === banner.id ? { ...b, show_text_overlay: !next } : b)));
+      toast({ title: "পরিবর্তন ব্যর্থ", description: error.message, variant: "destructive" });
     }
   };
 
