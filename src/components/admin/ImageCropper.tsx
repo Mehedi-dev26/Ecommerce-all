@@ -17,8 +17,6 @@ interface ImageCropperProps {
   /** Minimum recommended source dimensions (warn if smaller). */
   minSourceWidth?: number;
   minSourceHeight?: number;
-  /** Optional friendly hint shown at top of cropper. */
-  hint?: string;
   onCropComplete: (croppedBlob: Blob) => void;
 }
 
@@ -75,7 +73,6 @@ const ImageCropper = ({
   outputHeight,
   minSourceWidth = 1200,
   minSourceHeight = 500,
-  hint,
   onCropComplete,
 }: ImageCropperProps) => {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
