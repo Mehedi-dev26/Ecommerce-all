@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Phone, Mail, MapPin, Facebook } from "lucide-react";
+import { Phone, Mail, MapPin, Facebook, Instagram, Youtube } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import brandLogo from "@/assets/brand-logo.png";
@@ -9,6 +9,8 @@ const defaults: Record<string, string> = {
   footer_email: "surzoshop@gmail.com",
   footer_location: "আশুরন্দ বাজার, সাপাহার, নওগাঁ",
   footer_facebook: "#",
+  footer_instagram: "#",
+  footer_youtube: "#",
   footer_copyright: "© {year} Surzo Shop — স্বল্প মূল্যে সেরা পণ্য। সর্বস্বত্ব সংরক্ষিত।",
 };
 
@@ -30,6 +32,12 @@ const Footer = () => {
 
   const copyright = settings.footer_copyright.replace("{year}", String(new Date().getFullYear()));
 
+  const socials = [
+    { name: "Facebook", icon: Facebook, href: settings.footer_facebook, label: "Facebook" },
+    { name: "Instagram", icon: Instagram, href: settings.footer_instagram, label: "Instagram" },
+    { name: "YouTube", icon: Youtube, href: settings.footer_youtube, label: "YouTube" },
+  ];
+
   return (
     <footer className="bg-secondary text-secondary-foreground">
       <div className="container mx-auto px-4 py-10 sm:py-14">
@@ -42,8 +50,25 @@ const Footer = () => {
               <span className="font-brand text-3xl font-bold text-accent sm:text-4xl">Surzo Shop</span>
             </div>
             <p className="text-base text-white/90 leading-relaxed">
-              ইলেকট্রনিক্স, হোম অ্যাপ্লায়েন্স ও সাইকেল — সেরা পণ্য সরাসরি আপনার দোরগোড়ায়।
+              ইলেকট্রনিক্স, হোম অ্যাপ্লায়েন্স ও সাইকেল — সেরা পণ্য সরাসরি আপনার হাতের কাছে।
             </p>
+
+            {/* Social buttons */}
+            <div className="mt-5 flex items-center gap-3">
+              {socials.map((s) => (
+                <a
+                  key={s.name}
+                  href={s.href || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={s.label}
+                  title={s.label}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-white/20 transition hover:bg-accent hover:text-secondary hover:ring-accent"
+                >
+                  <s.icon className="h-5 w-5" />
+                </a>
+              ))}
+            </div>
           </div>
           <div>
             <h4 className="mb-4 text-base font-bold text-accent uppercase tracking-wider">দ্রুত লিংক</h4>

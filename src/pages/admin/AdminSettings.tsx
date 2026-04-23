@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import AdminPageState from "@/components/admin/AdminPageState";
 import { getErrorMessage } from "@/lib/error-message";
-import { Save, Phone, Mail, MapPin, Facebook, FileText } from "lucide-react";
+import { Save, Phone, Mail, MapPin, Facebook, FileText, Instagram, Youtube } from "lucide-react";
 
 interface Setting {
   id: string;
@@ -21,6 +21,8 @@ const iconMap: Record<string, React.ReactNode> = {
   footer_email: <Mail className="h-4 w-4 text-primary" />,
   footer_location: <MapPin className="h-4 w-4 text-primary" />,
   footer_facebook: <Facebook className="h-4 w-4 text-primary" />,
+  footer_instagram: <Instagram className="h-4 w-4 text-primary" />,
+  footer_youtube: <Youtube className="h-4 w-4 text-primary" />,
   footer_copyright: <FileText className="h-4 w-4 text-primary" />,
 };
 
