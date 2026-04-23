@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import SEO from "@/components/SEO";
+import { breadcrumb } from "@/lib/seo-schemas";
 
 const Contact = () => {
   const [facebookUrl, setFacebookUrl] = useState("#");

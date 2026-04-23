@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import SEO from "@/components/SEO";
 
 const Cart = () => {
   const { items, updateQuantity, removeItem, totalPrice } = useCart();

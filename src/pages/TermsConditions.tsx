@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { ScrollText, ShoppingCart, Truck, RotateCcw, CreditCard, AlertTriangle, Scale, Mail, Phone, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SEO from "@/components/SEO";
+import { breadcrumb } from "@/lib/seo-schemas";
 
 const sections = [
   {

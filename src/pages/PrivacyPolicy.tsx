@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { Shield, Lock, Eye, Database, UserCheck, Mail, Phone, FileText, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SEO from "@/components/SEO";
+import { breadcrumb } from "@/lib/seo-schemas";
 
 const sections = [
   {
