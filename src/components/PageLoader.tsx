@@ -16,7 +16,7 @@ const PageLoader = ({ fullScreen = false, message = "লোড হচ্ছে" 
       }
     >
       <div className="flex items-center gap-3">
-        <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-white shadow-lg shadow-primary/40 ring-2 ring-primary/30 animate-[pulse_1s_ease-in-out_infinite]">
+        <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-lg shadow-primary/40 ring-2 ring-primary/30 animate-[pulse_1s_ease-in-out_infinite]">
           <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
         </div>
         <div className="flex flex-col leading-none">

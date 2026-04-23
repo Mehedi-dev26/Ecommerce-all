@@ -38,7 +38,7 @@ const CategorySection = () => {
                 to={`/products?category=${encodeURIComponent(cat.name)}`}
                 className="group flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md sm:gap-3 sm:p-5"
               >
-                <div className="h-16 w-16 overflow-hidden rounded-full border-2 border-primary/20 transition-transform duration-200 group-hover:scale-110 sm:h-20 sm:w-20">
+                <div className="h-16 w-16 overflow-hidden rounded-2xl border-2 border-primary/20 transition-transform duration-200 group-hover:scale-110 sm:h-20 sm:w-20">
                   <img
                     src={cat.image_url || "/placeholder.svg"}
                     alt={cat.name_bn}
