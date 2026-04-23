@@ -18,16 +18,21 @@ const Footer = () => {
   const [settings, setSettings] = useState(defaults);
 
   useEffect(() => {
-    supabase
-      .from("site_settings")
-      .select("key, value")
-      .then(({ data }) => {
-        if (data) {
-          const map: Record<string, string> = { ...defaults };
-          data.forEach((r: { key: string; value: string }) => { map[r.key] = r.value; });
-          setSettings(map);
-        }
-      });
+    // Defer Supabase fetch — footer is below-the-fold so don't block first paint.
+    const idle = (cb: () => void) =>
+      "requestIdleCallback" in window ? (window as any).requestIdleCallback(cb) : setTimeout(cb, 1500);
+    idle(() => {
+      supabase
+        .from("site_settings")
+        .select("key, value")
+        .then(({ data }) => {
+          if (data) {
+            const map: Record<string, string> = { ...defaults };
+            data.forEach((r: { key: string; value: string }) => { map[r.key] = r.value; });
+            setSettings(map);
+          }
+        });
+    });
   }, []);
 
   const copyright = settings.footer_copyright.replace("{year}", String(new Date().getFullYear()));

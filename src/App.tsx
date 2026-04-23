@@ -1,15 +1,17 @@
 import { lazy, Suspense, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-const SupportWidget = lazy(() => import("@/components/SupportWidget"));
 import ScrollToTop from "@/components/ScrollToTop";
+
+// Heavy / below-the-fold pieces — defer to keep initial JS small.
+const Footer = lazy(() => import("@/components/Footer"));
+const SupportWidget = lazy(() => import("@/components/SupportWidget"));
+const Toaster = lazy(() => import("@/components/ui/toaster").then((m) => ({ default: m.Toaster })));
+const Sonner = lazy(() => import("@/components/ui/sonner").then((m) => ({ default: m.Toaster })));
 
 // Minimal top progress bar shown ONLY during route lazy-load.
 // We deliberately avoid a full-screen PageLoader on every navigation —
@@ -94,8 +96,10 @@ const App = () => {
     <TooltipProvider>
       <AuthProvider>
         <CartProvider>
-          <Toaster />
-          <Sonner />
+          <Suspense fallback={null}>
+            <Toaster />
+            <Sonner />
+          </Suspense>
           <BrowserRouter>
             <ScrollToTop />
             <Suspense fallback={<RouteFallback />}>
@@ -141,7 +145,7 @@ const App = () => {
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>
-                      <Footer />
+                      <Suspense fallback={<div className="h-64" aria-hidden />}><Footer /></Suspense>
                       <Suspense fallback={null}><SupportWidget /></Suspense>
                     </div>
                   }

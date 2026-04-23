@@ -128,19 +128,7 @@ const HeroSection = () => {
   if (loading) {
     return (
       <section className="relative w-full overflow-hidden">
-        <div className="relative aspect-[2/1] overflow-hidden bg-muted sm:aspect-[21/9]">
-          <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-muted via-muted-foreground/10 to-muted" />
-          <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.1s_infinite] bg-gradient-to-r from-transparent via-background/70 to-transparent" />
-          <div className="absolute inset-0 flex items-center">
-            <div className="container mx-auto px-4">
-              <div className="max-w-lg space-y-2.5 sm:space-y-4">
-                <div className="h-5 w-3/4 rounded-full bg-background/70 sm:h-10" />
-                <div className="h-3 w-2/3 rounded-full bg-background/60 sm:h-5" />
-                <div className="h-9 w-28 rounded-full bg-background/80 sm:h-11 sm:w-36" />
-              </div>
-            </div>
-          </div>
-        </div>
+        <div className="relative aspect-[2/1] overflow-hidden bg-muted sm:aspect-[21/9]" />
       </section>
     );
   }
