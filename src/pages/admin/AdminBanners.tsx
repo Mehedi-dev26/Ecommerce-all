@@ -363,7 +363,14 @@ const AdminBanners = () => {
             {/* Banner Image with Crop */}
             <div className="space-y-2">
               <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ব্যানার ছবি</Label>
-              <p className="text-[10px] text-muted-foreground">প্রস্তাবিত রেজুলেশন: <strong>1920 × 820 px</strong> (21:9 রেশিও)</p>
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-2.5 text-[11px] leading-relaxed">
+                <p className="font-semibold text-foreground mb-0.5">📐 প্রস্তাবিত রেজুলেশন</p>
+                <p className="text-muted-foreground">
+                  • চূড়ান্ত আউটপুট: <strong className="text-primary">1920 × 820 px</strong> (21:9 রেশিও)<br />
+                  • উৎস ছবি কমপক্ষে: <strong>1600 × 700 px</strong> বা তার চেয়ে বড়<br />
+                  • মোবাইল ও ডেস্কটপ উভয়ে একই ছবি — গুরুত্বপূর্ণ অংশ ছবির <strong>মাঝে</strong> রাখুন
+                </p>
+              </div>
               <div className="space-y-3">
                 {form.image_url ? (
                   <img src={form.image_url} alt="" className="w-full h-32 sm:h-40 rounded-xl object-cover border-2 border-border" />
@@ -375,7 +382,7 @@ const AdminBanners = () => {
                 <div className="flex flex-col sm:flex-row gap-2">
                   <label className="cursor-pointer flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-dashed border-primary/30 rounded-xl text-sm text-primary hover:bg-primary/5 hover:border-primary/50 transition-all flex-1">
                     <Crop className="h-4 w-4" />
-                    <span className="text-xs">{uploading ? "আপলোড হচ্ছে..." : "ক্রপ করে আপলোড"}</span>
+                    <span className="text-xs">{uploading ? "আপলোড হচ্ছে..." : "ক্রপ করে আপলোড (প্রস্তাবিত)"}</span>
                     <input type="file" className="hidden" accept="image/*" onChange={handleImageSelect} />
                   </label>
                   <label className="cursor-pointer flex items-center justify-center gap-2 px-4 py-2.5 border border-border rounded-xl text-sm text-muted-foreground hover:bg-muted/50 transition-all flex-1">
@@ -394,13 +401,17 @@ const AdminBanners = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Image Cropper */}
+      {/* Image Cropper — fixed 21:9 banner output @ 1920x820 */}
       {rawImageSrc && (
         <ImageCropper
           open={cropperOpen}
           onClose={() => { setCropperOpen(false); setRawImageSrc(null); }}
           imageSrc={rawImageSrc}
-          aspect={21 / 9}
+          aspect={1920 / 820}
+          outputWidth={1920}
+          outputHeight={820}
+          minSourceWidth={1600}
+          minSourceHeight={700}
           onCropComplete={handleCroppedImage}
         />
       )}
