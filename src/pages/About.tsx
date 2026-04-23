@@ -1,7 +1,15 @@
 import { ShieldCheck, Users, Award, Heart, ShoppingBag } from "lucide-react";
+import SEO from "@/components/SEO";
+import { breadcrumb } from "@/lib/seo-schemas";
 
 const About = () => (
   <div className="container mx-auto px-4 py-10">
+    <SEO
+      title="আমাদের সম্পর্কে — Surzo Shop"
+      description="Surzo Shop সম্পর্কে জানুন। আমরা বাংলাদেশের বিশ্বস্ত অনলাইন শপ — অরিজিনাল ইলেকট্রনিক্স, হোম অ্যাপ্লায়েন্স ও সাইকেল স্বল্প মূল্যে সেরা মানে।"
+      path="/about"
+      jsonLd={breadcrumb([{ name: "হোম", path: "/" }, { name: "আমাদের সম্পর্কে", path: "/about" }])}
+    />
     <div className="mx-auto max-w-3xl text-center">
       <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-primary/10 ring-2 ring-primary/30">
         <ShoppingBag className="h-12 w-12 text-primary" strokeWidth={2.2} />

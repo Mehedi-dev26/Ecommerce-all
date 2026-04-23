@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import SEO from "@/components/SEO";
 
 const Cart = () => {
   const { items, updateQuantity, removeItem, totalPrice } = useCart();
@@ -10,6 +11,7 @@ const Cart = () => {
   if (items.length === 0) {
     return (
       <div className="container mx-auto flex flex-col items-center px-4 py-20">
+        <SEO title="শপিং কার্ট" description="আপনার শপিং কার্ট দেখুন ও Surzo Shop থেকে অর্ডার সম্পন্ন করুন।" path="/cart" noindex />
         <ShoppingBag className="mb-4 h-16 w-16 text-muted-foreground" />
         <h2 className="mb-2 text-2xl font-bold text-foreground">আপনার কার্ট খালি</h2>
         <p className="mb-6 text-muted-foreground">পছন্দের পণ্য যোগ করুন</p>
@@ -20,6 +22,7 @@ const Cart = () => {
 
   return (
     <div className="container mx-auto px-4 py-10">
+      <SEO title="শপিং কার্ট" description="আপনার নির্বাচিত পণ্যসমূহ দেখুন এবং চেকআউট সম্পন্ন করুন।" path="/cart" noindex />
       <h1 className="mb-8 text-3xl font-bold text-foreground">শপিং কার্ট</h1>
       <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-4">

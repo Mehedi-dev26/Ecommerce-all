@@ -14,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { divisions } from "@/data/bd-locations";
 import GradeBadge from "@/components/GradeBadge";
 import ProductReviews from "@/components/ProductReviews";
+import SEO from "@/components/SEO";
+import { breadcrumb, productSchema } from "@/lib/seo-schemas";
 
 const DEFAULT_DELIVERY_FEE = 120;
 
@@ -160,8 +162,45 @@ const ProductDetail = () => {
   const avgRating = (reviewStats?.avg ?? 0).toFixed(1);
   const totalReviews = reviewStats?.total ?? 0;
 
+  const seoTitle = `${product.name_bn} — ৳${unitPrice.toLocaleString("en-BD")} | Surzo Shop`;
+  const rawDesc = product.description_bn || product.description || `${product.name_bn} সেরা দামে অর্ডার করুন Surzo Shop থেকে। সারাদেশে দ্রুত ক্যাশ অন ডেলিভারি।`;
+  const seoDesc = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
+  const ogImage = allImages[0];
+
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title={seoTitle}
+        description={seoDesc}
+        path={`/products/${product.id}`}
+        type="product"
+        image={ogImage}
+        jsonLd={[
+          productSchema({
+            id: product.id,
+            name: product.name,
+            name_bn: product.name_bn,
+            description: product.description,
+            description_bn: product.description_bn,
+            image_url: product.image_url,
+            images: product.images,
+            price: unitPrice,
+            compare_price: product.compare_price ? Number(product.compare_price) : null,
+            stock: product.stock ?? 0,
+            category_name: (product as any).categories?.name_bn,
+            rating: reviewStats?.avg,
+            reviewCount: reviewStats?.total,
+          }),
+          breadcrumb([
+            { name: "হোম", path: "/" },
+            { name: "পণ্যসমূহ", path: "/products" },
+            ...((product as any).categories?.name_bn
+              ? [{ name: (product as any).categories.name_bn, path: `/products?category=${(product as any).categories.name}` }]
+              : []),
+            { name: product.name_bn, path: `/products/${product.id}` },
+          ]),
+        ]}
+      />
       {/* Breadcrumb */}
       <div className="border-b bg-muted/30">
         <div className="container mx-auto px-4 py-2 sm:py-3">

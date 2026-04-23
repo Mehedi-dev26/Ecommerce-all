@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSearchParams } from "react-router-dom";
 import ProductCard from "@/components/ProductCard";
+import SEO from "@/components/SEO";
+import { breadcrumb } from "@/lib/seo-schemas";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
@@ -153,12 +155,33 @@ const Products = () => {
     setPriceRange([0, maxPrice]);
   }, [setSearchParams, maxPrice]);
 
+  const catLabel = selectedCategory
+    ? categories?.find((c: any) => c.name === selectedCategory)?.name_bn || selectedCategory
+    : "";
+  const seoTitle = catLabel
+    ? `${catLabel} — সেরা দামে কিনুন`
+    : "সকল পণ্য — ইলেকট্রনিক্স, হোম অ্যাপ্লায়েন্স ও সাইকেল";
+  const seoDesc = catLabel
+    ? `${catLabel} ক্যাটাগরির সেরা পণ্য Surzo Shop-এ। অরিজিনাল প্রোডাক্ট, স্বল্প মূল্য, সারাদেশে দ্রুত ডেলিভারি।`
+    : "Surzo Shop-এর সম্পূর্ণ পণ্য তালিকা — স্মার্টফোন, ল্যাপটপ, টিভি, ফ্রিজ, এসি, সাইকেল ও হোম অ্যাপ্লায়েন্স। স্বল্প মূল্যে সেরা মান।";
+  const crumbs = [
+    { name: "হোম", path: "/" },
+    { name: "পণ্যসমূহ", path: "/products" },
+  ];
+  if (catLabel) crumbs.push({ name: catLabel, path: `/products?category=${selectedCategory}` });
+
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title={seoTitle}
+        description={seoDesc}
+        path={selectedCategory ? `/products?category=${selectedCategory}` : "/products"}
+        jsonLd={breadcrumb(crumbs)}
+      />
       {/* Header */}
       <div className="border-b bg-muted/30">
         <div className="container mx-auto px-4 py-4 sm:py-6">
-          <h1 className="text-xl font-bold text-foreground sm:text-2xl">পণ্যসমূহ</h1>
+          <h1 className="text-xl font-bold text-foreground sm:text-2xl">{catLabel || "পণ্যসমূহ"}</h1>
           <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
             আমাদের সকল খাঁটি পণ্য এখানে দেখুন
             {filteredProducts.length > 0 && (

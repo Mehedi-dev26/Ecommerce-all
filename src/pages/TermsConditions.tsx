@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { ScrollText, ShoppingCart, Truck, RotateCcw, CreditCard, AlertTriangle, Scale, Mail, Phone, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import SEO from "@/components/SEO";
+import { breadcrumb } from "@/lib/seo-schemas";
 
 const sections = [
   {
@@ -76,6 +78,12 @@ const sections = [
 const TermsConditions = () => {
   return (
     <div className="bg-background">
+      <SEO
+        title="শর্তাবলী — Surzo Shop"
+        description="Surzo Shop ব্যবহারের শর্তাবলী, অর্ডার ও পেমেন্ট নিয়ম, ডেলিভারি ও রিটার্ন পলিসি — সম্পূর্ণ শর্তগুলো পড়ুন।"
+        path="/terms-conditions"
+        jsonLd={breadcrumb([{ name: "হোম", path: "/" }, { name: "শর্তাবলী", path: "/terms-conditions" }])}
+      />
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/80 py-12 sm:py-16">
         <div className="container mx-auto px-4">
