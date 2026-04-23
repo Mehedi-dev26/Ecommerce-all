@@ -46,7 +46,7 @@ const Navbar = () => {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <a href="tel:+8801798268989" className="hidden rounded-lg bg-white/15 p-2 text-white/90 transition hover:bg-white/25 hover:text-white sm:block">
+          <a href="tel:+8801779801680" className="hidden rounded-lg bg-white/15 p-2 text-white/90 transition hover:bg-white/25 hover:text-white sm:block">
             <Phone className="h-4 w-4" />
           </a>
 
@@ -148,8 +148,8 @@ const Navbar = () => {
                 )}
               </nav>
               <div className="mt-6 border-t border-white/10 pt-4">
-                <a href="tel:+8801798268989" className="flex items-center gap-2 px-4 text-sm text-white/70 hover:text-white">
-                  <Phone className="h-4 w-4" /> +880 1798-268989
+                <a href="tel:+8801779801680" className="flex items-center gap-2 px-4 text-sm text-white/70 hover:text-white">
+                  <Phone className="h-4 w-4" /> +880 1779-80168
                 </a>
               </div>
             </SheetContent>
