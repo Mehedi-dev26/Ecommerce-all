@@ -176,7 +176,7 @@ const Login = () => {
 
         <div className="relative z-10 flex flex-col justify-center px-10 xl:px-16 py-12 w-full">
           <div className="flex items-center gap-4 mb-12">
-            <div className="h-16 w-16 rounded-full bg-white overflow-hidden flex items-center justify-center ring-2 ring-white/40 shadow-lg">
+            <div className="h-16 w-16 rounded-2xl bg-white overflow-hidden flex items-center justify-center ring-2 ring-white/40 shadow-lg">
               <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
             </div>
             <div>
@@ -245,7 +245,7 @@ const Login = () => {
           <div className="w-full max-w-[420px]">
             {/* Logo */}
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center h-20 w-20 rounded-full bg-white ring-4 ring-primary/20 mb-3 shadow-md overflow-hidden">
+              <div className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-white ring-4 ring-primary/20 mb-3 shadow-md overflow-hidden">
                 <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
               </div>
               <p className="font-brand text-3xl text-primary font-bold">Surzo Shop</p>

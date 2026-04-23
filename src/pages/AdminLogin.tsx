@@ -48,7 +48,7 @@ const AdminLogin = () => {
       <Card className="w-full max-w-md shadow-2xl border-primary/20">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
-            <div className="h-16 w-16 rounded-full bg-white ring-4 ring-primary/20 flex items-center justify-center shadow-md overflow-hidden">
+            <div className="h-16 w-16 rounded-2xl bg-white ring-4 ring-primary/20 flex items-center justify-center shadow-md overflow-hidden">
               <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
             </div>
           </div>

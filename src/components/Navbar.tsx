@@ -24,7 +24,7 @@ const Navbar = () => {
     <header className="sticky top-0 z-50 border-b border-primary/20 bg-primary shadow-lg">
       <div className="container mx-auto flex items-center justify-between px-3 py-2 sm:px-4 sm:py-2.5">
         <Link to="/" className="flex items-center gap-2.5">
-          <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-white ring-2 ring-white/40 sm:h-12 sm:w-12">
+          <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl bg-white ring-2 ring-white/40 sm:h-12 sm:w-12">
             <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
           </div>
           <div className="flex flex-col">
@@ -112,7 +112,7 @@ const Navbar = () => {
             <SheetContent side="left" className="w-72 border-r-primary/30 bg-primary">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2 text-left">
-                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white ring-2 ring-white/40">
+                  <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl bg-white ring-2 ring-white/40">
                     <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
                   </div>
                   <div className="flex flex-col">
