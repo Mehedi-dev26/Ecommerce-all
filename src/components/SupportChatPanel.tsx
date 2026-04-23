@@ -9,7 +9,7 @@ import { toast } from "sonner";
 type Msg = { role: "user" | "assistant"; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/support-chat`;
-const WHATSAPP_NUMBER = "8801798268989";
+const WHATSAPP_NUMBER = "8801779801680";
 
 const QUICK_PROMPTS = [
   "Smartphone আছে কি?",

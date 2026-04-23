@@ -14,12 +14,12 @@ const Contact = () => {
   return (
     <div className="container mx-auto px-4 py-10">
       <h1 className="mb-2 text-center text-3xl font-bold text-foreground">যোগাযোগ করুন</h1>
-      <p className="mb-10 text-center text-muted-foreground">আমের অর্ডার বা যেকোনো প্রশ্নের জন্য Sapahar Mango-তে যোগাযোগ করুন</p>
+      <p className="mb-10 text-center text-muted-foreground">যেকোনো অর্ডার বা প্রশ্নের জন্য Surzo Shop-এ যোগাযোগ করুন</p>
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="space-y-6">
           {[
-            { icon: Phone, title: "ফোন", info: "+880 1798-268989" },
-            { icon: Mail, title: "ইমেইল", info: "info@sapaharmango.com" },
+            { icon: Phone, title: "ফোন", info: "+880 1779-80168" },
+            { icon: Mail, title: "ইমেইল", info: "surzoshop@gmail.com" },
             { icon: MapPin, title: "ঠিকানা", info: "আশুরন্দ বাজার, সাপাহার, নওগাঁ" },
             { icon: Clock, title: "সময়সূচী", info: "সকাল ৯টা - রাত ১০টা (প্রতিদিন)" },
           ].map((item, i) => (

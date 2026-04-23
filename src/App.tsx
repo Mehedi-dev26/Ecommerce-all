@@ -33,6 +33,8 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Login = lazy(() => import("./pages/Login"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsConditions = lazy(() => import("./pages/TermsConditions"));
 
 // Lazy load admin pages — bundled separately to avoid bloating the public bundle
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
@@ -134,6 +136,8 @@ const App = () => {
                           <Route path="/login" element={<Login />} />
                           <Route path="/reset-password" element={<ResetPassword />} />
                           <Route path="/dashboard" element={<UserDashboard />} />
+                          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                          <Route path="/terms-conditions" element={<TermsConditions />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>
