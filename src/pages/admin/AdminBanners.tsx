@@ -312,7 +312,7 @@ const AdminBanners = () => {
           <div className="space-y-4 pt-2">
             <div className="space-y-2">
               <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">টাইটেল *</Label>
-              <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="সাপাহারের দেশি আম" className="rounded-xl" />
+              <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="যেমন: নতুন কালেকশন" className="rounded-xl" />
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">সাবটাইটেল</Label>

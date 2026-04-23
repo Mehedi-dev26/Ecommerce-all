@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
-import mangoLogo from "@/assets/mango-logo.png";
+import brandLogo from "@/assets/brand-logo.png";
 import { useToast } from "@/hooks/use-toast";
 
 const ResetPassword = () => {
@@ -74,7 +74,7 @@ const ResetPassword = () => {
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-primary/10 ring-4 ring-primary/20 mb-3 overflow-hidden">
-            <img src={mangoLogo} alt="Sapahar Mango" className="h-12 w-12 object-contain" />
+            <img src={brandLogo} alt="Surzo Shop" className="h-12 w-12 object-contain" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">নতুন পাসওয়ার্ড সেট করুন</h1>
           <p className="text-sm text-muted-foreground mt-1">আপনার নতুন পাসওয়ার্ড দিন</p>

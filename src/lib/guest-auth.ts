@@ -12,6 +12,9 @@ export const getGuestAuthEmailCandidates = (phone: string) => {
     new Set([
       `customer.${normalizedPhone}@${GUEST_EMAIL_DOMAIN}`,
       `customer.${normalizedPhone}@surzoshop.com`,
+      `${normalizedPhone}@surzoshop-customer.local`,
+      `surzoshop.customer.${normalizedPhone}@gmail.com`,
+      // Legacy aliases — kept so old guest accounts can still sign in
       `${normalizedPhone}@sapahar-customer.local`,
       `sapahar.customer.${normalizedPhone}@gmail.com`,
     ]),

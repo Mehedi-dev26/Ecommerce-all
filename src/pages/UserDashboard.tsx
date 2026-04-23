@@ -422,9 +422,9 @@ const UserDashboard = () => {
                 <p className="text-foreground font-semibold text-lg">
                   {statusFilter !== "all" ? "এই ফিল্টারে কোনো অর্ডার নেই" : "এখনো কোনো অর্ডার নেই"}
                 </p>
-                <p className="text-sm text-muted-foreground mt-1">সাপাহারের তাজা আম অর্ডার করুন</p>
+                <p className="text-sm text-muted-foreground mt-1">আজই আপনার পছন্দের পণ্য অর্ডার করুন</p>
                 <Button asChild className="mt-5 gap-2">
-                  <Link to="/products"><ShoppingBag className="h-4 w-4" /> আম দেখুন</Link>
+                  <Link to="/products"><ShoppingBag className="h-4 w-4" /> পণ্য দেখুন</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -960,7 +960,7 @@ const UserDashboard = () => {
                   <Button asChild variant="outline" className="h-auto py-3 flex-col gap-1.5">
                     <Link to="/products">
                       <ShoppingBag className="h-5 w-5 text-primary" />
-                      <span className="text-xs">আম অর্ডার করুন</span>
+                      <span className="text-xs">পণ্য অর্ডার করুন</span>
                     </Link>
                   </Button>
                   <Button variant="outline" className="h-auto py-3 flex-col gap-1.5" onClick={() => setActiveTab("orders")}>
@@ -994,7 +994,7 @@ const UserDashboard = () => {
                     { q: "ডেলিভারি কত দিনে হয়?", a: "সাধারণত ২-৪ দিনের মধ্যে ডেলিভারি হয়। ঢাকার বাইরে ৩-৫ দিন লাগতে পারে।" },
                     { q: "পেমেন্ট কিভাবে করবো?", a: "ক্যাশ অন ডেলিভারি - পণ্য হাতে পেয়ে টাকা পরিশোধ করুন।" },
                     { q: "অর্ডার ক্যান্সেল করতে চাই?", a: "অর্ডার ক্যান্সেল করতে আমাদের সাথে যোগাযোগ করুন।" },
-                    { q: "আম কি ১০০% খাঁটি?", a: "হ্যাঁ, আমাদের সব আম সাপাহার থেকে সরাসরি সংগ্রহ করা, কোনো কেমিক্যাল ব্যবহার করা হয় না।" },
+                    { q: "পণ্য কি ১০০% অরিজিনাল?", a: "হ্যাঁ, আমাদের সব পণ্য বিশ্বস্ত উৎস থেকে সংগ্রহ করা এবং গুণগত মান নিশ্চিত করেই পাঠানো হয়।" },
                   ].map((faq, i) => (
                     <div key={i} className="rounded-xl bg-muted/40 border border-border/30 p-3">
                       <p className="text-xs font-semibold text-foreground mb-1">{faq.q}</p>
@@ -1022,7 +1022,7 @@ const UserDashboard = () => {
                     <ExternalLink className="h-4 w-4 text-primary flex-shrink-0" />
                     <div>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">ফেসবুক</p>
-                      <p className="text-sm font-medium text-foreground">Sapahar Mango</p>
+                      <p className="text-sm font-medium text-foreground">Surzo Shop</p>
                     </div>
                   </div>
                 </div>
