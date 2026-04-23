@@ -13,10 +13,26 @@ interface BannerSlide {
   showTextOverlay: boolean;
 }
 
-const getVersionedImageUrl = (url: string | null, updatedAt: string) => {
+// Append cache-busting version + ensure Unsplash images are right-sized for the viewport.
+// Smaller payloads = faster LCP on mobile (Lighthouse "Properly size images" + "Efficient image formats").
+const optimizeImageUrl = (url: string | null, updatedAt: string) => {
   if (!url) return "";
-  const separator = url.includes("?") ? "&" : "?";
-  return `${url}${separator}v=${new Date(updatedAt).getTime()}`;
+  let optimized = url;
+  // Tune Unsplash params: cap width, auto-format (webp/avif), 75% quality
+  if (optimized.includes("images.unsplash.com")) {
+    try {
+      const u = new URL(optimized);
+      u.searchParams.set("w", "1600");
+      u.searchParams.set("q", "70");
+      u.searchParams.set("auto", "format");
+      u.searchParams.set("fit", "crop");
+      optimized = u.toString();
+    } catch {
+      /* fall through */
+    }
+  }
+  const separator = optimized.includes("?") ? "&" : "?";
+  return `${optimized}${separator}v=${new Date(updatedAt).getTime()}`;
 };
 
 const preloadImage = (src: string) =>
@@ -63,7 +79,7 @@ const HeroSection = () => {
 
         const mappedSlides = (data || [])
           .map((banner) => ({
-            image: getVersionedImageUrl(banner.image_url, banner.updated_at),
+            image: optimizeImageUrl(banner.image_url, banner.updated_at),
             title: banner.title,
             subtitle: banner.subtitle || "",
             cta: banner.cta_text || "অর্ডার করুন",
