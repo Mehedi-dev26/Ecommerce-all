@@ -197,7 +197,7 @@ const AdminLandingPageEditor = () => {
     }
     const slugVal = validateSlug(form.slug);
     if (!slugVal.ok) {
-      toast.error(slugVal.reason);
+      toast.error(slugVal.reason ?? "Invalid URL");
       return;
     }
     if (form.products.length === 0) {
