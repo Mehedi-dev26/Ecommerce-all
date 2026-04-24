@@ -470,7 +470,7 @@ const LandingPageView = () => {
                 <Select value={upazila} onValueChange={setUpazila} disabled={!district}>
                   <SelectTrigger><SelectValue placeholder="উপজেলা *" /></SelectTrigger>
                   <SelectContent>
-                    {upazilas.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                    {upazilas.map((u) => <SelectItem key={u.name} value={u.name}>{u.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
