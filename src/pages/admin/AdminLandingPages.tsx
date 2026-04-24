@@ -162,7 +162,7 @@ const AdminLandingPages = () => {
 
       {/* List */}
       {loading ? (
-        <AdminPageState variant="loading" />
+        <AdminPageState loading message="লোড হচ্ছে..." />
       ) : filtered.length === 0 ? (
         <Card className="p-12 text-center">
           <TrendingUp className="h-12 w-12 mx-auto text-muted-foreground/40 mb-3" />
@@ -190,7 +190,7 @@ const AdminLandingPages = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                       <h3 className="font-semibold truncate">{p.title}</h3>
-                      <Badge className={cfg.cls + " border-0"}>{cfg.label}</Badge>
+                      <Badge variant="outline" className={cfg.cls + " border-0"}>{cfg.label}</Badge>
                     </div>
                     <button
                       onClick={() => copyUrl(p.slug)}
