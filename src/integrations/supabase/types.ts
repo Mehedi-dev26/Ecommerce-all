@@ -235,6 +235,96 @@ export type Database = {
           },
         ]
       }
+      email_logs: {
+        Row: {
+          body: string | null
+          created_at: string
+          error_message: string | null
+          gmail_message_id: string | null
+          id: string
+          metadata: Json | null
+          recipient_email: string
+          recipient_name: string | null
+          related_order_id: string | null
+          related_user_id: string | null
+          sent_by: string | null
+          status: string
+          subject: string
+          template_key: string | null
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          error_message?: string | null
+          gmail_message_id?: string | null
+          id?: string
+          metadata?: Json | null
+          recipient_email: string
+          recipient_name?: string | null
+          related_order_id?: string | null
+          related_user_id?: string | null
+          sent_by?: string | null
+          status?: string
+          subject: string
+          template_key?: string | null
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          error_message?: string | null
+          gmail_message_id?: string | null
+          id?: string
+          metadata?: Json | null
+          recipient_email?: string
+          recipient_name?: string | null
+          related_order_id?: string | null
+          related_user_id?: string | null
+          sent_by?: string | null
+          status?: string
+          subject?: string
+          template_key?: string | null
+        }
+        Relationships: []
+      }
+      email_templates: {
+        Row: {
+          created_at: string
+          description: string | null
+          html_body: string
+          id: string
+          is_active: boolean
+          is_system: boolean
+          name: string
+          subject: string
+          template_key: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          html_body: string
+          id?: string
+          is_active?: boolean
+          is_system?: boolean
+          name: string
+          subject: string
+          template_key: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          html_body?: string
+          id?: string
+          is_active?: boolean
+          is_system?: boolean
+          name?: string
+          subject?: string
+          template_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       landing_pages: {
         Row: {
           bullet_points: Json
