@@ -139,7 +139,7 @@ const ImageCropper = ({
                 চূড়ান্ত আউটপুট: <span className="text-primary">{targetW} × {targetH} px</span>
               </p>
               <p className="text-muted-foreground">
-                প্রস্তাবিত উৎস ছবি: <strong>{minSourceWidth}×{minSourceHeight} px</strong> বা তার চেয়ে বড়। মোবাইল ও ডেস্কটপ উভয়ে একই ব্যানার দেখাবে — তাই ছবির গুরুত্বপূর্ণ অংশ মাঝে রাখুন।
+                প্রস্তাবিত উৎস ছবি: <strong>{minSourceWidth}×{minSourceHeight} px</strong> বা তার চেয়ে বড়, অনুপাত <strong>21:9</strong>। মোবাইল ও ডেস্কটপ — উভয় ডিভাইসে এই একই অনুপাতে পুরো ছবিটি দেখাবে (কোনো পাশ কাটবে না)। গুরুত্বপূর্ণ অংশ মাঝে রাখুন।
               </p>
               {sourceDims && (
                 <p className="text-muted-foreground mt-0.5">
