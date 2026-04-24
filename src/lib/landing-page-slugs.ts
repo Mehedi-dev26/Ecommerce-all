@@ -27,7 +27,7 @@ export const RESERVED_SLUGS = new Set<string>([
 
 const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{0,58}[a-z0-9])?$/;
 
-export type SlugValidation = { ok: true } | { ok: false; reason: string };
+export type SlugValidation = { ok: boolean; reason?: string };
 
 export function validateSlug(slug: string): SlugValidation {
   const s = slug.trim().toLowerCase();
