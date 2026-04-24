@@ -137,14 +137,39 @@ const HeroSection = () => {
 
   const slide = slides[current];
 
+  // Swipe / drag handling — works for touch & mouse
+  const dragState = useRef<{ startX: number; active: boolean }>({ startX: 0, active: false });
+
+  const handleDragStart = (clientX: number) => {
+    dragState.current = { startX: clientX, active: true };
+  };
+
+  const handleDragEnd = (clientX: number) => {
+    if (!dragState.current.active) return;
+    const delta = clientX - dragState.current.startX;
+    dragState.current.active = false;
+    const threshold = 40; // px — minimum swipe distance
+    if (Math.abs(delta) < threshold) return;
+    if (delta < 0) next();
+    else prev();
+  };
+
   return (
     <section className="relative w-full overflow-hidden">
-      <div className="relative aspect-[2/1] overflow-hidden bg-muted sm:aspect-[21/9]">
+      <div
+        className="relative aspect-[21/9] overflow-hidden bg-muted select-none touch-pan-y"
+        onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
+        onTouchEnd={(e) => handleDragEnd(e.changedTouches[0].clientX)}
+        onMouseDown={(e) => handleDragStart(e.clientX)}
+        onMouseUp={(e) => handleDragEnd(e.clientX)}
+        onMouseLeave={() => { dragState.current.active = false; }}
+      >
         {slides.map((slideItem, index) => (
           <img
             key={`${slideItem.image}-${index}`}
             src={slideItem.image}
             alt={slideItem.title || "হোমপেজ ব্যানার"}
+            draggable={false}
             className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${index === current ? "opacity-100" : "pointer-events-none opacity-0"}`}
             width={1920}
             height={820}
@@ -188,36 +213,17 @@ const HeroSection = () => {
         )}
 
         {slides.length > 1 && (
-          <>
-            <button
-              type="button"
-              onClick={prev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/30 p-2 text-white backdrop-blur-sm transition hover:bg-black/50 sm:left-4 sm:p-3"
-              aria-label="আগের ব্যানার"
-            >
-              <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
-            </button>
-            <button
-              type="button"
-              onClick={next}
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/30 p-2 text-white backdrop-blur-sm transition hover:bg-black/50 sm:right-4 sm:p-3"
-              aria-label="পরের ব্যানার"
-            >
-              <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
-            </button>
-
-            <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-2">
-              {slides.map((_, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => setCurrent(index)}
-                  aria-label={`ব্যানার ${index + 1}`}
-                  className={`h-2.5 rounded-full transition-all duration-300 ${index === current ? "w-8 bg-accent" : "w-2.5 bg-white/50 hover:bg-white/80"}`}
-                />
-              ))}
-            </div>
-          </>
+          <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-2 sm:bottom-4">
+            {slides.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setCurrent(index)}
+                aria-label={`ব্যানার ${index + 1}`}
+                className={`h-2.5 rounded-full transition-all duration-300 ${index === current ? "w-8 bg-accent" : "w-2.5 bg-white/50 hover:bg-white/80"}`}
+              />
+            ))}
+          </div>
         )}
       </div>
     </section>
