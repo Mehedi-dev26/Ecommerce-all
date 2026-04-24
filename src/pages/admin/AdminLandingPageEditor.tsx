@@ -179,7 +179,7 @@ const AdminLandingPageEditor = () => {
       return;
     }
     const r = validateSlug(form.slug);
-    setSlugError(r.ok ? null : r.reason);
+    setSlugError(r.ok ? null : (r.reason ?? "Invalid URL"));
   }, [form.slug]);
 
   const update = <K extends keyof FormState>(k: K, v: FormState[K]) =>
