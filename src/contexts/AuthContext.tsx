@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
+import { sendEmail } from "@/lib/sendEmail";
 
 interface Profile {
   id: string;
@@ -103,6 +104,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       },
     });
     if (error) return { error: error.message };
+    // Fire-and-forget welcome email — never blocks signup flow
+    sendEmail({
+      templateKey: "welcome_signup",
+      recipients: [{ email, name: fullName, variables: { customer_name: fullName } }],
+      silent: true,
+    });
     return { error: null };
   };
 
