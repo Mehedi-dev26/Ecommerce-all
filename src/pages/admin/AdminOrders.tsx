@@ -14,6 +14,22 @@ import {
   Send, RefreshCw, ExternalLink, Copy, Check, Loader2, Printer
 } from "lucide-react";
 import InvoicePrint from "@/components/admin/InvoicePrint";
+import { sendEmail } from "@/lib/sendEmail";
+
+const STATUS_LABELS_BN: Record<string, string> = {
+  pending: "পেন্ডিং",
+  processing: "প্রসেসিং",
+  shipped: "শিপড",
+  delivered: "ডেলিভারড",
+  cancelled: "বাতিল",
+};
+const STATUS_MESSAGES_BN: Record<string, string> = {
+  pending: "আপনার অর্ডারটি গ্রহণ করা হয়েছে এবং শীঘ্রই প্রসেস করা হবে।",
+  processing: "আপনার অর্ডারটি প্রসেস করা হচ্ছে। শীঘ্রই পাঠানো হবে।",
+  shipped: "আপনার অর্ডারটি কুরিয়ারে পাঠানো হয়েছে। শীঘ্রই পৌঁছে যাবে।",
+  delivered: "আপনার অর্ডারটি সফলভাবে ডেলিভারি হয়েছে। ধন্যবাদ! 💚",
+  cancelled: "দুঃখিত, আপনার অর্ডারটি বাতিল করা হয়েছে। যেকোনো প্রশ্নে যোগাযোগ করুন।",
+};
 
 interface Order {
   id: string;
@@ -85,11 +101,27 @@ const AdminOrders = () => {
   useEffect(() => { void fetchOrders(); }, []);
 
   const updateStatus = async (orderId: string, newStatus: string) => {
+    const orderRow = orders.find((o) => o.id === orderId);
     const { error } = await supabase.from("orders").update({ status: newStatus }).eq("id", orderId);
     if (error) {
       toast({ title: "ত্রুটি", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "স্ট্যাটাস আপডেট হয়েছে" });
+      // Fire-and-forget status update email — never blocks admin
+      if (orderRow?.customer_email) {
+        sendEmail({
+          templateKey: "order_status_update",
+          recipients: [{ email: orderRow.customer_email, name: orderRow.customer_name }],
+          variables: {
+            customer_name: orderRow.customer_name,
+            order_code: orderRow.order_number,
+            order_status: STATUS_LABELS_BN[newStatus] || newStatus,
+            status_message: STATUS_MESSAGES_BN[newStatus] || "",
+          },
+          relatedOrderId: orderId,
+          silent: true,
+        });
+      }
       void fetchOrders();
     }
   };
