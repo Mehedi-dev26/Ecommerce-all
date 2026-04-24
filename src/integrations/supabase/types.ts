@@ -235,6 +235,111 @@ export type Database = {
           },
         ]
       }
+      landing_pages: {
+        Row: {
+          bullet_points: Json
+          bundle_discount_percent: number | null
+          bundle_label: string | null
+          countdown_enabled: boolean
+          countdown_end_at: string | null
+          created_at: string
+          cta_text: string
+          enable_bundle: boolean
+          expire_at: string | null
+          facebook_pixel_id: string | null
+          faq_items: Json
+          featured_review_ids: string[]
+          hero_headline: string
+          hero_image_url: string | null
+          hero_subheadline: string | null
+          hero_video_url: string | null
+          id: string
+          long_description: string | null
+          meta_description: string | null
+          order_count: number
+          products: Json
+          publish_at: string | null
+          slug: string
+          status: string
+          stock_counter_enabled: boolean
+          stock_counter_value: number | null
+          theme_preset: string
+          title: string
+          total_revenue: number
+          trust_badges: Json
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          bullet_points?: Json
+          bundle_discount_percent?: number | null
+          bundle_label?: string | null
+          countdown_enabled?: boolean
+          countdown_end_at?: string | null
+          created_at?: string
+          cta_text?: string
+          enable_bundle?: boolean
+          expire_at?: string | null
+          facebook_pixel_id?: string | null
+          faq_items?: Json
+          featured_review_ids?: string[]
+          hero_headline: string
+          hero_image_url?: string | null
+          hero_subheadline?: string | null
+          hero_video_url?: string | null
+          id?: string
+          long_description?: string | null
+          meta_description?: string | null
+          order_count?: number
+          products?: Json
+          publish_at?: string | null
+          slug: string
+          status?: string
+          stock_counter_enabled?: boolean
+          stock_counter_value?: number | null
+          theme_preset?: string
+          title: string
+          total_revenue?: number
+          trust_badges?: Json
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          bullet_points?: Json
+          bundle_discount_percent?: number | null
+          bundle_label?: string | null
+          countdown_enabled?: boolean
+          countdown_end_at?: string | null
+          created_at?: string
+          cta_text?: string
+          enable_bundle?: boolean
+          expire_at?: string | null
+          facebook_pixel_id?: string | null
+          faq_items?: Json
+          featured_review_ids?: string[]
+          hero_headline?: string
+          hero_image_url?: string | null
+          hero_subheadline?: string | null
+          hero_video_url?: string | null
+          id?: string
+          long_description?: string | null
+          meta_description?: string | null
+          order_count?: number
+          products?: Json
+          publish_at?: string | null
+          slug?: string
+          status?: string
+          stock_counter_enabled?: boolean
+          stock_counter_value?: number | null
+          theme_preset?: string
+          title?: string
+          total_revenue?: number
+          trust_badges?: Json
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
@@ -290,6 +395,7 @@ export type Database = {
           delivery_fee: number | null
           district: string | null
           id: string
+          landing_page_id: string | null
           notes: string | null
           order_number: string
           pathao_consignment_id: string | null
@@ -313,6 +419,7 @@ export type Database = {
           delivery_fee?: number | null
           district?: string | null
           id?: string
+          landing_page_id?: string | null
           notes?: string | null
           order_number: string
           pathao_consignment_id?: string | null
@@ -336,6 +443,7 @@ export type Database = {
           delivery_fee?: number | null
           district?: string | null
           id?: string
+          landing_page_id?: string | null
           notes?: string | null
           order_number?: string
           pathao_consignment_id?: string | null
@@ -350,7 +458,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_landing_page_id_fkey"
+            columns: ["landing_page_id"]
+            isOneToOne: false
+            referencedRelation: "landing_pages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
@@ -572,6 +688,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_landing_page_view: {
+        Args: { _slug: string }
+        Returns: undefined
       }
     }
     Enums: {
