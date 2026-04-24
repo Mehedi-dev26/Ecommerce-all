@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { Bot, Send, X, Loader2, Sparkles, Check, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -189,74 +188,72 @@ const AdminAIAssistant = () => {
             </div>
 
             {/* Messages */}
-            <ScrollArea className="flex-1" viewportRef={scrollRef as any}>
-              <div ref={scrollRef as any} className="p-4 space-y-3">
-                {messages.map((m, i) => (
-                  <div key={i} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
-                    <div
-                      className={cn(
-                        "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm whitespace-pre-wrap leading-relaxed",
-                        m.role === "user"
-                          ? "bg-primary text-primary-foreground rounded-br-sm"
-                          : "bg-muted text-foreground rounded-bl-sm",
-                      )}
-                    >
-                      {m.content}
-                      {m.pending && m.pending.length > 0 && (
-                        <div className="mt-3 space-y-2">
-                          {m.pending.map(p => (
-                            <div
-                              key={p.id}
-                              className="rounded-xl border border-border/60 bg-card/60 backdrop-blur p-3 text-foreground"
-                            >
-                              <div className="flex items-center gap-2 text-xs font-semibold text-primary">
-                                <Sparkles className="h-3 w-3" />
-                                {TOOL_LABELS[p.name] || p.name}
-                              </div>
-                              <div className="text-[12px] text-muted-foreground mt-1 mb-2.5 break-words">
-                                {summarizeArgs(p.name, p.arguments)}
-                              </div>
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  className="h-7 text-xs flex-1"
-                                  onClick={() => confirmAction(i, p)}
-                                  disabled={confirming === p.id}
-                                >
-                                  {confirming === p.id ? (
-                                    <Loader2 className="h-3 w-3 animate-spin" />
-                                  ) : (
-                                    <>
-                                      <Check className="h-3 w-3 mr-1" /> Confirm
-                                    </>
-                                  )}
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="h-7 text-xs"
-                                  onClick={() => cancelAction(i, p.id)}
-                                  disabled={confirming === p.id}
-                                >
-                                  <XCircle className="h-3 w-3 mr-1" /> Cancel
-                                </Button>
-                              </div>
+            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+              {messages.map((m, i) => (
+                <div key={i} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
+                  <div
+                    className={cn(
+                      "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm whitespace-pre-wrap leading-relaxed",
+                      m.role === "user"
+                        ? "bg-primary text-primary-foreground rounded-br-sm"
+                        : "bg-muted text-foreground rounded-bl-sm",
+                    )}
+                  >
+                    {m.content}
+                    {m.pending && m.pending.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {m.pending.map(p => (
+                          <div
+                            key={p.id}
+                            className="rounded-xl border border-border/60 bg-card/60 backdrop-blur p-3 text-foreground"
+                          >
+                            <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+                              <Sparkles className="h-3 w-3" />
+                              {TOOL_LABELS[p.name] || p.name}
                             </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+                            <div className="text-[12px] text-muted-foreground mt-1 mb-2.5 break-words">
+                              {summarizeArgs(p.name, p.arguments)}
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                className="h-7 text-xs flex-1"
+                                onClick={() => confirmAction(i, p)}
+                                disabled={confirming === p.id}
+                              >
+                                {confirming === p.id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <>
+                                    <Check className="h-3 w-3 mr-1" /> Confirm
+                                  </>
+                                )}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 text-xs"
+                                onClick={() => cancelAction(i, p.id)}
+                                disabled={confirming === p.id}
+                              >
+                                <XCircle className="h-3 w-3 mr-1" /> Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                ))}
-                {loading && (
-                  <div className="flex justify-start">
-                    <div className="bg-muted rounded-2xl rounded-bl-sm px-4 py-2.5">
-                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                    </div>
+                </div>
+              ))}
+              {loading && (
+                <div className="flex justify-start">
+                  <div className="bg-muted rounded-2xl rounded-bl-sm px-4 py-2.5">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                   </div>
-                )}
-              </div>
-            </ScrollArea>
+                </div>
+              )}
+            </div>
 
             {/* Input */}
             <div className="shrink-0 border-t border-border p-3 bg-card">
