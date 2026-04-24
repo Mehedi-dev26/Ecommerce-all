@@ -460,7 +460,7 @@ const TemplatesTab = () => {
     }
   };
 
-  if (loading) return <AdminPageState type="loading" />;
+  if (loading) return <AdminPageState loading message="লোড হচ্ছে..." />;
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
@@ -659,7 +659,7 @@ const LogsTab = () => {
           </div>
 
           {loading ? (
-            <AdminPageState type="loading" />
+            <AdminPageState loading message="লোড হচ্ছে..." />
           ) : filtered.length === 0 ? (
             <p className="text-center py-12 text-muted-foreground">কোনো লগ পাওয়া যায়নি</p>
           ) : (
