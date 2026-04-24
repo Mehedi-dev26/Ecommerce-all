@@ -31,8 +31,8 @@ interface LandingPageRow {
 
 const statusConfig: Record<string, { label: string; cls: string }> = {
   draft: { label: "ড্রাফট", cls: "bg-muted text-muted-foreground" },
-  published: { label: "চালু", cls: "bg-green-500/15 text-green-700 dark:text-green-400" },
-  paused: { label: "বিরতি", cls: "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400" },
+  published: { label: "চালু", cls: "bg-primary/15 text-primary" },
+  paused: { label: "বিরতি", cls: "bg-accent/15 text-accent-foreground" },
 };
 
 const AdminLandingPages = () => {
@@ -119,7 +119,7 @@ const AdminLandingPages = () => {
             মোট পেজ
           </div>
           <div className="text-2xl font-bold">{stats.total}</div>
-          <div className="text-xs text-green-600 mt-0.5">{stats.published} চালু</div>
+          <div className="text-xs text-primary mt-0.5">{stats.published} চালু</div>
         </Card>
         <Card className="p-4">
           <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
@@ -198,7 +198,7 @@ const AdminLandingPages = () => {
                     >
                       <code className="bg-muted px-1.5 py-0.5 rounded">/{p.slug}</code>
                       {copiedSlug === p.slug ? (
-                        <Check className="h-3 w-3 text-green-500" />
+                        <Check className="h-3 w-3 text-primary" />
                       ) : (
                         <Copy className="h-3 w-3" />
                       )}
