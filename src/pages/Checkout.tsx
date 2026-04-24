@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { divisions } from "@/data/bd-locations";
 import { getGuestAuthEmail, getGuestAuthEmailCandidates, getGuestAuthPassword } from "@/lib/guest-auth";
 import SEO from "@/components/SEO";
+import { sendEmail, buildOrderItemsHtml } from "@/lib/sendEmail";
 
 interface SavedAddress {
   id: string;
@@ -367,6 +368,55 @@ const Checkout = () => {
             })
           : Promise.resolve(),
       ]);
+
+      // Fire-and-forget transactional emails — never block order success
+      const recipientEmail = form.email.trim();
+      if (recipientEmail) {
+        const itemsHtml = buildOrderItemsHtml(
+          items.map((i) => ({ name: i.name_bn, quantity: i.quantity, price: i.price })),
+        );
+        const sharedVars = {
+          customer_name: form.name.trim(),
+          order_code: orderNumber,
+          order_subtotal: totalPrice.toLocaleString(),
+          order_shipping: shippingCost.toLocaleString(),
+          order_total: (totalPrice + shippingCost).toLocaleString(),
+          shipping_address: `${form.address.trim()}, ${cityLabel}`,
+          items_html: itemsHtml,
+        };
+
+        // Order confirmation — every order
+        sendEmail({
+          templateKey: "order_confirmation",
+          recipients: [{ email: recipientEmail, name: form.name.trim() }],
+          variables: sharedVars,
+          relatedOrderId: order.id,
+          relatedUserId: userId,
+          silent: true,
+        });
+
+        // First-order thanks — only if this is customer's first order
+        void (async () => {
+          try {
+            const { count } = await supabase
+              .from("orders")
+              .select("id", { count: "exact", head: true })
+              .eq("customer_email", recipientEmail);
+            if ((count ?? 0) <= 1) {
+              sendEmail({
+                templateKey: "first_order_thanks",
+                recipients: [{ email: recipientEmail, name: form.name.trim() }],
+                variables: sharedVars,
+                relatedOrderId: order.id,
+                relatedUserId: userId,
+                silent: true,
+              });
+            }
+          } catch {
+            /* silent */
+          }
+        })();
+      }
 
       clearCart();
       toast({ title: "অর্ডার সফল!", description: `অর্ডার নম্বর: ${orderNumber}` });
