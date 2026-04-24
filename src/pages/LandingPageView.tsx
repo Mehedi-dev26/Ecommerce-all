@@ -11,7 +11,7 @@ import {
 import { Truck, Shield, Clock, Check, Star, Phone, Leaf, Loader2, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { LANDING_THEMES, themeToStyle, getThemeById } from "@/lib/landing-page-themes";
-import { bdLocations } from "@/data/bd-locations";
+import { divisions as bdLocations } from "@/data/bd-locations";
 import SEO from "@/components/SEO";
 import NotFound from "./NotFound";
 
