@@ -11,7 +11,7 @@ import {
 import { Truck, Shield, Clock, Check, Star, Phone, Leaf, Loader2, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { LANDING_THEMES, themeToStyle, getThemeById } from "@/lib/landing-page-themes";
-import { bdLocations } from "@/data/bd-locations";
+import { divisions as bdLocations } from "@/data/bd-locations";
 import SEO from "@/components/SEO";
 import NotFound from "./NotFound";
 
@@ -470,7 +470,7 @@ const LandingPageView = () => {
                 <Select value={upazila} onValueChange={setUpazila} disabled={!district}>
                   <SelectTrigger><SelectValue placeholder="উপজেলা *" /></SelectTrigger>
                   <SelectContent>
-                    {upazilas.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                    {upazilas.map((u) => <SelectItem key={u.name} value={u.name}>{u.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
