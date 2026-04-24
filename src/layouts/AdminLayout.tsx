@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminBottomNav from "@/components/admin/AdminBottomNav";
+import AdminAIAssistant from "@/components/admin/AdminAIAssistant";
 import { Menu, Bell, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -110,6 +111,9 @@ const AdminLayout = () => {
 
       {/* Mobile Bottom Navigation */}
       <AdminBottomNav />
+
+      {/* Floating AI Assistant — admin-only */}
+      <AdminAIAssistant />
     </div>
   );
 };
