@@ -125,10 +125,13 @@ const HeroSection = () => {
     return () => window.clearInterval(timer);
   }, [loading, next, slides.length]);
 
+  // Swipe / drag handling — works for touch & mouse
+  const dragState = useRef<{ startX: number; active: boolean }>({ startX: 0, active: false });
+
   if (loading) {
     return (
       <section className="relative w-full overflow-hidden">
-        <div className="relative aspect-[2/1] overflow-hidden bg-muted sm:aspect-[21/9]" />
+        <div className="relative aspect-[21/9] overflow-hidden bg-muted" />
       </section>
     );
   }
@@ -138,7 +141,6 @@ const HeroSection = () => {
   const slide = slides[current];
 
   // Swipe / drag handling — works for touch & mouse
-  const dragState = useRef<{ startX: number; active: boolean }>({ startX: 0, active: false });
 
   const handleDragStart = (clientX: number) => {
     dragState.current = { startX: clientX, active: true };
