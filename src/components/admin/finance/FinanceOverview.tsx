@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, DollarSign, Package, ShoppingBag, Receipt, Wallet, ArrowUpRight, ArrowDownRight, AlertTriangle } from "lucide-react";
+import { TrendingUp, TrendingDown, Package, ShoppingBag, Receipt, Wallet, ArrowUpRight, ArrowDownRight, AlertTriangle } from "lucide-react";
 import AdminPageState from "@/components/admin/AdminPageState";
 import { getErrorMessage } from "@/lib/error-message";
 

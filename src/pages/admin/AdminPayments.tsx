@@ -9,12 +9,13 @@ import { getErrorMessage } from "@/lib/error-message";
 import {
   CreditCard, Search, DollarSign, Clock,
   XCircle, Banknote, Wallet, FileText, Phone,
-  Package, ShoppingBag, Receipt, TrendingUp,
+  Package, ShoppingBag, Receipt, TrendingUp, LayoutDashboard,
 } from "lucide-react";
 import StockValuePanel from "@/components/admin/finance/StockValuePanel";
 import PurchasesPanel from "@/components/admin/finance/PurchasesPanel";
 import ExpensesPanel from "@/components/admin/finance/ExpensesPanel";
 import ProfitLossPanel from "@/components/admin/finance/ProfitLossPanel";
+import FinanceOverview from "@/components/admin/finance/FinanceOverview";
 
 interface PaymentRecord {
   id: string;
