@@ -107,6 +107,42 @@ export type Database = {
         }
         Relationships: []
       }
+      business_expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          created_by: string | null
+          expense_date: string
+          id: string
+          notes: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          category: string
+          created_at?: string
+          created_by?: string | null
+          expense_date?: string
+          id?: string
+          notes?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          expense_date?: string
+          id?: string
+          notes?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -324,6 +360,59 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      inventory_purchases: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          product_id: string | null
+          product_name: string
+          purchase_date: string
+          quantity: number
+          supplier_name: string | null
+          total_cost: number
+          unit_cost: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          product_id?: string | null
+          product_name: string
+          purchase_date?: string
+          quantity?: number
+          supplier_name?: string | null
+          total_cost?: number
+          unit_cost?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          product_id?: string | null
+          product_name?: string
+          purchase_date?: string
+          quantity?: number
+          supplier_name?: string | null
+          total_cost?: number
+          unit_cost?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_purchases_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       landing_pages: {
         Row: {
@@ -562,6 +651,7 @@ export type Database = {
         Row: {
           category_id: string | null
           compare_price: number | null
+          cost_price: number
           created_at: string
           description: string | null
           description_bn: string | null
@@ -582,6 +672,7 @@ export type Database = {
         Insert: {
           category_id?: string | null
           compare_price?: number | null
+          cost_price?: number
           created_at?: string
           description?: string | null
           description_bn?: string | null
@@ -602,6 +693,7 @@ export type Database = {
         Update: {
           category_id?: string | null
           compare_price?: number | null
+          cost_price?: number
           created_at?: string
           description?: string | null
           description_bn?: string | null
