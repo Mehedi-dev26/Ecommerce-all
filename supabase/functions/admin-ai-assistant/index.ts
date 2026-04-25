@@ -328,11 +328,11 @@ Deno.serve(async (req) => {
     const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       global: { headers: { Authorization: authHeader } },
     });
-    const { data: claims, error: authErr } = await userClient.auth.getClaims(token);
-    if (authErr || !claims?.claims?.sub) {
+    const { data: userData, error: authErr } = await userClient.auth.getUser(token);
+    if (authErr || !userData?.user?.id) {
       return json({ error: "Invalid session" }, 401);
     }
-    const userId = claims.claims.sub;
+    const userId = userData.user.id;
 
     // 3. Service-role client to verify admin role (bypasses RLS recursion)
     const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
