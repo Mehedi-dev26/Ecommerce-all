@@ -106,7 +106,21 @@ const AdminPayments = () => {
   if (error) return <AdminPageState title="পেমেন্ট লোড করা যায়নি" message={error} onRetry={fetchPayments} />;
 
   return (
-    <div className="space-y-6">
+    <Tabs defaultValue="payments" className="space-y-4">
+      <TabsList className="w-full justify-start overflow-x-auto h-auto flex-wrap p-1 bg-muted/50">
+        <TabsTrigger value="payments" className="gap-1.5"><CreditCard className="h-3.5 w-3.5" />পেমেন্ট</TabsTrigger>
+        <TabsTrigger value="profit" className="gap-1.5"><TrendingUp className="h-3.5 w-3.5" />লাভ-ক্ষতি</TabsTrigger>
+        <TabsTrigger value="stock" className="gap-1.5"><Package className="h-3.5 w-3.5" />স্টক ভ্যালু</TabsTrigger>
+        <TabsTrigger value="purchases" className="gap-1.5"><ShoppingBag className="h-3.5 w-3.5" />ক্রয়</TabsTrigger>
+        <TabsTrigger value="expenses" className="gap-1.5"><Receipt className="h-3.5 w-3.5" />খরচ</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="profit" className="mt-4"><ProfitLossPanel /></TabsContent>
+      <TabsContent value="stock" className="mt-4"><StockValuePanel /></TabsContent>
+      <TabsContent value="purchases" className="mt-4"><PurchasesPanel /></TabsContent>
+      <TabsContent value="expenses" className="mt-4"><ExpensesPanel /></TabsContent>
+
+      <TabsContent value="payments" className="mt-4 space-y-6">
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
         <Card className="border-border/50">
