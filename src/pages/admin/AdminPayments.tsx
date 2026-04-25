@@ -298,7 +298,8 @@ const AdminPayments = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
+      </TabsContent>
+    </Tabs>
   );
 };
 
