@@ -359,6 +359,16 @@ const AdminProducts = () => {
                     <Input type="number" value={form.compare_price} onChange={(e) => setForm({ ...form, compare_price: +e.target.value })} placeholder="যেমন: 11000" />
                     <p className="text-[11px] text-muted-foreground">পুরাতন/মার্কেট দাম। কাটাকাটি করে দেখানো হবে।</p>
                   </div>
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ক্রয় মূল্য / Cost Price (৳)</Label>
+                    <Input type="number" value={form.cost_price} onChange={(e) => setForm({ ...form, cost_price: +e.target.value })} placeholder="যেমন: 7000" />
+                    <p className="text-[11px] text-muted-foreground">প্রতি ইউনিট কেনার খরচ। লাভ-ক্ষতি হিসাব করার জন্য ব্যবহৃত হবে। (গ্রাহকের কাছে দেখানো হবে না)</p>
+                    {form.price > 0 && form.cost_price > 0 && (
+                      <p className="text-[11px] font-semibold text-secondary">
+                        সম্ভাব্য লাভ: ৳{(Number(form.price) - Number(form.cost_price)).toLocaleString()} প্রতি ইউনিট ({Math.round(((Number(form.price) - Number(form.cost_price)) / Number(form.price)) * 100)}% মার্জিন)
+                      </p>
+                    )}
+                  </div>
                 </div>
                 {discountPercent > 0 && (
                   <div className="flex items-center justify-between rounded-lg bg-secondary/15 px-3 py-2">
