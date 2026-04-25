@@ -53,6 +53,7 @@ const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminCourierCharges = lazy(() => import("./pages/admin/AdminCourierCharges"));
 const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
 const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
+const AdminEmails = lazy(() => import("./pages/admin/AdminEmails"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -119,6 +120,7 @@ const App = () => {
                   <Route path="courier-charges" element={<AdminCourierCharges />} />
                   <Route path="reviews" element={<AdminReviews />} />
                   <Route path="reports" element={<AdminReports />} />
+                  <Route path="emails" element={<AdminEmails />} />
                 </Route>
 
                 {/* Public Routes */}
