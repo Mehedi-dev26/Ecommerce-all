@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import AdminPageState from "@/components/admin/AdminPageState";
 import { getErrorMessage } from "@/lib/error-message";
 import {
-  CreditCard, Search, DollarSign, Clock, CheckCircle,
-  XCircle, Banknote, Wallet, TrendingUp, FileText, Phone
+  CreditCard, Search, DollarSign, Clock,
+  XCircle, Banknote, Wallet, FileText, Phone,
+  Package, ShoppingBag, Receipt, TrendingUp,
 } from "lucide-react";
+import StockValuePanel from "@/components/admin/finance/StockValuePanel";
+import PurchasesPanel from "@/components/admin/finance/PurchasesPanel";
+import ExpensesPanel from "@/components/admin/finance/ExpensesPanel";
+import ProfitLossPanel from "@/components/admin/finance/ProfitLossPanel";
 
 interface PaymentRecord {
   id: string;
