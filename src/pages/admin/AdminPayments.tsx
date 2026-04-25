@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import AdminPageState from "@/components/admin/AdminPageState";
 import { getErrorMessage } from "@/lib/error-message";
 import {
-  CreditCard, Search, DollarSign, Clock, CheckCircle,
-  XCircle, Banknote, Wallet, TrendingUp, FileText, Phone
+  CreditCard, Search, DollarSign, Clock,
+  XCircle, Banknote, Wallet, FileText, Phone,
+  Package, ShoppingBag, Receipt, TrendingUp,
 } from "lucide-react";
+import StockValuePanel from "@/components/admin/finance/StockValuePanel";
+import PurchasesPanel from "@/components/admin/finance/PurchasesPanel";
+import ExpensesPanel from "@/components/admin/finance/ExpensesPanel";
+import ProfitLossPanel from "@/components/admin/finance/ProfitLossPanel";
 
 interface PaymentRecord {
   id: string;
@@ -101,7 +106,21 @@ const AdminPayments = () => {
   if (error) return <AdminPageState title="পেমেন্ট লোড করা যায়নি" message={error} onRetry={fetchPayments} />;
 
   return (
-    <div className="space-y-6">
+    <Tabs defaultValue="payments" className="space-y-4">
+      <TabsList className="w-full justify-start overflow-x-auto h-auto flex-wrap p-1 bg-muted/50">
+        <TabsTrigger value="payments" className="gap-1.5"><CreditCard className="h-3.5 w-3.5" />পেমেন্ট</TabsTrigger>
+        <TabsTrigger value="profit" className="gap-1.5"><TrendingUp className="h-3.5 w-3.5" />লাভ-ক্ষতি</TabsTrigger>
+        <TabsTrigger value="stock" className="gap-1.5"><Package className="h-3.5 w-3.5" />স্টক ভ্যালু</TabsTrigger>
+        <TabsTrigger value="purchases" className="gap-1.5"><ShoppingBag className="h-3.5 w-3.5" />ক্রয়</TabsTrigger>
+        <TabsTrigger value="expenses" className="gap-1.5"><Receipt className="h-3.5 w-3.5" />খরচ</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="profit" className="mt-4"><ProfitLossPanel /></TabsContent>
+      <TabsContent value="stock" className="mt-4"><StockValuePanel /></TabsContent>
+      <TabsContent value="purchases" className="mt-4"><PurchasesPanel /></TabsContent>
+      <TabsContent value="expenses" className="mt-4"><ExpensesPanel /></TabsContent>
+
+      <TabsContent value="payments" className="mt-4 space-y-6">
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
         <Card className="border-border/50">
@@ -279,7 +298,8 @@ const AdminPayments = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
+      </TabsContent>
+    </Tabs>
   );
 };
 

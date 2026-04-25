@@ -20,6 +20,7 @@ interface Product {
   description: string | null;
   description_bn: string | null;
   price: number;
+  cost_price: number;
   compare_price: number | null;
   image_url: string | null;
   images: string[] | null;
@@ -43,7 +44,7 @@ const MAX_IMAGES = 5;
 
 const emptyProduct = {
   name: "", name_bn: "", description: "", description_bn: "",
-  price: 0, compare_price: 0,
+  price: 0, cost_price: 0, compare_price: 0,
   images: [] as string[],
   category_id: "", stock: 0, is_active: true, is_featured: false,
   weight: "", unit: "kg",
@@ -160,6 +161,7 @@ const AdminProducts = () => {
       description: form.description || null,
       description_bn: form.description_bn || null,
       price: Number(form.price),
+      cost_price: Number(form.cost_price) || 0,
       compare_price: form.compare_price ? Number(form.compare_price) : null,
       image_url: form.images[0] || null,
       images: form.images,
@@ -207,6 +209,7 @@ const AdminProducts = () => {
     setForm({
       name: p.name, name_bn: p.name_bn, description: p.description || "",
       description_bn: p.description_bn || "", price: p.price,
+      cost_price: p.cost_price || 0,
       compare_price: p.compare_price || 0,
       images: existingImages,
       category_id: p.category_id || "", stock: p.stock,
@@ -355,6 +358,16 @@ const AdminProducts = () => {
                     <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">তুলনামূলক দাম / MRP (৳)</Label>
                     <Input type="number" value={form.compare_price} onChange={(e) => setForm({ ...form, compare_price: +e.target.value })} placeholder="যেমন: 11000" />
                     <p className="text-[11px] text-muted-foreground">পুরাতন/মার্কেট দাম। কাটাকাটি করে দেখানো হবে।</p>
+                  </div>
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ক্রয় মূল্য / Cost Price (৳)</Label>
+                    <Input type="number" value={form.cost_price} onChange={(e) => setForm({ ...form, cost_price: +e.target.value })} placeholder="যেমন: 7000" />
+                    <p className="text-[11px] text-muted-foreground">প্রতি ইউনিট কেনার খরচ। লাভ-ক্ষতি হিসাব করার জন্য ব্যবহৃত হবে। (গ্রাহকের কাছে দেখানো হবে না)</p>
+                    {form.price > 0 && form.cost_price > 0 && (
+                      <p className="text-[11px] font-semibold text-secondary">
+                        সম্ভাব্য লাভ: ৳{(Number(form.price) - Number(form.cost_price)).toLocaleString()} প্রতি ইউনিট ({Math.round(((Number(form.price) - Number(form.cost_price)) / Number(form.price)) * 100)}% মার্জিন)
+                      </p>
+                    )}
                   </div>
                 </div>
                 {discountPercent > 0 && (
