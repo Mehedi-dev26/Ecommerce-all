@@ -443,7 +443,7 @@ const Checkout = () => {
               order_shipping: shippingCost.toLocaleString(),
               order_total: (totalPrice + shippingCost).toLocaleString(),
               shipping_address: `${form.address.trim()}, ${cityLabel}`,
-              payment_method: form.paymentMethod,
+              payment_method: "COD (Cash on Delivery)",
               items_html: itemsHtml,
             },
             relatedOrderId: order.id,
