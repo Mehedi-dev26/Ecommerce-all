@@ -418,6 +418,42 @@ const Checkout = () => {
         })();
       }
 
+      // Admin notification — fire-and-forget, sent on EVERY new order
+      void (async () => {
+        try {
+          const { data: setting } = await supabase
+            .from("site_settings")
+            .select("value")
+            .eq("key", "admin_notification_email")
+            .maybeSingle();
+          const adminEmail = setting?.value?.trim();
+          if (!adminEmail) return;
+          const itemsHtml = buildOrderItemsHtml(
+            items.map((i) => ({ name: i.name_bn, quantity: i.quantity, price: i.price })),
+          );
+          sendEmail({
+            templateKey: "new_order_admin",
+            recipients: [{ email: adminEmail, name: "Admin" }],
+            variables: {
+              customer_name: form.name.trim(),
+              customer_phone: form.phone.trim(),
+              customer_email: recipientEmail || "—",
+              order_code: orderNumber,
+              order_subtotal: totalPrice.toLocaleString(),
+              order_shipping: shippingCost.toLocaleString(),
+              order_total: (totalPrice + shippingCost).toLocaleString(),
+              shipping_address: `${form.address.trim()}, ${cityLabel}`,
+              payment_method: "COD (Cash on Delivery)",
+              items_html: itemsHtml,
+            },
+            relatedOrderId: order.id,
+            silent: true,
+          });
+        } catch {
+          /* silent */
+        }
+      })();
+
       clearCart();
       toast({ title: "অর্ডার সফল!", description: `অর্ডার নম্বর: ${orderNumber}` });
       navigate(`/order-success/${orderNumber}`);
