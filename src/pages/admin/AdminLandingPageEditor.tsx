@@ -563,8 +563,14 @@ const AdminLandingPageEditor = () => {
         {/* THEME */}
         <TabsContent value="theme" className="space-y-4 mt-4">
           <Card className="p-5">
-            <Label className="mb-3 block">থিম প্রিসেট বেছে নিন</Label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="mb-4">
+              <h3 className="font-semibold text-base mb-1">থিম প্রিসেট বেছে নিন</h3>
+              <p className="text-xs text-muted-foreground">
+                আপনার পেজের রঙ ও স্টাইল নির্ধারণ করে। যেকোনো একটি বেছে নিন — পরে যেকোনো সময় পরিবর্তন করতে পারবেন।
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {LANDING_THEMES.map((t) => {
                 const active = form.theme_preset === t.id;
                 return (
@@ -572,41 +578,113 @@ const AdminLandingPageEditor = () => {
                     key={t.id}
                     type="button"
                     onClick={() => update("theme_preset", t.id)}
-                    className={`relative rounded-xl border-2 overflow-hidden transition-all ${
+                    className={`group relative rounded-2xl border-2 overflow-hidden transition-all text-left ${
                       active
-                        ? "border-primary ring-2 ring-primary/30"
-                        : "border-border hover:border-primary/50"
+                        ? "border-primary ring-4 ring-primary/20 shadow-lg scale-[1.02]"
+                        : "border-border hover:border-primary/40 hover:shadow-md"
                     }`}
                   >
-                    <div className="h-20" style={{ backgroundColor: t.preview.bg }}>
+                    {/* Mini landing page preview */}
+                    <div
+                      className="h-44 relative overflow-hidden"
+                      style={{ backgroundColor: t.preview.bg }}
+                    >
+                      {/* Header bar */}
                       <div
-                        className="h-1/2"
+                        className="h-7 flex items-center px-3 gap-1.5"
                         style={{ backgroundColor: t.preview.primary }}
-                      />
-                      <div className="flex items-center justify-center h-1/2 gap-1">
+                      >
+                        <div className="h-1.5 w-1.5 rounded-full bg-white/60" />
+                        <div className="h-1.5 w-1.5 rounded-full bg-white/60" />
+                        <div className="h-1.5 w-1.5 rounded-full bg-white/60" />
+                      </div>
+                      {/* Hero content mock */}
+                      <div className="p-3 space-y-2">
                         <div
-                          className="h-3 w-3 rounded-full"
-                          style={{ backgroundColor: t.preview.accent }}
+                          className="h-2 rounded-full w-3/4"
+                          style={{ backgroundColor: t.preview.accent, opacity: 0.85 }}
                         />
                         <div
-                          className="h-3 w-3 rounded-full"
+                          className="h-1.5 rounded-full w-1/2"
+                          style={{ backgroundColor: t.preview.accent, opacity: 0.4 }}
+                        />
+                        <div className="flex gap-1.5 pt-1">
+                          <div
+                            className="h-8 rounded-md flex-1"
+                            style={{ backgroundColor: t.preview.primary, opacity: 0.15 }}
+                          />
+                          <div
+                            className="h-8 rounded-md flex-1"
+                            style={{ backgroundColor: t.preview.primary, opacity: 0.15 }}
+                          />
+                        </div>
+                        {/* CTA mock */}
+                        <div
+                          className="h-7 rounded-lg w-2/3 mx-auto mt-2 flex items-center justify-center"
                           style={{ backgroundColor: t.preview.primary }}
-                        />
+                        >
+                          <div className="h-1.5 w-12 rounded-full bg-white/80" />
+                        </div>
                       </div>
                     </div>
-                    <div className="p-2 text-center bg-card">
-                      <p className="text-xs font-semibold">{t.nameBn}</p>
-                      <p className="text-[10px] text-muted-foreground">{t.name}</p>
+
+                    {/* Label */}
+                    <div className="p-3 bg-card border-t border-border">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold truncate">{t.nameBn}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{t.name}</p>
+                        </div>
+                        <div className="flex gap-1 shrink-0">
+                          <div
+                            className="h-4 w-4 rounded-full border border-border"
+                            style={{ backgroundColor: t.preview.primary }}
+                            title="Primary"
+                          />
+                          <div
+                            className="h-4 w-4 rounded-full border border-border"
+                            style={{ backgroundColor: t.preview.accent }}
+                            title="Accent"
+                          />
+                        </div>
+                      </div>
                     </div>
+
                     {active && (
-                      <div className="absolute top-1 right-1 h-5 w-5 rounded-full bg-primary flex items-center justify-center">
-                        <Check className="h-3 w-3 text-primary-foreground" />
+                      <div className="absolute top-2 right-2 h-7 w-7 rounded-full bg-primary flex items-center justify-center shadow-lg ring-2 ring-background">
+                        <Check className="h-4 w-4 text-primary-foreground" strokeWidth={3} />
                       </div>
                     )}
                   </button>
                 );
               })}
             </div>
+
+            {/* Live URL preview hint */}
+            {form.slug && (
+              <div className="mt-5 p-4 rounded-xl bg-muted/50 border border-border">
+                <p className="text-xs font-medium text-muted-foreground mb-2">
+                  লাইভ প্রিভিউ দেখতে:
+                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <code className="text-xs bg-background px-2 py-1 rounded border border-border">
+                    {previewUrl}
+                  </code>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.open(`/lp/${form.slug}`, "_blank")}
+                    disabled={!form.slug}
+                  >
+                    <Eye className="h-3.5 w-3.5 mr-1.5" />
+                    নতুন ট্যাবে দেখুন
+                  </Button>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-2">
+                  💡 টিপ: পেজ প্রকাশ (Publish) করার পর এই URL এ আপনার ল্যান্ডিং পেজ Live দেখা যাবে।
+                </p>
+              </div>
+            )}
           </Card>
         </TabsContent>
 
