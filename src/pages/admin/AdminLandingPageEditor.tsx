@@ -289,7 +289,7 @@ const AdminLandingPageEditor = () => {
 
   if (loading) return <AdminPageState loading message="পেজ লোড হচ্ছে..." />;
 
-  const previewUrl = form.slug ? `${origin}/${form.slug}` : "";
+  const previewUrl = form.slug ? `${origin}/lp/${form.slug}` : "";
 
   return (
     <div className="space-y-5 pb-10">
@@ -313,7 +313,7 @@ const AdminLandingPageEditor = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => window.open(`/${form.slug}`, "_blank")}
+              onClick={() => window.open(`/lp/${form.slug}`, "_blank")}
             >
               <Eye className="h-3.5 w-3.5 mr-1.5" />
               দেখুন
@@ -367,11 +367,11 @@ const AdminLandingPageEditor = () => {
 
             <div>
               <Label>
-                কাস্টম URL * <span className="text-xs text-muted-foreground">({origin}/...)</span>
+                কাস্টম URL * <span className="text-xs text-muted-foreground">({origin}/lp/...)</span>
               </Label>
               <div className="flex items-center gap-2 mt-1.5">
                 <span className="text-sm text-muted-foreground shrink-0 hidden md:inline">
-                  {origin}/
+                  {origin}/lp/
                 </span>
                 <Input
                   value={form.slug}
