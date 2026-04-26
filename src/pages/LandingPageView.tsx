@@ -265,17 +265,17 @@ const LandingPageView = () => {
       />
 
       <div
-        className="min-h-screen"
+        className="min-h-screen pb-20 md:pb-0"
         style={{ backgroundColor: "hsl(var(--lp-bg))", color: "hsl(var(--lp-fg))" }}
       >
         {/* HERO */}
-        <section className="px-4 py-8 md:py-14 max-w-5xl mx-auto text-center">
-          <h1 className="text-3xl md:text-5xl font-bold leading-tight mb-3">
+        <section className="px-4 py-6 md:py-14 max-w-5xl mx-auto text-center">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold leading-tight mb-3">
             {data.hero_headline}
           </h1>
           {data.hero_subheadline && (
             <p
-              className="text-base md:text-xl mb-6"
+              className="text-sm sm:text-base md:text-xl mb-5 md:mb-6"
               style={{ color: "hsl(var(--lp-muted-foreground))" }}
             >
               {data.hero_subheadline}
@@ -285,7 +285,8 @@ const LandingPageView = () => {
             <img
               src={data.hero_image_url}
               alt={data.hero_headline}
-              className="w-full max-w-2xl mx-auto rounded-2xl shadow-2xl mb-6"
+              loading="eager"
+              className="w-full max-w-2xl mx-auto rounded-xl md:rounded-2xl shadow-xl md:shadow-2xl mb-5 md:mb-6"
             />
           )}
           {data.countdown_enabled && data.countdown_end_at && (
@@ -293,7 +294,7 @@ const LandingPageView = () => {
           )}
           {data.stock_counter_enabled && data.stock_counter_value && (
             <p
-              className="inline-block px-4 py-2 rounded-full text-sm font-semibold mb-4"
+              className="inline-block px-4 py-2 rounded-full text-xs sm:text-sm font-semibold mb-4"
               style={{ backgroundColor: "hsl(var(--lp-urgent) / 0.15)", color: "hsl(var(--lp-urgent))" }}
             >
               ⚡ মাত্র {data.stock_counter_value} টি বাকি!
@@ -301,7 +302,7 @@ const LandingPageView = () => {
           )}
           <a
             href="#order-form"
-            className="inline-block px-8 py-4 rounded-full text-base md:text-lg font-bold transition-transform hover:scale-105 shadow-lg"
+            className="inline-block w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 rounded-full text-sm sm:text-base md:text-lg font-bold transition-transform active:scale-95 sm:hover:scale-105 shadow-lg"
             style={{
               backgroundColor: "hsl(var(--lp-primary))",
               color: "hsl(var(--lp-primary-foreground))",
@@ -454,7 +455,7 @@ const LandingPageView = () => {
                   className="mt-1.5"
                 />
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <Select value={division} onValueChange={(v) => { setDivision(v); setDistrict(""); setUpazila(""); }}>
                   <SelectTrigger><SelectValue placeholder="বিভাগ *" /></SelectTrigger>
                   <SelectContent>
@@ -526,6 +527,18 @@ const LandingPageView = () => {
         <footer className="text-center py-6 text-xs" style={{ color: "hsl(var(--lp-muted-foreground))" }}>
           © {new Date().getFullYear()} {data.title}
         </footer>
+
+        {/* Sticky mobile CTA — boosts conversion on small screens */}
+        <a
+          href="#order-form"
+          className="md:hidden fixed bottom-0 left-0 right-0 z-50 text-center py-3.5 font-bold text-base shadow-[0_-4px_16px_rgba(0,0,0,0.15)] active:scale-[0.98] transition-transform"
+          style={{
+            backgroundColor: "hsl(var(--lp-primary))",
+            color: "hsl(var(--lp-primary-foreground))",
+          }}
+        >
+          {data.cta_text} {total > 0 && `— ৳${Math.round(total)}`}
+        </a>
       </div>
     </div>
   );
