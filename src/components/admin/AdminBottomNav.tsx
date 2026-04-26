@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import {
   FolderTree, CreditCard, Truck, Users, Image as ImageIcon,
-  DollarSign, BarChart3, X
+  DollarSign, BarChart3, X, Mail, MessageSquare, Rocket
 } from "lucide-react";
 
 const mainTabs = [
@@ -18,11 +18,14 @@ const mainTabs = [
 const moreItems = [
   { title: "ক্যাটাগরি", url: "/admin/categories", icon: FolderTree },
   { title: "ব্যানার", url: "/admin/banners", icon: ImageIcon },
+  { title: "ল্যান্ডিং পেজ", url: "/admin/landing-pages", icon: Rocket },
+  { title: "রিভিউ", url: "/admin/reviews", icon: MessageSquare },
   { title: "পেমেন্ট", url: "/admin/payments", icon: CreditCard },
   { title: "ডেলিভারি", url: "/admin/delivery", icon: Truck },
   { title: "কুরিয়ার চার্জ", url: "/admin/courier-charges", icon: DollarSign },
   { title: "কাস্টমার", url: "/admin/customers", icon: Users },
   { title: "রিপোর্ট", url: "/admin/reports", icon: BarChart3 },
+  { title: "ইমেইল", url: "/admin/emails", icon: Mail },
 ];
 
 const AdminBottomNav = () => {

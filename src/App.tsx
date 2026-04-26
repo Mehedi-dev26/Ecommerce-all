@@ -54,6 +54,9 @@ const AdminCourierCharges = lazy(() => import("./pages/admin/AdminCourierCharges
 const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
 const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
 const AdminEmails = lazy(() => import("./pages/admin/AdminEmails"));
+const AdminLandingPages = lazy(() => import("./pages/admin/AdminLandingPages"));
+const AdminLandingPageEditor = lazy(() => import("./pages/admin/AdminLandingPageEditor"));
+const LandingPageView = lazy(() => import("./pages/LandingPageView"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -105,6 +108,9 @@ const App = () => {
             <ScrollToTop />
             <Suspense fallback={<RouteFallback />}>
               <Routes>
+                {/* Public Landing Pages (custom slugs) — no Navbar/Footer */}
+                <Route path="/lp/:slug" element={<LandingPageView />} />
+
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin" element={<AdminLayout />}>
@@ -121,6 +127,9 @@ const App = () => {
                   <Route path="reviews" element={<AdminReviews />} />
                   <Route path="reports" element={<AdminReports />} />
                   <Route path="emails" element={<AdminEmails />} />
+                  <Route path="landing-pages" element={<AdminLandingPages />} />
+                  <Route path="landing-pages/new" element={<AdminLandingPageEditor />} />
+                  <Route path="landing-pages/:id" element={<AdminLandingPageEditor />} />
                 </Route>
 
                 {/* Public Routes */}

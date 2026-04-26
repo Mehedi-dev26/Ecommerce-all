@@ -74,7 +74,7 @@ const AdminLandingPages = () => {
   };
 
   const copyUrl = async (slug: string) => {
-    const url = `${window.location.origin}/${slug}`;
+    const url = `${window.location.origin}/lp/${slug}`;
     await navigator.clipboard.writeText(url);
     setCopiedSlug(slug);
     toast.success("URL কপি হয়েছে");
@@ -196,7 +196,7 @@ const AdminLandingPages = () => {
                       onClick={() => copyUrl(p.slug)}
                       className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
                     >
-                      <code className="bg-muted px-1.5 py-0.5 rounded">/{p.slug}</code>
+                      <code className="bg-muted px-1.5 py-0.5 rounded">/lp/{p.slug}</code>
                       {copiedSlug === p.slug ? (
                         <Check className="h-3 w-3 text-primary" />
                       ) : (
@@ -227,7 +227,7 @@ const AdminLandingPages = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => window.open(`/${p.slug}`, "_blank")}
+                        onClick={() => window.open(`/lp/${p.slug}`, "_blank")}
                         className="h-8"
                       >
                         <ExternalLink className="h-3.5 w-3.5" />
