@@ -33,11 +33,23 @@ export const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: SITE_NAME,
+  alternateName: ["Surzo Shop", "SurzoShop", "সূর্য শপ", "surzoshop"],
   url: SITE_URL,
   inLanguage: "bn-BD",
+  publisher: {
+    "@type": "Organization",
+    name: SITE_NAME,
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_URL}/brand-logo.png`,
+    },
+  },
   potentialAction: {
     "@type": "SearchAction",
-    target: `${SITE_URL}/products?search={search_term_string}`,
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${SITE_URL}/products?search={search_term_string}`,
+    },
     "query-input": "required name=search_term_string",
   },
 };
