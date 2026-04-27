@@ -114,20 +114,38 @@
     }
     </script>
 
+    <!-- WebSite schema with alternateName — required for Google Sitename feature.
+         This tells Google to show "Surzo Shop" instead of "surzoshop.com" in search results. -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "Surzo Shop",
+      "alternateName": ["Surzo Shop", "SurzoShop", "সূর্য শপ", "surzoshop"],
       "url": "https://surzoshop.com",
       "inLanguage": "bn-BD",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Surzo Shop",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://surzoshop.com/brand-logo.png"
+        }
+      },
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://surzoshop.com/products?search={search_term_string}",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://surzoshop.com/products?search={search_term_string}"
+        },
         "query-input": "required name=search_term_string"
       }
     }
     </script>
+
+    <!-- Application name hints for browsers and Google -->
+    <meta name="application-name" content="Surzo Shop" />
+    <meta name="apple-mobile-web-app-title" content="Surzo Shop" />
 
     <style>
       /* System font stack used until webfont swaps in — eliminates FOIT and avoids render block */
