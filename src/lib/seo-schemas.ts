@@ -43,7 +43,16 @@ export const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: SITE_NAME,
-  alternateName: ["Surzo Shop", "SurzoShop", "সূর্য শপ", "surzoshop"],
+  alternateName: [
+    "surzoshop",
+    "SurzoShop",
+    "Surzoshop",
+    "surzo shop",
+    "Surzo",
+    "সূর্য শপ",
+    "সুরজো শপ",
+    "surzoshop.com",
+  ],
   url: SITE_URL,
   inLanguage: "bn-BD",
   publisher: {
