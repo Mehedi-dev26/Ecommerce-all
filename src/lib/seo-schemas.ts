@@ -5,11 +5,21 @@ export const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "OnlineStore",
   name: SITE_NAME,
+  alternateName: [
+    "surzoshop",
+    "SurzoShop",
+    "Surzoshop",
+    "surzo shop",
+    "Surzo",
+    "সূর্য শপ",
+    "সুরজো শপ",
+  ],
+  legalName: SITE_NAME,
   url: SITE_URL,
   logo: `${SITE_URL}/brand-logo.png`,
   image: DEFAULT_OG_IMAGE,
   description:
-    "Surzo Shop — বাংলাদেশের বিশ্বস্ত অনলাইন শপ। ইলেকট্রনিক্স, হোম অ্যাপ্লায়েন্স ও সাইকেল স্বল্প মূল্যে সেরা মানে।",
+    "Surzo Shop (surzoshop) — বাংলাদেশের বিশ্বস্ত অনলাইন শপ। ইলেকট্রনিক্স, হোম অ্যাপ্লায়েন্স ও সাইকেল স্বল্প মূল্যে সেরা মানে।",
   telephone: "+880 1779-80168",
   email: "surzoshop@gmail.com",
   address: {
