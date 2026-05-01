@@ -51,8 +51,8 @@ const LocationSection = () => (
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground sm:text-lg">হটলাইন</h3>
-                <a href="tel:+8801779801680" className="mt-1 block text-sm text-muted-foreground hover:text-primary sm:text-base">
-                  +880 1779-80168
+                <a href="tel:01725391686" className="mt-1 block text-sm text-muted-foreground hover:text-primary sm:text-base">
+                  01725391686
                 </a>
               </div>
             </div>
