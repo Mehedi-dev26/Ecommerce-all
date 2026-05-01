@@ -1,12 +1,20 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingUp, TrendingDown, DollarSign, ShoppingBag, Receipt, Wallet } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, ShoppingBag, Receipt, Wallet, Calendar } from "lucide-react";
 import AdminPageState from "@/components/admin/AdminPageState";
 import { getErrorMessage } from "@/lib/error-message";
+import { cn } from "@/lib/utils";
 
 type RangeKey = "this_month" | "last_month" | "last_30" | "this_year" | "all";
+
+const RANGE_OPTIONS: { key: RangeKey; label: string }[] = [
+  { key: "this_month", label: "এই মাস" },
+  { key: "last_month", label: "গত মাস" },
+  { key: "last_30",    label: "৩০ দিন" },
+  { key: "this_year",  label: "এই বছর" },
+  { key: "all",        label: "সব সময়" },
+];
 
 const getRange = (key: RangeKey): { from: string | null; to: string | null; label: string } => {
   const now = new Date();
@@ -139,19 +147,31 @@ const ProfitLossPanel = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h3 className="font-semibold text-base">লাভ-ক্ষতির বিশ্লেষণ</h3>
-        <Select value={range} onValueChange={(v) => setRange(v as RangeKey)}>
-          <SelectTrigger className="w-[160px] bg-card"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="this_month">এই মাস</SelectItem>
-            <SelectItem value="last_month">গত মাস</SelectItem>
-            <SelectItem value="last_30">শেষ ৩০ দিন</SelectItem>
-            <SelectItem value="this_year">এই বছর</SelectItem>
-            <SelectItem value="all">সব সময়</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Range filter — button group */}
+      <Card className="border-border/50">
+        <CardContent className="p-2 sm:p-3">
+          <div className="flex items-center gap-2 mb-2 px-1">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground">সময়সীমা নির্বাচন করুন</span>
+          </div>
+          <div className="grid grid-cols-5 gap-1.5">
+            {RANGE_OPTIONS.map((r) => (
+              <button
+                key={r.key}
+                onClick={() => setRange(r.key)}
+                className={cn(
+                  "px-2 py-2 rounded-lg text-xs font-semibold transition-all",
+                  range === r.key
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Hero P&L Card */}
       <Card className={`border-2 ${isProfit ? "border-green-500/30 bg-green-500/5" : "border-destructive/30 bg-destructive/5"}`}>
