@@ -1,12 +1,20 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingUp, TrendingDown, DollarSign, ShoppingBag, Receipt, Wallet } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, ShoppingBag, Receipt, Wallet, Calendar } from "lucide-react";
 import AdminPageState from "@/components/admin/AdminPageState";
 import { getErrorMessage } from "@/lib/error-message";
+import { cn } from "@/lib/utils";
 
 type RangeKey = "this_month" | "last_month" | "last_30" | "this_year" | "all";
+
+const RANGE_OPTIONS: { key: RangeKey; label: string }[] = [
+  { key: "this_month", label: "এই মাস" },
+  { key: "last_month", label: "গত মাস" },
+  { key: "last_30",    label: "৩০ দিন" },
+  { key: "this_year",  label: "এই বছর" },
+  { key: "all",        label: "সব সময়" },
+];
 
 const getRange = (key: RangeKey): { from: string | null; to: string | null; label: string } => {
   const now = new Date();
