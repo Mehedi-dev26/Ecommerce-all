@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Search, Package, DollarSign, TrendingUp, AlertTriangle } from "lucide-react";
 import AdminPageState from "@/components/admin/AdminPageState";
 import { getErrorMessage } from "@/lib/error-message";
+import { cn } from "@/lib/utils";
 
 interface ProductRow {
   id: string;
