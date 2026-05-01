@@ -14,10 +14,13 @@ const FeaturedProducts = () => {
         .from("products")
         .select("*, categories(name_bn)")
         .eq("is_featured", true)
-        .limit(8);
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(16);
       if (error) throw error;
       return data;
     },
+    staleTime: 60_000,
   });
 
   return (
