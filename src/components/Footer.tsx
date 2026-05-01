@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import brandLogo from "@/assets/brand-logo.png";
 
 const defaults: Record<string, string> = {
-  footer_phone: "+880 1779-80168",
+  footer_phone: "01725391686",
   footer_email: "surzoshop@gmail.com",
   footer_location: "আশুরন্দ বাজার, সাপাহার, নওগাঁ",
   footer_facebook: "#",
@@ -97,8 +97,16 @@ const Footer = () => {
           <div className="col-span-2 sm:col-span-1">
             <h4 className="mb-4 text-base font-bold text-accent uppercase tracking-wider">যোগাযোগ</h4>
             <ul className="space-y-3 text-base">
-              <li className="flex items-center gap-2 text-white/90 font-medium"><Phone className="h-5 w-5 text-accent shrink-0" /> {settings.footer_phone}</li>
-              <li className="flex items-center gap-2 text-white/90 font-medium"><Mail className="h-5 w-5 text-accent shrink-0" /> {settings.footer_email}</li>
+              <li>
+                <a href={`tel:${settings.footer_phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-white/90 hover:text-accent transition-colors font-medium">
+                  <Phone className="h-5 w-5 text-accent shrink-0" /> {settings.footer_phone}
+                </a>
+              </li>
+              <li>
+                <a href={`mailto:${settings.footer_email}`} className="flex items-center gap-2 text-white/90 hover:text-accent transition-colors font-medium">
+                  <Mail className="h-5 w-5 text-accent shrink-0" /> {settings.footer_email}
+                </a>
+              </li>
               <li className="flex items-center gap-2 text-white/90 font-medium"><MapPin className="h-5 w-5 text-accent shrink-0" /> {settings.footer_location}</li>
               <li>
                 <a href={settings.footer_facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/90 hover:text-accent transition-colors font-medium">
