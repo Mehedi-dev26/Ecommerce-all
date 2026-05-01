@@ -141,11 +141,11 @@ const PurchasesPanel = () => {
         </Card>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <p className="text-sm text-muted-foreground">{rows.length} টি ক্রয় রেকর্ড</p>
         <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setForm(emptyForm); }}>
           <DialogTrigger asChild>
-            <Button size="sm"><Plus className="h-4 w-4 mr-1" />নতুন ক্রয়</Button>
+            <Button size="sm" className="shadow-sm"><Plus className="h-4 w-4 mr-1" />নতুন ক্রয় যোগ করুন</Button>
           </DialogTrigger>
           <DialogContent className="rounded-2xl max-w-lg">
             <DialogHeader><DialogTitle>নতুন ক্রয় রেকর্ড</DialogTitle></DialogHeader>
