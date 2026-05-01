@@ -110,8 +110,60 @@ const StockValuePanel = () => {
         <Input placeholder="প্রোডাক্ট খুঁজুন..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-card" />
       </div>
 
-      {/* Table */}
-      <Card className="border-border/50 overflow-hidden">
+      {/* Mobile cards */}
+      <div className="space-y-2 md:hidden">
+        {filtered.map((p) => {
+          const stockCost = Number(p.stock) * Number(p.cost_price || 0);
+          const stockSale = Number(p.stock) * Number(p.price || 0);
+          const profit = stockSale - stockCost;
+          const isLow = p.stock < 10;
+          return (
+            <Card key={p.id} className="border-border/50">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-3">
+                  {p.image_url ? (
+                    <img src={p.image_url} alt={p.name_bn} className="h-12 w-12 rounded-lg object-cover shrink-0" />
+                  ) : (
+                    <div className="h-12 w-12 rounded-lg bg-muted shrink-0 flex items-center justify-center">
+                      <Package className="h-5 w-5 text-muted-foreground/40" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm truncate">{p.name_bn}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className={cn(
+                        "inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold",
+                        isLow ? "bg-destructive/15 text-destructive" : "bg-green-500/15 text-green-600"
+                      )}>
+                        স্টক: {p.stock}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">@ ৳{Number(p.cost_price || 0).toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-border/40">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground">মোট ক্রয় মূল্য</p>
+                    <p className="text-sm font-bold">৳{stockCost.toLocaleString()}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] text-muted-foreground">সম্ভাব্য লাভ</p>
+                    <p className={cn("text-sm font-bold", profit >= 0 ? "text-green-600" : "text-destructive")}>
+                      ৳{profit.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+        {filtered.length === 0 && (
+          <div className="text-center py-12 text-muted-foreground text-sm">কোনো প্রোডাক্ট নেই</div>
+        )}
+      </div>
+
+      {/* Desktop Table */}
+      <Card className="border-border/50 overflow-hidden hidden md:block">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
