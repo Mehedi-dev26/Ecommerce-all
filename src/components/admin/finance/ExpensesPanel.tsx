@@ -172,7 +172,43 @@ const ExpensesPanel = () => {
         </Dialog>
       </div>
 
-      <Card className="border-border/50 overflow-hidden">
+      {/* Mobile cards */}
+      <div className="space-y-2 md:hidden">
+        {rows.map((r) => (
+          <Card key={r.id} className="border-border/50">
+            <CardContent className="p-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary">
+                      {catLabel(r.category)}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {new Date(r.expense_date).toLocaleDateString("bn-BD", { day: "numeric", month: "short" })}
+                    </span>
+                  </div>
+                  <p className="font-semibold text-sm truncate">{r.title}</p>
+                  {r.notes && <p className="text-[11px] text-muted-foreground truncate mt-0.5">{r.notes}</p>}
+                </div>
+                <div className="flex flex-col items-end gap-1 shrink-0">
+                  <p className="text-base font-bold text-destructive">−৳{Number(r.amount).toLocaleString()}</p>
+                  <Button variant="ghost" size="icon" onClick={() => remove(r.id)} className="h-7 w-7 text-destructive">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+        {rows.length === 0 && (
+          <div className="text-center py-12">
+            <Receipt className="h-10 w-10 text-muted-foreground/30 mx-auto mb-2" />
+            <p className="text-muted-foreground text-sm">এখনো কোনো খরচ রেকর্ড নেই</p>
+          </div>
+        )}
+      </div>
+
+      <Card className="border-border/50 overflow-hidden hidden md:block">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
