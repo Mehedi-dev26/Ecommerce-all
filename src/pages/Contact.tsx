@@ -32,7 +32,7 @@ const Contact = () => {
     <div className="container mx-auto px-4 py-10">
       <SEO
         title="যোগাযোগ — Surzo Shop"
-        description="Surzo Shop-এর সাথে যোগাযোগ করুন। ফোন: +880 1779-80168, ইমেইল: surzoshop@gmail.com। ঠিকানা: আশুরন্দ বাজার, সাপাহার, নওগাঁ।"
+        description="Surzo Shop-এর সাথে যোগাযোগ করুন। ফোন: 01725391686, ইমেইল: surzoshop@gmail.com। ঠিকানা: আশুরন্দ বাজার, সাপাহার, নওগাঁ।"
         path="/contact"
         jsonLd={breadcrumb([{ name: "হোম", path: "/" }, { name: "যোগাযোগ", path: "/contact" }])}
       />
@@ -41,21 +41,25 @@ const Contact = () => {
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="space-y-6">
           {[
-            { icon: Phone, title: "ফোন", info: "+880 1779-80168" },
-            { icon: Mail, title: "ইমেইল", info: "surzoshop@gmail.com" },
+            { icon: Phone, title: "ফোন", info: "01725391686", href: "tel:01725391686" },
+            { icon: Mail, title: "ইমেইল", info: "surzoshop@gmail.com", href: "mailto:surzoshop@gmail.com" },
             { icon: MapPin, title: "ঠিকানা", info: "আশুরন্দ বাজার, সাপাহার, নওগাঁ" },
             { icon: Clock, title: "সময়সূচী", info: "সকাল ৯টা - রাত ১০টা (প্রতিদিন)" },
-          ].map((item, i) => (
-            <div key={i} className="flex items-start gap-4 rounded-lg bg-card p-4 shadow-sm">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                <item.icon className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.info}</p>
-              </div>
-            </div>
-          ))}
+          ].map((item, i) => {
+            const Wrapper: any = item.href ? "a" : "div";
+            const wrapperProps = item.href ? { href: item.href } : {};
+            return (
+              <Wrapper key={i} {...wrapperProps} className="flex items-start gap-4 rounded-lg bg-card p-4 shadow-sm hover:bg-accent/5 transition-colors">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                  <item.icon className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">{item.title}</h3>
+                  <p className="text-sm text-muted-foreground">{item.info}</p>
+                </div>
+              </Wrapper>
+            );
+          })}
           <a
             href={facebookUrl}
             target="_blank"
