@@ -20,6 +20,38 @@ export const SITE_DEFAULTS: Record<string, string> = {
   footer_copyright: "© {year} Sapahar Mango Shop — সাপাহারের খাঁটি আমের নির্ভরযোগ্য ঠিকানা। সর্বস্বত্ব সংরক্ষিত।",
 };
 
+const CACHE_KEY = "sapahar:site_settings:v2";
+const LEGACY_CACHE_KEYS = [
+  "surzo:site_settings",
+  "surzoshop:site_settings",
+  "site_settings",
+  "sapahar:site_settings:v1",
+];
+
+const readCache = (): Record<string, string> | null => {
+  if (typeof window === "undefined") return null;
+  try {
+    // Purge any old/stale cache entries from previous brand versions
+    LEGACY_CACHE_KEYS.forEach((k) => localStorage.removeItem(k));
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && parsed.data) return parsed.data;
+    return null;
+  } catch {
+    return null;
+  }
+};
+
+const writeCache = (data: Record<string, string>) => {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ data, ts: Date.now() }));
+  } catch {
+    /* quota exceeded — ignore */
+  }
+};
+
 interface SiteSettingsContextValue {
   settings: Record<string, string>;
   logoUrl: string;
@@ -33,7 +65,13 @@ const SiteSettingsContext = createContext<SiteSettingsContextValue>({
 });
 
 export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
-  const [settings, setSettings] = useState<Record<string, string>>(SITE_DEFAULTS);
+  // Hydrate instantly from localStorage cache so logo + brand name appear
+  // on the very first paint (no flicker of stale defaults). Background
+  // refresh below will update if anything has changed.
+  const [settings, setSettings] = useState<Record<string, string>>(() => ({
+    ...SITE_DEFAULTS,
+    ...(readCache() ?? {}),
+  }));
 
   const refresh = useCallback(async () => {
     const { data } = await supabase.from("site_settings").select("key, value");
@@ -43,6 +81,7 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
         if (r.value !== null && r.value !== undefined) map[r.key] = r.value;
       });
       setSettings(map);
+      writeCache(map);
     }
   }, []);
 

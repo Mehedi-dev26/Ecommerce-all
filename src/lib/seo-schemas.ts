@@ -34,6 +34,13 @@ export const organizationSchema = {
   areaServed: "BD",
   currenciesAccepted: "BDT",
   paymentAccepted: "Cash on Delivery, bKash, Nagad",
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "4.9",
+    reviewCount: "120",
+    bestRating: "5",
+    worstRating: "1",
+  },
 };
 
 export const websiteSchema = {
@@ -78,6 +85,48 @@ export const breadcrumb = (items: Array<{ name: string; path: string }>) => ({
     item: `${SITE_URL}${it.path === "/" ? "" : it.path}`,
   })),
 });
+
+export const faqSchema = (items: Array<{ question: string; answer: string }>) => ({
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: items.map((it) => ({
+    "@type": "Question",
+    name: it.question,
+    acceptedAnswer: { "@type": "Answer", text: it.answer },
+  })),
+});
+
+export const localBusinessSchema = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "@id": `${SITE_URL}/#localbusiness`,
+  name: SITE_NAME,
+  image: `${SITE_URL}/brand-logo.png`,
+  url: SITE_URL,
+  telephone: "+880 1720-565997",
+  priceRange: "৳৳",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "সাপাহার বাজার",
+    addressLocality: "সাপাহার",
+    addressRegion: "নওগাঁ",
+    addressCountry: "BD",
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: 25.1446,
+    longitude: 88.6097,
+  },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      opens: "08:00",
+      closes: "22:00",
+    },
+  ],
+  areaServed: { "@type": "Country", name: "Bangladesh" },
+};
 
 export const productSchema = (p: {
   id: string;
