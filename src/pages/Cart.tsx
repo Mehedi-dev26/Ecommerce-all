@@ -11,7 +11,7 @@ const Cart = () => {
   if (items.length === 0) {
     return (
       <div className="container mx-auto flex flex-col items-center px-4 py-20">
-        <SEO title="শপিং কার্ট" description="আপনার শপিং কার্ট দেখুন ও Surzo Shop থেকে অর্ডার সম্পন্ন করুন।" path="/cart" noindex />
+        <SEO title="শপিং কার্ট" description="আপনার শপিং কার্ট দেখুন ও Sapahar Mango Shop থেকে অর্ডার সম্পন্ন করুন।" path="/cart" noindex />
         <ShoppingBag className="mb-4 h-16 w-16 text-muted-foreground" />
         <h2 className="mb-2 text-2xl font-bold text-foreground">আপনার কার্ট খালি</h2>
         <p className="mb-6 text-muted-foreground">পছন্দের পণ্য যোগ করুন</p>
