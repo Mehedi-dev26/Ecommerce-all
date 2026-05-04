@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getGuestAuthEmail, getGuestAuthPassword } from "@/lib/guest-auth";
 import brandLogo from "@/assets/brand-logo.png";
+import SEO from "@/components/SEO";
 
 type AuthMode = "login" | "register" | "forgot";
 
@@ -165,6 +166,8 @@ const Login = () => {
   if (user) return null;
 
   return (
+    <>
+    <SEO title="লগইন" description="Sapahar Mango Shop অ্যাকাউন্টে লগইন করুন। অর্ডার ট্র্যাক করুন, ঠিকানা সংরক্ষণ করুন ও দ্রুত চেকআউট সম্পন্ন করুন।" path="/login" noindex />
     <div className="min-h-[85vh] flex">
       {/* Left Panel - Brand (Desktop only) */}
       <div className="hidden lg:flex lg:w-[45%] xl:w-[50%] bg-gradient-to-br from-primary/95 via-primary to-accent/80 text-primary-foreground relative overflow-hidden">
