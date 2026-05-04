@@ -9,7 +9,7 @@ const sections = [
     icon: CheckCircle2,
     title: "শর্তাবলী মেনে নেওয়া",
     body: [
-      "Surzo Shop ব্যবহার করার মাধ্যমে আপনি স্বয়ংক্রিয়ভাবে এই শর্তাবলী মেনে নিচ্ছেন।",
+      "Sapahar Mango Shop ব্যবহার করার মাধ্যমে আপনি স্বয়ংক্রিয়ভাবে এই শর্তাবলী মেনে নিচ্ছেন।",
       "আপনার বয়স কমপক্ষে ১৮ বছর হতে হবে অথবা অভিভাবকের অনুমতিক্রমে অর্ডার করতে হবে।",
       "ভুল বা মিথ্যা তথ্য দিয়ে অ্যাকাউন্ট তৈরি করা যাবে না; এমন অ্যাকাউন্ট সাময়িকভাবে বা স্থায়ীভাবে বন্ধ করা হতে পারে।",
     ],
@@ -67,7 +67,7 @@ const sections = [
     icon: Scale,
     title: "দায়বদ্ধতা সীমা",
     body: [
-      "Surzo Shop পণ্যের গুণগতমান ও সঠিক ডেলিভারি নিশ্চিত করতে সর্বদা সচেষ্ট।",
+      "Sapahar Mango Shop পণ্যের গুণগতমান ও সঠিক ডেলিভারি নিশ্চিত করতে সর্বদা সচেষ্ট।",
       "তবে অপ্রত্যাশিত পরিস্থিতি (প্রাকৃতিক দুর্যোগ, ধর্মঘট, কুরিয়ার বিলম্ব) এর জন্য আমরা সরাসরি দায়ী নই।",
       "আমাদের সর্বোচ্চ দায় কোনো অর্ডারের মোট মূল্যের সমান।",
       "এই শর্তাবলী বাংলাদেশের প্রচলিত আইন দ্বারা পরিচালিত হবে এবং বিরোধ নওগাঁ আদালতের এখতিয়ারভুক্ত।",
@@ -79,8 +79,8 @@ const TermsConditions = () => {
   return (
     <div className="bg-background">
       <SEO
-        title="শর্তাবলী — Surzo Shop"
-        description="Surzo Shop ব্যবহারের শর্তাবলী, অর্ডার ও পেমেন্ট নিয়ম, ডেলিভারি ও রিটার্ন পলিসি — সম্পূর্ণ শর্তগুলো পড়ুন।"
+        title="শর্তাবলী — Sapahar Mango Shop"
+        description="Sapahar Mango Shop ব্যবহারের শর্তাবলী, অর্ডার ও পেমেন্ট নিয়ম, ডেলিভারি ও রিটার্ন পলিসি — সম্পূর্ণ শর্তগুলো পড়ুন।"
         path="/terms-conditions"
         jsonLd={breadcrumb([{ name: "হোম", path: "/" }, { name: "শর্তাবলী", path: "/terms-conditions" }])}
       />
@@ -96,7 +96,7 @@ const TermsConditions = () => {
             </div>
             <h1 className="mb-2 text-2xl font-bold text-white sm:text-4xl">শর্তাবলী</h1>
             <p className="max-w-2xl text-sm text-white/90 sm:text-base">
-              Surzo Shop ব্যবহারের আগে অনুগ্রহ করে নিচের শর্তাবলী মনোযোগ দিয়ে পড়ুন। আমাদের সাইট ব্যবহার বা অর্ডার করার মাধ্যমে আপনি এই শর্তগুলো মেনে নিচ্ছেন।
+              Sapahar Mango Shop ব্যবহারের আগে অনুগ্রহ করে নিচের শর্তাবলী মনোযোগ দিয়ে পড়ুন। আমাদের সাইট ব্যবহার বা অর্ডার করার মাধ্যমে আপনি এই শর্তগুলো মেনে নিচ্ছেন।
             </p>
             <p className="mt-3 text-xs text-white/70">সর্বশেষ আপডেট: ২৩ এপ্রিল, ২০২৬</p>
           </div>
@@ -139,11 +139,11 @@ const TermsConditions = () => {
                 শর্তাবলী সম্পর্কে কোনো প্রশ্ন থাকলে আমাদের সাথে যোগাযোগ করুন:
               </p>
               <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-                <a href="tel:+8801779801680" className="flex items-center gap-2 text-sm font-medium text-primary hover:underline sm:text-base">
-                  <Phone className="h-4 w-4" /> +880 1779-80168
+                <a href="tel:+8801720565997" className="flex items-center gap-2 text-sm font-medium text-primary hover:underline sm:text-base">
+                  <Phone className="h-4 w-4" /> +880 1720-565997
                 </a>
-                <a href="mailto:surzoshop@gmail.com" className="flex items-center gap-2 text-sm font-medium text-primary hover:underline sm:text-base">
-                  <Mail className="h-4 w-4" /> surzoshop@gmail.com
+                <a href="mailto:sapaharmangostore@gmail.com" className="flex items-center gap-2 text-sm font-medium text-primary hover:underline sm:text-base">
+                  <Mail className="h-4 w-4" /> sapaharmangostore@gmail.com
                 </a>
               </div>
             </article>
