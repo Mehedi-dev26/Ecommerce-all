@@ -1,11 +1,26 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Facebook, Instagram, Youtube } from "lucide-react";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Footer = () => {
   const { settings, logoUrl } = useSiteSettings();
-  const brandName = settings.brand_name || "Surzo Shop";
+  const brandName = settings.brand_name || "Sapahar Mango Shop";
   const aboutText = settings.footer_about || "";
+
+  const { data: categories } = useQuery({
+    queryKey: ["footer-categories"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("categories")
+        .select("name, name_bn")
+        .order("sort_order")
+        .limit(6);
+      return data ?? [];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
 
   const copyright = settings.footer_copyright.replace("{year}", String(new Date().getFullYear()));
 
@@ -59,9 +74,16 @@ const Footer = () => {
           <div>
             <h4 className="mb-4 text-base font-bold text-accent uppercase tracking-wider">ক্যাটাগরি</h4>
             <ul className="space-y-3 text-base">
-              <li><Link to="/products?category=Electronics" className="text-white/90 hover:text-accent transition-colors font-medium">ইলেকট্রনিক্স</Link></li>
-              <li><Link to="/products?category=Home%20Appliances" className="text-white/90 hover:text-accent transition-colors font-medium">হোম অ্যাপ্লায়েন্স</Link></li>
-              <li><Link to="/products?category=Bicycles%20%26%20Vehicles" className="text-white/90 hover:text-accent transition-colors font-medium">সাইকেল ও যানবাহন</Link></li>
+              {(categories ?? []).map((c) => (
+                <li key={c.name}>
+                  <Link
+                    to={`/products?category=${encodeURIComponent(c.name)}`}
+                    className="text-white/90 hover:text-accent transition-colors font-medium"
+                  >
+                    {c.name_bn || c.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
           <div className="col-span-2 sm:col-span-1">
