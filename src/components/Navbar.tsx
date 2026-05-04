@@ -32,7 +32,7 @@ const Navbar = () => {
             <img src={logoUrl} alt={`${brandName} logo`} className="h-full w-full object-contain" />
           </div>
           <div className="flex flex-col">
-            <span className="font-brand text-3xl font-bold leading-none text-white sm:text-4xl drop-shadow-md">{brandName}</span>
+            <span className="font-brand text-3xl font-bold leading-none text-white sm:text-4xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)] [text-shadow:0_1px_0_rgba(255,255,255,0.25)]">{brandName}</span>
             {brandTagline && <span className="text-[9px] font-medium tracking-wider text-white/80 sm:text-[10px]">{brandTagline}</span>}
           </div>
         </Link>
@@ -42,7 +42,7 @@ const Navbar = () => {
             <Link
               key={link.to}
               to={link.to}
-              className="rounded-lg px-3.5 py-2 text-sm font-medium text-white/90 transition-all hover:bg-white/15 hover:text-white"
+              className="rounded-lg px-4 py-2 text-base font-bold text-white tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-all hover:bg-white/20 hover:text-white lg:text-[17px]"
             >
               {link.label}
             </Link>
