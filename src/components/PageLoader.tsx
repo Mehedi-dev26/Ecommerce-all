@@ -17,10 +17,10 @@ const PageLoader = ({ fullScreen = false, message = "লোড হচ্ছে" 
     >
       <div className="flex items-center gap-3">
         <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-lg shadow-primary/40 ring-2 ring-primary/30 animate-[pulse_1s_ease-in-out_infinite]">
-          <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
+          <img src={brandLogo} alt="Sapahar Mango Shop logo" className="h-full w-full object-contain" />
         </div>
         <div className="flex flex-col leading-none">
-          <span className="font-brand text-3xl font-bold text-primary">Surzo Shop</span>
+          <span className="font-brand text-3xl font-bold text-primary">Sapahar Mango Shop</span>
           <span className="mt-1 text-[11px] tracking-widest text-primary/80">স্বল্প মূল্যে সেরা পণ্য</span>
         </div>
       </div>
