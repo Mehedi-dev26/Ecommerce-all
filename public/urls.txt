@@ -2,14 +2,8 @@ https://sapaharama.pro.bd/
 https://sapaharama.pro.bd/products
 https://sapaharama.pro.bd/about
 https://sapaharama.pro.bd/contact
-https://sapaharama.pro.bd/login
-https://sapaharama.pro.bd/cart
 https://sapaharama.pro.bd/privacy-policy
 https://sapaharama.pro.bd/terms-conditions
-https://sapaharama.pro.bd/products?category=amrapali
-https://sapaharama.pro.bd/products?category=haribhanga
-https://sapaharama.pro.bd/products?category=fazli
-https://sapaharama.pro.bd/products?category=katimon
 https://sapaharama.pro.bd/products/a1870057-1a5e-4eb3-95f7-fcc17e7ee2ed
 https://sapaharama.pro.bd/products/5499ea82-f479-4118-bb0d-9fd6e30b97c3
 https://sapaharama.pro.bd/products/73c63ce9-e9fb-4eb4-850d-de3a135d1030
