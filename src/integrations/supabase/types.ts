@@ -651,7 +651,6 @@ export type Database = {
         Row: {
           category_id: string | null
           compare_price: number | null
-          cost_price: number
           created_at: string
           description: string | null
           description_bn: string | null
@@ -672,7 +671,6 @@ export type Database = {
         Insert: {
           category_id?: string | null
           compare_price?: number | null
-          cost_price?: number
           created_at?: string
           description?: string | null
           description_bn?: string | null
@@ -693,7 +691,6 @@ export type Database = {
         Update: {
           category_id?: string | null
           compare_price?: number | null
-          cost_price?: number
           created_at?: string
           description?: string | null
           description_bn?: string | null
