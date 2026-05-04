@@ -61,7 +61,6 @@ const readCache = (): Record<string, string> | null => {
       return null;
     }
     return merged;
-    return null;
   } catch {
     return null;
   }
@@ -111,7 +110,7 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => { void refresh(); }, [refresh]);
 
-  const logoUrl = settings.brand_logo_url?.trim() ? settings.brand_logo_url : FALLBACK_LOGO_URL || brandLogoFallback;
+  const logoUrl = settings.brand_logo_url?.trim() ? settings.brand_logo_url : brandLogoFallback;
 
   return (
     <SiteSettingsContext.Provider value={{ settings, logoUrl, refresh }}>
