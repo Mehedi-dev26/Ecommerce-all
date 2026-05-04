@@ -560,7 +560,7 @@ const TemplatesTab = () => {
                   .replace(/\{\{status_message\}\}/g, "আপনার অর্ডারটি কুরিয়ারে পাঠানো হয়েছে।")
                   .replace(/\{\{shipping_address\}\}/g, "১২৩ মেইন রোড, ঢাকা")
                   .replace(/\{\{site_name\}\}/g, "Sapahar Mango")
-                  .replace(/\{\{company_email\}\}/g, "info@sapaharmango.com")
+                  .replace(/\{\{company_email\}\}/g, "info@sapaharama.pro.bd")
                   .replace(/\{\{custom_subject\}\}/g, "বিশেষ অফার")
                   .replace(/\{\{custom_message\}\}/g, "এটি একটি sample বার্তা।")
                   .replace(/\{\{items_html\}\}/g, "<p style='padding:8px;background:#f0fdfa;border-radius:6px;'>স্যাম্পল পণ্য × ২ — ৳ ২,০০০</p>")}

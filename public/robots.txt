@@ -28,5 +28,5 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-Sitemap: https://sapaharmango.com/sitemap.xml
-Host: https://sapaharmango.com
+Sitemap: https://sapaharama.pro.bd/sitemap.xml
+Host: https://sapaharama.pro.bd

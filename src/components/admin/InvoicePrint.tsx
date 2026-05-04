@@ -213,7 +213,7 @@ const InvoicePrint = ({ order, items, open, onClose, type }: InvoicePrintProps) 
                 </p>
               )}
               <p>ধন্যবাদ আপনার অর্ডারের জন্য! — Sapahar Mango Shop 🥭</p>
-              <p style={{ marginTop: 4 }}>www.sapaharmango.com</p>
+              <p style={{ marginTop: 4 }}>sapaharama.pro.bd</p>
             </div>
           </div>
         </div>

@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 
-const SITE_URL = "https://sapaharmango.com";
+const SITE_URL = "https://sapaharama.pro.bd";
 
 // Read VITE_* vars from .env (so we don't hard-code anything brittle).
 const loadEnv = () => {
