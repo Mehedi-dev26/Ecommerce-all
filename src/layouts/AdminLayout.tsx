@@ -6,6 +6,7 @@ import AdminBottomNav from "@/components/admin/AdminBottomNav";
 import AdminAIAssistant from "@/components/admin/AdminAIAssistant";
 import { Menu, Bell, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import PageLoader from "@/components/PageLoader";
 
 const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/admin": { title: "ড্যাশবোর্ড", subtitle: "আপনার ব্যবসার সারসংক্ষেপ" },
@@ -30,14 +31,7 @@ const AdminLayout = () => {
   const currentPage = pageTitles[location.pathname] || { title: "অ্যাডমিন", subtitle: "" };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
-        <div className="relative">
-          <div className="animate-spin h-12 w-12 border-4 border-primary/30 border-t-primary rounded-full" />
-        </div>
-        <p className="text-sm text-muted-foreground animate-pulse">লোড হচ্ছে...</p>
-      </div>
-    );
+    return <PageLoader fullScreen message="অ্যাডমিন প্যানেল লোড হচ্ছে" />;
   }
 
   if (!user) return null;
