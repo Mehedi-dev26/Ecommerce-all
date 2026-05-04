@@ -10,6 +10,7 @@ import { Lock, Mail } from "lucide-react";
 import { hasAdminRole } from "@/lib/admin-auth";
 import { getErrorMessage } from "@/lib/error-message";
 import brandLogo from "@/assets/brand-logo.png";
+import SEO from "@/components/SEO";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -44,6 +45,8 @@ const AdminLogin = () => {
   };
 
   return (
+    <>
+    <SEO title="অ্যাডমিন লগইন" description="Sapahar Mango Shop অ্যাডমিন প্যানেল লগইন।" path="/admin/login" noindex />
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-4">
       <Card className="w-full max-w-md shadow-2xl border-primary/20">
         <CardHeader className="text-center space-y-4">
