@@ -61,7 +61,7 @@ const SupportWidget = () => {
         >
           <a
             href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-              "আসসালামু আলাইকুম, আমি Surzo Shop সম্পর্কে জানতে চাই।",
+              "আসসালামু আলাইকুম, আমি Sapahar Mango Shop সম্পর্কে জানতে চাই।",
             )}`}
             target="_blank"
             rel="noopener noreferrer"
