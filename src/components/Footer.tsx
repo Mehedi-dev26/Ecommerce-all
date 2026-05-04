@@ -59,6 +59,29 @@ const Footer = () => {
                 </a>
               ))}
             </div>
+
+            {/* Credits */}
+            <p className="mt-4 text-sm text-white/80 font-medium">
+              Created by{" "}
+              <a
+                href="https://upnexit.pro.bd/"
+                target="_blank"
+                rel="noopener noreferrer author"
+                className="text-accent hover:underline font-semibold"
+              >
+                Upnex IT
+              </a>
+              {" / "}
+              সহযোগিতায়{" "}
+              <a
+                href="https://upnexit.pro.bd/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:underline font-semibold"
+              >
+                Mehedi
+              </a>
+            </p>
           </div>
           <div>
             <h4 className="mb-4 text-base font-bold text-accent uppercase tracking-wider">দ্রুত লিংক</h4>

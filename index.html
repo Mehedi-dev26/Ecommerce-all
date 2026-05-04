@@ -26,11 +26,11 @@
     </script>
 
     <link rel="canonical" href="https://sapaharama.pro.bd/" />
-    <link rel="apple-touch-icon" href="/brand-logo.png?v=3" />
+    <link rel="apple-touch-icon" href="/brand-logo.png?v=4" />
 
     <!-- Preload critical brand asset (WebP – 14KB vs 79KB PNG) for instant LCP.
          Version query string busts browser cache when the logo file changes. -->
-    <link rel="preload" as="image" href="/brand-logo.webp?v=3" type="image/webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="/brand-logo.webp?v=4" type="image/webp" fetchpriority="high" />
 
     <!-- Performance hints — only essentials. Fonts loaded async via JS to avoid render block. -->
     <link rel="preconnect" href="https://lmfbirdlpfpuoumxgcfd.supabase.co" crossorigin />
@@ -122,7 +122,13 @@
       "paymentAccepted": "Cash on Delivery, bKash, Nagad",
       "sameAs": [
         "https://www.facebook.com/profile.php?id=61589209802561"
-      ]
+      ],
+      "creator": {
+        "@type": "Organization",
+        "name": "Upnex IT",
+        "url": "https://upnexit.pro.bd/",
+        "founder": { "@type": "Person", "name": "Mehedi" }
+      }
     }
     </script>
 
@@ -192,8 +198,8 @@
         <div class="il-logo">
           <div class="il-badge">
             <picture>
-              <source srcset="/brand-logo.webp?v=3" type="image/webp" />
-              <img src="/brand-logo.png?v=3" alt="Sapahar Mango Shop" width="64" height="64" decoding="async" />
+              <source srcset="/brand-logo.webp?v=4" type="image/webp" />
+              <img src="/brand-logo.png?v=4" alt="Sapahar Mango Shop" width="64" height="64" decoding="async" />
             </picture>
           </div>
           <div class="il-text">
@@ -214,7 +220,7 @@
       // from the previous shop branding so refresh always loads the fresh logo/name.
       (function () {
         try {
-          var legacyKeys = ['surzo:site_settings','surzoshop:site_settings','site_settings','sapahar:site_settings:v1','surzo:cache','surzoshop:cache'];
+          var legacyKeys = ['surzo:site_settings','surzoshop:site_settings','site_settings','sapahar:site_settings:v1','sapahar:site_settings:v2','surzo:cache','surzoshop:cache'];
           legacyKeys.forEach(function (k) { localStorage.removeItem(k); });
           if ('caches' in window) {
             caches.keys().then(function (names) {
