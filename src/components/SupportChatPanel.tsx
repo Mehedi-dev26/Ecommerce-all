@@ -9,10 +9,10 @@ import { toast } from "sonner";
 type Msg = { role: "user" | "assistant"; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/support-chat`;
-const WHATSAPP_NUMBER = "8801779801680";
+const WHATSAPP_NUMBER = "8801720565997";
 
 const QUICK_PROMPTS = [
-  "Smartphone আছে কি?",
+  "কোন আম এখন available?",
   "Delivery charge কত?",
   "Payment method কী কী?",
   "অর্ডার কীভাবে দেব?",
@@ -21,7 +21,7 @@ const QUICK_PROMPTS = [
 const INITIAL_MSG: Msg = {
   role: "assistant",
   content:
-    "আসসালামু আলাইকুম! 👋 আমি **Surzo Assistant**। পণ্য, দাম, ডেলিভারি বা অর্ডার সম্পর্কে যেকোনো প্রশ্ন করুন।",
+    "আসসালামু আলাইকুম! 👋 আমি **Sapahar Mango Assistant**। আম, দাম, ডেলিভারি বা অর্ডার সম্পর্কে যেকোনো প্রশ্ন করুন।",
 };
 
 interface Props {
