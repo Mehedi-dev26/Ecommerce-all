@@ -2,10 +2,12 @@ import { createContext, useContext, useEffect, useState, ReactNode, useCallback 
 import { supabase } from "@/integrations/supabase/client";
 import brandLogoFallback from "@/assets/brand-logo.png";
 
+const FALLBACK_LOGO_URL = "https://jrbximpqznskggzlrzpu.supabase.co/storage/v1/object/public/product-images/site/logo-1777922089512.png";
+
 export const SITE_DEFAULTS: Record<string, string> = {
   brand_name: "Sapahar Mango Shop",
   brand_tagline: "স্বল্প মূল্যে বাজারের সেরা আম",
-  brand_logo_url: "",
+  brand_logo_url: FALLBACK_LOGO_URL,
   header_phone: "+8801720565997",
   company_name: "Sapahar Mango Shop",
   company_email: "sapaharmangostore@gmail.com",
@@ -20,13 +22,28 @@ export const SITE_DEFAULTS: Record<string, string> = {
   footer_copyright: "© {year} Sapahar Mango Shop — সাপাহারের খাঁটি আমের নির্ভরযোগ্য ঠিকানা। সর্বস্বত্ব সংরক্ষিত।",
 };
 
-const CACHE_KEY = "sapahar:site_settings:v2";
+const CACHE_KEY = "sapahar:site_settings:v3";
 const LEGACY_CACHE_KEYS = [
   "surzo:site_settings",
   "surzoshop:site_settings",
   "site_settings",
   "sapahar:site_settings:v1",
+  "sapahar:site_settings:v2",
 ];
+
+const hasLegacyBranding = (data: Record<string, string>) => {
+  const values = [
+    data.brand_name,
+    data.brand_tagline,
+    data.company_name,
+    data.footer_about,
+    data.brand_logo_url,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return /surzo/i.test(values);
+};
 
 const readCache = (): Record<string, string> | null => {
   if (typeof window === "undefined") return null;
@@ -36,8 +53,14 @@ const readCache = (): Record<string, string> | null => {
     const raw = localStorage.getItem(CACHE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === "object" && parsed.data) return parsed.data;
-    return null;
+    const cached = parsed && typeof parsed === "object" ? (parsed.data ?? parsed) : null;
+    if (!cached || typeof cached !== "object") return null;
+    const merged = { ...SITE_DEFAULTS, ...cached } as Record<string, string>;
+    if (hasLegacyBranding(merged)) {
+      localStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+    return merged;
   } catch {
     return null;
   }

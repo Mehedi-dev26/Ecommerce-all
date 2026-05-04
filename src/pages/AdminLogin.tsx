@@ -9,10 +9,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Lock, Mail } from "lucide-react";
 import { hasAdminRole } from "@/lib/admin-auth";
 import { getErrorMessage } from "@/lib/error-message";
-import brandLogo from "@/assets/brand-logo.png";
 import SEO from "@/components/SEO";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
 const AdminLogin = () => {
+  const { settings, logoUrl } = useSiteSettings();
+  const brandName = settings.brand_name || "Sapahar Mango Shop";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -46,17 +48,17 @@ const AdminLogin = () => {
 
   return (
     <>
-    <SEO title="অ্যাডমিন লগইন" description="Sapahar Mango Shop অ্যাডমিন প্যানেল লগইন।" path="/admin/login" noindex />
+    <SEO title="অ্যাডমিন লগইন" description={`${brandName} অ্যাডমিন প্যানেল লগইন।`} path="/admin/login" noindex />
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-4">
       <Card className="w-full max-w-md shadow-2xl border-primary/20">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
             <div className="h-16 w-16 rounded-2xl bg-white ring-4 ring-primary/20 flex items-center justify-center shadow-md overflow-hidden">
-              <img src={brandLogo} alt="Sapahar Mango Shop logo" className="h-full w-full object-contain" />
+              <img src={logoUrl} alt={`${brandName} logo`} className="h-full w-full object-contain" />
             </div>
           </div>
           <CardTitle className="text-2xl font-bold text-foreground">
-            <span className="font-brand text-primary text-4xl">Sapahar Mango Shop</span>
+            <span className="font-brand text-primary text-4xl">{brandName}</span>
             <br />
             <span className="text-lg text-muted-foreground">অ্যাডমিন প্যানেল</span>
           </CardTitle>

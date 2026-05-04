@@ -8,13 +8,16 @@ import { Loader2, ShieldCheck, Truck, Headphones, Eye, EyeOff, Mail, Lock, User,
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getGuestAuthEmail, getGuestAuthPassword } from "@/lib/guest-auth";
-import brandLogo from "@/assets/brand-logo.png";
 import SEO from "@/components/SEO";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
 type AuthMode = "login" | "register" | "forgot";
 
 const Login = () => {
   const { signInWithGoogle, signInWithEmail, resetPassword, user, loading, refreshProfile } = useAuth();
+  const { settings, logoUrl } = useSiteSettings();
+  const brandName = settings.brand_name || "Sapahar Mango Shop";
+  const brandTagline = settings.brand_tagline || "সাপাহারের সেরা ও খাঁটি আম";
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -167,7 +170,7 @@ const Login = () => {
 
   return (
     <>
-    <SEO title="লগইন" description="Sapahar Mango Shop অ্যাকাউন্টে লগইন করুন। অর্ডার ট্র্যাক করুন, ঠিকানা সংরক্ষণ করুন ও দ্রুত চেকআউট সম্পন্ন করুন।" path="/login" noindex />
+    <SEO title="লগইন" description={`${brandName} অ্যাকাউন্টে লগইন করুন। অর্ডার ট্র্যাক করুন, ঠিকানা সংরক্ষণ করুন ও দ্রুত চেকআউট সম্পন্ন করুন।`} path="/login" noindex />
     <div className="min-h-[85vh] flex">
       {/* Left Panel - Brand (Desktop only) */}
       <div className="hidden lg:flex lg:w-[45%] xl:w-[50%] bg-gradient-to-br from-primary/95 via-primary to-accent/80 text-primary-foreground relative overflow-hidden">
@@ -180,11 +183,11 @@ const Login = () => {
         <div className="relative z-10 flex flex-col justify-center px-10 xl:px-16 py-12 w-full">
           <div className="flex items-center gap-4 mb-12">
             <div className="h-16 w-16 rounded-2xl bg-white overflow-hidden flex items-center justify-center ring-2 ring-white/40 shadow-lg">
-              <img src={brandLogo} alt="Sapahar Mango Shop logo" className="h-full w-full object-contain" />
+              <img src={logoUrl} alt={`${brandName} logo`} className="h-full w-full object-contain" />
             </div>
             <div>
-              <h2 className="font-brand text-4xl font-bold tracking-tight text-white drop-shadow-md">Sapahar Mango Shop</h2>
-              <p className="text-sm text-white/80 tracking-wide">সাপাহারের সেরা ও খাঁটি আম</p>
+              <h2 className="font-brand text-4xl font-bold tracking-tight text-white drop-shadow-md">{brandName}</h2>
+              <p className="text-sm text-white/80 tracking-wide">{brandTagline}</p>
             </div>
           </div>
 
@@ -249,10 +252,10 @@ const Login = () => {
             {/* Logo */}
             <div className="text-center mb-8">
               <div className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-white ring-4 ring-primary/20 mb-3 shadow-md overflow-hidden">
-                <img src={brandLogo} alt="Sapahar Mango Shop logo" className="h-full w-full object-contain" />
+                <img src={logoUrl} alt={`${brandName} logo`} className="h-full w-full object-contain" />
               </div>
-              <p className="font-brand text-3xl text-primary font-bold">Sapahar Mango Shop</p>
-              <p className="text-xs text-muted-foreground tracking-wide mt-0.5">সাপাহারের সেরা ও খাঁটি আম</p>
+              <p className="font-brand text-3xl text-primary font-bold">{brandName}</p>
+              <p className="text-xs text-muted-foreground tracking-wide mt-0.5">{brandTagline}</p>
             </div>
 
             {/* Heading */}
