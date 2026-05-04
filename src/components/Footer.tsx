@@ -43,47 +43,47 @@ const Footer = () => {
             </div>
             {aboutText && <p className="text-base text-white/90 leading-relaxed">{aboutText}</p>}
 
-            {/* Social buttons */}
-            <div className="mt-5 flex items-center gap-3">
-              {socials.map((s) => (
-                <a
-                  key={s.name}
-                  href={s.href || "#"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={s.label}
-                  title={s.label}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-white/20 transition hover:bg-accent hover:text-secondary hover:ring-accent"
-                >
-                  <s.icon className="h-5 w-5" />
-                </a>
-              ))}
-            </div>
+            {/* Social row + credits inline */}
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-3">
+                {socials.map((s) => (
+                  <a
+                    key={s.name}
+                    href={s.href || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.label}
+                    title={s.label}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-white/20 transition hover:bg-accent hover:text-secondary hover:ring-accent"
+                  >
+                    <s.icon className="h-5 w-5" />
+                  </a>
+                ))}
+              </div>
 
-            {/* Credits — glass pill, aligned with social row */}
-            <div className="mt-3 relative inline-flex max-w-full overflow-hidden rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-3 py-1.5 shadow-[0_4px_16px_-8px_rgba(0,0,0,0.4)] ring-1 ring-inset ring-white/10">
-              <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-accent/10" />
-              <p className="relative text-[11px] sm:text-xs text-white font-medium whitespace-nowrap">
-                Created by{" "}
-                <a
-                  href="https://upnexit.pro.bd/"
-                  target="_blank"
-                  rel="noopener noreferrer author"
-                  className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent font-extrabold hover:underline"
-                >
-                  Upnex IT
-                </a>
-                <span className="mx-1 text-white/60">/</span>
-                সহযোগিতায়{" "}
-                <a
-                  href="https://upnexit.pro.bd/about"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent font-extrabold hover:underline"
-                >
-                  Mehedi
-                </a>
-              </p>
+              <div className="relative inline-flex overflow-hidden rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-3 py-1.5 shadow-[0_4px_16px_-8px_rgba(0,0,0,0.4)] ring-1 ring-inset ring-white/10">
+                <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-accent/10" />
+                <p className="relative text-[11px] text-white font-medium whitespace-nowrap">
+                  Created by{" "}
+                  <a
+                    href="https://upnexit.pro.bd/"
+                    target="_blank"
+                    rel="noopener noreferrer author"
+                    className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent font-extrabold hover:underline"
+                  >
+                    Upnex IT
+                  </a>
+                  <span className="mx-1 text-white/60">/</span>
+                  <a
+                    href="https://upnexit.pro.bd/about"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent font-extrabold hover:underline"
+                  >
+                    Mehedi
+                  </a>
+                </p>
+              </div>
             </div>
           </div>
           <div>
