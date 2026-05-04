@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SiteSettingsProvider } from "@/contexts/SiteSettingsContext";
 import Navbar from "@/components/Navbar";
 import ScrollToTop from "@/components/ScrollToTop";
 
@@ -99,7 +100,8 @@ const App = () => {
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <CartProvider>
+        <SiteSettingsProvider>
+          <CartProvider>
           <Suspense fallback={null}>
             <Toaster />
             <Sonner />
@@ -164,7 +166,8 @@ const App = () => {
               </Routes>
             </Suspense>
           </BrowserRouter>
-        </CartProvider>
+          </CartProvider>
+        </SiteSettingsProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
