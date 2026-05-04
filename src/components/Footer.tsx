@@ -60,28 +60,32 @@ const Footer = () => {
               ))}
             </div>
 
-            {/* Credits */}
-            <p className="mt-4 text-sm text-white/80 font-medium">
-              Created by{" "}
-              <a
-                href="https://upnexit.pro.bd/"
-                target="_blank"
-                rel="noopener noreferrer author"
-                className="text-accent hover:underline font-semibold"
-              >
-                Upnex IT
-              </a>
-              {" / "}
-              সহযোগিতায়{" "}
-              <a
-                href="https://upnexit.pro.bd/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-accent hover:underline font-semibold"
-              >
-                Mehedi
-              </a>
-            </p>
+            {/* Credits — glass card */}
+            <div className="mt-5 relative overflow-hidden rounded-xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-3 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.4)] ring-1 ring-inset ring-white/10">
+              <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-accent/10" />
+              <div aria-hidden className="pointer-events-none absolute -top-1/2 -left-1/4 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+              <p className="relative text-sm text-white font-medium">
+                Created by{" "}
+                <a
+                  href="https://upnexit.pro.bd/"
+                  target="_blank"
+                  rel="noopener noreferrer author"
+                  className="text-accent hover:underline font-bold"
+                >
+                  Upnex IT
+                </a>
+                <span className="mx-1 text-white/50">/</span>
+                সহযোগিতায়{" "}
+                <a
+                  href="https://upnexit.pro.bd/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-accent hover:underline font-bold"
+                >
+                  Mehedi
+                </a>
+              </p>
+            </div>
           </div>
           <div>
             <h4 className="mb-4 text-base font-bold text-accent uppercase tracking-wider">দ্রুত লিংক</h4>
