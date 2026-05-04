@@ -53,7 +53,7 @@ export const websiteSchema = {
     "Sapahar Mango Store",
     "সাপাহার ম্যাঙ্গো",
     "সাপাহার আম",
-    "sapaharmango.com",
+    "sapaharama.pro.bd",
   ],
   url: SITE_URL,
   inLanguage: "bn-BD",
