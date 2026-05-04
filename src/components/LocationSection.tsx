@@ -51,8 +51,8 @@ const LocationSection = () => (
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground sm:text-lg">হটলাইন</h3>
-                <a href="tel:01725391686" className="mt-1 block text-sm text-muted-foreground hover:text-primary sm:text-base">
-                  01725391686
+                <a href="tel:01720565997" className="mt-1 block text-sm text-muted-foreground hover:text-primary sm:text-base">
+                  01720565997
                 </a>
               </div>
             </div>
@@ -70,7 +70,7 @@ const LocationSection = () => (
         <div className="order-2 lg:order-2 lg:col-span-3 rounded-2xl overflow-hidden shadow-lg border border-border bg-card">
           <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] lg:aspect-auto lg:h-full lg:min-h-[360px]">
             <iframe
-              title="Surzo Shop Location"
+              title="Sapahar Mango Shop Location"
               src={MAP_EMBED}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
