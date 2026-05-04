@@ -32,7 +32,7 @@ const Navbar = () => {
             <img src={logoUrl} alt={`${brandName} logo`} className="h-full w-full object-contain" />
           </div>
           <div className="flex flex-col">
-            <span className="font-brand text-3xl font-bold leading-none text-white sm:text-4xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)] [text-shadow:0_1px_0_rgba(255,255,255,0.25)]">{brandName}</span>
+            <span className="font-brand text-2xl font-bold leading-none text-white sm:text-4xl drop-shadow-md sm:drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)] sm:[text-shadow:0_1px_0_rgba(255,255,255,0.25)]">{brandName}</span>
             {brandTagline && <span className="text-[9px] font-medium tracking-wider text-white/80 sm:text-[10px]">{brandTagline}</span>}
           </div>
         </Link>

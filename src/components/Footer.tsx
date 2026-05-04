@@ -60,17 +60,16 @@ const Footer = () => {
               ))}
             </div>
 
-            {/* Credits — glass card */}
-            <div className="mt-5 relative overflow-hidden rounded-xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-3 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.4)] ring-1 ring-inset ring-white/10">
+            {/* Credits — glass pill, aligned with social row */}
+            <div className="mt-3 relative inline-flex max-w-full overflow-hidden rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-3 py-1.5 shadow-[0_4px_16px_-8px_rgba(0,0,0,0.4)] ring-1 ring-inset ring-white/10">
               <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-accent/10" />
-              <div aria-hidden className="pointer-events-none absolute -top-1/2 -left-1/4 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
-              <p className="relative text-sm text-white font-medium">
+              <p className="relative text-[11px] sm:text-xs text-white font-medium whitespace-nowrap">
                 Created by{" "}
                 <a
                   href="https://upnexit.pro.bd/"
                   target="_blank"
                   rel="noopener noreferrer author"
-                  className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent font-extrabold drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] hover:underline"
+                  className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent font-extrabold hover:underline"
                 >
                   Upnex IT
                 </a>
@@ -80,7 +79,7 @@ const Footer = () => {
                   href="https://upnexit.pro.bd/about"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent font-extrabold drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] hover:underline"
+                  className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent font-extrabold hover:underline"
                 >
                   Mehedi
                 </a>
