@@ -1,11 +1,13 @@
 import { MapPin, Phone, Clock, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const SHOP_ADDRESS = "আশুরন্দ বাজার, সাপাহার, নওগাঁ";
-// Approximate Sapahar coordinates for embed
-const MAP_QUERY = encodeURIComponent("Ashurondo Bazar, Sapahar, Naogaon, Bangladesh");
-const MAP_EMBED = `https://www.google.com/maps?q=${MAP_QUERY}&output=embed`;
-const MAP_DIRECTIONS = `https://www.google.com/maps/dir/?api=1&destination=${MAP_QUERY}`;
+const SHOP_ADDRESS = "সাপাহার বাজার, সাপাহার, নওগাঁ";
+// Sapahar Bazar, Naogaon — exact coordinates
+const SHOP_LAT = 25.1736;
+const SHOP_LNG = 88.6275;
+const MAP_QUERY = encodeURIComponent("Sapahar Bazar, Sapahar, Naogaon, Bangladesh");
+const MAP_EMBED = `https://www.google.com/maps?q=${SHOP_LAT},${SHOP_LNG}(Sapahar+Bazar)&z=15&output=embed`;
+const MAP_DIRECTIONS = `https://www.google.com/maps/dir/?api=1&destination=${SHOP_LAT},${SHOP_LNG}&destination_place_id=Sapahar+Bazar`;
 
 const LocationSection = () => (
   <section className="py-12 sm:py-16 bg-muted/30">
