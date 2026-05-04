@@ -1,14 +1,22 @@
 # Sapahar Mango Shop — robots.txt
+# Last updated: 2026-05
+
 User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /admin/
 Disallow: /checkout
 Disallow: /cart
+Disallow: /order-success
 Disallow: /order-success/
 Disallow: /dashboard
 Disallow: /login
 Disallow: /reset-password
+# Filter / faceted URLs — canonical lives on /products
+Disallow: /*?category=
+Disallow: /*?search=
+Disallow: /*?utm_
+Disallow: /*&utm_
 
 User-agent: Googlebot
 Allow: /
@@ -17,6 +25,10 @@ Disallow: /checkout
 Disallow: /cart
 Disallow: /order-success/
 Disallow: /dashboard
+Disallow: /login
+Disallow: /reset-password
+Disallow: /*?category=
+Disallow: /*?search=
 
 User-agent: Bingbot
 Allow: /
@@ -27,6 +39,10 @@ Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
+
+# AI scrapers — block by default
+User-agent: GPTBot
+Disallow: /admin/
 
 Sitemap: https://sapaharama.pro.bd/sitemap.xml
 Host: https://sapaharama.pro.bd

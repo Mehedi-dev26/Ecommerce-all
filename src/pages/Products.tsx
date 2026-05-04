@@ -175,7 +175,10 @@ const Products = () => {
       <SEO
         title={seoTitle}
         description={seoDesc}
-        path={selectedCategory ? `/products?category=${selectedCategory}` : "/products"}
+        // Always use /products as canonical so filtered views don't create
+        // duplicate URLs in Google Search Console.
+        path="/products"
+        noindex={!!selectedCategory}
         jsonLd={breadcrumb(crumbs)}
       />
       {/* Header */}

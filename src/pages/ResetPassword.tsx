@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
 import brandLogo from "@/assets/brand-logo.png";
 import { useToast } from "@/hooks/use-toast";
+import SEO from "@/components/SEO";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -59,6 +60,8 @@ const ResetPassword = () => {
 
   if (success) {
     return (
+      <>
+      <SEO title="পাসওয়ার্ড রিসেট" description="Sapahar Mango Shop পাসওয়ার্ড পুনরায় সেট করুন।" path="/reset-password" noindex />
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center space-y-3">
           <CheckCircle className="h-12 w-12 text-emerald-500 mx-auto" />
@@ -66,10 +69,13 @@ const ResetPassword = () => {
           <p className="text-sm text-muted-foreground">ড্যাশবোর্ডে রিডাইরেক্ট হচ্ছে...</p>
         </div>
       </div>
+      </>
     );
   }
 
   return (
+    <>
+    <SEO title="পাসওয়ার্ড রিসেট" description="Sapahar Mango Shop পাসওয়ার্ড পুনরায় সেট করুন।" path="/reset-password" noindex />
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
@@ -121,6 +127,7 @@ const ResetPassword = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

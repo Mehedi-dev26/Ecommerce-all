@@ -26,18 +26,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sapaharama.pro.bd/login</loc>
-    <lastmod>2026-05-04</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://sapaharama.pro.bd/cart</loc>
-    <lastmod>2026-05-04</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  <url>
     <loc>https://sapaharama.pro.bd/privacy-policy</loc>
     <lastmod>2026-05-04</lastmod>
     <changefreq>yearly</changefreq>
@@ -48,30 +36,6 @@
     <lastmod>2026-05-04</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://sapaharama.pro.bd/products?category=amrapali</loc>
-    <lastmod>2026-05-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://sapaharama.pro.bd/products?category=haribhanga</loc>
-    <lastmod>2026-05-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://sapaharama.pro.bd/products?category=fazli</loc>
-    <lastmod>2026-05-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://sapaharama.pro.bd/products?category=katimon</loc>
-    <lastmod>2026-05-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://sapaharama.pro.bd/products/a1870057-1a5e-4eb3-95f7-fcc17e7ee2ed</loc>

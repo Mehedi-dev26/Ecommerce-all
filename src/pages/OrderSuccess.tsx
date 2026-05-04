@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import SEO from "@/components/SEO";
 
 const OrderSuccess = () => {
   const { orderNumber } = useParams<{ orderNumber: string }>();
@@ -21,6 +22,8 @@ const OrderSuccess = () => {
   };
 
   return (
+    <>
+    <SEO title="অর্ডার সফল" description="আপনার অর্ডারটি Sapahar Mango Shop সফলভাবে গ্রহণ করেছে।" path="/order-success" noindex />
     <div className="container mx-auto flex flex-col items-center px-4 py-20 text-center">
       <CheckCircle className="mb-6 h-20 w-20 text-primary" />
       <h1 className="mb-2 text-3xl font-bold text-foreground">অর্ডার সফল হয়েছে! 🎉</h1>
@@ -46,6 +49,7 @@ const OrderSuccess = () => {
         <Button asChild variant="outline"><Link to="/">হোম পেজে যান</Link></Button>
       </div>
     </div>
+    </>
   );
 };
 

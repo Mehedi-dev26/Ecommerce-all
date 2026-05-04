@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import SEO from "@/components/SEO";
 import {
   Loader2, Package, Clock, CheckCircle, Truck, XCircle, User,
   ShoppingBag, LogOut, MapPin, Phone as PhoneIcon, Pencil, X,
@@ -292,6 +293,8 @@ const UserDashboard = () => {
   };
 
   return (
+    <>
+    <SEO title="আমার ড্যাশবোর্ড" description="Sapahar Mango Shop ড্যাশবোর্ড — অর্ডার ট্র্যাক, ঠিকানা ও প্রোফাইল ব্যবস্থাপনা।" path="/dashboard" noindex />
     <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-5xl">
       {/* Header */}
       <div className="relative rounded-2xl overflow-hidden mb-6 shadow-lg">
@@ -1044,6 +1047,7 @@ const UserDashboard = () => {
         </Button>
       </div>
     </div>
+    </>
   );
 };
 
