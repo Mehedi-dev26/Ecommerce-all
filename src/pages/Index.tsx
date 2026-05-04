@@ -15,10 +15,10 @@ const SectionFallback = () => <div className="h-40" aria-hidden="true" />;
 const Index = () => (
   <>
     <SEO
-      title="Surzo Shop — স্বল্প মূল্যে সেরা পণ্য | ইলেকট্রনিক্স, হোম অ্যাপ্লায়েন্স ও সাইকেল"
-      description="Surzo Shop — বাংলাদেশের বিশ্বস্ত অনলাইন শপ। স্মার্টফোন, ল্যাপটপ, টিভি, ফ্রিজ, এসি, সাইকেল ও হোম অ্যাপ্লায়েন্স স্বল্প মূল্যে সেরা মানে। সারাদেশে দ্রুত ক্যাশ অন ডেলিভারি।"
+      title="Sapahar Mango Shop — সাপাহারের সেরা ও খাঁটি আম সরাসরি বাগান থেকে"
+      description="Sapahar Mango Shop — সাপাহারের বিশ্বস্ত আমের অনলাইন শপ। আম্রপালি, হাড়িভাঙা, ফজলি, কাঁঠিমুন আম ১০০% খাঁটি ও রাসায়নিকমুক্ত — সারাদেশে দ্রুত হোম ডেলিভারি।"
       path="/"
-      keywords="Surzo Shop, surzoshop, online shop bangladesh, electronics bd, cycle bd, home appliance, smartphone bangladesh, ফ্রিজ, এসি, সাইকেল, ইলেকট্রনিক্স, সাপাহার"
+      keywords="Sapahar Mango Shop, sapahar mango, সাপাহার আম, আম্রপালি, হাড়িভাঙা, ফজলি, কাঁঠিমুন, naogaon mango, খাঁটি আম, online mango bd"
       jsonLd={[organizationSchema, websiteSchema, breadcrumb([{ name: "হোম", path: "/" }])]}
     />
     <HeroSection />
