@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
-import brandLogo from "@/assets/brand-logo.png";
 import { useToast } from "@/hooks/use-toast";
 import SEO from "@/components/SEO";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { settings, logoUrl } = useSiteSettings();
+  const brandName = settings.brand_name || "Sapahar Mango Shop";
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -61,7 +63,7 @@ const ResetPassword = () => {
   if (success) {
     return (
       <>
-      <SEO title="পাসওয়ার্ড রিসেট" description="Sapahar Mango Shop পাসওয়ার্ড পুনরায় সেট করুন।" path="/reset-password" noindex />
+      <SEO title="পাসওয়ার্ড রিসেট" description={`${brandName} পাসওয়ার্ড পুনরায় সেট করুন।`} path="/reset-password" noindex />
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center space-y-3">
           <CheckCircle className="h-12 w-12 text-emerald-500 mx-auto" />
@@ -75,12 +77,12 @@ const ResetPassword = () => {
 
   return (
     <>
-    <SEO title="পাসওয়ার্ড রিসেট" description="Sapahar Mango Shop পাসওয়ার্ড পুনরায় সেট করুন।" path="/reset-password" noindex />
+    <SEO title="পাসওয়ার্ড রিসেট" description={`${brandName} পাসওয়ার্ড পুনরায় সেট করুন।`} path="/reset-password" noindex />
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-primary/10 ring-4 ring-primary/20 mb-3 overflow-hidden">
-            <img src={brandLogo} alt="Sapahar Mango Shop" className="h-12 w-12 object-contain" />
+            <img src={logoUrl} alt={brandName} className="h-12 w-12 object-contain" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">নতুন পাসওয়ার্ড সেট করুন</h1>
           <p className="text-sm text-muted-foreground mt-1">আপনার নতুন পাসওয়ার্ড দিন</p>
