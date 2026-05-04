@@ -74,7 +74,7 @@ const ResetPassword = () => {
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-primary/10 ring-4 ring-primary/20 mb-3 overflow-hidden">
-            <img src={brandLogo} alt="Surzo Shop" className="h-12 w-12 object-contain" />
+            <img src={brandLogo} alt="Sapahar Mango Shop" className="h-12 w-12 object-contain" />
           </div>
           <h1 className="text-2xl font-bold text-foreground">নতুন পাসওয়ার্ড সেট করুন</h1>
           <p className="text-sm text-muted-foreground mt-1">আপনার নতুন পাসওয়ার্ড দিন</p>

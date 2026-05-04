@@ -514,7 +514,7 @@ const Checkout = () => {
 
   return (
     <div className="container mx-auto px-4 py-6 sm:py-10">
-      <SEO title="চেকআউট" description="আপনার অর্ডার সম্পন্ন করুন Surzo Shop-এ। নিরাপদ ক্যাশ অন ডেলিভারি ও মোবাইল ব্যাংকিং অপশন।" path="/checkout" noindex />
+      <SEO title="চেকআউট" description="আপনার অর্ডার সম্পন্ন করুন Sapahar Mango Shop-এ। নিরাপদ ক্যাশ অন ডেলিভারি ও মোবাইল ব্যাংকিং অপশন।" path="/checkout" noindex />
       <h1 className="mb-6 sm:mb-8 text-2xl sm:text-3xl font-bold text-foreground">চেকআউট</h1>
       <form onSubmit={handleSubmit} className="grid gap-6 lg:gap-8 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">

@@ -1022,7 +1022,7 @@ const UserDashboard = () => {
                     <ExternalLink className="h-4 w-4 text-primary flex-shrink-0" />
                     <div>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">ফেসবুক</p>
-                      <p className="text-sm font-medium text-foreground">Surzo Shop</p>
+                      <p className="text-sm font-medium text-foreground">Sapahar Mango Shop</p>
                     </div>
                   </div>
                 </div>

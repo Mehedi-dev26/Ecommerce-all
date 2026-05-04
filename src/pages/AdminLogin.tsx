@@ -49,11 +49,11 @@ const AdminLogin = () => {
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
             <div className="h-16 w-16 rounded-2xl bg-white ring-4 ring-primary/20 flex items-center justify-center shadow-md overflow-hidden">
-              <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
+              <img src={brandLogo} alt="Sapahar Mango Shop logo" className="h-full w-full object-contain" />
             </div>
           </div>
           <CardTitle className="text-2xl font-bold text-foreground">
-            <span className="font-brand text-primary text-4xl">Surzo Shop</span>
+            <span className="font-brand text-primary text-4xl">Sapahar Mango Shop</span>
             <br />
             <span className="text-lg text-muted-foreground">অ্যাডমিন প্যানেল</span>
           </CardTitle>

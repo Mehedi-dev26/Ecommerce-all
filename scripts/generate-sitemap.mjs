@@ -1,4 +1,4 @@
-// Build-time sitemap generator for Surzo Shop.
+// Build-time sitemap generator for Sapahar Mango Shop.
 // Runs after `vite build`. Fetches active products from Supabase
 // (using the public anon key) and writes /dist/sitemap.xml.
 //
@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 
-const SITE_URL = "https://surzoshop.com";
+const SITE_URL = "https://sapaharmango.com";
 
 // Read VITE_* vars from .env (so we don't hard-code anything brittle).
 const loadEnv = () => {
