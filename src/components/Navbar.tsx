@@ -6,11 +6,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import brandLogo from "@/assets/brand-logo.png";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
 const Navbar = () => {
   const { totalItems } = useCart();
   const { user, profile, signOut, loading } = useAuth();
+  const { settings, logoUrl } = useSiteSettings();
+  const brandName = settings.brand_name || "Surzo Shop";
+  const brandTagline = settings.brand_tagline || "";
+  const headerPhone = settings.header_phone || "";
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navLinks = [
@@ -25,11 +29,11 @@ const Navbar = () => {
       <div className="container mx-auto flex items-center justify-between px-3 py-2 sm:px-4 sm:py-2.5">
         <Link to="/" className="flex items-center gap-2.5">
           <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl bg-white ring-2 ring-white/40 sm:h-12 sm:w-12">
-            <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
+            <img src={logoUrl} alt={`${brandName} logo`} className="h-full w-full object-contain" />
           </div>
           <div className="flex flex-col">
-            <span className="font-brand text-3xl font-bold leading-none text-white sm:text-4xl drop-shadow-md">Surzo Shop</span>
-            <span className="text-[9px] font-medium tracking-wider text-white/80 sm:text-[10px]">স্বল্প মূল্যে সেরা পণ্য</span>
+            <span className="font-brand text-3xl font-bold leading-none text-white sm:text-4xl drop-shadow-md">{brandName}</span>
+            {brandTagline && <span className="text-[9px] font-medium tracking-wider text-white/80 sm:text-[10px]">{brandTagline}</span>}
           </div>
         </Link>
 
@@ -46,9 +50,9 @@ const Navbar = () => {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <a href="tel:+8801779801680" className="hidden rounded-lg bg-white/15 p-2 text-white/90 transition hover:bg-white/25 hover:text-white sm:block">
+          {headerPhone && <a href={`tel:${headerPhone.replace(/\s/g, "")}`} className="hidden rounded-lg bg-white/15 p-2 text-white/90 transition hover:bg-white/25 hover:text-white sm:block">
             <Phone className="h-4 w-4" />
-          </a>
+          </a>}
 
           <Link to="/cart" className="relative">
             <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg bg-white/15 text-white hover:bg-white/25 hover:text-white">
@@ -113,11 +117,11 @@ const Navbar = () => {
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2 text-left">
                   <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-2xl bg-white ring-2 ring-white/40">
-                    <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
+                    <img src={logoUrl} alt={`${brandName} logo`} className="h-full w-full object-contain" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="font-brand text-2xl font-bold text-white">Surzo Shop</span>
-                    <span className="text-[9px] text-white/70">স্বল্প মূল্যে সেরা পণ্য</span>
+                    <span className="font-brand text-2xl font-bold text-white">{brandName}</span>
+                    {brandTagline && <span className="text-[9px] text-white/70">{brandTagline}</span>}
                   </div>
                 </SheetTitle>
               </SheetHeader>
@@ -148,9 +152,9 @@ const Navbar = () => {
                 )}
               </nav>
               <div className="mt-6 border-t border-white/10 pt-4">
-                <a href="tel:+8801779801680" className="flex items-center gap-2 px-4 text-sm text-white/70 hover:text-white">
-                  <Phone className="h-4 w-4" /> +880 1779-80168
-                </a>
+                {headerPhone && <a href={`tel:${headerPhone.replace(/\s/g, "")}`} className="flex items-center gap-2 px-4 text-sm text-white/70 hover:text-white">
+                  <Phone className="h-4 w-4" /> {headerPhone}
+                </a>}
               </div>
             </SheetContent>
           </Sheet>

@@ -1,39 +1,11 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail, MapPin, Facebook, Instagram, Youtube } from "lucide-react";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import brandLogo from "@/assets/brand-logo.png";
-
-const defaults: Record<string, string> = {
-  footer_phone: "01725391686",
-  footer_email: "surzoshop@gmail.com",
-  footer_location: "আশুরন্দ বাজার, সাপাহার, নওগাঁ",
-  footer_facebook: "#",
-  footer_instagram: "#",
-  footer_youtube: "#",
-  footer_copyright: "© {year} Surzo Shop — স্বল্প মূল্যে সেরা পণ্য। সর্বস্বত্ব সংরক্ষিত।",
-};
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
 const Footer = () => {
-  const [settings, setSettings] = useState(defaults);
-
-  useEffect(() => {
-    // Defer Supabase fetch — footer is below-the-fold so don't block first paint.
-    const idle = (cb: () => void) =>
-      "requestIdleCallback" in window ? (window as any).requestIdleCallback(cb) : setTimeout(cb, 1500);
-    idle(() => {
-      supabase
-        .from("site_settings")
-        .select("key, value")
-        .then(({ data }) => {
-          if (data) {
-            const map: Record<string, string> = { ...defaults };
-            data.forEach((r: { key: string; value: string }) => { map[r.key] = r.value; });
-            setSettings(map);
-          }
-        });
-    });
-  }, []);
+  const { settings, logoUrl } = useSiteSettings();
+  const brandName = settings.brand_name || "Surzo Shop";
+  const aboutText = settings.footer_about || "";
 
   const copyright = settings.footer_copyright.replace("{year}", String(new Date().getFullYear()));
 
@@ -50,13 +22,11 @@ const Footer = () => {
           <div className="col-span-2 sm:col-span-1">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-white ring-2 ring-accent/40 shrink-0">
-                <img src={brandLogo} alt="Surzo Shop logo" width="56" height="56" loading="lazy" decoding="async" className="h-full w-full object-contain" />
+                <img src={logoUrl} alt={`${brandName} logo`} width="56" height="56" loading="lazy" decoding="async" className="h-full w-full object-contain" />
               </div>
-              <span className="font-brand text-3xl font-bold text-accent sm:text-4xl">Surzo Shop</span>
+              <span className="font-brand text-3xl font-bold text-accent sm:text-4xl">{brandName}</span>
             </div>
-            <p className="text-base text-white/90 leading-relaxed">
-              ইলেকট্রনিক্স, হোম অ্যাপ্লায়েন্স ও সাইকেল — সেরা পণ্য সরাসরি আপনার হাতের কাছে।
-            </p>
+            {aboutText && <p className="text-base text-white/90 leading-relaxed">{aboutText}</p>}
 
             {/* Social buttons */}
             <div className="mt-5 flex items-center gap-3">
