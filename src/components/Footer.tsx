@@ -70,17 +70,17 @@ const Footer = () => {
                   href="https://upnexit.pro.bd/"
                   target="_blank"
                   rel="noopener noreferrer author"
-                  className="text-accent hover:underline font-bold"
+                  className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent font-extrabold drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] hover:underline"
                 >
                   Upnex IT
                 </a>
-                <span className="mx-1 text-white/50">/</span>
+                <span className="mx-1 text-white/60">/</span>
                 সহযোগিতায়{" "}
                 <a
-                  href="https://upnexit.pro.bd/"
+                  href="https://upnexit.pro.bd/about"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-accent hover:underline font-bold"
+                  className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent font-extrabold drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] hover:underline"
                 >
                   Mehedi
                 </a>
