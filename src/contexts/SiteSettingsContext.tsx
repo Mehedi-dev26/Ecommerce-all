@@ -3,21 +3,21 @@ import { supabase } from "@/integrations/supabase/client";
 import brandLogoFallback from "@/assets/brand-logo.png";
 
 export const SITE_DEFAULTS: Record<string, string> = {
-  brand_name: "Surzo Shop",
-  brand_tagline: "স্বল্প মূল্যে সেরা পণ্য",
+  brand_name: "Sapahar Mango Shop",
+  brand_tagline: "স্বল্প মূল্যে বাজারের সেরা আম",
   brand_logo_url: "",
-  header_phone: "+8801779801680",
-  company_name: "Surzo Shop",
-  company_email: "info@example.com",
-  company_phone: "+8801XXXXXXXXX",
-  footer_phone: "01725391686",
-  footer_email: "surzoshop@gmail.com",
-  footer_location: "আশুরন্দ বাজার, সাপাহার, নওগাঁ",
-  footer_about: "ইলেকট্রনিক্স, হোম অ্যাপ্লায়েন্স ও সাইকেল — সেরা পণ্য সরাসরি আপনার হাতের কাছে।",
+  header_phone: "+8801720565997",
+  company_name: "Sapahar Mango Shop",
+  company_email: "sapaharmangostore@gmail.com",
+  company_phone: "+8801720565997",
+  footer_phone: "01720565997",
+  footer_email: "sapaharmangostore@gmail.com",
+  footer_location: "সাপাহার বাজার, সাপাহার, নওগাঁ",
+  footer_about: "Sapahar Mango Shop — সাপাহারের সেরা ও সুস্বাদু আম সরাসরি বাগান থেকে আপনার দোরগোড়ায়। ১০০% খাঁটি, রাসায়নিকমুক্ত।",
   footer_facebook: "#",
   footer_instagram: "#",
   footer_youtube: "#",
-  footer_copyright: "© {year} Surzo Shop — স্বল্প মূল্যে সেরা পণ্য। সর্বস্বত্ব সংরক্ষিত।",
+  footer_copyright: "© {year} Sapahar Mango Shop — সাপাহারের খাঁটি আমের নির্ভরযোগ্য ঠিকানা। সর্বস্বত্ব সংরক্ষিত।",
 };
 
 interface SiteSettingsContextValue {

@@ -48,7 +48,7 @@ const AdminAIAssistant = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
-      content: "আসসালামু আলাইকুম! আমি আপনার Surzo Admin AI। প্রোডাক্ট, অর্ডার, রিভিউ — যেকোনো কাজে বলুন, আমি করে দিচ্ছি ✨",
+      content: "আসসালামু আলাইকুম! আমি আপনার Sapahar Mango Admin AI। প্রোডাক্ট, অর্ডার, রিভিউ — যেকোনো কাজে বলুন, আমি করে দিচ্ছি ✨",
     },
   ]);
   const [input, setInput] = useState("");
@@ -174,7 +174,7 @@ const AdminAIAssistant = () => {
                 <Sparkles className="h-5 w-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm">Surzo Admin AI</h3>
+                <h3 className="font-semibold text-sm">Sapahar Mango Admin AI</h3>
                 <p className="text-[11px] opacity-90">আপনার সহকারী • Online</p>
               </div>
               <Button

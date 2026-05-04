@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 const SupportChatPanel = lazy(() => import("./SupportChatPanel"));
 
-const WHATSAPP_NUMBER = "8801779801680";
+const WHATSAPP_NUMBER = "8801720565997";
 
 const SupportWidget = () => {
   const [open, setOpen] = useState(false);
@@ -61,7 +61,7 @@ const SupportWidget = () => {
         >
           <a
             href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-              "আসসালামু আলাইকুম, আমি Surzo Shop সম্পর্কে জানতে চাই।",
+              "আসসালামু আলাইকুম, আমি Sapahar Mango Shop সম্পর্কে জানতে চাই।",
             )}`}
             target="_blank"
             rel="noopener noreferrer"

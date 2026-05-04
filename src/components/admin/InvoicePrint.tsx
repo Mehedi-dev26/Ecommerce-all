@@ -117,9 +117,9 @@ const InvoicePrint = ({ order, items, open, onClose, type }: InvoicePrintProps) 
             {/* Header */}
             <div className="header">
               <div className="logo-section">
-                <h1>🛍️ Surzo Shop</h1>
-                <p>Surzo Shop — Electronics, Appliances & Bicycles</p>
-                <p>ঢাকা, বাংলাদেশ</p>
+                <h1>🥭 Sapahar Mango Shop</h1>
+                <p>Sapahar Mango Shop — সাপাহারের খাঁটি আম</p>
+                <p>সাপাহার, নওগাঁ, বাংলাদেশ</p>
               </div>
               <div className="invoice-meta">
                 <h2>{type === "pathao" ? "Shipping Label" : "Invoice"}</h2>
@@ -135,8 +135,8 @@ const InvoicePrint = ({ order, items, open, onClose, type }: InvoicePrintProps) 
             <div className="info-row">
               <div className="info-box">
                 <h3>প্রেরক (From)</h3>
-                <p className="name">Surzo Shop</p>
-                <p>আশুরন্দ বাজার, সাপাহার, নওগাঁ</p>
+                <p className="name">Sapahar Mango Shop</p>
+                <p>সাপাহার বাজার, সাপাহার, নওগাঁ</p>
                 <p>রাজশাহী বিভাগ</p>
               </div>
               <div className="info-box">
@@ -212,8 +212,8 @@ const InvoicePrint = ({ order, items, open, onClose, type }: InvoicePrintProps) 
                   <strong>নোট:</strong> {order.notes}
                 </p>
               )}
-              <p>ধন্যবাদ আপনার অর্ডারের জন্য! — Surzo Shop 🛍️</p>
-              <p style={{ marginTop: 4 }}>www.surzoshop.com</p>
+              <p>ধন্যবাদ আপনার অর্ডারের জন্য! — Sapahar Mango Shop 🥭</p>
+              <p style={{ marginTop: 4 }}>www.sapaharmango.com</p>
             </div>
           </div>
         </div>

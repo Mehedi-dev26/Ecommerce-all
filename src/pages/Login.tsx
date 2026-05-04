@@ -177,25 +177,25 @@ const Login = () => {
         <div className="relative z-10 flex flex-col justify-center px-10 xl:px-16 py-12 w-full">
           <div className="flex items-center gap-4 mb-12">
             <div className="h-16 w-16 rounded-2xl bg-white overflow-hidden flex items-center justify-center ring-2 ring-white/40 shadow-lg">
-              <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
+              <img src={brandLogo} alt="Sapahar Mango Shop logo" className="h-full w-full object-contain" />
             </div>
             <div>
-              <h2 className="font-brand text-4xl font-bold tracking-tight text-white drop-shadow-md">Surzo Shop</h2>
-              <p className="text-sm text-white/80 tracking-wide">স্বল্প মূল্যে সেরা পণ্য</p>
+              <h2 className="font-brand text-4xl font-bold tracking-tight text-white drop-shadow-md">Sapahar Mango Shop</h2>
+              <p className="text-sm text-white/80 tracking-wide">সাপাহারের সেরা ও খাঁটি আম</p>
             </div>
           </div>
 
           <h1 className="text-3xl xl:text-[2.5rem] font-bold leading-[1.3] mb-5">
-            <span className="text-white">আপনার পছন্দের সব পণ্য</span><br />
+            <span className="text-white">সাপাহারের খাঁটি আম</span><br />
             <span className="text-yellow-200/90">এখন এক ক্লিকেই হাতের নাগালে</span>
           </h1>
           <p className="text-white/75 text-[15px] leading-relaxed mb-12 max-w-md">
-            স্মার্টফোন, ল্যাপটপ, হোম অ্যাপ্লায়েন্স এবং আরও অনেক কিছু — অরিজিনাল প্রোডাক্ট, সেরা দামে সারাদেশে দ্রুত ডেলিভারি।
+            আম্রপালি, হাড়িভাঙা, ফজলি, কাঁঠিমুন — সরাসরি সাপাহারের বাগান থেকে ১০০% খাঁটি আম, সারাদেশে দ্রুত হোম ডেলিভারি।
           </p>
 
           <div className="space-y-5">
             {[
-              { icon: ShieldCheck, title: "১০০% অরিজিনাল প্রোডাক্ট", desc: "অথেন্টিক ও মান যাচাইকৃত পণ্য" },
+              { icon: ShieldCheck, title: "১০০% খাঁটি আম", desc: "সরাসরি বাগান থেকে — কোনো রাসায়নিক নয়" },
               { icon: Truck, title: "সারাদেশে দ্রুত হোম ডেলিভারি", desc: "নিরাপদ ও দ্রুত কুরিয়ার সার্ভিস" },
               { icon: Zap, title: "ক্যাশ অন ডেলিভারি সুবিধা", desc: "পণ্য হাতে পেয়ে পেমেন্টের অপশন" },
               { icon: Award, title: "প্রতিযোগিতামূলক সেরা দাম", desc: "মার্কেটে সবচেয়ে সাশ্রয়ী মূল্য" },
@@ -246,10 +246,10 @@ const Login = () => {
             {/* Logo */}
             <div className="text-center mb-8">
               <div className="inline-flex items-center justify-center h-20 w-20 rounded-2xl bg-white ring-4 ring-primary/20 mb-3 shadow-md overflow-hidden">
-                <img src={brandLogo} alt="Surzo Shop logo" className="h-full w-full object-contain" />
+                <img src={brandLogo} alt="Sapahar Mango Shop logo" className="h-full w-full object-contain" />
               </div>
-              <p className="font-brand text-3xl text-primary font-bold">Surzo Shop</p>
-              <p className="text-xs text-muted-foreground tracking-wide mt-0.5">স্বল্প মূল্যে সেরা পণ্য</p>
+              <p className="font-brand text-3xl text-primary font-bold">Sapahar Mango Shop</p>
+              <p className="text-xs text-muted-foreground tracking-wide mt-0.5">সাপাহারের সেরা ও খাঁটি আম</p>
             </div>
 
             {/* Heading */}

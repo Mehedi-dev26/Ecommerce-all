@@ -61,8 +61,8 @@ const PrivacyPolicy = () => {
   return (
     <div className="bg-background">
       <SEO
-        title="গোপনীয়তা নীতি — Surzo Shop"
-        description="Surzo Shop কীভাবে আপনার ব্যক্তিগত তথ্য সংগ্রহ, ব্যবহার ও সুরক্ষা করে — সম্পূর্ণ গোপনীয়তা নীতি পড়ুন।"
+        title="গোপনীয়তা নীতি — Sapahar Mango Shop"
+        description="Sapahar Mango Shop কীভাবে আপনার ব্যক্তিগত তথ্য সংগ্রহ, ব্যবহার ও সুরক্ষা করে — সম্পূর্ণ গোপনীয়তা নীতি পড়ুন।"
         path="/privacy-policy"
         jsonLd={breadcrumb([{ name: "হোম", path: "/" }, { name: "গোপনীয়তা নীতি", path: "/privacy-policy" }])}
       />
@@ -78,7 +78,7 @@ const PrivacyPolicy = () => {
             </div>
             <h1 className="mb-2 text-2xl font-bold text-white sm:text-4xl">গোপনীয়তা নীতি</h1>
             <p className="max-w-2xl text-sm text-white/90 sm:text-base">
-              Surzo Shop আপনার ব্যক্তিগত তথ্যের গোপনীয়তা রক্ষায় প্রতিশ্রুতিবদ্ধ। নিচে আমরা কীভাবে আপনার তথ্য সংগ্রহ, ব্যবহার ও সুরক্ষা করি তা ব্যাখ্যা করা হলো।
+              Sapahar Mango Shop আপনার ব্যক্তিগত তথ্যের গোপনীয়তা রক্ষায় প্রতিশ্রুতিবদ্ধ। নিচে আমরা কীভাবে আপনার তথ্য সংগ্রহ, ব্যবহার ও সুরক্ষা করি তা ব্যাখ্যা করা হলো।
             </p>
             <p className="mt-3 text-xs text-white/70">সর্বশেষ আপডেট: ২৩ এপ্রিল, ২০২৬</p>
           </div>
@@ -131,11 +131,11 @@ const PrivacyPolicy = () => {
                 গোপনীয়তা সংক্রান্ত যেকোনো প্রশ্ন বা অনুরোধের জন্য আমাদের সাথে যোগাযোগ করুন:
               </p>
               <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-                <a href="tel:+8801779801680" className="flex items-center gap-2 text-sm font-medium text-primary hover:underline sm:text-base">
-                  <Phone className="h-4 w-4" /> +880 1779-80168
+                <a href="tel:+8801720565997" className="flex items-center gap-2 text-sm font-medium text-primary hover:underline sm:text-base">
+                  <Phone className="h-4 w-4" /> +880 1720-565997
                 </a>
-                <a href="mailto:surzoshop@gmail.com" className="flex items-center gap-2 text-sm font-medium text-primary hover:underline sm:text-base">
-                  <Mail className="h-4 w-4" /> surzoshop@gmail.com
+                <a href="mailto:sapaharmangostore@gmail.com" className="flex items-center gap-2 text-sm font-medium text-primary hover:underline sm:text-base">
+                  <Mail className="h-4 w-4" /> sapaharmangostore@gmail.com
                 </a>
               </div>
             </article>

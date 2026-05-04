@@ -162,8 +162,8 @@ const ProductDetail = () => {
   const avgRating = (reviewStats?.avg ?? 0).toFixed(1);
   const totalReviews = reviewStats?.total ?? 0;
 
-  const seoTitle = `${product.name_bn} — ৳${unitPrice.toLocaleString("en-BD")} | Surzo Shop`;
-  const rawDesc = product.description_bn || product.description || `${product.name_bn} সেরা দামে অর্ডার করুন Surzo Shop থেকে। সারাদেশে দ্রুত ক্যাশ অন ডেলিভারি।`;
+  const seoTitle = `${product.name_bn} — ৳${unitPrice.toLocaleString("en-BD")} | Sapahar Mango Shop`;
+  const rawDesc = product.description_bn || product.description || `${product.name_bn} সেরা দামে অর্ডার করুন Sapahar Mango Shop থেকে। সারাদেশে দ্রুত ক্যাশ অন ডেলিভারি।`;
   const seoDesc = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
   const ogImage = allImages[0];
 

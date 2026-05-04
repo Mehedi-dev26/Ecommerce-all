@@ -1,4 +1,4 @@
-# Surzo Shop — robots.txt
+# Sapahar Mango Shop — robots.txt
 User-agent: *
 Allow: /
 Disallow: /admin
@@ -28,5 +28,5 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-Sitemap: https://surzoshop.com/sitemap.xml
-Host: https://surzoshop.com
+Sitemap: https://sapaharmango.com/sitemap.xml
+Host: https://sapaharmango.com

@@ -31,19 +31,19 @@ const Contact = () => {
   return (
     <div className="container mx-auto px-4 py-10">
       <SEO
-        title="যোগাযোগ — Surzo Shop"
-        description="Surzo Shop-এর সাথে যোগাযোগ করুন। ফোন: 01725391686, ইমেইল: surzoshop@gmail.com। ঠিকানা: আশুরন্দ বাজার, সাপাহার, নওগাঁ।"
+        title="যোগাযোগ — Sapahar Mango Shop"
+        description="Sapahar Mango Shop-এর সাথে যোগাযোগ করুন। ফোন: 01720565997, ইমেইল: sapaharmangostore@gmail.com। ঠিকানা: সাপাহার বাজার, সাপাহার, নওগাঁ।"
         path="/contact"
         jsonLd={breadcrumb([{ name: "হোম", path: "/" }, { name: "যোগাযোগ", path: "/contact" }])}
       />
       <h1 className="mb-2 text-center text-3xl font-bold text-foreground">যোগাযোগ করুন</h1>
-      <p className="mb-10 text-center text-muted-foreground">যেকোনো অর্ডার বা প্রশ্নের জন্য Surzo Shop-এ যোগাযোগ করুন</p>
+      <p className="mb-10 text-center text-muted-foreground">যেকোনো অর্ডার বা প্রশ্নের জন্য Sapahar Mango Shop-এ যোগাযোগ করুন</p>
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="space-y-6">
           {[
-            { icon: Phone, title: "ফোন", info: "01725391686", href: "tel:01725391686" },
-            { icon: Mail, title: "ইমেইল", info: "surzoshop@gmail.com", href: "mailto:surzoshop@gmail.com" },
-            { icon: MapPin, title: "ঠিকানা", info: "আশুরন্দ বাজার, সাপাহার, নওগাঁ" },
+            { icon: Phone, title: "ফোন", info: "01720565997", href: "tel:01720565997" },
+            { icon: Mail, title: "ইমেইল", info: "sapaharmangostore@gmail.com", href: "mailto:sapaharmangostore@gmail.com" },
+            { icon: MapPin, title: "ঠিকানা", info: "সাপাহার বাজার, সাপাহার, নওগাঁ" },
             { icon: Clock, title: "সময়সূচী", info: "সকাল ৯টা - রাত ১০টা (প্রতিদিন)" },
           ].map((item, i) => {
             const Wrapper: any = item.href ? "a" : "div";
