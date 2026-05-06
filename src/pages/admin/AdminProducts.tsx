@@ -400,7 +400,7 @@ const AdminProducts = () => {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ইউনিট</Label>
-                    <Input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} placeholder="kg / piece" />
+                    <Input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} placeholder="kg" />
                   </div>
                 </>
               ) : (

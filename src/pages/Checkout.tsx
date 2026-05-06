@@ -58,6 +58,7 @@ const Checkout = () => {
     pin: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [perKgFee, setPerKgFee] = useState<number | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
   const [addressMode, setAddressMode] = useState<"saved" | "new">("saved");
@@ -186,7 +187,30 @@ const Checkout = () => {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [saveAbandonedCheckout]);
 
-  const shippingCost = totalPrice >= 2000 ? 0 : 120;
+  // Total weight in kg = sum of item quantities (since quantity = কেজি)
+  const totalKg = items.reduce((s, i) => s + i.quantity, 0);
+  const effectivePerKg = perKgFee ?? 120;
+  const shippingCost = totalKg * effectivePerKg;
+
+  // Lookup shipping per-kg from courier_charges based on selected location
+  useEffect(() => {
+    const lookup = async () => {
+      if (!form.division || !form.district) { setPerKgFee(null); return; }
+      let q = supabase
+        .from("courier_charges")
+        .select("charge_per_kg, upazila")
+        .eq("division", form.division)
+        .eq("district", form.district);
+      const { data } = await q;
+      if (!data || data.length === 0) { setPerKgFee(null); return; }
+      // Prefer matching upazila, else fallback to division+district level (upazila NULL)
+      const upMatch = data.find((d: any) => d.upazila === form.upazila);
+      const generic = data.find((d: any) => d.upazila === null);
+      const row: any = upMatch || generic || data[0];
+      setPerKgFee(Number(row.charge_per_kg));
+    };
+    void lookup();
+  }, [form.division, form.district, form.upazila]);
 
   // Cascading location data
   const selectedDivision = useMemo(
@@ -838,7 +862,7 @@ const Checkout = () => {
           <div className="space-y-3 mb-4">
             {items.map((item) => (
               <div key={item.id} className="flex justify-between text-sm">
-                <span className="flex-1 min-w-0 truncate mr-2">{item.name_bn} × {item.quantity}</span>
+                <span className="flex-1 min-w-0 truncate mr-2">{item.name_bn} × {item.quantity} কেজি</span>
                 <span className="flex-shrink-0">৳{item.price * item.quantity}</span>
               </div>
             ))}
@@ -849,11 +873,11 @@ const Checkout = () => {
               <span>৳{totalPrice}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">ডেলিভারি</span>
-              <span>{shippingCost === 0 ? "ফ্রি" : `৳${shippingCost}`}</span>
+              <span className="text-muted-foreground">ডেলিভারি ({totalKg} কেজি × ৳{effectivePerKg})</span>
+              <span>৳{shippingCost}</span>
             </div>
-            {shippingCost > 0 && (
-              <p className="text-xs text-muted-foreground">৳২,০০০+ অর্ডারে ফ্রি ডেলিভারি</p>
+            {!perKgFee && form.district && (
+              <p className="text-xs text-muted-foreground">ডিফল্ট ৳১২০/কেজি প্রযোজ্য</p>
             )}
             <div className="flex justify-between border-t pt-2 font-semibold text-base">
               <span>মোট</span>
