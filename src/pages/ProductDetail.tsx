@@ -420,12 +420,20 @@ const ProductDetail = () => {
 
             {/* Buy buttons */}
             <div className="mb-4 flex gap-2 sm:gap-3">
-              <Button onClick={handleBuyNow} size="lg" className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90 text-xs sm:text-sm h-10 sm:h-12 font-semibold">
-                এখনই কিনুন
-              </Button>
-              <Button onClick={handleAdd} size="lg" variant="outline" className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm h-10 sm:h-12">
-                <ShoppingCart className="mr-1.5 h-4 w-4" /> কার্টে যোগ করুন
-              </Button>
+              {(product as any).coming_soon ? (
+                <Button disabled size="lg" className="flex-1 bg-muted text-muted-foreground text-xs sm:text-sm h-10 sm:h-12 font-semibold cursor-not-allowed">
+                  <Package className="mr-1.5 h-4 w-4" /> Coming Soon
+                </Button>
+              ) : (
+                <>
+                  <Button onClick={handleBuyNow} size="lg" className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90 text-xs sm:text-sm h-10 sm:h-12 font-semibold">
+                    এখনই কিনুন
+                  </Button>
+                  <Button onClick={handleAdd} size="lg" variant="outline" className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs sm:text-sm h-10 sm:h-12">
+                    <ShoppingCart className="mr-1.5 h-4 w-4" /> কার্টে যোগ করুন
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Wishlist + Share */}
