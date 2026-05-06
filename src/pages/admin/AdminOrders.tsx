@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import AdminPageState from "@/components/admin/AdminPageState";
 import { getErrorMessage } from "@/lib/error-message";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Search, Eye, Package, ShoppingCart, Clock, CheckCircle,
