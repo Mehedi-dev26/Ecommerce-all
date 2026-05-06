@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart, Heart } from "lucide-react";
+import { ShoppingCart, Heart, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,14 +19,16 @@ interface ProductCardProps {
   weight?: string | null;
   category_name_bn?: string;
   grade?: string | null;
+  coming_soon?: boolean | null;
 }
 
-const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weight, category_name_bn, grade }: ProductCardProps) => {
+const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weight, category_name_bn, grade, coming_soon }: ProductCardProps) => {
   const { addItem } = useCart();
   const [wishlisted, setWishlisted] = useState(false);
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (coming_soon) return;
     addItem({ id, name, name_bn, price, image_url: image_url || null, weight: weight || null });
     toast({ title: "কার্টে যোগ হয়েছে", description: `${name_bn} কার্টে যোগ করা হয়েছে।` });
   };
@@ -63,6 +65,13 @@ const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weigh
           {discount > 0 && (
             <Badge className="absolute left-1.5 top-1.5 bg-destructive text-destructive-foreground text-[10px] px-1.5 py-0.5 sm:left-2 sm:top-2 sm:text-xs sm:px-2 sm:py-0.5">{discount}% ছাড়</Badge>
           )}
+          {coming_soon && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-[2px]">
+              <Badge className="bg-primary text-primary-foreground text-xs px-3 py-1 gap-1">
+                <Clock className="h-3 w-3" /> Coming Soon
+              </Badge>
+            </div>
+          )}
           {grade && (
             <div className="absolute left-1.5 bottom-1.5 sm:left-2 sm:bottom-2">
               <GradeBadge grade={grade} size="xs" />
@@ -87,9 +96,15 @@ const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weigh
               <span className="text-sm font-bold text-primary sm:text-base">৳{price}</span>
               {compare_price && <span className="text-[10px] text-muted-foreground line-through sm:text-xs">৳{compare_price}</span>}
             </div>
-            <Button size="sm" onClick={handleAdd} className="h-7 w-7 p-0 sm:h-8 sm:w-8 bg-primary text-primary-foreground hover:bg-primary/90">
-              <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            </Button>
+            {coming_soon ? (
+              <Button size="sm" disabled className="h-7 w-7 p-0 sm:h-8 sm:w-8 bg-muted text-muted-foreground">
+                <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              </Button>
+            ) : (
+              <Button size="sm" onClick={handleAdd} className="h-7 w-7 p-0 sm:h-8 sm:w-8 bg-primary text-primary-foreground hover:bg-primary/90">
+                <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
