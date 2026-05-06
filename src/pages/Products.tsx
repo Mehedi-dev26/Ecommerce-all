@@ -262,6 +262,7 @@ const Products = () => {
                     weight={p.weight}
                     category_name_bn={p.categories?.name_bn}
                     grade={p.grade}
+                    coming_soon={p.coming_soon}
                   />
                 ))}
               </div>
