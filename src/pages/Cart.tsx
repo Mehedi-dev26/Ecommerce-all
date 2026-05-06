@@ -6,7 +6,8 @@ import SEO from "@/components/SEO";
 
 const Cart = () => {
   const { items, updateQuantity, removeItem, totalPrice } = useCart();
-  const shippingCost = totalPrice >= 2000 ? 0 : 120;
+  const totalKg = items.reduce((s, i) => s + i.quantity, 0);
+  const shippingCost = totalKg * 120; // আনুমানিক — চেকআউটে এলাকা অনুযায়ী চূড়ান্ত হবে
 
   if (items.length === 0) {
     return (
