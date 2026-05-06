@@ -873,11 +873,11 @@ const Checkout = () => {
               <span>৳{totalPrice}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">ডেলিভারি</span>
-              <span>{shippingCost === 0 ? "ফ্রি" : `৳${shippingCost}`}</span>
+              <span className="text-muted-foreground">ডেলিভারি ({totalKg} কেজি × ৳{effectivePerKg})</span>
+              <span>৳{shippingCost}</span>
             </div>
-            {shippingCost > 0 && (
-              <p className="text-xs text-muted-foreground">৳২,০০০+ অর্ডারে ফ্রি ডেলিভারি</p>
+            {!perKgFee && form.district && (
+              <p className="text-xs text-muted-foreground">ডিফল্ট ৳১২০/কেজি প্রযোজ্য</p>
             )}
             <div className="flex justify-between border-t pt-2 font-semibold text-base">
               <span>মোট</span>
