@@ -51,6 +51,8 @@ interface Order {
   pathao_order_status: string | null;
   pathao_tracking_url: string | null;
   delivery_fee: number | null;
+  courier_provider?: string | null;
+  courier_tracking_id?: string | null;
 }
 
 interface OrderItem {
@@ -58,6 +60,14 @@ interface OrderItem {
   product_name: string;
   quantity: number;
   price: number;
+}
+
+interface CourierProvider {
+  id: string;
+  provider_key: string;
+  display_name: string;
+  is_active: boolean;
+  is_default: boolean;
 }
 
 const statusOptions = [
@@ -78,6 +88,8 @@ const AdminOrders = () => {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [pathaoLoading, setPathaoLoading] = useState(false);
   const [trackingLoading, setTrackingLoading] = useState(false);
+  const [couriers, setCouriers] = useState<CourierProvider[]>([]);
+  const [selectedCourier, setSelectedCourier] = useState<string>("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [invoiceOpen, setInvoiceOpen] = useState(false);
   const [invoiceType, setInvoiceType] = useState<"shop" | "pathao">("shop");
@@ -99,6 +111,20 @@ const AdminOrders = () => {
   };
 
   useEffect(() => { void fetchOrders(); }, []);
+
+  useEffect(() => {
+    void (async () => {
+      const { data } = await supabase
+        .from("courier_providers")
+        .select("id,provider_key,display_name,is_active,is_default")
+        .eq("is_active", true)
+        .order("sort_order");
+      const list = (data as CourierProvider[]) || [];
+      setCouriers(list);
+      const def = list.find((c) => c.is_default) || list[0];
+      if (def) setSelectedCourier(def.provider_key);
+    })();
+  }, []);
 
   const updateStatus = async (orderId: string, newStatus: string) => {
     const orderRow = orders.find((o) => o.id === orderId);
@@ -137,9 +163,43 @@ const AdminOrders = () => {
     setOrderItems(data || []);
   };
 
-  const sendToPathao = async (order: Order) => {
+  const sendToCourier = async (order: Order, providerKey: string) => {
     setPathaoLoading(true);
     try {
+      if (providerKey === "steadfast") {
+        const payload = {
+          order_id: order.id,
+          invoice: order.order_number,
+          recipient_name: order.customer_name,
+          recipient_phone: order.customer_phone,
+          recipient_address: `${order.shipping_address}, ${order.city}${order.district ? ", " + order.district : ""}`,
+          cod_amount: order.payment_method === "cod" ? Number(order.total) : 0,
+          note: order.notes || "",
+        };
+        const { data, error } = await supabase.functions.invoke("steadfast?action=create-order", { body: payload });
+        if (error) throw error;
+        if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
+        const consignment = (data as { consignment?: { consignment_id?: string | number; tracking_code?: string; status?: string } }).consignment;
+        const cid = consignment?.consignment_id ? String(consignment.consignment_id) : null;
+        if (cid) {
+          const trackingUrl = consignment?.tracking_code ? `https://steadfast.com.bd/t/${consignment.tracking_code}` : null;
+          setSelectedOrder({
+            ...order,
+            pathao_consignment_id: cid,
+            pathao_order_status: consignment?.status || "in_review",
+            pathao_tracking_url: trackingUrl,
+            courier_provider: "steadfast",
+            courier_tracking_id: cid,
+          });
+          toast({ title: "Steadfast এ পাঠানো হয়েছে!", description: `Consignment: ${cid}` });
+        } else {
+          toast({ title: "Steadfast এ পাঠানো হয়েছে" });
+        }
+        void fetchOrders();
+        return;
+      }
+
+      // Pathao default flow
       const pathaoPayload = {
         order_id: order.id,
         store_id: 1,
@@ -163,6 +223,7 @@ const AdminOrders = () => {
       });
 
       if (error) throw error;
+      if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
 
       const consignmentId = data?.data?.consignment_id;
       if (consignmentId) {
@@ -171,6 +232,8 @@ const AdminOrders = () => {
           pathao_consignment_id: String(consignmentId),
           pathao_order_status: data?.data?.order_status || "Pending",
           pathao_tracking_url: `https://merchant.pathao.com/tracking?consignment_id=${consignmentId}`,
+          courier_provider: "pathao",
+          courier_tracking_id: String(consignmentId),
         };
         setSelectedOrder(updatedOrder);
         toast({ title: "পাঠাও কুরিয়ারে সফলভাবে পাঠানো হয়েছে!", description: `Consignment ID: ${consignmentId}` });
@@ -180,8 +243,8 @@ const AdminOrders = () => {
 
       void fetchOrders();
     } catch (err: any) {
-      console.error("Pathao send error:", err);
-      toast({ title: "পাঠাও ত্রুটি", description: err.message || "কুরিয়ারে পাঠানো যায়নি", variant: "destructive" });
+      console.error("Courier send error:", err);
+      toast({ title: "কুরিয়ার ত্রুটি", description: err.message || "কুরিয়ারে পাঠানো যায়নি", variant: "destructive" });
     } finally {
       setPathaoLoading(false);
     }
@@ -191,13 +254,17 @@ const AdminOrders = () => {
     if (!order.pathao_consignment_id) return;
     setTrackingLoading(true);
     try {
+      const provider = order.courier_provider || "pathao";
+      const fnPath = provider === "steadfast"
+        ? `steadfast?action=track-order&consignment_id=${order.pathao_consignment_id}`
+        : `pathao?action=track-order&consignment_id=${order.pathao_consignment_id}`;
       const { data, error } = await supabase.functions.invoke(
-        `pathao?action=track-order&consignment_id=${order.pathao_consignment_id}`,
+        fnPath,
         { method: "GET" }
       );
       if (error) throw error;
 
-      const newStatus = data?.data?.order_status;
+      const newStatus = data?.data?.order_status || (data as { delivery_status?: string })?.delivery_status;
       if (newStatus) {
         setSelectedOrder({ ...order, pathao_order_status: newStatus });
         toast({ title: "ট্র্যাকিং আপডেট হয়েছে", description: `স্ট্যাটাস: ${newStatus}` });
