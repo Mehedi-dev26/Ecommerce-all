@@ -52,6 +52,7 @@ const AdminDelivery = lazy(() => import("./pages/admin/AdminDelivery"));
 const AdminBanners = lazy(() => import("./pages/admin/AdminBanners"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminCourierCharges = lazy(() => import("./pages/admin/AdminCourierCharges"));
+const AdminCourierApi = lazy(() => import("./pages/admin/AdminCourierApi"));
 const AdminReviews = lazy(() => import("./pages/admin/AdminReviews"));
 const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
 const AdminEmails = lazy(() => import("./pages/admin/AdminEmails"));
@@ -126,6 +127,7 @@ const App = () => {
                   <Route path="banners" element={<AdminBanners />} />
                   <Route path="settings" element={<AdminSettings />} />
                   <Route path="courier-charges" element={<AdminCourierCharges />} />
+                  <Route path="courier-api" element={<AdminCourierApi />} />
                   <Route path="reviews" element={<AdminReviews />} />
                   <Route path="reports" element={<AdminReports />} />
                   <Route path="emails" element={<AdminEmails />} />
