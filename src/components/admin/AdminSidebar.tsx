@@ -32,6 +32,7 @@ const navGroups = [
       { title: "পেমেন্ট", url: "/admin/payments", icon: CreditCard, badge: null },
       { title: "ডেলিভারি", url: "/admin/delivery", icon: Truck, badge: null },
       { title: "কুরিয়ার চার্জ", url: "/admin/courier-charges", icon: DollarSign, badge: null },
+      { title: "কুরিয়ার API", url: "/admin/courier-api", icon: Truck, badge: null },
     ],
   },
   {
