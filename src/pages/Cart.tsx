@@ -64,8 +64,8 @@ const Cart = () => {
           <h3 className="mb-4 text-lg font-semibold text-foreground">অর্ডার সামারি</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between"><span className="text-muted-foreground">সাবটোটাল</span><span>৳{totalPrice}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">ডেলিভারি চার্জ</span><span>{shippingCost === 0 ? "ফ্রি" : `৳${shippingCost}`}</span></div>
-            {shippingCost > 0 && <p className="text-xs text-muted-foreground">৳২,০০০+ অর্ডারে ফ্রি ডেলিভারি</p>}
+            <div className="flex justify-between"><span className="text-muted-foreground">ডেলিভারি চার্জ ({totalKg} কেজি × ৳১২০)</span><span>৳{shippingCost}</span></div>
+            <p className="text-xs text-muted-foreground">এলাকা অনুযায়ী চূড়ান্ত চার্জ চেকআউটে দেখানো হবে</p>
             <div className="border-t pt-2 flex justify-between font-semibold text-base">
               <span>মোট</span><span className="text-primary">৳{totalPrice + shippingCost}</span>
             </div>
