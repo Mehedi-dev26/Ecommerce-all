@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Upload, Search, Package, Star, X, TrendingDown, Award } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, Search, Package, Star, X, TrendingDown, Award, Clock } from "lucide-react";
 import AdminPageState from "@/components/admin/AdminPageState";
 import { getErrorMessage } from "@/lib/error-message";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -31,6 +31,7 @@ interface Product {
   weight: string | null;
   unit: string | null;
   grade: string | null;
+  coming_soon?: boolean | null;
 }
 
 interface Category {
@@ -49,6 +50,7 @@ const emptyProduct = {
   category_id: "", stock: 0, is_active: true, is_featured: false,
   weight: "", unit: "kg",
   grade: "none",
+  coming_soon: false,
 };
 
 const GRADE_OPTIONS = [
@@ -172,6 +174,7 @@ const AdminProducts = () => {
       weight: showWeight ? (form.weight || null) : null,
       unit: showWeight ? (form.unit || null) : null,
       grade: form.grade && form.grade !== "none" ? form.grade : null,
+      coming_soon: form.coming_soon,
     };
 
     let error;
@@ -216,6 +219,7 @@ const AdminProducts = () => {
       is_active: p.is_active, is_featured: p.is_featured,
       weight: p.weight || "", unit: p.unit || "kg",
       grade: p.grade || "none",
+      coming_soon: !!p.coming_soon,
     });
     setDialogOpen(true);
   };
@@ -452,6 +456,10 @@ const AdminProducts = () => {
                 <div className="flex items-center gap-2">
                   <Switch checked={form.is_featured} onCheckedChange={(v) => setForm({ ...form, is_featured: v })} />
                   <Label>ফিচারড</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch checked={form.coming_soon} onCheckedChange={(v) => setForm({ ...form, coming_soon: v })} />
+                  <Label className="flex items-center gap-1"><Clock className="h-3.5 w-3.5 text-primary" />কামিং সুন</Label>
                 </div>
               </div>
             </div>
