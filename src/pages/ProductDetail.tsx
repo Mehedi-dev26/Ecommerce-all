@@ -34,7 +34,9 @@ const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { addItem } = useCart();
   const navigate = useNavigate();
-  const [qty, setQty] = useState(1);
+  const WEIGHT_PRESETS = [5, 10, 20, 30];
+  const [qty, setQty] = useState(5); // qty = কেজি
+  const [customMode, setCustomMode] = useState(false);
   const [selectedImg, setSelectedImg] = useState(0);
   const [selDivision, setSelDivision] = useState("");
   const [selDistrict, setSelDistrict] = useState("");
@@ -118,7 +120,8 @@ const ProductDetail = () => {
 
   const unitPrice = Number(product.price);
   const totalProductPrice = unitPrice * qty;
-  const effectiveFee = deliveryFee ?? DEFAULT_DELIVERY_FEE;
+  const perKgFee = deliveryFee ?? DEFAULT_DELIVERY_FEE;
+  const effectiveFee = perKgFee * qty;
   const grandTotal = totalProductPrice + effectiveFee;
 
   const divisionData = divisions.find((d) => d.name === selDivision);
@@ -147,12 +150,12 @@ const ProductDetail = () => {
   };
 
   const handleAdd = () => {
-    addItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: unitPrice, image_url: product.image_url, weight: product.weight || null }, qty);
-    toast({ title: "কার্টে যোগ হয়েছে", description: `${product.name_bn} (${qty} পিস) কার্টে যোগ করা হয়েছে।` });
+    addItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: unitPrice, image_url: product.image_url, weight: `${qty} কেজি` }, qty);
+    toast({ title: "কার্টে যোগ হয়েছে", description: `${product.name_bn} (${qty} কেজি) কার্টে যোগ করা হয়েছে।` });
   };
 
   const handleBuyNow = () => {
-    addItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: unitPrice, image_url: product.image_url, weight: product.weight || null }, qty);
+    addItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: unitPrice, image_url: product.image_url, weight: `${qty} কেজি` }, qty);
     navigate("/checkout");
   };
 
@@ -294,7 +297,7 @@ const ProductDetail = () => {
                   </>
                 )}
               </div>
-              <p className="mt-1 text-xs text-muted-foreground">প্রতি পিস</p>
+              <p className="mt-1 text-xs text-muted-foreground">প্রতি কেজি</p>
             </div>
 
             {/* Short Description */}
@@ -306,21 +309,49 @@ const ProductDetail = () => {
 
             <Separator className="mb-4" />
 
-            {/* Quantity */}
-            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="flex items-center gap-1">
-                <span className="mr-2 text-xs font-medium text-foreground sm:text-sm">পরিমাণ:</span>
-                <div className="flex items-center rounded-lg border">
-                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setQty(Math.max(1, qty - 1))}>
+            {/* Weight Selection */}
+            <div className="mb-4">
+              <span className="mb-2 block text-xs font-semibold text-foreground sm:text-sm">
+                <Package className="inline h-4 w-4 mr-1 text-primary" />
+                পরিমাণ নির্বাচন করুন (কেজি)
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {WEIGHT_PRESETS.map((w) => (
+                  <button
+                    key={w}
+                    type="button"
+                    onClick={() => { setCustomMode(false); setQty(w); }}
+                    className={`rounded-lg border-2 px-4 py-2 text-sm font-semibold transition ${!customMode && qty === w ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-primary/50"}`}
+                  >
+                    {w} কেজি
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setCustomMode(true)}
+                  className={`rounded-lg border-2 px-4 py-2 text-sm font-semibold transition ${customMode ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-foreground hover:border-primary/50"}`}
+                >
+                  কাস্টম
+                </button>
+              </div>
+              {customMode && (
+                <div className="mt-3 flex items-center gap-2">
+                  <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setQty(Math.max(1, qty - 1))}>
                     <Minus className="h-3.5 w-3.5" />
                   </Button>
-                  <span className="w-12 text-center text-sm font-semibold">{qty}</span>
-                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setQty(qty + 1)}>
+                  <input
+                    type="number"
+                    min={1}
+                    value={qty}
+                    onChange={(e) => setQty(Math.max(1, Number(e.target.value) || 1))}
+                    className="h-9 w-24 rounded-md border border-input bg-background px-3 text-center text-sm font-semibold"
+                  />
+                  <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setQty(qty + 1)}>
                     <Plus className="h-3.5 w-3.5" />
                   </Button>
+                  <span className="text-xs text-muted-foreground">কেজি</span>
                 </div>
-                <span className="ml-2 text-xs text-muted-foreground">পিস</span>
-              </div>
+              )}
             </div>
 
             {/* Location for delivery fee */}
@@ -356,10 +387,10 @@ const ProductDetail = () => {
               </div>
               {feeLoading && <p className="text-xs text-muted-foreground mt-1">চার্জ লোড হচ্ছে...</p>}
               {!feeLoading && selDistrict && deliveryFee === null && (
-                <p className="text-xs text-muted-foreground mt-1">ডিফল্ট ডেলিভারি চার্জ: ৳{DEFAULT_DELIVERY_FEE}</p>
+                <p className="text-xs text-muted-foreground mt-1">ডিফল্ট চার্জ: ৳{DEFAULT_DELIVERY_FEE}/কেজি</p>
               )}
               {!feeLoading && deliveryFee !== null && (
-                <p className="text-xs text-primary font-medium mt-1">এই এলাকায় ডেলিভারি চার্জ: ৳{deliveryFee}</p>
+                <p className="text-xs text-primary font-medium mt-1">এই এলাকায় ডেলিভারি চার্জ: ৳{deliveryFee}/কেজি</p>
               )}
             </div>
 
@@ -370,13 +401,13 @@ const ProductDetail = () => {
                 <span className="text-sm font-bold text-foreground">মূল্য হিসাব</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-foreground/80">পণ্যের মূল্য ({qty} পিস × ৳{unitPrice.toLocaleString()})</span>
+                <span className="text-foreground/80">পণ্যের মূল্য ({qty} কেজি × ৳{unitPrice.toLocaleString()})</span>
                 <span className="font-semibold text-foreground">৳{totalProductPrice.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-foreground/80">
                   <Truck className="inline h-3.5 w-3.5 mr-1" />
-                  ডেলিভারি চার্জ
+                  ডেলিভারি চার্জ ({qty} কেজি × ৳{perKgFee})
                 </span>
                 <span className="font-semibold text-foreground">৳{effectiveFee.toLocaleString()}</span>
               </div>
