@@ -206,6 +206,17 @@ const AdminProducts = () => {
     }
   };
 
+  const toggleComingSoon = async (p: Product) => {
+    const next = !p.coming_soon;
+    const { error } = await supabase.from("products").update({ coming_soon: next }).eq("id", p.id);
+    if (error) {
+      toast({ title: "ত্রুটি", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: next ? "কামিং সুন চালু" : "কামিং সুন বন্ধ", description: p.name_bn });
+      setProducts((cur) => cur.map((x) => (x.id === p.id ? { ...x, coming_soon: next } : x)));
+    }
+  };
+
   const openEdit = (p: Product) => {
     setEditing(p);
     const existingImages = p.images && p.images.length > 0 ? p.images : (p.image_url ? [p.image_url] : []);
@@ -496,6 +507,15 @@ const AdminProducts = () => {
                       <p className="text-xs text-muted-foreground truncate">{p.name}</p>
                     </div>
                     <div className="flex gap-1 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`h-8 w-8 ${p.coming_soon ? "bg-primary/15 text-primary" : ""}`}
+                        title={p.coming_soon ? "কামিং সুন বন্ধ করুন" : "কামিং সুন চালু করুন"}
+                        onClick={() => toggleComingSoon(p)}
+                      >
+                        <Clock className="h-3.5 w-3.5" />
+                      </Button>
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(p)}>
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
@@ -521,6 +541,11 @@ const AdminProducts = () => {
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${p.is_active ? "bg-secondary/15 text-secondary" : "bg-destructive/15 text-destructive"}`}>
                       {p.is_active ? "সক্রিয়" : "নিষ্ক্রিয়"}
                     </span>
+                    {p.coming_soon && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/15 text-primary">
+                        <Clock className="h-3 w-3" /> কামিং সুন
+                      </span>
+                    )}
                     {p.compare_price ? <span className="text-xs text-muted-foreground line-through">৳{p.compare_price.toLocaleString()}</span> : null}
                   </div>
                 </div>
@@ -593,12 +618,28 @@ const AdminProducts = () => {
                       </div>
                     </td>
                     <td className="py-3 px-4 hidden lg:table-cell">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${p.is_active ? "bg-secondary/15 text-secondary" : "bg-destructive/15 text-destructive"}`}>
-                        {p.is_active ? "সক্রিয়" : "নিষ্ক্রিয়"}
-                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${p.is_active ? "bg-secondary/15 text-secondary" : "bg-destructive/15 text-destructive"}`}>
+                          {p.is_active ? "সক্রিয়" : "নিষ্ক্রিয়"}
+                        </span>
+                        {p.coming_soon && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/15 text-primary">
+                            <Clock className="h-3 w-3" /> কামিং সুন
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="py-3 px-4 text-right">
                       <div className="flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={`h-8 w-8 hover:bg-primary/10 ${p.coming_soon ? "bg-primary/15 text-primary" : "hover:text-primary"}`}
+                          title={p.coming_soon ? "কামিং সুন বন্ধ করুন" : "কামিং সুন চালু করুন"}
+                          onClick={() => toggleComingSoon(p)}
+                        >
+                          <Clock className="h-3.5 w-3.5" />
+                        </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary" onClick={() => openEdit(p)}>
                           <Pencil className="h-3.5 w-3.5" />
                         </Button>
