@@ -209,6 +209,42 @@ export type Database = {
         }
         Relationships: []
       }
+      courier_providers: {
+        Row: {
+          created_at: string
+          credentials: Json
+          display_name: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          provider_key: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credentials?: Json
+          display_name: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          provider_key: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credentials?: Json
+          display_name?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          provider_key?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       customer_reviews: {
         Row: {
           contact_info: string | null
@@ -567,6 +603,8 @@ export type Database = {
       orders: {
         Row: {
           city: string
+          courier_provider: string | null
+          courier_tracking_id: string | null
           created_at: string
           customer_email: string | null
           customer_name: string
@@ -591,6 +629,8 @@ export type Database = {
         }
         Insert: {
           city: string
+          courier_provider?: string | null
+          courier_tracking_id?: string | null
           created_at?: string
           customer_email?: string | null
           customer_name: string
@@ -615,6 +655,8 @@ export type Database = {
         }
         Update: {
           city?: string
+          courier_provider?: string | null
+          courier_tracking_id?: string | null
           created_at?: string
           customer_email?: string | null
           customer_name?: string
