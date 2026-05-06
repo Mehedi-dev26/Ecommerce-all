@@ -58,6 +58,7 @@ const Checkout = () => {
     pin: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [perKgFee, setPerKgFee] = useState<number | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string>("");
   const [addressMode, setAddressMode] = useState<"saved" | "new">("saved");
@@ -186,7 +187,30 @@ const Checkout = () => {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [saveAbandonedCheckout]);
 
-  const shippingCost = totalPrice >= 2000 ? 0 : 120;
+  // Total weight in kg = sum of item quantities (since quantity = কেজি)
+  const totalKg = items.reduce((s, i) => s + i.quantity, 0);
+  const effectivePerKg = perKgFee ?? 120;
+  const shippingCost = totalKg * effectivePerKg;
+
+  // Lookup shipping per-kg from courier_charges based on selected location
+  useEffect(() => {
+    const lookup = async () => {
+      if (!form.division || !form.district) { setPerKgFee(null); return; }
+      let q = supabase
+        .from("courier_charges")
+        .select("charge_per_kg, upazila")
+        .eq("division", form.division)
+        .eq("district", form.district);
+      const { data } = await q;
+      if (!data || data.length === 0) { setPerKgFee(null); return; }
+      // Prefer matching upazila, else fallback to division+district level (upazila NULL)
+      const upMatch = data.find((d: any) => d.upazila === form.upazila);
+      const generic = data.find((d: any) => d.upazila === null);
+      const row: any = upMatch || generic || data[0];
+      setPerKgFee(Number(row.charge_per_kg));
+    };
+    void lookup();
+  }, [form.division, form.district, form.upazila]);
 
   // Cascading location data
   const selectedDivision = useMemo(
