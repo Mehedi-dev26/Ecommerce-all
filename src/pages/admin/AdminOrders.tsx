@@ -179,7 +179,13 @@ const AdminOrders = () => {
         };
         const { data, error } = await supabase.functions.invoke("steadfast?action=create-order", { body: payload });
         if (error) throw error;
-        if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
+        if ((data as { error?: string })?.error) {
+          const raw = (data as { error: string }).error;
+          if (raw.includes("Account is not active")) {
+            throw new Error("আপনার Steadfast account এখনো active নয়। Steadfast support এ যোগাযোগ করে account activate করান, তারপর আবার চেষ্টা করুন।");
+          }
+          throw new Error(raw);
+        }
         const consignment = (data as { consignment?: { consignment_id?: string | number; tracking_code?: string; status?: string } }).consignment;
         const cid = consignment?.consignment_id ? String(consignment.consignment_id) : null;
         if (cid) {
