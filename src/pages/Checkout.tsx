@@ -838,7 +838,7 @@ const Checkout = () => {
           <div className="space-y-3 mb-4">
             {items.map((item) => (
               <div key={item.id} className="flex justify-between text-sm">
-                <span className="flex-1 min-w-0 truncate mr-2">{item.name_bn} × {item.quantity}</span>
+                <span className="flex-1 min-w-0 truncate mr-2">{item.name_bn} × {item.quantity} কেজি</span>
                 <span className="flex-shrink-0">৳{item.price * item.quantity}</span>
               </div>
             ))}
