@@ -562,13 +562,18 @@ const AdminOrders = () => {
               <div className="rounded-xl border border-border/50 p-4">
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
                   <Truck className="h-4 w-4" />
-                  পাঠাও কুরিয়ার
+                  কুরিয়ার ডেলিভারি
                 </h4>
 
                 {selectedOrder.pathao_consignment_id ? (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div>
+                        {selectedOrder.courier_provider && (
+                          <span className="inline-block text-[10px] uppercase font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded mb-1">
+                            {selectedOrder.courier_provider}
+                          </span>
+                        )}
                         <p className="text-sm font-medium">Consignment ID: {selectedOrder.pathao_consignment_id}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">
                           স্ট্যাটাস: <span className="font-semibold text-primary">{selectedOrder.pathao_order_status || "Pending"}</span>
@@ -597,20 +602,44 @@ const AdminOrders = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-3">
-                    <p className="text-sm text-muted-foreground mb-3">এই অর্ডারটি এখনও পাঠাও কুরিয়ারে পাঠানো হয়নি</p>
-                    <Button
-                      onClick={() => sendToPathao(selectedOrder)}
-                      disabled={pathaoLoading}
-                      className="gap-2"
-                      size="sm"
-                    >
-                      {pathaoLoading ? (
-                        <><Loader2 className="h-4 w-4 animate-spin" />পাঠানো হচ্ছে...</>
-                      ) : (
-                        <><Send className="h-4 w-4" />পাঠাও কুরিয়ারে পাঠান</>
-                      )}
-                    </Button>
+                  <div className="py-2 space-y-3">
+                    {couriers.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center">
+                        কোনো কুরিয়ার সক্রিয় নেই। প্রথমে <a href="/admin/courier-api" className="text-primary underline">কুরিয়ার API</a> সেট করুন।
+                      </p>
+                    ) : (
+                      <>
+                        <div>
+                          <Label className="text-xs font-medium mb-1.5 block">কোন কুরিয়ারে পাঠাবেন?</Label>
+                          <Select value={selectedCourier} onValueChange={setSelectedCourier}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {couriers.map((c) => (
+                                <SelectItem key={c.id} value={c.provider_key}>
+                                  <span className="flex items-center gap-2">
+                                    <Truck className="h-3.5 w-3.5" />
+                                    {c.display_name}
+                                    {c.is_default && <span className="text-[9px] bg-primary/10 text-primary px-1 rounded">ডিফল্ট</span>}
+                                  </span>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <Button
+                          onClick={() => sendToCourier(selectedOrder, selectedCourier)}
+                          disabled={pathaoLoading || !selectedCourier}
+                          className="gap-2 w-full"
+                          size="sm"
+                        >
+                          {pathaoLoading ? (
+                            <><Loader2 className="h-4 w-4 animate-spin" />পাঠানো হচ্ছে...</>
+                          ) : (
+                            <><Send className="h-4 w-4" />কুরিয়ারে পাঠান</>
+                          )}
+                        </Button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
