@@ -75,7 +75,26 @@ Deno.serve(async (req) => {
     switch (action) {
       case "verify-credentials": {
         const data = await steadfastFetch(creds, "/get_balance");
-        return jsonResponse({ ok: true, balance: data });
+        // /get_balance succeeds even if the account is not yet activated for creating orders.
+        // Probe create_order with an obviously-invalid payload — Steadfast returns:
+        //   - 401 "Account is not active!" when the merchant account is disabled
+        //   - 422 validation errors when the account IS active (which means creds are good)
+        let accountActive = true;
+        let activationMessage: string | null = null;
+        try {
+          await steadfastFetch(creds, "/create_order", {
+            method: "POST",
+            body: JSON.stringify({ invoice: "", recipient_name: "", recipient_phone: "", recipient_address: "", cod_amount: 0 }),
+          });
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          if (msg.includes("Account is not active")) {
+            accountActive = false;
+            activationMessage = "আপনার Steadfast account এখনো active নয়। Steadfast সাপোর্টে যোগাযোগ করে account activate করান।";
+          }
+          // 422 validation errors are expected and mean the account is active.
+        }
+        return jsonResponse({ ok: accountActive, balance: data, account_active: accountActive, message: activationMessage });
       }
 
       case "create-order": {
