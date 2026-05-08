@@ -31,12 +31,12 @@ interface SavedAddress {
 const BD_PHONE_REGEX = /^01[3-9]\d{8}$/;
 
 async function generateOrderNumber(): Promise<string> {
-  const { count } = await supabase
-    .from("orders")
-    .select("*", { count: "exact", head: true });
-
-  const nextNum = (count || 0) + 1;
-  return `SM-${String(nextNum).padStart(4, "0")}`;
+  const { data, error } = await supabase.rpc("generate_order_number");
+  if (error || !data) {
+    // Fallback to a timestamp-based number if RPC fails
+    return `SM-${Date.now().toString().slice(-6)}`;
+  }
+  return data as string;
 }
 
 const Checkout = () => {
@@ -422,11 +422,10 @@ const Checkout = () => {
         // First-order thanks — only if this is customer's first order
         void (async () => {
           try {
-            const { count } = await supabase
-              .from("orders")
-              .select("id", { count: "exact", head: true })
-              .eq("customer_email", recipientEmail);
-            if ((count ?? 0) <= 1) {
+            const { data: cnt } = await supabase.rpc("count_orders_by_email", {
+              _email: recipientEmail,
+            });
+            if ((cnt ?? 0) <= 1) {
               sendEmail({
                 templateKey: "first_order_thanks",
                 recipients: [{ email: recipientEmail, name: form.name.trim() }],

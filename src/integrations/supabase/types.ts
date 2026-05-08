@@ -909,6 +909,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      count_orders_by_email: { Args: { _email: string }; Returns: number }
+      generate_order_number: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -919,6 +921,36 @@ export type Database = {
       increment_landing_page_view: {
         Args: { _slug: string }
         Returns: undefined
+      }
+      lookup_order_by_number: {
+        Args: { _order_number: string; _phone: string }
+        Returns: {
+          city: string
+          created_at: string
+          delivery_fee: number
+          district: string
+          id: string
+          order_number: string
+          pathao_consignment_id: string
+          pathao_order_status: string
+          pathao_tracking_url: string
+          payment_method: string
+          shipping_address: string
+          shipping_cost: number
+          status: string
+          subtotal: number
+          total: number
+        }[]
+      }
+      lookup_order_items_by_number: {
+        Args: { _order_number: string; _phone: string }
+        Returns: {
+          id: string
+          price: number
+          product_id: string
+          product_name: string
+          quantity: number
+        }[]
       }
     }
     Enums: {
