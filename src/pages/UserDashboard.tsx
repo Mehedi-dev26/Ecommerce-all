@@ -97,6 +97,24 @@ const UserDashboard = () => {
     if (user) fetchOrders();
   }, [user]);
 
+  // Realtime: listen to changes on this user's orders so courier status updates appear instantly
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`user-orders-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "orders", filter: `user_id=eq.${user.id}` },
+        (payload) => {
+          const updated = payload.new as Order;
+          setOrders((prev) => prev.map((o) => (o.id === updated.id ? { ...o, ...updated } : o)));
+          setTrackedOrder((cur) => (cur && cur.id === updated.id ? { ...cur, ...updated } : cur));
+        }
+      )
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [user]);
+
   useEffect(() => {
     if (profile) {
       setProfileForm({
