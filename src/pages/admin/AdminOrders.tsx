@@ -113,6 +113,32 @@ const AdminOrders = () => {
 
   useEffect(() => { void fetchOrders(); }, []);
 
+  // Realtime: refresh orders whenever any order row changes (e.g. courier webhook update)
+  useEffect(() => {
+    const channel = supabase
+      .channel("admin-orders-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        (payload) => {
+          const updated = payload.new as Order | undefined;
+          if (!updated || !("id" in (updated as object))) {
+            void fetchOrders();
+            return;
+          }
+          setOrders((prev) => {
+            const exists = prev.some((o) => o.id === updated.id);
+            if (payload.eventType === "DELETE") return prev.filter((o) => o.id !== (payload.old as Order).id);
+            if (!exists) return [updated, ...prev];
+            return prev.map((o) => (o.id === updated.id ? { ...o, ...updated } : o));
+          });
+          setSelectedOrder((cur) => (cur && cur.id === updated.id ? { ...cur, ...updated } : cur));
+        }
+      )
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, []);
+
   useEffect(() => {
     void (async () => {
       const { data } = await supabase
