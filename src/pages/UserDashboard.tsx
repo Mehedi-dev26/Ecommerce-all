@@ -197,13 +197,27 @@ const UserDashboard = () => {
     setTrackedOrder(null);
     setTrackedItems([]);
     try {
-      const { data: orderData, error: orderErr } = await supabase
+      // First try: own order by number (RLS-protected SELECT)
+      let orderData: Order | null = null;
+      const { data: ownOrder } = await supabase
         .from("orders")
         .select("id, order_number, total, subtotal, shipping_cost, status, created_at, city, district, payment_method, shipping_address, pathao_consignment_id, pathao_order_status, pathao_tracking_url, delivery_fee")
         .eq("order_number", trackSearchId.trim().toUpperCase())
         .maybeSingle();
+      if (ownOrder) orderData = ownOrder as Order;
 
-      if (orderErr || !orderData) {
+      // Fallback: guest-style lookup by number + the user's profile phone
+      if (!orderData && profile?.phone) {
+        const { data: rpcData } = await supabase.rpc("lookup_order_by_number", {
+          _order_number: trackSearchId.trim().toUpperCase(),
+          _phone: profile.phone,
+        });
+        if (Array.isArray(rpcData) && rpcData.length > 0) {
+          orderData = rpcData[0] as Order;
+        }
+      }
+
+      if (!orderData) {
         setTrackError("এই অর্ডার নম্বর দিয়ে কোনো অর্ডার পাওয়া যায়নি।");
         return;
       }
@@ -225,10 +239,20 @@ const UserDashboard = () => {
 
       setTrackedOrder(orderData as Order);
 
-      const { data: items } = await supabase
+      let items: OrderItem[] | null = null;
+      const { data: ownItems } = await supabase
         .from("order_items")
         .select("id, product_name, quantity, price, product_id")
         .eq("order_id", orderData.id);
+      if (ownItems && ownItems.length > 0) {
+        items = ownItems as OrderItem[];
+      } else if (profile?.phone) {
+        const { data: rpcItems } = await supabase.rpc("lookup_order_items_by_number", {
+          _order_number: orderData.order_number,
+          _phone: profile.phone,
+        });
+        items = (rpcItems as OrderItem[]) || [];
+      }
       setTrackedItems(items || []);
     } catch {
       setTrackError("অর্ডার ট্র্যাক করতে সমস্যা হয়েছে।");
