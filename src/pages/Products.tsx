@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSearchParams } from "react-router-dom";
 import ProductCard from "@/components/ProductCard";
+import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 import SEO from "@/components/SEO";
 import { breadcrumb } from "@/lib/seo-schemas";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
 import { SlidersHorizontal, X } from "lucide-react";
@@ -109,7 +109,10 @@ const Products = () => {
   const { data: products, isLoading } = useQuery({
     queryKey: ["products", selectedCategory],
     queryFn: async () => {
-      let query = supabase.from("products").select("*, categories(name, name_bn)");
+      let query = supabase
+        .from("products")
+        .select("id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,is_active,category_id,created_at,categories(name,name_bn)")
+        .eq("is_active", true);
       if (selectedCategory) {
         const cat = categories?.find((c: any) => c.name === selectedCategory);
         if (cat) query = query.eq("category_id", cat.id);
@@ -243,7 +246,7 @@ const Products = () => {
             {isLoading ? (
               <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <Skeleton key={i} className="h-64 rounded-lg sm:h-72" />
+                  <ProductCardSkeleton key={i} />
                 ))}
               </div>
             ) : filteredProducts.length === 0 ? (
