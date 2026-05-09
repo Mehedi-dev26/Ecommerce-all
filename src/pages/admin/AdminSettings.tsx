@@ -291,11 +291,22 @@ const AdminSettings = () => {
           </p>
         </CardHeader>
         <CardContent className="flex flex-col sm:flex-row items-start gap-5">
-          <div className="flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[conic-gradient(at_50%_50%,#f3f4f6_25%,#e5e7eb_0_50%,#f3f4f6_0_75%,#e5e7eb_0)] bg-[length:16px_16px] ring-2 ring-border">
+          <div className="relative h-40 w-40 shrink-0 overflow-hidden rounded-2xl bg-[conic-gradient(at_50%_50%,#f3f4f6_25%,#e5e7eb_0_50%,#f3f4f6_0_75%,#e5e7eb_0)] bg-[length:16px_16px] ring-2 ring-border">
             {currentFrame ? (
               <img src={currentFrame} alt="বর্তমান ফ্রেম" className="h-full w-full object-contain" />
             ) : (
-              <Frame className="h-10 w-10 text-muted-foreground/60" />
+              <div className="flex h-full w-full items-center justify-center"><Frame className="h-10 w-10 text-muted-foreground/60" /></div>
+            )}
+            {currentFrame && (
+              <div
+                className="pointer-events-none absolute border-2 border-dashed border-primary/80 bg-primary/10"
+                style={{
+                  left: `${inset.left * 100}%`,
+                  top: `${inset.top * 100}%`,
+                  width: `${(inset.right - inset.left) * 100}%`,
+                  height: `${(inset.bottom - inset.top) * 100}%`,
+                }}
+              />
             )}
           </div>
           <div className="flex-1 space-y-3">
@@ -319,6 +330,32 @@ const AdminSettings = () => {
             <p className="text-[11px] text-muted-foreground">
               পুরোনো প্রোডাক্ট ছবিতে ফ্রেম স্বয়ংক্রিয়ভাবে যোগ হবে না — শুধু নতুন আপলোড করা ছবিতে যোগ হবে। চাইলে পুরোনো প্রোডাক্ট এডিট করে ছবি পুনরায় আপলোড করুন।
             </p>
+            {currentFrame && (
+              <div className="rounded-xl border bg-muted/30 p-3">
+                <p className="mb-2 text-[11px] font-semibold text-foreground">প্রোডাক্ট বসানোর জায়গা (সাদা অংশের অবস্থান %)</p>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {(["left","top","right","bottom"] as const).map((k) => (
+                    <div key={k} className="space-y-1">
+                      <Label className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                        {k === "left" ? "বামে" : k === "top" ? "উপরে" : k === "right" ? "ডানে" : "নিচে"}
+                      </Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={100}
+                        step={0.5}
+                        value={Number((inset[k] * 100).toFixed(2))}
+                        onChange={(e) => updateInset(k, Number(e.target.value))}
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-2 text-[10px] text-muted-foreground">
+                  পরিবর্তন করার পর উপরে "সেভ করুন" ক্লিক করুন। alignment নিখুঁত করতে এই মানগুলো সামঞ্জস্য করুন।
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
