@@ -10,7 +10,7 @@ import AdminPageState from "@/components/admin/AdminPageState";
 import { getErrorMessage } from "@/lib/error-message";
 import { Save, Upload, Store, Phone, Globe, Image as ImageIcon, Loader2, Frame, Trash2 } from "lucide-react";
 import { useSiteSettings, SITE_DEFAULTS } from "@/contexts/SiteSettingsContext";
-import { clearProductFrameCache, PRODUCT_FRAME_KEY } from "@/lib/apply-product-frame";
+import { clearProductFrameCache, PRODUCT_FRAME_KEY, PRODUCT_FRAME_INSET_KEY } from "@/lib/apply-product-frame";
 
 interface Setting { id: string; key: string; value: string; label: string | null; }
 
@@ -114,6 +114,7 @@ const AdminSettings = () => {
       GROUPS.forEach((g) => g.fields.forEach((f) => allKeys.add(f.key)));
       allKeys.add("brand_logo_url");
       allKeys.add(PRODUCT_FRAME_KEY);
+      allKeys.add(PRODUCT_FRAME_INSET_KEY);
       for (const key of allKeys) {
         const value = formValues[key] ?? SITE_DEFAULTS[key] ?? "";
         const label = GROUPS.flatMap((g) => g.fields).find((f) => f.key === key)?.label;
@@ -206,6 +207,27 @@ const AdminSettings = () => {
 
   const currentLogo = formValues.brand_logo_url?.trim() || logoUrl;
   const currentFrame = formValues[PRODUCT_FRAME_KEY]?.trim() || "";
+  const parseInset = () => {
+    try {
+      const raw = formValues[PRODUCT_FRAME_INSET_KEY];
+      if (raw) {
+        const v = JSON.parse(raw);
+        return {
+          left: Number(v.left ?? 0.12),
+          top: Number(v.top ?? 0.23),
+          right: Number(v.right ?? 0.87),
+          bottom: Number(v.bottom ?? 0.82),
+        };
+      }
+    } catch {}
+    return { left: 0.12, top: 0.23, right: 0.87, bottom: 0.82 };
+  };
+  const inset = parseInset();
+  const updateInset = (k: "left" | "top" | "right" | "bottom", pct: number) => {
+    const next = { ...inset, [k]: Math.max(0, Math.min(100, pct)) / 100 };
+    setFormValues((p) => ({ ...p, [PRODUCT_FRAME_INSET_KEY]: JSON.stringify(next) }));
+    clearProductFrameCache();
+  };
 
   return (
     <div className="space-y-6 max-w-3xl">
