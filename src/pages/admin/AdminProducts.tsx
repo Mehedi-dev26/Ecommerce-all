@@ -130,13 +130,17 @@ const AdminProducts = () => {
     const toUpload = files.slice(0, remaining);
     const uploaded: string[] = [];
 
-    for (const file of toUpload) {
-      // Auto-merge with branding frame (if admin uploaded one in Settings)
-      const framed = await applyProductFrame(file);
-      const ext = framed.name.split(".").pop() || "jpg";
+    const startIndex = form.images.length;
+    for (let i = 0; i < toUpload.length; i++) {
+      const file = toUpload[i];
+      // Only the FIRST product image gets the branding frame applied.
+      // Additional images are uploaded as-is (no frame).
+      const isPrimary = startIndex + i === 0;
+      const processed = isPrimary ? await applyProductFrame(file) : file;
+      const ext = processed.name.split(".").pop() || "jpg";
       const path = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error } = await supabase.storage.from("product-images").upload(path, framed, {
-        contentType: framed.type,
+      const { error } = await supabase.storage.from("product-images").upload(path, processed, {
+        contentType: processed.type,
       });
       if (error) {
         toast({ title: "আপলোড ব্যর্থ", description: error.message, variant: "destructive" });
