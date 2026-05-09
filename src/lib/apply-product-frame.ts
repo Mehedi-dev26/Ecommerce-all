@@ -97,24 +97,29 @@ export async function applyProductFrame(file: File): Promise<File> {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
 
-    // Draw frame first (full canvas)
-    ctx.drawImage(frame, 0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
-
     // Compute inner rect from inset fractions
     const rx = Math.max(0, Math.min(1, inset.left)) * OUTPUT_SIZE;
     const ry = Math.max(0, Math.min(1, inset.top)) * OUTPUT_SIZE;
     const rw = Math.max(0, Math.min(1, inset.right) - inset.left) * OUTPUT_SIZE;
     const rh = Math.max(0, Math.min(1, inset.bottom) - inset.top) * OUTPUT_SIZE;
 
-    // Contain-fit product inside the inner rect
-    const scale = Math.min(rw / product.width, rh / product.height);
+    // Cover-fit product inside the inner rect (auto-zoom to fill, crop overflow)
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    const scale = Math.max(rw / product.width, rh / product.height);
     const w = product.width * scale;
     const h = product.height * scale;
     const dx = rx + (rw - w) / 2;
     const dy = ry + (rh - h) / 2;
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(rx, ry, rw, rh);
+    ctx.clip();
     ctx.drawImage(product, dx, dy, w, h);
+    ctx.restore();
+
+    // Draw frame on top so the border + decorative graphics overlay the product
+    ctx.drawImage(frame, 0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
 
     const blob: Blob = await new Promise((res) =>
       canvas.toBlob((b) => res(b!), "image/jpeg", 0.9),
