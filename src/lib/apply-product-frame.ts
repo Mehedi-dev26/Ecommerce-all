@@ -8,6 +8,7 @@ const DEFAULT_INSET = { left: 0, top: 0, right: 1, bottom: 1 };
 let cachedFrameUrl: string | null | undefined;
 let cachedInset: { left: number; top: number; right: number; bottom: number } | undefined;
 let frameImagePromise: Promise<HTMLImageElement | null> | null = null;
+let processedFramePromise: Promise<HTMLCanvasElement | null> | null = null;
 
 export const PRODUCT_FRAME_KEY = FRAME_KEY;
 export const PRODUCT_FRAME_INSET_KEY = INSET_KEY;
@@ -16,6 +17,7 @@ export function clearProductFrameCache() {
   cachedFrameUrl = undefined;
   cachedInset = undefined;
   frameImagePromise = null;
+  processedFramePromise = null;
 }
 
 async function fetchFrameUrl(): Promise<string | null> {
@@ -76,6 +78,50 @@ async function getFrameImage(): Promise<HTMLImageElement | null> {
 }
 
 /**
+ * Build a frame canvas where pixels inside the inner rect that are near-white
+ * are made transparent — so the product shows through, while the border and
+ * decorative graphics (mangoes etc.) remain visible on top.
+ */
+async function getProcessedFrame(): Promise<HTMLCanvasElement | null> {
+  if (processedFramePromise) return processedFramePromise;
+  processedFramePromise = (async () => {
+    const [frame, inset] = await Promise.all([getFrameImage(), fetchInset()]);
+    if (!frame) return null;
+    const c = document.createElement("canvas");
+    c.width = OUTPUT_SIZE;
+    c.height = OUTPUT_SIZE;
+    const ctx = c.getContext("2d")!;
+    ctx.drawImage(frame, 0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
+
+    const rx = Math.max(0, Math.floor(inset.left * OUTPUT_SIZE));
+    const ry = Math.max(0, Math.floor(inset.top * OUTPUT_SIZE));
+    const rw = Math.max(0, Math.ceil(inset.right * OUTPUT_SIZE) - rx);
+    const rh = Math.max(0, Math.ceil(inset.bottom * OUTPUT_SIZE) - ry);
+    if (rw > 0 && rh > 0) {
+      try {
+        const img = ctx.getImageData(rx, ry, rw, rh);
+        const d = img.data;
+        for (let i = 0; i < d.length; i += 4) {
+          const r = d[i], g = d[i + 1], b = d[i + 2];
+          // Near-white → transparent (smooth fade for edge antialiasing)
+          const minC = Math.min(r, g, b);
+          if (minC >= 230) {
+            d[i + 3] = 0;
+          } else if (minC >= 200) {
+            d[i + 3] = Math.round(d[i + 3] * (1 - (minC - 200) / 30));
+          }
+        }
+        ctx.putImageData(img, rx, ry);
+      } catch (e) {
+        console.warn("frame processing failed", e);
+      }
+    }
+    return c;
+  })();
+  return processedFramePromise;
+}
+
+/**
  * Composite a product image with the saved branding frame.
  * - Output is a square JPEG of OUTPUT_SIZE px.
  * - Frame is drawn full-size first.
@@ -84,7 +130,7 @@ async function getFrameImage(): Promise<HTMLImageElement | null> {
  * If no frame is configured, returns the original file unchanged.
  */
 export async function applyProductFrame(file: File): Promise<File> {
-  const [frame, inset] = await Promise.all([getFrameImage(), fetchInset()]);
+  const [frame, inset] = await Promise.all([getProcessedFrame(), fetchInset()]);
   if (!frame) return file;
 
   const productUrl = URL.createObjectURL(file);
