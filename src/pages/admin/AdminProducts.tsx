@@ -62,6 +62,21 @@ const GRADE_OPTIONS = [
   { value: "D", label: "D Grade (বেসিক)" },
 ];
 
+const UNIT_OPTIONS = [
+  { value: "kg", label: "কেজি (kg)" },
+  { value: "gram", label: "গ্রাম (gram)" },
+  { value: "piece", label: "পিস (piece)" },
+  { value: "dozen", label: "ডজন (dozen)" },
+  { value: "feet", label: "ফুট (feet)" },
+  { value: "meter", label: "মিটার (meter)" },
+  { value: "liter", label: "লিটার (liter)" },
+  { value: "packet", label: "প্যাকেট (packet)" },
+  { value: "set", label: "সেট (set)" },
+  { value: "box", label: "বক্স (box)" },
+];
+
+const WEIGHT_PRESETS = ["1kg", "2kg", "3kg", "5kg", "10kg", "15kg", "20kg", "25kg"];
+
 const AdminProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -177,7 +192,7 @@ const AdminProducts = () => {
       is_active: form.is_active,
       is_featured: form.is_featured,
       weight: showWeight ? (form.weight || null) : null,
-      unit: showWeight ? (form.unit || null) : null,
+      unit: form.unit || null,
       grade: form.grade && form.grade !== "none" ? form.grade : null,
       coming_soon: form.coming_soon,
     };
