@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ProductCard from "./ProductCard";
-import { Skeleton } from "@/components/ui/skeleton";
+import ProductCardSkeleton from "./ProductCardSkeleton";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
@@ -12,7 +12,7 @@ const FeaturedProducts = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("*, categories(name_bn)")
+        .select("id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,categories(name_bn)")
         .eq("is_featured", true)
         .eq("is_active", true)
         .order("created_at", { ascending: false })
@@ -20,7 +20,7 @@ const FeaturedProducts = () => {
       if (error) throw error;
       return data;
     },
-    staleTime: 60_000,
+    staleTime: 10 * 60 * 1000,
   });
 
   return (
@@ -33,7 +33,7 @@ const FeaturedProducts = () => {
         {isLoading ? (
           <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
             {Array.from({ length: 16 }).map((_, i) => (
-              <Skeleton key={i} className="h-56 rounded-xl sm:h-72" />
+              <ProductCardSkeleton key={i} />
             ))}
           </div>
         ) : (
