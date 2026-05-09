@@ -1,113 +1,70 @@
-## Goal
-Build a centralized "Courier API" admin section where you can manage Pathao + Steadfast (and future couriers) credentials from the UI, and let admins choose which courier to send each order through.
+## সমস্যার মূল কারণ (Root Cause)
+
+Browser network log থেকে নিশ্চিত হলাম — homepage এবং shop page-এ products আসছে না কারণ Supabase API থেকে **HTTP 401 (`permission denied for table products`)** ফিরছে।
+
+```
+GET /rest/v1/products?select=*,categories(name_bn)&is_featured=eq.true...
+→ 401  code: 42501  "permission denied for table products"
+```
+
+কয়েকদিন আগের security migration-এ (`20260508134742…sql`) `cost_price` কলামটি public-এ লুকানোর জন্য করা হয়েছিল:
+
+```sql
+REVOKE SELECT ON public.products FROM anon, authenticated;
+GRANT SELECT (id, name, name_bn, … , coming_soon) ON public.products TO anon, authenticated;
+GRANT SELECT (cost_price) ON public.products TO authenticated;  -- admin-only
+```
+
+কিন্তু frontend-এ এখনো `select("*")` ব্যবহার হচ্ছে। PostgREST `*`-কে cost_price সহ সব কলাম ধরে — anon-এর সেই কলামে access নেই → পুরো query blocked → পণ্য দেখায় না।
+
+Admin login করা থাকলে (authenticated role) সমস্যা হয় না, তাই এতদিন ধরা পড়েনি। Mobile/incognito/customer browser-এ পণ্য দেখায় না।
 
 ---
 
-## 1. Database (new migration)
+## পরিকল্পনা
 
-**Table: `courier_providers`** (admin-only RLS)
-- `id` uuid
-- `provider_key` text unique — e.g. `pathao`, `steadfast`
-- `display_name` text — e.g. "Pathao", "Steadfast"
-- `is_active` boolean (enable/disable from UI)
-- `is_default` boolean (one default for quick send)
-- `credentials` jsonb — provider-specific keys (see below)
-- `sort_order` int
-- `created_at`, `updated_at`
+### 1) `select("*")` → explicit column list (cost_price বাদে)
 
-**Credentials JSON shape**
-- Pathao: `{ client_id, client_secret, username, password, base_url, store_id }`
-- Steadfast: `{ api_key, secret_key, base_url }`
+তিনটি public-facing query ঠিক করব। Admin queries আগের মতই থাকবে।
 
-RLS: only admins can SELECT / INSERT / UPDATE / DELETE. Never exposed to public.
+- `src/components/FeaturedProducts.tsx` — homepage "জনপ্রিয় পণ্য"
+- `src/pages/Products.tsx` — shop / category page
+- `src/pages/ProductDetail.tsx` — single product page
 
-Seed row for Pathao (empty creds — admin fills in via UI). The existing `PATHAO_*` env secrets stay as fallback.
+প্রত্যেকটিতে select হবে:
+```
+id, name, name_bn, description, description_bn, category_id, price,
+compare_price, stock, image_url, images, weight, unit, grade,
+is_active, is_featured, created_at, updated_at, coming_soon,
+categories(name, name_bn)
+```
 
-**Add to `orders` table:**
-- `courier_provider` text — which courier was used (`pathao` | `steadfast`)
-- `courier_tracking_id` text — generic tracking id (Steadfast consignment id)
-- Keep existing `pathao_consignment_id` / `pathao_tracking_url` / `pathao_order_status` for backward compat
+এতে cost_price client bundle-এ leak হবে না, security posture অক্ষুণ্ণ থাকবে।
 
----
+### 2) Professional loading skeleton
 
-## 2. Edge functions
+বর্তমান skeleton শুধু একটি plain rounded box। Daraz/Amazon-style real-shape skeleton বানাবো যা actual ProductCard-এর হুবহু অবয়ব দেখাবে — image area, category line, title line, weight line, price + cart button row। Tailwind `animate-pulse` সাথে subtle shimmer overlay।
 
-### Update `supabase/functions/pathao/index.ts`
-- On every call, first try to load Pathao credentials from `courier_providers` table (using service role).
-- Fall back to `PATHAO_*` env vars if DB row is empty.
-- Same actions (`get-stores`, `get-cities`, `get-zones`, `get-areas`, `price-calc`, `create-order`, `track-order`).
+নতুন reusable component: `src/components/ProductCardSkeleton.tsx`
 
-### New `supabase/functions/steadfast/index.ts`
-- Loads Steadfast `api_key` + `secret_key` from `courier_providers`.
-- Actions:
-  - `create-order` — POST to `https://portal.packzy.com/api/v1/create_order` with headers `Api-Key`, `Secret-Key`. Body: `invoice`, `recipient_name`, `recipient_phone`, `recipient_address`, `cod_amount`, `note`. Saves `consignment_id` + tracking URL onto `orders`.
-  - `track-order` — GET `/status_by_cid/{cid}`, updates `pathao_order_status` field reused as generic status.
-  - `verify-credentials` — quick auth check (`/get_balance`).
+ব্যবহার হবে:
+- `FeaturedProducts.tsx` (homepage)
+- `Products.tsx` (shop page)
 
-CORS + service-role-key DB writes mirror the existing Pathao function.
+Grid layout হুবহু ProductCard-এর মতো (`grid-cols-2 … lg:grid-cols-4`), তাই content load হলে কোনো layout shift হবে না (better CLS / Core Web Vitals)।
 
----
+### 3) দ্রুততর product loading
 
-## 3. Admin UI
+- `select("*")` → explicit columns মানে payload ছোট (cost_price ও বাদ)।
+- React Query এর existing `staleTime: 10m` cache পুনরায় visit-এ instant render দেবে।
+- FeaturedProducts query-তে `staleTime: 60_000` আছে — সেটি 10 minute করে homepage repeat-visit cost কমাব।
 
-### New page `src/pages/admin/AdminCourierApi.tsx`
-Route: `/admin/courier-api`. Add to admin sidebar under "Settings" group with a Truck icon.
+### Verification
 
-Layout: Tabs for each provider (Pathao | Steadfast | + Add Courier later).
+1. Browser network log-এ `/rest/v1/products` request **200 OK** ফেরত আসবে।
+2. Incognito (logged-out) homepage-এ পণ্য দেখাবে।
+3. Loading state-এ নতুন skeleton card render হবে — পণ্য আসার পর কোনো jump ছাড়াই replace হবে।
 
-**Pathao tab**
-- Inputs: Client ID, Client Secret, Username, Password, Base URL (default prefilled), Store ID
-- "Test Connection" button → calls `pathao?action=get-stores`, shows success/fail toast
-- "Set as default courier" toggle
-- "Active" toggle
-- Save button → upserts into `courier_providers`
+### Out of scope
 
-**Steadfast tab**
-- Inputs: API Key, Secret Key, Base URL (default `https://portal.packzy.com/api/v1`)
-- "Test Connection" → calls `steadfast?action=verify-credentials`
-- Active / default toggles
-- Save button
-
-Professional design: shadcn `Card` + `Tabs`, masked password fields with eye toggle, status badges (Connected / Not configured), help links to each provider's docs.
-
-### Update `src/pages/admin/AdminOrders.tsx`
-The existing "পাঠাও পাঠান" button becomes a **dropdown / dialog**:
-- Shows list of active couriers from `courier_providers` (default highlighted).
-- Pathao path: keep current city/zone/area selector flow.
-- Steadfast path: simpler dialog (no zone selection — Steadfast resolves by address). Confirms COD amount, then calls `steadfast?action=create-order`.
-- After success, save `courier_provider`, tracking id, tracking URL on the order.
-
-Tracking column shows the right link based on `courier_provider`.
-
----
-
-## 4. Files touched
-
-New:
-- `supabase/migrations/<ts>_courier_providers.sql`
-- `supabase/functions/steadfast/index.ts`
-- `src/pages/admin/AdminCourierApi.tsx`
-
-Edited:
-- `supabase/functions/pathao/index.ts` — load creds from DB with env fallback
-- `src/App.tsx` — register `/admin/courier-api` route
-- `src/components/admin/AdminSidebar.tsx` — add nav item
-- `src/pages/admin/AdminOrders.tsx` — multi-courier send flow
-- `src/integrations/supabase/types.ts` — auto-regenerated after migration
-
----
-
-## 5. Security notes
-- Credentials live in `courier_providers.credentials` jsonb, admin-only RLS, never returned to public client.
-- Edge functions read creds via service-role key (server-side only).
-- Frontend admin UI fetches creds only via authenticated admin session (RLS enforced).
-- "Test Connection" calls go through edge functions — secrets never leave the server after save.
-
----
-
-## 6. Out of scope (can add later)
-- RedX, Paperfly, eCourier providers (table is generic — just add new tab + edge function).
-- Bulk send to courier.
-- Auto-sync delivery status via cron.
-
-Confirm and I'll start with the migration.
+Database/RLS-এ কোনো পরিবর্তন আনছি না — security migration সঠিক, শুধু client query-গুলো সেটির সাথে aligned করা দরকার।
