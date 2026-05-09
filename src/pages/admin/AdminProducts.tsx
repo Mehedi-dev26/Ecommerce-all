@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { applyProductFrame } from "@/lib/apply-product-frame";
 
 interface Product {
   id: string;
@@ -115,9 +116,13 @@ const AdminProducts = () => {
     const uploaded: string[] = [];
 
     for (const file of toUpload) {
-      const ext = file.name.split(".").pop();
+      // Auto-merge with branding frame (if admin uploaded one in Settings)
+      const framed = await applyProductFrame(file);
+      const ext = framed.name.split(".").pop() || "jpg";
       const path = `products/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error } = await supabase.storage.from("product-images").upload(path, file);
+      const { error } = await supabase.storage.from("product-images").upload(path, framed, {
+        contentType: framed.type,
+      });
       if (error) {
         toast({ title: "আপলোড ব্যর্থ", description: error.message, variant: "destructive" });
         continue;
