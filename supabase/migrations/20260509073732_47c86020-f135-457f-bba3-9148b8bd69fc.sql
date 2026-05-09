@@ -1,0 +1,2 @@
+INSERT INTO public.site_settings (key, value) VALUES ('product_frame_url', '/brand/product-frame.png') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
+INSERT INTO public.site_settings (key, value) VALUES ('product_frame_inset', '{"left":0.1196,"top":0.2329,"right":0.874,"bottom":0.8238}') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value;
