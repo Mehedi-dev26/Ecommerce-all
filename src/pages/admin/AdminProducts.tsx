@@ -62,6 +62,21 @@ const GRADE_OPTIONS = [
   { value: "D", label: "D Grade (বেসিক)" },
 ];
 
+const UNIT_OPTIONS = [
+  { value: "kg", label: "কেজি (kg)" },
+  { value: "gram", label: "গ্রাম (gram)" },
+  { value: "piece", label: "পিস (piece)" },
+  { value: "dozen", label: "ডজন (dozen)" },
+  { value: "feet", label: "ফুট (feet)" },
+  { value: "meter", label: "মিটার (meter)" },
+  { value: "liter", label: "লিটার (liter)" },
+  { value: "packet", label: "প্যাকেট (packet)" },
+  { value: "set", label: "সেট (set)" },
+  { value: "box", label: "বক্স (box)" },
+];
+
+const WEIGHT_PRESETS = ["1kg", "2kg", "3kg", "5kg", "10kg", "15kg", "20kg", "25kg"];
+
 const AdminProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -177,7 +192,7 @@ const AdminProducts = () => {
       is_active: form.is_active,
       is_featured: form.is_featured,
       weight: showWeight ? (form.weight || null) : null,
-      unit: showWeight ? (form.unit || null) : null,
+      unit: form.unit || null,
       grade: form.grade && form.grade !== "none" ? form.grade : null,
       coming_soon: form.coming_soon,
     };
@@ -408,24 +423,55 @@ const AdminProducts = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">স্টক</Label>
-                <Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: +e.target.value })} />
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ইউনিট</Label>
+                <Select value={form.unit} onValueChange={(v) => setForm({ ...form, unit: v })}>
+                  <SelectTrigger><SelectValue placeholder="ইউনিট বাছাই করুন" /></SelectTrigger>
+                  <SelectContent>
+                    {UNIT_OPTIONS.map((u) => <SelectItem key={u.value} value={u.value}>{u.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground">পণ্যটি কোন এককে বিক্রি হবে।</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  স্টক ({form.unit || "unit"})
+                </Label>
+                <Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: +e.target.value })} placeholder="যেমন: 500" />
+                <p className="text-[11px] text-muted-foreground">
+                  মোট কত {form.unit || "unit"} স্টকে আছে। প্রতি অর্ডারে বিক্রিত পরিমাণ অনুযায়ী স্বয়ংক্রিয়ভাবে কমে যাবে।
+                </p>
               </div>
 
               {showWeight ? (
-                <>
-                  <div className="space-y-2">
-                    <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ওজন</Label>
-                    <Input value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} placeholder="যেমন: 14kg" />
+                <div className="md:col-span-2 space-y-2 rounded-xl border border-border/50 bg-muted/30 p-3">
+                  <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ওজন (প্রতি প্যাকেজ)</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {WEIGHT_PRESETS.map((w) => (
+                      <button
+                        key={w}
+                        type="button"
+                        onClick={() => setForm({ ...form, weight: w })}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                          form.weight === w
+                            ? "bg-primary text-primary-foreground border-primary shadow-md"
+                            : "bg-background text-foreground border-border hover:border-primary/50"
+                        }`}
+                      >
+                        {w}
+                      </button>
+                    ))}
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">ইউনিট</Label>
-                    <Input value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} placeholder="kg" />
-                  </div>
-                </>
+                  <Input
+                    value={form.weight}
+                    onChange={(e) => setForm({ ...form, weight: e.target.value })}
+                    placeholder="অথবা কাস্টম লিখুন: যেমন 14kg"
+                  />
+                  <p className="text-[11px] text-muted-foreground">প্রিসেট থেকে বাছাই করুন অথবা নিজে লিখুন।</p>
+                </div>
               ) : (
                 form.category_id && (
-                  <div className="md:col-span-1 rounded-lg bg-muted/30 border border-dashed border-border p-2.5 text-[11px] text-muted-foreground">
+                  <div className="md:col-span-2 rounded-lg bg-muted/30 border border-dashed border-border p-2.5 text-[11px] text-muted-foreground">
                     এই ক্যাটাগরিতে ওজন প্রয়োজন নেই। প্রয়োজন হলে ক্যাটাগরি settings থেকে "ওজন প্রয়োজন" toggle on করুন।
                   </div>
                 )
