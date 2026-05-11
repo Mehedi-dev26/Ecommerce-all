@@ -291,26 +291,26 @@ const VendorRegister = () => {
         title="বিক্রেতা নিবন্ধন | Sapahar Shop"
         description="আপনার দোকান নিবন্ধন করুন এবং সারা বাংলাদেশে আম, লিচু, ফল বিক্রি শুরু করুন।"
       />
-      <div className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 min-h-screen py-10 px-4">
-        <div className="container mx-auto max-w-3xl">
-          <div className="text-center mb-8">
-            <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground mb-4 shadow-lg">
-              <Store className="h-8 w-8" />
+      <div className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 min-h-screen py-6 sm:py-10 px-2 sm:px-4">
+        <div className="container mx-auto max-w-3xl px-0 sm:px-4">
+          <div className="text-center mb-6 sm:mb-8 px-2">
+            <div className="inline-flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground mb-3 sm:mb-4 shadow-lg">
+              <Store className="h-7 w-7 sm:h-8 sm:w-8" />
             </div>
-            <h1 className="font-brand text-4xl md:text-5xl text-primary mb-2">বিক্রেতা হোন</h1>
-            <p className="text-muted-foreground">
+            <h1 className="font-brand text-3xl sm:text-4xl md:text-5xl text-primary mb-2">বিক্রেতা হোন</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               আপনার দোকান নিবন্ধন করুন এবং আমাদের প্ল্যাটফর্মে আপনার পণ্য বিক্রি শুরু করুন
             </p>
           </div>
 
-          <Card className="border-2 shadow-xl">
-            <CardHeader>
-              <CardTitle>দোকানের তথ্য</CardTitle>
-              <CardDescription>
+          <Card className="border sm:border-2 shadow-lg sm:shadow-xl rounded-xl sm:rounded-2xl">
+            <CardHeader className="px-4 sm:px-6">
+              <CardTitle className="text-lg sm:text-xl">দোকানের তথ্য</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
                 সব তথ্য সঠিকভাবে পূরণ করুন। অ্যাডমিন রিভিউ করার পর আপনার দোকান চালু হবে।
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-3 sm:px-6">
               <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Logo */}
                 <div>
