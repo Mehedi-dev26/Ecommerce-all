@@ -435,37 +435,18 @@ const VendorRegister = () => {
                   <h3 className="font-bold mb-3 text-primary">ঠিকানা</h3>
                   <div className="grid md:grid-cols-3 gap-4">
                     <div>
-                      <Label>বিভাগ *</Label>
-                      <Select
-                        value={form.division}
-                        onValueChange={(v) => setForm({ ...form, division: v, district: "", upazila: "" })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="সিলেক্ট করুন" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {divisions.map((d) => (
-                            <SelectItem key={d.name} value={d.name}>
-                              {d.name_bn}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
                       <Label>জেলা *</Label>
                       <Select
                         value={form.district}
                         onValueChange={(v) => setForm({ ...form, district: v, upazila: "" })}
-                        disabled={!form.division}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="সিলেক্ট করুন" />
                         </SelectTrigger>
-                        <SelectContent>
-                          {districts.map((d) => (
+                        <SelectContent className="max-h-72">
+                          {allDistricts.map((d) => (
                             <SelectItem key={d.name} value={d.name}>
-                              {d.name_bn}
+                              {d.name_bn} ({d.division_bn})
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -481,7 +462,7 @@ const VendorRegister = () => {
                         <SelectTrigger>
                           <SelectValue placeholder="সিলেক্ট করুন" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-72">
                           {upazilas.map((u) => (
                             <SelectItem key={u.name} value={u.name}>
                               {u.name_bn}
@@ -490,13 +471,22 @@ const VendorRegister = () => {
                         </SelectContent>
                       </Select>
                     </div>
+                    <div>
+                      <Label>ইউনিয়ন / পোস্ট অফিস *</Label>
+                      <Input
+                        value={form.union_name}
+                        onChange={(e) => setForm({ ...form, union_name: e.target.value })}
+                        placeholder="যেমনঃ সাপাহার সদর"
+                        disabled={!form.upazila}
+                      />
+                    </div>
                   </div>
                   <div className="mt-4">
                     <Label>সম্পূর্ণ ঠিকানা *</Label>
                     <Textarea
                       value={form.address}
                       onChange={(e) => setForm({ ...form, address: e.target.value })}
-                      placeholder="বাড়ি/হোল্ডিং, রোড, এলাকা"
+                      placeholder="বাড়ি/হোল্ডিং, রোড, গ্রাম/মহল্লা"
                       rows={2}
                     />
                   </div>
