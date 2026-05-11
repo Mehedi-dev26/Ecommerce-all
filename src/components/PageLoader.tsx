@@ -8,7 +8,7 @@ interface PageLoaderProps {
 
 const PageLoader = ({ fullScreen = false, message = "লোড হচ্ছে" }: PageLoaderProps) => {
   const { settings, logoUrl } = useSiteSettings();
-  const brandName = settings.brand_name || "Sapahar Mango Shop";
+  const brandName = settings.brand_name || "Sapahar Shop";
   const tagline = settings.brand_tagline || "সাপাহারের সেরা ও খাঁটি আম";
   return (
     <div

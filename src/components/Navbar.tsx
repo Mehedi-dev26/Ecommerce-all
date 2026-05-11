@@ -12,7 +12,7 @@ const Navbar = () => {
   const { totalItems } = useCart();
   const { user, profile, signOut, loading } = useAuth();
   const { settings, logoUrl } = useSiteSettings();
-  const brandName = settings.brand_name || "Sapahar Mango Shop";
+  const brandName = settings.brand_name || "Sapahar Shop";
   const brandTagline = settings.brand_tagline || "";
   const headerPhone = settings.header_phone || "";
   const [mobileOpen, setMobileOpen] = useState(false);

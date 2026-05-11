@@ -11,7 +11,7 @@ const WhyChooseUs = () => (
   <section className="py-12 sm:py-16">
     <div className="container mx-auto px-4">
       <div className="mb-8 text-center sm:mb-10">
-        <h2 className="mb-2 text-2xl font-bold text-foreground sm:text-3xl">কেন <span className="font-brand text-primary text-3xl sm:text-4xl">Sapahar Mango Shop</span>?</h2>
+        <h2 className="mb-2 text-2xl font-bold text-foreground sm:text-3xl">কেন <span className="font-brand text-primary text-3xl sm:text-4xl">Sapahar Shop</span>?</h2>
         <p className="text-sm text-muted-foreground sm:text-base">আপনার পছন্দের পণ্য, সেরা মানে</p>
       </div>
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4 sm:gap-6">

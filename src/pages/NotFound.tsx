@@ -13,7 +13,7 @@ const NotFound = () => {
     <>
       <SEO
         title="পেজ পাওয়া যায়নি (404)"
-        description="আপনি যে পেজটি খুঁজছেন তা পাওয়া যায়নি। Sapahar Mango Shop-এর হোমপেজে ফিরে যান।"
+        description="আপনি যে পেজটি খুঁজছেন তা পাওয়া যায়নি। Sapahar Shop-এর হোমপেজে ফিরে যান।"
         noindex
       />
       <div className="flex min-h-screen items-center justify-center bg-muted">

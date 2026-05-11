@@ -336,7 +336,7 @@ const UserDashboard = () => {
 
   return (
     <>
-    <SEO title="আমার ড্যাশবোর্ড" description="Sapahar Mango Shop ড্যাশবোর্ড — অর্ডার ট্র্যাক, ঠিকানা ও প্রোফাইল ব্যবস্থাপনা।" path="/dashboard" noindex />
+    <SEO title="আমার ড্যাশবোর্ড" description="Sapahar Shop ড্যাশবোর্ড — অর্ডার ট্র্যাক, ঠিকানা ও প্রোফাইল ব্যবস্থাপনা।" path="/dashboard" noindex />
     <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 max-w-5xl">
       {/* Header */}
       <div className="relative rounded-2xl overflow-hidden mb-6 shadow-lg">
@@ -1067,7 +1067,7 @@ const UserDashboard = () => {
                     <ExternalLink className="h-4 w-4 text-primary flex-shrink-0" />
                     <div>
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider">ফেসবুক</p>
-                      <p className="text-sm font-medium text-foreground">Sapahar Mango Shop</p>
+                      <p className="text-sm font-medium text-foreground">Sapahar Shop</p>
                     </div>
                   </div>
                 </div>

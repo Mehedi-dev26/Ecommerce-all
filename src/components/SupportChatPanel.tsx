@@ -21,7 +21,7 @@ const QUICK_PROMPTS = [
 const INITIAL_MSG: Msg = {
   role: "assistant",
   content:
-    "আসসালামু আলাইকুম! 👋 আমি **Sapahar Mango Assistant**। আম, দাম, ডেলিভারি বা অর্ডার সম্পর্কে যেকোনো প্রশ্ন করুন।",
+    "আসসালামু আলাইকুম! 👋 আমি **Sapahar Shop Assistant**। আম, দাম, ডেলিভারি বা অর্ডার সম্পর্কে যেকোনো প্রশ্ন করুন।",
 };
 
 interface Props {
@@ -195,7 +195,7 @@ const SupportChatPanel = ({ open, onClose }: Props) => {
             <Bot className="h-4.5 w-4.5" />
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="truncate text-sm font-semibold">Sapahar Mango Assistant</h2>
+            <h2 className="truncate text-sm font-semibold">Sapahar Shop Assistant</h2>
             <p className="flex items-center gap-1.5 text-[11px] opacity-90">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
               AI সহকারী • Online

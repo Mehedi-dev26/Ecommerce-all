@@ -23,11 +23,11 @@ const OrderSuccess = () => {
 
   return (
     <>
-    <SEO title="অর্ডার সফল" description="আপনার অর্ডারটি Sapahar Mango Shop সফলভাবে গ্রহণ করেছে।" path="/order-success" noindex />
+    <SEO title="অর্ডার সফল" description="আপনার অর্ডারটি Sapahar Shop সফলভাবে গ্রহণ করেছে।" path="/order-success" noindex />
     <div className="container mx-auto flex flex-col items-center px-4 py-20 text-center">
       <CheckCircle className="mb-6 h-20 w-20 text-primary" />
       <h1 className="mb-2 text-3xl font-bold text-foreground">অর্ডার সফল হয়েছে! 🎉</h1>
-      <p className="mb-2 text-muted-foreground">আপনার অর্ডার Sapahar Mango Shop সফলভাবে গ্রহণ করেছে।</p>
+      <p className="mb-2 text-muted-foreground">আপনার অর্ডার Sapahar Shop সফলভাবে গ্রহণ করেছে।</p>
       <div className="mb-6 flex items-center gap-2">
         <p className="text-lg font-semibold text-primary">অর্ডার নম্বর: {orderNumber}</p>
         <Button

@@ -31,13 +31,13 @@ const Contact = () => {
   return (
     <div className="container mx-auto px-4 py-10">
       <SEO
-        title="যোগাযোগ — Sapahar Mango Shop"
-        description="Sapahar Mango Shop-এর সাথে যোগাযোগ করুন। ফোন: 01720565997, ইমেইল: sapaharmangostore@gmail.com। ঠিকানা: সাপাহার বাজার, সাপাহার, নওগাঁ।"
+        title="যোগাযোগ — Sapahar Shop"
+        description="Sapahar Shop-এর সাথে যোগাযোগ করুন। ফোন: 01720565997, ইমেইল: sapaharmangostore@gmail.com। ঠিকানা: সাপাহার বাজার, সাপাহার, নওগাঁ।"
         path="/contact"
         jsonLd={breadcrumb([{ name: "হোম", path: "/" }, { name: "যোগাযোগ", path: "/contact" }])}
       />
       <h1 className="mb-2 text-center text-3xl font-bold text-foreground">যোগাযোগ করুন</h1>
-      <p className="mb-10 text-center text-muted-foreground">যেকোনো অর্ডার বা প্রশ্নের জন্য Sapahar Mango Shop-এ যোগাযোগ করুন</p>
+      <p className="mb-10 text-center text-muted-foreground">যেকোনো অর্ডার বা প্রশ্নের জন্য Sapahar Shop-এ যোগাযোগ করুন</p>
       <div className="grid gap-8 lg:grid-cols-2">
         <div className="space-y-6">
           {[

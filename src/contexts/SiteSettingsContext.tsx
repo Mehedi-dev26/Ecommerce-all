@@ -5,21 +5,21 @@ import brandLogoFallback from "@/assets/brand-logo.png";
 const FALLBACK_LOGO_URL = "https://jrbximpqznskggzlrzpu.supabase.co/storage/v1/object/public/product-images/site/logo-1777922089512.png";
 
 export const SITE_DEFAULTS: Record<string, string> = {
-  brand_name: "Sapahar Mango Shop",
+  brand_name: "Sapahar Shop",
   brand_tagline: "স্বল্প মূল্যে বাজারের সেরা আম",
   brand_logo_url: FALLBACK_LOGO_URL,
   header_phone: "+8801720565997",
-  company_name: "Sapahar Mango Shop",
+  company_name: "Sapahar Shop",
   company_email: "sapaharmangostore@gmail.com",
   company_phone: "+8801720565997",
   footer_phone: "01720565997",
   footer_email: "sapaharmangostore@gmail.com",
   footer_location: "সাপাহার বাজার, সাপাহার, নওগাঁ",
-  footer_about: "Sapahar Mango Shop — সাপাহারের সেরা ও সুস্বাদু আম সরাসরি বাগান থেকে আপনার দোরগোড়ায়। ১০০% খাঁটি, রাসায়নিকমুক্ত।",
+  footer_about: "Sapahar Shop — সাপাহারের সেরা ও সুস্বাদু আম সরাসরি বাগান থেকে আপনার দোরগোড়ায়। ১০০% খাঁটি, রাসায়নিকমুক্ত।",
   footer_facebook: "#",
   footer_instagram: "#",
   footer_youtube: "#",
-  footer_copyright: "© {year} Sapahar Mango Shop — সাপাহারের খাঁটি আমের নির্ভরযোগ্য ঠিকানা। সর্বস্বত্ব সংরক্ষিত।",
+  footer_copyright: "© {year} Sapahar Shop — সাপাহারের খাঁটি আমের নির্ভরযোগ্য ঠিকানা। সর্বস্বত্ব সংরক্ষিত।",
 };
 
 const CACHE_KEY = "sapahar:site_settings:v3";

@@ -99,7 +99,7 @@ const AdminSidebar = ({ open, onToggle, onSignOut, userEmail }: AdminSidebarProp
             <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-500 rounded-full border-2 border-sidebar" />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="font-brand text-2xl text-sidebar-primary leading-tight drop-shadow-sm">Sapahar Mango Shop</h1>
+            <h1 className="font-brand text-2xl text-sidebar-primary leading-tight drop-shadow-sm">Sapahar Shop</h1>
             <p className="text-[10px] text-white/60 uppercase tracking-widest font-semibold">Admin Panel</p>
           </div>
         </div>

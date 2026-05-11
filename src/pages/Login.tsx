@@ -16,7 +16,7 @@ type AuthMode = "login" | "register" | "forgot";
 const Login = () => {
   const { signInWithGoogle, signInWithEmail, resetPassword, user, loading, refreshProfile } = useAuth();
   const { settings, logoUrl } = useSiteSettings();
-  const brandName = settings.brand_name || "Sapahar Mango Shop";
+  const brandName = settings.brand_name || "Sapahar Shop";
   const brandTagline = settings.brand_tagline || "সাপাহারের সেরা ও খাঁটি আম";
   const navigate = useNavigate();
   const location = useLocation();

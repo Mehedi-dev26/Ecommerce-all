@@ -61,8 +61,8 @@ const PrivacyPolicy = () => {
   return (
     <div className="bg-background">
       <SEO
-        title="গোপনীয়তা নীতি — Sapahar Mango Shop"
-        description="Sapahar Mango Shop কীভাবে আপনার ব্যক্তিগত তথ্য সংগ্রহ, ব্যবহার ও সুরক্ষা করে — সম্পূর্ণ গোপনীয়তা নীতি পড়ুন।"
+        title="গোপনীয়তা নীতি — Sapahar Shop"
+        description="Sapahar Shop কীভাবে আপনার ব্যক্তিগত তথ্য সংগ্রহ, ব্যবহার ও সুরক্ষা করে — সম্পূর্ণ গোপনীয়তা নীতি পড়ুন।"
         path="/privacy-policy"
         jsonLd={breadcrumb([{ name: "হোম", path: "/" }, { name: "গোপনীয়তা নীতি", path: "/privacy-policy" }])}
       />
@@ -78,7 +78,7 @@ const PrivacyPolicy = () => {
             </div>
             <h1 className="mb-2 text-2xl font-bold text-white sm:text-4xl">গোপনীয়তা নীতি</h1>
             <p className="max-w-2xl text-sm text-white/90 sm:text-base">
-              Sapahar Mango Shop আপনার ব্যক্তিগত তথ্যের গোপনীয়তা রক্ষায় প্রতিশ্রুতিবদ্ধ। নিচে আমরা কীভাবে আপনার তথ্য সংগ্রহ, ব্যবহার ও সুরক্ষা করি তা ব্যাখ্যা করা হলো।
+              Sapahar Shop আপনার ব্যক্তিগত তথ্যের গোপনীয়তা রক্ষায় প্রতিশ্রুতিবদ্ধ। নিচে আমরা কীভাবে আপনার তথ্য সংগ্রহ, ব্যবহার ও সুরক্ষা করি তা ব্যাখ্যা করা হলো।
             </p>
             <p className="mt-3 text-xs text-white/70">সর্বশেষ আপডেট: ২৩ এপ্রিল, ২০২৬</p>
           </div>

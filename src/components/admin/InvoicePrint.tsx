@@ -117,8 +117,8 @@ const InvoicePrint = ({ order, items, open, onClose, type }: InvoicePrintProps) 
             {/* Header */}
             <div className="header">
               <div className="logo-section">
-                <h1>🥭 Sapahar Mango Shop</h1>
-                <p>Sapahar Mango Shop — সাপাহারের খাঁটি আম</p>
+                <h1>🥭 Sapahar Shop</h1>
+                <p>Sapahar Shop — সাপাহারের খাঁটি আম</p>
                 <p>সাপাহার, নওগাঁ, বাংলাদেশ</p>
               </div>
               <div className="invoice-meta">
@@ -135,7 +135,7 @@ const InvoicePrint = ({ order, items, open, onClose, type }: InvoicePrintProps) 
             <div className="info-row">
               <div className="info-box">
                 <h3>প্রেরক (From)</h3>
-                <p className="name">Sapahar Mango Shop</p>
+                <p className="name">Sapahar Shop</p>
                 <p>সাপাহার বাজার, সাপাহার, নওগাঁ</p>
                 <p>রাজশাহী বিভাগ</p>
               </div>
@@ -212,7 +212,7 @@ const InvoicePrint = ({ order, items, open, onClose, type }: InvoicePrintProps) 
                   <strong>নোট:</strong> {order.notes}
                 </p>
               )}
-              <p>ধন্যবাদ আপনার অর্ডারের জন্য! — Sapahar Mango Shop 🥭</p>
+              <p>ধন্যবাদ আপনার অর্ডারের জন্য! — Sapahar Shop 🥭</p>
               <p style={{ marginTop: 4 }}>sapaharama.pro.bd</p>
             </div>
           </div>
