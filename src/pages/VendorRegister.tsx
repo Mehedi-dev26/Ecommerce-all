@@ -146,41 +146,31 @@ const VendorRegister = () => {
 
       if (!activeUserId) {
         const cleanedPhone = parsed.data.phone.replace(/\D/g, "");
-        const syntheticEmail = getGuestAuthEmail(cleanedPhone);
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email: syntheticEmail,
-          password: parsed.data.password as string,
-          options: {
-            data: {
-              full_name: parsed.data.owner_name,
-              phone: cleanedPhone,
-              vendor_signup: true,
-              contact_email: parsed.data.email,
-            },
-            emailRedirectTo: window.location.origin,
+        const { data: fnData, error: fnError } = await supabase.functions.invoke("vendor-signup", {
+          body: {
+            phone: cleanedPhone,
+            password: parsed.data.password as string,
+            name: parsed.data.owner_name,
+            contact_email: parsed.data.email,
           },
         });
 
-        if (signUpError) {
-          if (/already registered|already exists|user already/i.test(signUpError.message)) {
-            throw new Error(
-              "এই মোবাইল নাম্বার দিয়ে ইতিমধ্যে অ্যাকাউন্ট আছে। অনুগ্রহ করে লগইন করে আবার চেষ্টা করুন।"
-            );
-          }
-          throw signUpError;
+        if (fnError || (fnData as any)?.error) {
+          const msg = (fnData as any)?.error || fnError?.message || "অ্যাকাউন্ট তৈরি ব্যর্থ";
+          throw new Error(msg);
         }
 
-        activeUserId = signUpData.user?.id ?? null;
+        const syntheticEmail = (fnData as any).syntheticEmail as string;
 
-        // Create profile row with the contact info
-        if (activeUserId) {
-          await supabase
-            .from("profiles")
-            .upsert(
-              { user_id: activeUserId, full_name: parsed.data.owner_name, phone: cleanedPhone },
-              { onConflict: "user_id" }
-            );
-        }
+        // Sign the new vendor in so RLS allows inserting their vendor row
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: syntheticEmail,
+          password: parsed.data.password as string,
+        });
+        if (signInError) throw signInError;
+
+        const { data: { user: newUser } } = await supabase.auth.getUser();
+        activeUserId = newUser?.id ?? (fnData as any).userId ?? null;
       }
 
       if (!activeUserId) {
@@ -216,10 +206,10 @@ const VendorRegister = () => {
         phone: parsed.data.phone,
         email: parsed.data.email,
         facebook_url: parsed.data.facebook_url || null,
-        division: parsed.data.division,
+        division: selectedDistrict?.division || "",
         district: parsed.data.district,
         upazila: parsed.data.upazila,
-        address: parsed.data.address,
+        address: `ইউনিয়ন/পোস্ট: ${parsed.data.union_name} — ${parsed.data.address}`,
         status: "pending",
       });
 
