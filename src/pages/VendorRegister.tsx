@@ -226,10 +226,17 @@ const VendorRegister = () => {
         throw error;
       }
 
+      // If the vendor was a guest (not logged in before this submission),
+      // sign them out so they aren't auto-logged into the customer dashboard.
+      // They'll log in from /login after admin approval.
+      if (!user) {
+        await supabase.auth.signOut();
+      }
+
       setSubmitted(true);
       toast({
         title: "আবেদন সফল! 🎉",
-        description: "অ্যাডমিন অনুমোদন করার পর আপনি আপনার মোবাইল ও পাসওয়ার্ড দিয়ে লগইন করতে পারবেন।",
+        description: "অ্যাডমিন অনুমোদন করার পর আপনি লগইন পেজ থেকে আপনার মোবাইল ও পাসওয়ার্ড দিয়ে লগইন করে ভেন্ডর প্যানেলে ঢুকতে পারবেন।",
       });
     } catch (err: any) {
       toast({ title: "ব্যর্থ", description: err.message || "আবার চেষ্টা করুন", variant: "destructive" });
