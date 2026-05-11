@@ -557,6 +557,8 @@ export type Database = {
       }
       order_items: {
         Row: {
+          commission_amount: number
+          commission_percent: number
           created_at: string
           id: string
           order_id: string
@@ -564,8 +566,12 @@ export type Database = {
           product_id: string | null
           product_name: string
           quantity: number
+          vendor_id: string | null
+          vendor_payout_amount: number
         }
         Insert: {
+          commission_amount?: number
+          commission_percent?: number
           created_at?: string
           id?: string
           order_id: string
@@ -573,8 +579,12 @@ export type Database = {
           product_id?: string | null
           product_name: string
           quantity: number
+          vendor_id?: string | null
+          vendor_payout_amount?: number
         }
         Update: {
+          commission_amount?: number
+          commission_percent?: number
           created_at?: string
           id?: string
           order_id?: string
@@ -582,6 +592,8 @@ export type Database = {
           product_id?: string | null
           product_name?: string
           quantity?: number
+          vendor_id?: string | null
+          vendor_payout_amount?: number
         }
         Relationships: [
           {
@@ -596,6 +608,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
             referencedColumns: ["id"]
           },
         ]
@@ -710,6 +729,8 @@ export type Database = {
           stock: number
           unit: string | null
           updated_at: string
+          vendor_id: string | null
+          vendor_status: string
           weight: string | null
         }
         Insert: {
@@ -732,6 +753,8 @@ export type Database = {
           stock?: number
           unit?: string | null
           updated_at?: string
+          vendor_id?: string | null
+          vendor_status?: string
           weight?: string | null
         }
         Update: {
@@ -754,6 +777,8 @@ export type Database = {
           stock?: number
           unit?: string | null
           updated_at?: string
+          vendor_id?: string | null
+          vendor_status?: string
           weight?: string | null
         }
         Relationships: [
@@ -762,6 +787,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
             referencedColumns: ["id"]
           },
         ]
@@ -903,6 +935,124 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      vendor_payouts: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          created_at: string
+          id: string
+          method: string
+          payout_account: string | null
+          processed_at: string | null
+          processed_by: string | null
+          requested_at: string
+          status: string
+          transaction_ref: string | null
+          updated_at: string
+          vendor_id: string
+          vendor_notes: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          created_at?: string
+          id?: string
+          method?: string
+          payout_account?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          requested_at?: string
+          status?: string
+          transaction_ref?: string | null
+          updated_at?: string
+          vendor_id: string
+          vendor_notes?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          created_at?: string
+          id?: string
+          method?: string
+          payout_account?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          requested_at?: string
+          status?: string
+          transaction_ref?: string | null
+          updated_at?: string
+          vendor_id?: string
+          vendor_notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_payouts_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendor_settings: {
+        Row: {
+          account_holder: string | null
+          account_number: string | null
+          bank_branch: string | null
+          bank_name: string | null
+          bkash_number: string | null
+          created_at: string
+          id: string
+          nagad_number: string | null
+          notes: string | null
+          preferred_method: string
+          rocket_number: string | null
+          routing_number: string | null
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          account_holder?: string | null
+          account_number?: string | null
+          bank_branch?: string | null
+          bank_name?: string | null
+          bkash_number?: string | null
+          created_at?: string
+          id?: string
+          nagad_number?: string | null
+          notes?: string | null
+          preferred_method?: string
+          rocket_number?: string | null
+          routing_number?: string | null
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          account_holder?: string | null
+          account_number?: string | null
+          bank_branch?: string | null
+          bank_name?: string | null
+          bkash_number?: string | null
+          created_at?: string
+          id?: string
+          nagad_number?: string | null
+          notes?: string | null
+          preferred_method?: string
+          rocket_number?: string | null
+          routing_number?: string | null
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_settings_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: true
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vendors: {
         Row: {
