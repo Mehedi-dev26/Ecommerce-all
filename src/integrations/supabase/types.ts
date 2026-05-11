@@ -904,6 +904,96 @@ export type Database = {
         }
         Relationships: []
       }
+      vendors: {
+        Row: {
+          address: string
+          approved_at: string | null
+          approved_by: string | null
+          banner_url: string | null
+          commission_percent: number
+          created_at: string
+          description: string | null
+          district: string
+          division: string
+          email: string
+          facebook_url: string | null
+          id: string
+          logo_url: string | null
+          nid_number: string
+          owner_name: string
+          phone: string
+          rejection_reason: string | null
+          shop_name: string
+          shop_name_bn: string
+          shop_slug: string
+          status: string
+          total_commission_earned: number
+          total_orders: number
+          total_revenue: number
+          upazila: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          approved_at?: string | null
+          approved_by?: string | null
+          banner_url?: string | null
+          commission_percent?: number
+          created_at?: string
+          description?: string | null
+          district: string
+          division: string
+          email: string
+          facebook_url?: string | null
+          id?: string
+          logo_url?: string | null
+          nid_number: string
+          owner_name: string
+          phone: string
+          rejection_reason?: string | null
+          shop_name: string
+          shop_name_bn: string
+          shop_slug: string
+          status?: string
+          total_commission_earned?: number
+          total_orders?: number
+          total_revenue?: number
+          upazila: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          banner_url?: string | null
+          commission_percent?: number
+          created_at?: string
+          description?: string | null
+          district?: string
+          division?: string
+          email?: string
+          facebook_url?: string | null
+          id?: string
+          logo_url?: string | null
+          nid_number?: string
+          owner_name?: string
+          phone?: string
+          rejection_reason?: string | null
+          shop_name?: string
+          shop_name_bn?: string
+          shop_slug?: string
+          status?: string
+          total_commission_earned?: number
+          total_orders?: number
+          total_revenue?: number
+          upazila?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -954,7 +1044,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "vendor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1082,7 +1172,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "vendor"],
     },
   },
 } as const

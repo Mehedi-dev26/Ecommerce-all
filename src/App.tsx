@@ -38,6 +38,7 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsConditions = lazy(() => import("./pages/TermsConditions"));
+const VendorRegister = lazy(() => import("./pages/VendorRegister"));
 
 // Lazy load admin pages — bundled separately to avoid bloating the public bundle
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
@@ -58,6 +59,7 @@ const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
 const AdminEmails = lazy(() => import("./pages/admin/AdminEmails"));
 const AdminLandingPages = lazy(() => import("./pages/admin/AdminLandingPages"));
 const AdminLandingPageEditor = lazy(() => import("./pages/admin/AdminLandingPageEditor"));
+const AdminVendors = lazy(() => import("./pages/admin/AdminVendors"));
 const LandingPageView = lazy(() => import("./pages/LandingPageView"));
 
 const queryClient = new QueryClient({
@@ -134,6 +136,7 @@ const App = () => {
                   <Route path="landing-pages" element={<AdminLandingPages />} />
                   <Route path="landing-pages/new" element={<AdminLandingPageEditor />} />
                   <Route path="landing-pages/:id" element={<AdminLandingPageEditor />} />
+                  <Route path="vendors" element={<AdminVendors />} />
                 </Route>
 
                 {/* Public Routes */}
@@ -157,6 +160,7 @@ const App = () => {
                           <Route path="/dashboard" element={<UserDashboard />} />
                           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                           <Route path="/terms-conditions" element={<TermsConditions />} />
+                          <Route path="/vendor/register" element={<VendorRegister />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>
