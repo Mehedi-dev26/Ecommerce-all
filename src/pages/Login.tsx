@@ -389,6 +389,7 @@ const Login = () => {
                         required
                       />
                     </div>
+                    <p className="text-[11px] text-muted-foreground">কাস্টমার ও অনুমোদিত ভেন্ডর—দুজনেই এখানে মোবাইল নম্বর ও পাসওয়ার্ড দিয়ে লগইন করতে পারবেন</p>
                   </div>
                 )}
 
