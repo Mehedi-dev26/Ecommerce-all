@@ -4,7 +4,6 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { divisions } from "@/data/bd-locations";
-import { getGuestAuthEmail } from "@/lib/guest-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,9 +25,9 @@ const baseSchema = {
   phone: z.string().trim().regex(phoneRe, "সঠিক মোবাইল নাম্বার দিন (01XXXXXXXXX)"),
   email: z.string().trim().email("সঠিক ইমেইল দিন").max(120),
   facebook_url: z.string().trim().url("সঠিক URL দিন").max(200).optional().or(z.literal("")),
-  division: z.string().min(1, "বিভাগ সিলেক্ট করুন"),
   district: z.string().min(1, "জেলা সিলেক্ট করুন"),
   upazila: z.string().min(1, "উপজেলা সিলেক্ট করুন"),
+  union_name: z.string().trim().min(2, "ইউনিয়ন/পোস্ট অফিস লিখুন").max(80),
   address: z.string().trim().min(5, "সম্পূর্ণ ঠিকানা দিন").max(300),
 };
 
@@ -68,11 +67,31 @@ const VendorRegister = () => {
     email: "",
     password: "",
     facebook_url: "",
-    division: "",
     district: "",
     upazila: "",
+    union_name: "",
     address: "",
   });
+
+  // Flat district list with parent division (no division select needed)
+  const allDistricts = useMemo(
+    () =>
+      divisions.flatMap((div) =>
+        div.districts.map((dist) => ({
+          name: dist.name,
+          name_bn: dist.name_bn,
+          division: div.name,
+          division_bn: div.name_bn,
+          upazilas: dist.upazilas,
+        }))
+      ).sort((a, b) => a.name_bn.localeCompare(b.name_bn, "bn")),
+    []
+  );
+
+  const selectedDistrict = useMemo(
+    () => allDistricts.find((d) => d.name === form.district),
+    [allDistricts, form.district]
+  );
 
   // Pre-fill from auth
   useEffect(() => {
@@ -94,14 +113,7 @@ const VendorRegister = () => {
     }
   }, [user]);
 
-  const districts = useMemo(
-    () => divisions.find((d) => d.name === form.division)?.districts || [],
-    [form.division]
-  );
-  const upazilas = useMemo(
-    () => districts.find((d) => d.name === form.district)?.upazilas || [],
-    [districts, form.district]
-  );
+  const upazilas = selectedDistrict?.upazilas || [];
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -134,41 +146,31 @@ const VendorRegister = () => {
 
       if (!activeUserId) {
         const cleanedPhone = parsed.data.phone.replace(/\D/g, "");
-        const syntheticEmail = getGuestAuthEmail(cleanedPhone);
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-          email: syntheticEmail,
-          password: parsed.data.password as string,
-          options: {
-            data: {
-              full_name: parsed.data.owner_name,
-              phone: cleanedPhone,
-              vendor_signup: true,
-              contact_email: parsed.data.email,
-            },
-            emailRedirectTo: window.location.origin,
+        const { data: fnData, error: fnError } = await supabase.functions.invoke("vendor-signup", {
+          body: {
+            phone: cleanedPhone,
+            password: parsed.data.password as string,
+            name: parsed.data.owner_name,
+            contact_email: parsed.data.email,
           },
         });
 
-        if (signUpError) {
-          if (/already registered|already exists|user already/i.test(signUpError.message)) {
-            throw new Error(
-              "এই মোবাইল নাম্বার দিয়ে ইতিমধ্যে অ্যাকাউন্ট আছে। অনুগ্রহ করে লগইন করে আবার চেষ্টা করুন।"
-            );
-          }
-          throw signUpError;
+        if (fnError || (fnData as any)?.error) {
+          const msg = (fnData as any)?.error || fnError?.message || "অ্যাকাউন্ট তৈরি ব্যর্থ";
+          throw new Error(msg);
         }
 
-        activeUserId = signUpData.user?.id ?? null;
+        const syntheticEmail = (fnData as any).syntheticEmail as string;
 
-        // Create profile row with the contact info
-        if (activeUserId) {
-          await supabase
-            .from("profiles")
-            .upsert(
-              { user_id: activeUserId, full_name: parsed.data.owner_name, phone: cleanedPhone },
-              { onConflict: "user_id" }
-            );
-        }
+        // Sign the new vendor in so RLS allows inserting their vendor row
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: syntheticEmail,
+          password: parsed.data.password as string,
+        });
+        if (signInError) throw signInError;
+
+        const { data: { user: newUser } } = await supabase.auth.getUser();
+        activeUserId = newUser?.id ?? (fnData as any).userId ?? null;
       }
 
       if (!activeUserId) {
@@ -204,10 +206,10 @@ const VendorRegister = () => {
         phone: parsed.data.phone,
         email: parsed.data.email,
         facebook_url: parsed.data.facebook_url || null,
-        division: parsed.data.division,
+        division: selectedDistrict?.division || "",
         district: parsed.data.district,
         upazila: parsed.data.upazila,
-        address: parsed.data.address,
+        address: `ইউনিয়ন/পোস্ট: ${parsed.data.union_name} — ${parsed.data.address}`,
         status: "pending",
       });
 
@@ -433,37 +435,18 @@ const VendorRegister = () => {
                   <h3 className="font-bold mb-3 text-primary">ঠিকানা</h3>
                   <div className="grid md:grid-cols-3 gap-4">
                     <div>
-                      <Label>বিভাগ *</Label>
-                      <Select
-                        value={form.division}
-                        onValueChange={(v) => setForm({ ...form, division: v, district: "", upazila: "" })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="সিলেক্ট করুন" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {divisions.map((d) => (
-                            <SelectItem key={d.name} value={d.name}>
-                              {d.name_bn}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
                       <Label>জেলা *</Label>
                       <Select
                         value={form.district}
                         onValueChange={(v) => setForm({ ...form, district: v, upazila: "" })}
-                        disabled={!form.division}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="সিলেক্ট করুন" />
                         </SelectTrigger>
-                        <SelectContent>
-                          {districts.map((d) => (
+                        <SelectContent className="max-h-72">
+                          {allDistricts.map((d) => (
                             <SelectItem key={d.name} value={d.name}>
-                              {d.name_bn}
+                              {d.name_bn} ({d.division_bn})
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -479,7 +462,7 @@ const VendorRegister = () => {
                         <SelectTrigger>
                           <SelectValue placeholder="সিলেক্ট করুন" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-72">
                           {upazilas.map((u) => (
                             <SelectItem key={u.name} value={u.name}>
                               {u.name_bn}
@@ -488,13 +471,22 @@ const VendorRegister = () => {
                         </SelectContent>
                       </Select>
                     </div>
+                    <div>
+                      <Label>ইউনিয়ন / পোস্ট অফিস *</Label>
+                      <Input
+                        value={form.union_name}
+                        onChange={(e) => setForm({ ...form, union_name: e.target.value })}
+                        placeholder="যেমনঃ সাপাহার সদর"
+                        disabled={!form.upazila}
+                      />
+                    </div>
                   </div>
                   <div className="mt-4">
                     <Label>সম্পূর্ণ ঠিকানা *</Label>
                     <Textarea
                       value={form.address}
                       onChange={(e) => setForm({ ...form, address: e.target.value })}
-                      placeholder="বাড়ি/হোল্ডিং, রোড, এলাকা"
+                      placeholder="বাড়ি/হোল্ডিং, রোড, গ্রাম/মহল্লা"
                       rows={2}
                     />
                   </div>
