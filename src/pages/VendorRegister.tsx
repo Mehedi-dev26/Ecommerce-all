@@ -67,7 +67,7 @@ const VendorRegister = () => {
     email: "",
     password: "",
     facebook_url: "",
-    district: "",
+    district: "Naogaon",
     upazila: "",
     union_name: "",
     address: "",
