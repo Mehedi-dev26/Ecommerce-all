@@ -8,7 +8,7 @@ export const organizationSchema = {
   alternateName: [
     "Sapahar Shop",
     "sapaharmango",
-    "Sapahar Shop Store",
+    "Sapahar Shop",
     "সাপাহার ম্যাঙ্গো",
     "সাপাহার আম",
     "সাপাহারের আম",
@@ -50,7 +50,7 @@ export const websiteSchema = {
   alternateName: [
     "Sapahar Shop",
     "sapaharmango",
-    "Sapahar Shop Store",
+    "Sapahar Shop",
     "সাপাহার ম্যাঙ্গো",
     "সাপাহার আম",
     "sapaharama.pro.bd",
