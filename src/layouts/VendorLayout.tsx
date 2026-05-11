@@ -8,7 +8,7 @@ import {
   Package,
   ShoppingBag,
   Wallet,
-  BanknoteArrowDown,
+  Banknote,
   Settings,
   LogOut,
   Loader2,
@@ -24,7 +24,7 @@ const navItems = [
   { to: "/vendor/products", icon: Package, label: "আমার পণ্য" },
   { to: "/vendor/orders", icon: ShoppingBag, label: "অর্ডার" },
   { to: "/vendor/earnings", icon: Wallet, label: "আয়" },
-  { to: "/vendor/withdrawals", icon: BanknoteArrowDown, label: "টাকা উত্তোলন" },
+  { to: "/vendor/withdrawals", icon: Banknote, label: "টাকা উত্তোলন" },
   { to: "/vendor/shop-settings", icon: Settings, label: "শপ সেটিংস" },
 ];
 
