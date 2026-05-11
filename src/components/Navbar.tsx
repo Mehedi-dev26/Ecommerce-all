@@ -160,6 +160,14 @@ const Navbar = () => {
                     {link.label}
                   </Link>
                 ))}
+                <Link
+                  to="/vendor/register"
+                  onClick={() => setMobileOpen(false)}
+                  className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-base font-bold text-primary shadow-md ring-2 ring-white/60 transition active:scale-95"
+                >
+                  <Store className="h-4 w-4" />
+                  বিক্রেতা হোন
+                </Link>
                 {user ? (
                   <>
                     <Link to="/dashboard" onClick={() => setMobileOpen(false)} className="rounded-lg px-4 py-3 text-base font-medium text-white transition-colors hover:bg-white/10">
