@@ -1,4 +1,4 @@
-# Sapahar Mango Shop — robots.txt
+# Sapahar Shop — robots.txt
 # Last updated: 2026-05
 
 User-agent: *

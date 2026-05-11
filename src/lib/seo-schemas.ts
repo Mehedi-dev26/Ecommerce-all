@@ -6,9 +6,9 @@ export const organizationSchema = {
   "@type": "OnlineStore",
   name: SITE_NAME,
   alternateName: [
-    "Sapahar Mango",
+    "Sapahar Shop",
     "sapaharmango",
-    "Sapahar Mango Store",
+    "Sapahar Shop",
     "সাপাহার ম্যাঙ্গো",
     "সাপাহার আম",
     "সাপাহারের আম",
@@ -18,7 +18,7 @@ export const organizationSchema = {
   logo: `${SITE_URL}/brand-logo.png`,
   image: DEFAULT_OG_IMAGE,
   description:
-    "Sapahar Mango Shop — সাপাহারের সেরা ও খাঁটি আম (আম্রপালি, হাড়িভাঙা, ফজলি, কাঁঠিমুন) সরাসরি বাগান থেকে সারাদেশে দ্রুত ডেলিভারি।",
+    "Sapahar Shop — সাপাহারের সেরা ও খাঁটি আম (আম্রপালি, হাড়িভাঙা, ফজলি, কাঁঠিমুন) সরাসরি বাগান থেকে সারাদেশে দ্রুত ডেলিভারি।",
   telephone: "+880 1720-565997",
   email: "sapaharmangostore@gmail.com",
   address: {
@@ -48,9 +48,9 @@ export const websiteSchema = {
   "@type": "WebSite",
   name: SITE_NAME,
   alternateName: [
-    "Sapahar Mango",
+    "Sapahar Shop",
     "sapaharmango",
-    "Sapahar Mango Store",
+    "Sapahar Shop",
     "সাপাহার ম্যাঙ্গো",
     "সাপাহার আম",
     "sapaharama.pro.bd",
@@ -150,7 +150,7 @@ export const productSchema = (p: {
     "@type": "Product",
     name: p.name_bn || p.name,
     alternateName: p.name,
-    description: p.description_bn || p.description || `${p.name_bn || p.name} — Sapahar Mango Shop থেকে অর্ডার করুন।`,
+    description: p.description_bn || p.description || `${p.name_bn || p.name} — Sapahar Shop থেকে অর্ডার করুন।`,
     image: imgs.length ? imgs : [DEFAULT_OG_IMAGE],
     sku: p.id,
     brand: { "@type": "Brand", name: SITE_NAME },

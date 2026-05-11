@@ -159,7 +159,7 @@ Deno.serve(async (req) => {
       .in("key", ["company_name", "company_email", "footer_email", "footer_phone", "footer_location"]);
     const settingsMap: Record<string, string> = {};
     settings?.forEach((s) => (settingsMap[s.key] = s.value));
-    const companyName = settingsMap.company_name || "Sapahar Mango";
+    const companyName = settingsMap.company_name || "Sapahar Shop";
     const companyEmail = settingsMap.company_email || settingsMap.footer_email || "info@example.com";
 
     const baseVars = {

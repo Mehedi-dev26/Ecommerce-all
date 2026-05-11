@@ -13,7 +13,7 @@ interface Msg {
 }
 
 const SITE_URL = "https://sapaharama.pro.bd";
-const BRAND_NAME = "Sapahar Mango Shop";
+const BRAND_NAME = "Sapahar Shop";
 const DEFAULT_PHONE = "+8801720565997";
 const DEFAULT_EMAIL = "sapaharmangostore@gmail.com";
 
@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
       .map((c: any) => `  - ${c.division} → ${c.district}: ৳${c.charge_per_kg} per order`)
       .join("\n");
 
-    const systemPrompt = `You are **Sapahar Mango Assistant** — the official AI customer support representative for **${brandName}** (${SITE_URL}). We are Bangladesh's trusted online shop for premium, garden-fresh, 100% chemical-free mangoes sourced directly from Sapahar, Naogaon — the king-of-mangoes region.
+    const systemPrompt = `You are **Sapahar Shop Assistant** — the official AI customer support representative for **${brandName}** (${SITE_URL}). We are Bangladesh's trusted online shop for premium, garden-fresh, 100% chemical-free mangoes sourced directly from Sapahar, Naogaon — the king-of-mangoes region.
 
 # YOUR PERSONALITY
 - Warm, friendly, and respectful — like a polite shop owner from Sapahar
@@ -183,7 +183,7 @@ ${productCatalog || "(catalog loading — please refer customer to ${SITE_URL}/p
 # COURIER RATE SAMPLES (per-kg, full list auto-calculated at checkout)
 ${courierSample || "Weight-based rates calculated at checkout based on customer location"}
 
-Now greet the customer warmly and help them choose the perfect Sapahar mango.`;
+Now greet the customer warmly and help them choose the perfect Sapahar Shop product.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

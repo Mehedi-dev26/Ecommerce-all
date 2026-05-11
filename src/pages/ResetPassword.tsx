@@ -13,7 +13,7 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { settings, logoUrl } = useSiteSettings();
-  const brandName = settings.brand_name || "Sapahar Mango Shop";
+  const brandName = settings.brand_name || "Sapahar Shop";
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);

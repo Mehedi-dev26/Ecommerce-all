@@ -198,7 +198,7 @@ const VendorRegister = () => {
 
   return (
     <>
-      <SEO title="বিক্রেতা নিবন্ধন | Sapahar Mango Shop" description="আপনার দোকান নিবন্ধন করুন এবং সারা বাংলাদেশে আম, লিচু, ফল বিক্রি শুরু করুন।" />
+      <SEO title="বিক্রেতা নিবন্ধন | Sapahar Shop" description="আপনার দোকান নিবন্ধন করুন এবং সারা বাংলাদেশে আম, লিচু, ফল বিক্রি শুরু করুন।" />
       <div className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 min-h-screen py-10 px-4">
         <div className="container mx-auto max-w-3xl">
           <div className="text-center mb-8">

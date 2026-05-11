@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const Footer = () => {
   const { settings, logoUrl } = useSiteSettings();
-  const brandName = settings.brand_name || "Sapahar Mango Shop";
+  const brandName = settings.brand_name || "Sapahar Shop";
   const aboutText = settings.footer_about || "";
 
   const { data: categories } = useQuery({

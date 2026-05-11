@@ -5,8 +5,8 @@ import { breadcrumb } from "@/lib/seo-schemas";
 const About = () => (
   <div className="container mx-auto px-4 py-10">
     <SEO
-      title="আমাদের সম্পর্কে — Sapahar Mango Shop"
-      description="Sapahar Mango Shop সম্পর্কে জানুন — সাপাহারের সেরা ও খাঁটি আম (আম্রপালি, হাড়িভাঙা, ফজলি, কাঁঠিমুন) সরাসরি বাগান থেকে আপনার দোরগোড়ায়।"
+      title="আমাদের সম্পর্কে — Sapahar Shop"
+      description="Sapahar Shop সম্পর্কে জানুন — সাপাহারের সেরা ও খাঁটি আম (আম্রপালি, হাড়িভাঙা, ফজলি, কাঁঠিমুন) সরাসরি বাগান থেকে আপনার দোরগোড়ায়।"
       path="/about"
       jsonLd={breadcrumb([{ name: "হোম", path: "/" }, { name: "আমাদের সম্পর্কে", path: "/about" }])}
     />
@@ -15,10 +15,10 @@ const About = () => (
         <ShoppingBag className="h-12 w-12 text-primary" strokeWidth={2.2} />
       </div>
       <h1 className="mb-4 text-3xl font-bold text-foreground">
-        <span className="font-brand text-4xl text-primary">Sapahar Mango Shop</span> সম্পর্কে
+        <span className="font-brand text-4xl text-primary">Sapahar Shop</span> সম্পর্কে
       </h1>
       <p className="mb-8 text-lg text-muted-foreground leading-relaxed">
-        Sapahar Mango Shop সাপাহারের একটি বিশ্বস্ত আমের অনলাইন শপ। আমরা সরাসরি সাপাহারের বাগান থেকে সেরা মানের আম্রপালি, হাড়িভাঙা, ফজলি ও কাঁঠিমুন আম সংগ্রহ করে ১০০% খাঁটি ও রাসায়নিকমুক্ত অবস্থায় আপনার দোরগোড়ায় পৌঁছে দিই।
+        Sapahar Shop সাপাহারের একটি বিশ্বস্ত আমের অনলাইন শপ। আমরা সরাসরি সাপাহারের বাগান থেকে সেরা মানের আম্রপালি, হাড়িভাঙা, ফজলি ও কাঁঠিমুন আম সংগ্রহ করে ১০০% খাঁটি ও রাসায়নিকমুক্ত অবস্থায় আপনার দোরগোড়ায় পৌঁছে দিই।
         আমাদের লক্ষ্য — খাঁটি স্বাদ, স্বচ্ছ দাম এবং সারাদেশে দ্রুত নিরাপদ ডেলিভারি।
       </p>
     </div>

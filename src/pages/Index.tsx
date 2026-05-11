@@ -15,17 +15,17 @@ const SectionFallback = () => <div className="h-40" aria-hidden="true" />;
 const Index = () => (
   <>
     <SEO
-      title="Sapahar Mango Shop — সাপাহারের সেরা ও খাঁটি আম সরাসরি বাগান থেকে"
-      description="Sapahar Mango Shop — সাপাহারের বিশ্বস্ত আমের অনলাইন শপ। আম্রপালি, হাড়িভাঙা, ফজলি, কাঁঠিমুন আম ১০০% খাঁটি ও রাসায়নিকমুক্ত — সারাদেশে দ্রুত হোম ডেলিভারি।"
+      title="Sapahar Shop — সাপাহারের সেরা ও খাঁটি আম সরাসরি বাগান থেকে"
+      description="Sapahar Shop — সাপাহারের বিশ্বস্ত আমের অনলাইন শপ। আম্রপালি, হাড়িভাঙা, ফজলি, কাঁঠিমুন আম ১০০% খাঁটি ও রাসায়নিকমুক্ত — সারাদেশে দ্রুত হোম ডেলিভারি।"
       path="/"
-      keywords="Sapahar Mango Shop, sapahar mango, সাপাহার আম, আম্রপালি, হাড়িভাঙা, ফজলি, কাঁঠিমুন, naogaon mango, খাঁটি আম, online mango bd"
+      keywords="Sapahar Shop, sapahar shop, সাপাহার আম, আম্রপালি, হাড়িভাঙা, ফজলি, কাঁঠিমুন, naogaon mango, খাঁটি আম, online mango bd"
       jsonLd={[
         organizationSchema,
         websiteSchema,
         localBusinessSchema,
         breadcrumb([{ name: "হোম", path: "/" }]),
         faqSchema([
-          { question: "Sapahar Mango Shop কোথা থেকে আম পাঠায়?", answer: "আমরা সরাসরি নওগাঁর সাপাহার উপজেলার বাগান থেকে আম সংগ্রহ করে সারাদেশে পাঠাই।" },
+          { question: "Sapahar Shop কোথা থেকে আম পাঠায়?", answer: "আমরা সরাসরি নওগাঁর সাপাহার উপজেলার বাগান থেকে আম সংগ্রহ করে সারাদেশে পাঠাই।" },
           { question: "আম কি ১০০% খাঁটি ও রাসায়নিকমুক্ত?", answer: "হ্যাঁ, আমাদের সব আম গাছপাকা, ফরমালিন ও কার্বাইডমুক্ত — সরাসরি বাগান থেকে প্যাক করা হয়।" },
           { question: "ডেলিভারি কতদিনে পাবো?", answer: "ঢাকার ভেতরে ১-২ দিন এবং ঢাকার বাইরে ২-৪ দিনের মধ্যে Pathao কুরিয়ারে পৌঁছে যায়।" },
           { question: "Cash on Delivery (COD) কি আছে?", answer: "হ্যাঁ, সারা বাংলাদেশে ক্যাশ অন ডেলিভারি সুবিধা আছে। bKash ও Nagad-এও পেমেন্ট করা যাবে।" },

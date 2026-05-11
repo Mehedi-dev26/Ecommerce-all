@@ -14,7 +14,7 @@ import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
 const AdminLogin = () => {
   const { settings, logoUrl } = useSiteSettings();
-  const brandName = settings.brand_name || "Sapahar Mango Shop";
+  const brandName = settings.brand_name || "Sapahar Shop";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);

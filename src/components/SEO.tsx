@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 
 export const SITE_URL = "https://sapaharama.pro.bd";
-export const SITE_NAME = "Sapahar Mango Shop";
+export const SITE_NAME = "Sapahar Shop";
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-cover.jpg`;
 
 interface SEOProps {

@@ -559,7 +559,7 @@ const TemplatesTab = () => {
                   .replace(/\{\{order_status\}\}/g, "শিপড")
                   .replace(/\{\{status_message\}\}/g, "আপনার অর্ডারটি কুরিয়ারে পাঠানো হয়েছে।")
                   .replace(/\{\{shipping_address\}\}/g, "১২৩ মেইন রোড, ঢাকা")
-                  .replace(/\{\{site_name\}\}/g, "Sapahar Mango")
+                  .replace(/\{\{site_name\}\}/g, "Sapahar Shop")
                   .replace(/\{\{company_email\}\}/g, "info@sapaharama.pro.bd")
                   .replace(/\{\{custom_subject\}\}/g, "বিশেষ অফার")
                   .replace(/\{\{custom_message\}\}/g, "এটি একটি sample বার্তা।")
