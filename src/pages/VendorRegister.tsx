@@ -4,6 +4,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { divisions } from "@/data/bd-locations";
+import { naogaonUnions } from "@/data/naogaon-unions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -92,6 +93,11 @@ const VendorRegister = () => {
     () => allDistricts.find((d) => d.name === form.district),
     [allDistricts, form.district]
   );
+
+  const availableUnions = useMemo(() => {
+    if (form.district !== "Naogaon" || !form.upazila) return [];
+    return naogaonUnions[form.upazila] || [];
+  }, [form.district, form.upazila]);
 
   // Pre-fill from auth
   useEffect(() => {
