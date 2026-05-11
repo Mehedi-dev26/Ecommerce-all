@@ -479,12 +479,30 @@ const VendorRegister = () => {
                     </div>
                     <div>
                       <Label>ইউনিয়ন / পোস্ট অফিস *</Label>
-                      <Input
-                        value={form.union_name}
-                        onChange={(e) => setForm({ ...form, union_name: e.target.value })}
-                        placeholder="যেমনঃ সাপাহার সদর"
-                        disabled={!form.upazila}
-                      />
+                      {availableUnions.length > 0 ? (
+                        <Select
+                          value={form.union_name}
+                          onValueChange={(v) => setForm({ ...form, union_name: v })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="সিলেক্ট করুন" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-72">
+                            {availableUnions.map((u) => (
+                              <SelectItem key={u.name} value={u.name_bn}>
+                                {u.name_bn}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input
+                          value={form.union_name}
+                          onChange={(e) => setForm({ ...form, union_name: e.target.value })}
+                          placeholder="যেমনঃ সাপাহার সদর"
+                          disabled={!form.upazila}
+                        />
+                      )}
                     </div>
                   </div>
                   <div className="mt-4">
