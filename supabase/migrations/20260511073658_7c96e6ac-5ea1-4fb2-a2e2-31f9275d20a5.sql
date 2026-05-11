@@ -1,0 +1,1 @@
+UPDATE public.site_settings SET value = 'Sapahar Shop', updated_at = now() WHERE key = 'company_name';
