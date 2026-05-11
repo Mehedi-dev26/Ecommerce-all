@@ -4,7 +4,6 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { divisions } from "@/data/bd-locations";
-import { getGuestAuthEmail } from "@/lib/guest-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,9 +25,9 @@ const baseSchema = {
   phone: z.string().trim().regex(phoneRe, "সঠিক মোবাইল নাম্বার দিন (01XXXXXXXXX)"),
   email: z.string().trim().email("সঠিক ইমেইল দিন").max(120),
   facebook_url: z.string().trim().url("সঠিক URL দিন").max(200).optional().or(z.literal("")),
-  division: z.string().min(1, "বিভাগ সিলেক্ট করুন"),
   district: z.string().min(1, "জেলা সিলেক্ট করুন"),
   upazila: z.string().min(1, "উপজেলা সিলেক্ট করুন"),
+  union_name: z.string().trim().min(2, "ইউনিয়ন/পোস্ট অফিস লিখুন").max(80),
   address: z.string().trim().min(5, "সম্পূর্ণ ঠিকানা দিন").max(300),
 };
 
@@ -68,11 +67,31 @@ const VendorRegister = () => {
     email: "",
     password: "",
     facebook_url: "",
-    division: "",
     district: "",
     upazila: "",
+    union_name: "",
     address: "",
   });
+
+  // Flat district list with parent division (no division select needed)
+  const allDistricts = useMemo(
+    () =>
+      divisions.flatMap((div) =>
+        div.districts.map((dist) => ({
+          name: dist.name,
+          name_bn: dist.name_bn,
+          division: div.name,
+          division_bn: div.name_bn,
+          upazilas: dist.upazilas,
+        }))
+      ).sort((a, b) => a.name_bn.localeCompare(b.name_bn, "bn")),
+    []
+  );
+
+  const selectedDistrict = useMemo(
+    () => allDistricts.find((d) => d.name === form.district),
+    [allDistricts, form.district]
+  );
 
   // Pre-fill from auth
   useEffect(() => {
@@ -94,14 +113,7 @@ const VendorRegister = () => {
     }
   }, [user]);
 
-  const districts = useMemo(
-    () => divisions.find((d) => d.name === form.division)?.districts || [],
-    [form.division]
-  );
-  const upazilas = useMemo(
-    () => districts.find((d) => d.name === form.district)?.upazilas || [],
-    [districts, form.district]
-  );
+  const upazilas = selectedDistrict?.upazilas || [];
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
