@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Package, ShoppingCart, FolderTree, Users,
   LogOut, Settings, BarChart3, Globe, ChevronDown, ChevronRight,
-  Shield, CreditCard, Truck, Image as ImageIcon, DollarSign, MessageSquare, Mail, Rocket
+  Shield, CreditCard, Truck, Image as ImageIcon, DollarSign, MessageSquare, Mail, Rocket, Store
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -33,6 +33,12 @@ const navGroups = [
       { title: "ডেলিভারি", url: "/admin/delivery", icon: Truck, badge: null },
       { title: "কুরিয়ার চার্জ", url: "/admin/courier-charges", icon: DollarSign, badge: null },
       { title: "কুরিয়ার API", url: "/admin/courier-api", icon: Truck, badge: null },
+    ],
+  },
+  {
+    label: "বিক্রেতা ও মার্কেটপ্লেস",
+    items: [
+      { title: "দোকান নিবন্ধন", url: "/admin/vendors", icon: Store, badge: "new" as const },
     ],
   },
   {

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart, Menu, Phone, User, LogOut, LayoutDashboard } from "lucide-react";
+import { ShoppingCart, Menu, Phone, User, LogOut, LayoutDashboard, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -88,6 +88,12 @@ const Navbar = () => {
                     <Link to="/dashboard" className="cursor-pointer">
                       <LayoutDashboard className="h-4 w-4 mr-2" />
                       আমার ড্যাশবোর্ড
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/vendor/register" className="cursor-pointer">
+                      <Store className="h-4 w-4 mr-2" />
+                      বিক্রেতা হোন
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
