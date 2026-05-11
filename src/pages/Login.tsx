@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, ShieldCheck, Truck, Headphones, Eye, EyeOff, Mail, Lock, User, ArrowLeft, Star, Award, Heart, Phone, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { getGuestAuthEmail, getGuestAuthPassword, getPhoneAuthEmailCandidates, getVendorAuthEmail } from "@/lib/guest-auth";
+import { getGuestAuthPassword, getPhoneAuthEmailCandidates } from "@/lib/guest-auth";
 import SEO from "@/components/SEO";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
