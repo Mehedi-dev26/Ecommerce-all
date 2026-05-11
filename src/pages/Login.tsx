@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, ShieldCheck, Truck, Headphones, Eye, EyeOff, Mail, Lock, User, ArrowLeft, Star, Award, Heart, Phone, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { getGuestAuthEmail, getGuestAuthPassword } from "@/lib/guest-auth";
+import { getGuestAuthPassword, getPhoneAuthEmailCandidates } from "@/lib/guest-auth";
 import SEO from "@/components/SEO";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
@@ -142,24 +142,31 @@ const Login = () => {
             return;
           }
           const cleanedPhone = raw.replace(/\D/g, "");
-          const syntheticEmail = getGuestAuthEmail(cleanedPhone);
+          const emailCandidates = getPhoneAuthEmailCandidates(cleanedPhone);
+          const passwordCandidates = /^\d{4}$/.test(form.password)
+            ? [form.password, getGuestAuthPassword(form.password)]
+            : [form.password];
 
-          // Single fast request — try user password first
-          let { error: loginError } = await supabase.auth.signInWithPassword({
-            email: syntheticEmail,
-            password: form.password,
-          });
+          let loginError: any = null;
+          let didLogin = false;
 
-          // Backwards-compat: legacy 4-digit PIN accounts only — single retry
-          if (loginError && /^\d{4}$/.test(form.password)) {
-            const { error: legacyError } = await supabase.auth.signInWithPassword({
-              email: syntheticEmail,
-              password: getGuestAuthPassword(form.password),
-            });
-            loginError = legacyError;
+          outer: for (const emailCandidate of emailCandidates) {
+            for (const passwordCandidate of passwordCandidates) {
+              const { error } = await supabase.auth.signInWithPassword({
+                email: emailCandidate,
+                password: passwordCandidate,
+              });
+
+              if (!error) {
+                didLogin = true;
+                break outer;
+              }
+
+              loginError = error;
+            }
           }
 
-          if (loginError) {
+          if (!didLogin && loginError) {
             toast({ title: "লগইন ব্যর্থ", description: "মোবাইল নম্বর বা পাসওয়ার্ড ভুল।", variant: "destructive" });
           }
         } else {
@@ -382,6 +389,7 @@ const Login = () => {
                         required
                       />
                     </div>
+                    <p className="text-[11px] text-muted-foreground">কাস্টমার ও অনুমোদিত ভেন্ডর—দুজনেই এখানে মোবাইল নম্বর ও পাসওয়ার্ড দিয়ে লগইন করতে পারবেন</p>
                   </div>
                 )}
 
