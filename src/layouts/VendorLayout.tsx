@@ -1,37 +1,30 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useVendor } from "@/hooks/useVendor";
 import { Button } from "@/components/ui/button";
-import {
-  LayoutDashboard,
-  Package,
-  ShoppingBag,
-  Wallet,
-  Banknote,
-  Settings,
-  LogOut,
-  Loader2,
-  Store,
-  AlertTriangle,
-  Clock,
-  XCircle,
-} from "lucide-react";
+import VendorSidebar from "@/components/vendor/VendorSidebar";
+import VendorBottomNav from "@/components/vendor/VendorBottomNav";
+import PageLoader from "@/components/PageLoader";
+import { Menu, Bell, RefreshCw, Store, Clock, XCircle, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-  { to: "/vendor/dashboard", icon: LayoutDashboard, label: "ড্যাশবোর্ড" },
-  { to: "/vendor/products", icon: Package, label: "আমার পণ্য" },
-  { to: "/vendor/orders", icon: ShoppingBag, label: "অর্ডার" },
-  { to: "/vendor/earnings", icon: Wallet, label: "আয়" },
-  { to: "/vendor/withdrawals", icon: Banknote, label: "টাকা উত্তোলন" },
-  { to: "/vendor/shop-settings", icon: Settings, label: "শপ সেটিংস" },
-];
+const pageTitles: Record<string, { title: string; subtitle: string }> = {
+  "/vendor/dashboard": { title: "ড্যাশবোর্ড", subtitle: "আপনার দোকানের সারসংক্ষেপ" },
+  "/vendor/products": { title: "আমার পণ্য", subtitle: "পণ্য পরিচালনা ও স্টক" },
+  "/vendor/orders": { title: "অর্ডার", subtitle: "আপনার অর্ডার ট্র্যাকিং" },
+  "/vendor/earnings": { title: "আয়", subtitle: "আপনার আয়ের বিশ্লেষণ" },
+  "/vendor/withdrawals": { title: "টাকা উত্তোলন", subtitle: "উত্তোলন অনুরোধ ও ইতিহাস" },
+  "/vendor/shop-settings": { title: "শপ সেটিংস", subtitle: "দোকানের তথ্য পরিচালনা" },
+};
 
 const VendorLayout = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const { vendor, loading: vendorLoading } = useVendor();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -40,189 +33,128 @@ const VendorLayout = () => {
   }, [authLoading, user, navigate]);
 
   if (authLoading || vendorLoading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <PageLoader fullScreen message="ভেন্ডর প্যানেল লোড হচ্ছে" />;
   }
 
   if (!user) return null;
 
-  // Status gating
   if (!vendor) {
     return (
-      <StatusScreen
-        icon={Store}
-        color="text-amber-600"
+      <StatusScreen icon={Store} color="text-amber-600"
         title="আপনি এখনো বিক্রেতা নন"
         desc="ড্যাশবোর্ড অ্যাক্সেস পেতে প্রথমে দোকান নিবন্ধন করুন।"
         actionLabel="দোকান নিবন্ধন করুন"
-        action={() => navigate("/vendor/register")}
-      />
+        action={() => navigate("/vendor/register")} />
     );
   }
-
   if (vendor.status === "pending") {
     return (
-      <StatusScreen
-        icon={Clock}
-        color="text-amber-600"
+      <StatusScreen icon={Clock} color="text-amber-600"
         title="আবেদন পর্যালোচনাধীন"
         desc="অ্যাডমিন আপনার আবেদন রিভিউ করছে। অনুমোদন হলে আপনি ড্যাশবোর্ড পাবেন।"
-        actionLabel="হোমে ফিরে যান"
-        action={() => navigate("/")}
-      />
+        actionLabel="হোমে ফিরে যান" action={() => navigate("/")} />
     );
   }
-
   if (vendor.status === "rejected") {
     return (
-      <StatusScreen
-        icon={XCircle}
-        color="text-destructive"
+      <StatusScreen icon={XCircle} color="text-destructive"
         title="আবেদন প্রত্যাখ্যাত"
         desc={vendor.rejection_reason || "অ্যাডমিনের সাথে যোগাযোগ করুন।"}
-        actionLabel="আবার আবেদন করুন"
-        action={() => navigate("/vendor/register")}
-      />
+        actionLabel="আবার আবেদন করুন" action={() => navigate("/vendor/register")} />
     );
   }
-
   if (vendor.status === "suspended") {
     return (
-      <StatusScreen
-        icon={AlertTriangle}
-        color="text-destructive"
+      <StatusScreen icon={AlertTriangle} color="text-destructive"
         title="দোকান সাময়িকভাবে স্থগিত"
         desc="অনুগ্রহ করে অ্যাডমিনের সাথে যোগাযোগ করুন।"
-        actionLabel="হোমে ফিরে যান"
-        action={() => navigate("/")}
-      />
+        actionLabel="হোমে ফিরে যান" action={() => navigate("/")} />
     );
   }
 
-  return (
-    <div className="min-h-screen flex bg-muted/30">
-      {/* Sidebar */}
-      <aside className="hidden lg:flex w-64 shrink-0 flex-col bg-card border-r border-border/60">
-        <div className="p-5 border-b border-border/60">
-          <div className="flex items-center gap-3">
-            <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center overflow-hidden">
-              {vendor.logo_url ? (
-                <img src={vendor.logo_url} alt="logo" className="h-full w-full object-cover" />
-              ) : (
-                <Store className="h-5 w-5 text-primary" />
-              )}
-            </div>
-            <div className="min-w-0">
-              <p className="font-bold text-sm truncate">{vendor.shop_name_bn}</p>
-              <p className="text-[11px] text-muted-foreground truncate">কমিশন: {vendor.commission_percent}%</p>
-            </div>
-          </div>
-        </div>
-        <nav className="flex-1 p-3 space-y-1">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === "/vendor/dashboard"}
-              className={({ isActive }) =>
-                cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground hover:bg-muted"
-                )
-              }
-            >
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-        <div className="p-3 border-t border-border/60">
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full justify-start"
-            onClick={async () => {
-              await signOut();
-              navigate("/");
-            }}
-          >
-            <LogOut className="h-4 w-4 mr-2" /> লগআউট
-          </Button>
-        </div>
-      </aside>
+  const currentPage = pageTitles[location.pathname] || { title: "ভেন্ডর", subtitle: "" };
 
-      {/* Mobile top bar */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="lg:hidden sticky top-0 z-30 bg-card border-b border-border/60 px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden">
-              {vendor.logo_url ? (
-                <img src={vendor.logo_url} alt="logo" className="h-full w-full object-cover" />
-              ) : (
-                <Store className="h-4 w-4 text-primary" />
-              )}
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
+  return (
+    <div className="h-screen flex overflow-hidden bg-muted/40">
+      <VendorSidebar
+        open={sidebarOpen}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        onSignOut={handleSignOut}
+        shopName={vendor.shop_name_bn}
+        ownerName={vendor.owner_name}
+        logoUrl={vendor.logo_url}
+        commissionPercent={vendor.commission_percent}
+      />
+
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header className="shrink-0 z-30 bg-card/80 backdrop-blur-xl border-b border-border/50 px-4 lg:px-8 py-3">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden shrink-0"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg font-bold text-foreground leading-tight">{currentPage.title}</h1>
+              <p className="text-xs text-muted-foreground hidden sm:block">{currentPage.subtitle}</p>
             </div>
-            <p className="font-bold text-sm truncate">{vendor.shop_name_bn}</p>
+
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" className="hidden md:flex text-muted-foreground hover:text-foreground">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+              <div className="relative hidden md:block">
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+                  <Bell className="h-4 w-4" />
+                </Button>
+                <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-destructive rounded-full" />
+              </div>
+              <div className="h-8 w-px bg-border hidden md:block" />
+              <div className="hidden md:flex items-center gap-2 pl-1">
+                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                  {vendor.logo_url ? (
+                    <img src={vendor.logo_url} alt="logo" className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-xs font-bold text-primary">
+                      {vendor.owner_name?.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={async () => {
-              await signOut();
-              navigate("/");
-            }}
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
         </header>
 
-        <main className="flex-1 p-4 lg:p-8 pb-24 lg:pb-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 pb-20 lg:pb-8">
           <Outlet />
         </main>
 
-        {/* Mobile bottom nav */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-border/60 grid grid-cols-6">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === "/vendor/dashboard"}
-              className={({ isActive }) =>
-                cn(
-                  "flex flex-col items-center justify-center gap-0.5 py-2 text-[10px]",
-                  isActive ? "text-primary" : "text-muted-foreground"
-                )
-              }
-            >
-              <item.icon className="h-4 w-4" />
-              <span className="leading-tight text-center px-1">{item.label}</span>
-            </NavLink>
-          ))}
-        </nav>
+        <footer className="shrink-0 border-t border-border/50 bg-card/50 px-4 lg:px-8 py-3 hidden lg:block">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>© {new Date().getFullYear()} Sapahar Shop — Vendor Panel</span>
+            <span>v1.0.0</span>
+          </div>
+        </footer>
       </div>
+
+      <VendorBottomNav />
     </div>
   );
 };
 
 const StatusScreen = ({
-  icon: Icon,
-  color,
-  title,
-  desc,
-  actionLabel,
-  action,
+  icon: Icon, color, title, desc, actionLabel, action,
 }: {
-  icon: any;
-  color: string;
-  title: string;
-  desc: string;
-  actionLabel: string;
-  action: () => void;
+  icon: any; color: string; title: string; desc: string; actionLabel: string; action: () => void;
 }) => (
   <div className="container mx-auto max-w-xl py-20 px-4 text-center">
     <Icon className={cn("h-20 w-20 mx-auto mb-4", color)} />
