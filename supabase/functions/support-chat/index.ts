@@ -183,7 +183,7 @@ ${productCatalog || "(catalog loading — please refer customer to ${SITE_URL}/p
 # COURIER RATE SAMPLES (per-kg, full list auto-calculated at checkout)
 ${courierSample || "Weight-based rates calculated at checkout based on customer location"}
 
-Now greet the customer warmly and help them choose the perfect Sapahar mango.`;
+Now greet the customer warmly and help them choose the perfect Sapahar Shop product.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
