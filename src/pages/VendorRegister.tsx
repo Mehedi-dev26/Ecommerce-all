@@ -4,6 +4,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { divisions } from "@/data/bd-locations";
+import { getGuestAuthEmail } from "@/lib/guest-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,23 +12,32 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Store, Upload, CheckCircle2 } from "lucide-react";
+import { Loader2, Store, Upload, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import SEO from "@/components/SEO";
 
-const schema = z.object({
+const phoneRe = /^01[3-9]\d{8}$/;
+
+const baseSchema = {
   shop_name: z.string().trim().min(2, "ইংরেজি নাম দিন").max(80),
   shop_name_bn: z.string().trim().min(2, "বাংলা নাম দিন").max(80),
   description: z.string().trim().max(500).optional(),
   owner_name: z.string().trim().min(2, "মালিকের নাম দিন").max(80),
   nid_number: z.string().trim().regex(/^\d{10,17}$/, "NID নাম্বার ১০-১৭ ডিজিট হতে হবে"),
-  phone: z.string().trim().regex(/^01[3-9]\d{8}$/, "সঠিক মোবাইল নাম্বার দিন (01XXXXXXXXX)"),
+  phone: z.string().trim().regex(phoneRe, "সঠিক মোবাইল নাম্বার দিন (01XXXXXXXXX)"),
   email: z.string().trim().email("সঠিক ইমেইল দিন").max(120),
   facebook_url: z.string().trim().url("সঠিক URL দিন").max(200).optional().or(z.literal("")),
   division: z.string().min(1, "বিভাগ সিলেক্ট করুন"),
   district: z.string().min(1, "জেলা সিলেক্ট করুন"),
   upazila: z.string().min(1, "উপজেলা সিলেক্ট করুন"),
   address: z.string().trim().min(5, "সম্পূর্ণ ঠিকানা দিন").max(300),
+};
+
+const guestSchema = z.object({
+  ...baseSchema,
+  password: z.string().min(6, "পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে").max(64),
 });
+
+const loggedInSchema = z.object({ ...baseSchema, password: z.string().optional() });
 
 const slugify = (s: string) =>
   s
@@ -46,6 +56,7 @@ const VendorRegister = () => {
   const [logoPreview, setLogoPreview] = useState<string>("");
   const [submitted, setSubmitted] = useState(false);
   const [existingStatus, setExistingStatus] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
     shop_name: "",
@@ -55,6 +66,7 @@ const VendorRegister = () => {
     nid_number: "",
     phone: "",
     email: "",
+    password: "",
     facebook_url: "",
     division: "",
     district: "",
@@ -69,8 +81,8 @@ const VendorRegister = () => {
         ...f,
         email: f.email || user.email || "",
         owner_name: f.owner_name || (user.user_metadata?.full_name as string) || "",
+        phone: f.phone || (user.user_metadata?.phone as string) || "",
       }));
-      // Check if user already has a vendor record
       (async () => {
         const { data } = await supabase
           .from("vendors" as any)
@@ -104,12 +116,8 @@ const VendorRegister = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast({ title: "প্রথমে লগইন করুন", description: "রেজিস্ট্রেশনের জন্য লগইন প্রয়োজন" });
-      navigate("/login?redirect=/vendor/register");
-      return;
-    }
 
+    const schema = user ? loggedInSchema : guestSchema;
     const parsed = schema.safeParse(form);
     if (!parsed.success) {
       const first = parsed.error.issues[0];
@@ -119,11 +127,59 @@ const VendorRegister = () => {
 
     setSubmitting(true);
     try {
-      // Upload logo if any
+      // Step 1: ensure we have a logged-in user. If not, create an account
+      // using the synthetic email pattern so the vendor can later log in
+      // using their phone + password from /login.
+      let activeUserId = user?.id ?? null;
+
+      if (!activeUserId) {
+        const cleanedPhone = parsed.data.phone.replace(/\D/g, "");
+        const syntheticEmail = getGuestAuthEmail(cleanedPhone);
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: syntheticEmail,
+          password: parsed.data.password as string,
+          options: {
+            data: {
+              full_name: parsed.data.owner_name,
+              phone: cleanedPhone,
+              vendor_signup: true,
+              contact_email: parsed.data.email,
+            },
+            emailRedirectTo: window.location.origin,
+          },
+        });
+
+        if (signUpError) {
+          if (/already registered|already exists|user already/i.test(signUpError.message)) {
+            throw new Error(
+              "এই মোবাইল নাম্বার দিয়ে ইতিমধ্যে অ্যাকাউন্ট আছে। অনুগ্রহ করে লগইন করে আবার চেষ্টা করুন।"
+            );
+          }
+          throw signUpError;
+        }
+
+        activeUserId = signUpData.user?.id ?? null;
+
+        // Create profile row with the contact info
+        if (activeUserId) {
+          await supabase
+            .from("profiles")
+            .upsert(
+              { user_id: activeUserId, full_name: parsed.data.owner_name, phone: cleanedPhone },
+              { onConflict: "user_id" }
+            );
+        }
+      }
+
+      if (!activeUserId) {
+        throw new Error("অ্যাকাউন্ট তৈরি করা যায়নি — আবার চেষ্টা করুন");
+      }
+
+      // Step 2: upload logo
       let logo_url: string | null = null;
       if (logoFile) {
         const ext = logoFile.name.split(".").pop() || "jpg";
-        const path = `vendor-logos/${user.id}-${Date.now()}.${ext}`;
+        const path = `vendor-logos/${activeUserId}-${Date.now()}.${ext}`;
         const { error: upErr } = await supabase.storage
           .from("product-images")
           .upload(path, logoFile, { upsert: true, contentType: logoFile.type });
@@ -132,12 +188,12 @@ const VendorRegister = () => {
         logo_url = pub.publicUrl;
       }
 
-      // Slug uniqueness — append short suffix if needed
+      // Step 3: insert vendor record
       const baseSlug = slugify(parsed.data.shop_name_bn || parsed.data.shop_name);
       const shop_slug = `${baseSlug}-${Math.random().toString(36).slice(2, 6)}`;
 
       const { error } = await supabase.from("vendors" as any).insert({
-        user_id: user.id,
+        user_id: activeUserId,
         shop_name: parsed.data.shop_name,
         shop_name_bn: parsed.data.shop_name_bn,
         shop_slug,
@@ -163,7 +219,10 @@ const VendorRegister = () => {
       }
 
       setSubmitted(true);
-      toast({ title: "আবেদন সফল!", description: "অ্যাডমিন রিভিউ করার পর জানানো হবে" });
+      toast({
+        title: "আবেদন সফল! 🎉",
+        description: "অ্যাডমিন অনুমোদন করার পর আপনি আপনার মোবাইল ও পাসওয়ার্ড দিয়ে লগইন করতে পারবেন।",
+      });
     } catch (err: any) {
       toast({ title: "ব্যর্থ", description: err.message || "আবার চেষ্টা করুন", variant: "destructive" });
     } finally {
@@ -173,13 +232,24 @@ const VendorRegister = () => {
 
   if (authLoading) return <div className="container mx-auto py-20 text-center">লোড হচ্ছে...</div>;
 
-  // Already submitted state
   if (submitted || (existingStatus && existingStatus !== "rejected")) {
     const status = existingStatus || "pending";
     const statusText: Record<string, { title: string; desc: string; color: string }> = {
-      pending: { title: "আবেদন পর্যালোচনাধীন", desc: "আপনার আবেদন সফলভাবে জমা হয়েছে। অ্যাডমিন অনুমোদন করলে ইমেইলে জানানো হবে।", color: "text-amber-600" },
-      approved: { title: "অভিনন্দন! আপনি অনুমোদিত বিক্রেতা", desc: "আপনি এখন আপনার নিজের শপ পরিচালনা শুরু করতে পারবেন।", color: "text-green-600" },
-      suspended: { title: "আপনার দোকান সাময়িকভাবে স্থগিত", desc: "অনুগ্রহ করে অ্যাডমিনের সাথে যোগাযোগ করুন।", color: "text-red-600" },
+      pending: {
+        title: "আবেদন পর্যালোচনাধীন",
+        desc: "আপনার আবেদন সফলভাবে জমা হয়েছে। অ্যাডমিন অনুমোদনের পর আপনি লগইন করে ড্যাশবোর্ড পাবেন।",
+        color: "text-amber-600",
+      },
+      approved: {
+        title: "অভিনন্দন! আপনি অনুমোদিত বিক্রেতা",
+        desc: "আপনি এখন আপনার নিজের শপ পরিচালনা শুরু করতে পারবেন।",
+        color: "text-green-600",
+      },
+      suspended: {
+        title: "আপনার দোকান সাময়িকভাবে স্থগিত",
+        desc: "অনুগ্রহ করে অ্যাডমিনের সাথে যোগাযোগ করুন।",
+        color: "text-red-600",
+      },
     };
     const info = statusText[status] || statusText.pending;
     return (
@@ -189,7 +259,18 @@ const VendorRegister = () => {
             <CheckCircle2 className={`h-20 w-20 mx-auto mb-4 ${info.color}`} />
             <h2 className="text-2xl font-bold mb-2">{info.title}</h2>
             <p className="text-muted-foreground mb-6">{info.desc}</p>
-            <Button onClick={() => navigate("/")}>হোমে ফিরে যান</Button>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <Button onClick={() => navigate("/")}>হোমে ফিরে যান</Button>
+              {status === "approved" ? (
+                <Button variant="outline" onClick={() => navigate("/vendor/dashboard")}>
+                  ড্যাশবোর্ডে যান
+                </Button>
+              ) : (
+                <Button variant="outline" onClick={() => navigate("/login")}>
+                  লগইন পেজ
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -198,7 +279,10 @@ const VendorRegister = () => {
 
   return (
     <>
-      <SEO title="বিক্রেতা নিবন্ধন | Sapahar Shop" description="আপনার দোকান নিবন্ধন করুন এবং সারা বাংলাদেশে আম, লিচু, ফল বিক্রি শুরু করুন।" />
+      <SEO
+        title="বিক্রেতা নিবন্ধন | Sapahar Shop"
+        description="আপনার দোকান নিবন্ধন করুন এবং সারা বাংলাদেশে আম, লিচু, ফল বিক্রি শুরু করুন।"
+      />
       <div className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 min-h-screen py-10 px-4">
         <div className="container mx-auto max-w-3xl">
           <div className="text-center mb-8">
@@ -206,13 +290,17 @@ const VendorRegister = () => {
               <Store className="h-8 w-8" />
             </div>
             <h1 className="font-brand text-4xl md:text-5xl text-primary mb-2">বিক্রেতা হোন</h1>
-            <p className="text-muted-foreground">আপনার দোকান নিবন্ধন করুন এবং আমাদের প্ল্যাটফর্মে আপনার পণ্য বিক্রি শুরু করুন</p>
+            <p className="text-muted-foreground">
+              আপনার দোকান নিবন্ধন করুন এবং আমাদের প্ল্যাটফর্মে আপনার পণ্য বিক্রি শুরু করুন
+            </p>
           </div>
 
           <Card className="border-2 shadow-xl">
             <CardHeader>
               <CardTitle>দোকানের তথ্য</CardTitle>
-              <CardDescription>সব তথ্য সঠিকভাবে পূরণ করুন। অ্যাডমিন রিভিউ করার পর আপনার দোকান চালু হবে।</CardDescription>
+              <CardDescription>
+                সব তথ্য সঠিকভাবে পূরণ করুন। অ্যাডমিন রিভিউ করার পর আপনার দোকান চালু হবে।
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-5">
@@ -234,17 +322,30 @@ const VendorRegister = () => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <Label>দোকানের নাম (বাংলা) *</Label>
-                    <Input value={form.shop_name_bn} onChange={(e) => setForm({ ...form, shop_name_bn: e.target.value })} placeholder="যেমনঃ আম বাজার" />
+                    <Input
+                      value={form.shop_name_bn}
+                      onChange={(e) => setForm({ ...form, shop_name_bn: e.target.value })}
+                      placeholder="যেমনঃ আম বাজার"
+                    />
                   </div>
                   <div>
                     <Label>Shop Name (English) *</Label>
-                    <Input value={form.shop_name} onChange={(e) => setForm({ ...form, shop_name: e.target.value })} placeholder="e.g. Aam Bazar" />
+                    <Input
+                      value={form.shop_name}
+                      onChange={(e) => setForm({ ...form, shop_name: e.target.value })}
+                      placeholder="e.g. Aam Bazar"
+                    />
                   </div>
                 </div>
 
                 <div>
                   <Label>দোকান সম্পর্কে (ঐচ্ছিক)</Label>
-                  <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="আপনার দোকান ও পণ্য সম্পর্কে সংক্ষেপে লিখুন" rows={3} />
+                  <Textarea
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    placeholder="আপনার দোকান ও পণ্য সম্পর্কে সংক্ষেপে লিখুন"
+                    rows={3}
+                  />
                 </div>
 
                 <div className="border-t pt-5">
@@ -252,24 +353,79 @@ const VendorRegister = () => {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <Label>মালিকের পূর্ণ নাম *</Label>
-                      <Input value={form.owner_name} onChange={(e) => setForm({ ...form, owner_name: e.target.value })} />
+                      <Input
+                        value={form.owner_name}
+                        onChange={(e) => setForm({ ...form, owner_name: e.target.value })}
+                      />
                     </div>
                     <div>
                       <Label>NID নাম্বার *</Label>
-                      <Input value={form.nid_number} onChange={(e) => setForm({ ...form, nid_number: e.target.value.replace(/\D/g, "") })} placeholder="১০-১৭ ডিজিট" inputMode="numeric" />
+                      <Input
+                        value={form.nid_number}
+                        onChange={(e) => setForm({ ...form, nid_number: e.target.value.replace(/\D/g, "") })}
+                        placeholder="১০-১৭ ডিজিট"
+                        inputMode="numeric"
+                      />
                     </div>
+                    <div>
+                      <Label>ইমেইল (যোগাযোগের জন্য) *</Label>
+                      <Input
+                        type="email"
+                        value={form.email}
+                        onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label>Facebook Page (ঐচ্ছিক)</Label>
+                      <Input
+                        value={form.facebook_url}
+                        onChange={(e) => setForm({ ...form, facebook_url: e.target.value })}
+                        placeholder="https://facebook.com/..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Login credentials section */}
+                <div className="border-t pt-5">
+                  <h3 className="font-bold mb-1 text-primary">লগইন তথ্য</h3>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    {user
+                      ? "আপনি ইতিমধ্যে লগইন করা আছেন — মোবাইল নাম্বার শুধু যোগাযোগের জন্য সংরক্ষণ হবে।"
+                      : "অ্যাডমিন অনুমোদনের পর এই মোবাইল নাম্বার ও পাসওয়ার্ড দিয়ে লগইন পেজ থেকে লগইন করতে পারবেন।"}
+                  </p>
+                  <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <Label>মোবাইল নাম্বার *</Label>
-                      <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="01XXXXXXXXX" inputMode="tel" />
+                      <Input
+                        value={form.phone}
+                        onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })}
+                        placeholder="01XXXXXXXXX"
+                        inputMode="tel"
+                        maxLength={11}
+                        disabled={!!user}
+                      />
                     </div>
-                    <div>
-                      <Label>ইমেইল *</Label>
-                      <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-                    </div>
-                    <div className="md:col-span-2">
-                      <Label>Facebook Page (ঐচ্ছিক)</Label>
-                      <Input value={form.facebook_url} onChange={(e) => setForm({ ...form, facebook_url: e.target.value })} placeholder="https://facebook.com/..." />
-                    </div>
+                    {!user && (
+                      <div>
+                        <Label>পাসওয়ার্ড * (কমপক্ষে ৬ অক্ষর)</Label>
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            value={form.password}
+                            onChange={(e) => setForm({ ...form, password: e.target.value })}
+                            placeholder="••••••••"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword((s) => !s)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -278,44 +434,86 @@ const VendorRegister = () => {
                   <div className="grid md:grid-cols-3 gap-4">
                     <div>
                       <Label>বিভাগ *</Label>
-                      <Select value={form.division} onValueChange={(v) => setForm({ ...form, division: v, district: "", upazila: "" })}>
-                        <SelectTrigger><SelectValue placeholder="সিলেক্ট করুন" /></SelectTrigger>
+                      <Select
+                        value={form.division}
+                        onValueChange={(v) => setForm({ ...form, division: v, district: "", upazila: "" })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="সিলেক্ট করুন" />
+                        </SelectTrigger>
                         <SelectContent>
-                          {divisions.map((d) => <SelectItem key={d.name} value={d.name}>{d.name_bn}</SelectItem>)}
+                          {divisions.map((d) => (
+                            <SelectItem key={d.name} value={d.name}>
+                              {d.name_bn}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
                       <Label>জেলা *</Label>
-                      <Select value={form.district} onValueChange={(v) => setForm({ ...form, district: v, upazila: "" })} disabled={!form.division}>
-                        <SelectTrigger><SelectValue placeholder="সিলেক্ট করুন" /></SelectTrigger>
+                      <Select
+                        value={form.district}
+                        onValueChange={(v) => setForm({ ...form, district: v, upazila: "" })}
+                        disabled={!form.division}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="সিলেক্ট করুন" />
+                        </SelectTrigger>
                         <SelectContent>
-                          {districts.map((d) => <SelectItem key={d.name} value={d.name}>{d.name_bn}</SelectItem>)}
+                          {districts.map((d) => (
+                            <SelectItem key={d.name} value={d.name}>
+                              {d.name_bn}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
                       <Label>উপজেলা *</Label>
-                      <Select value={form.upazila} onValueChange={(v) => setForm({ ...form, upazila: v })} disabled={!form.district}>
-                        <SelectTrigger><SelectValue placeholder="সিলেক্ট করুন" /></SelectTrigger>
+                      <Select
+                        value={form.upazila}
+                        onValueChange={(v) => setForm({ ...form, upazila: v })}
+                        disabled={!form.district}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="সিলেক্ট করুন" />
+                        </SelectTrigger>
                         <SelectContent>
-                          {upazilas.map((u) => <SelectItem key={u.name} value={u.name}>{u.name_bn}</SelectItem>)}
+                          {upazilas.map((u) => (
+                            <SelectItem key={u.name} value={u.name}>
+                              {u.name_bn}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
                   <div className="mt-4">
                     <Label>সম্পূর্ণ ঠিকানা *</Label>
-                    <Textarea value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="বাড়ি/হোল্ডিং, রোড, এলাকা" rows={2} />
+                    <Textarea
+                      value={form.address}
+                      onChange={(e) => setForm({ ...form, address: e.target.value })}
+                      placeholder="বাড়ি/হোল্ডিং, রোড, এলাকা"
+                      rows={2}
+                    />
                   </div>
                 </div>
 
                 <div className="border-t pt-5">
                   <Button type="submit" disabled={submitting} size="lg" className="w-full text-base">
-                    {submitting ? <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> জমা হচ্ছে...</> : "আবেদন জমা দিন"}
+                    {submitting ? (
+                      <>
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" /> জমা হচ্ছে...
+                      </>
+                    ) : (
+                      "আবেদন জমা দিন"
+                    )}
                   </Button>
                   <p className="text-xs text-muted-foreground text-center mt-3">
-                    আবেদন জমা দিলে অ্যাডমিন রিভিউ করবে এবং অনুমোদনের পর আপনি ড্যাশবোর্ড অ্যাক্সেস পাবেন।
+                    আবেদন জমা দিলে অ্যাডমিন রিভিউ করবে। অনুমোদনের পর{" "}
+                    <span className="font-semibold text-foreground">/login</span> পেজ থেকে আপনার মোবাইল
+                    নাম্বার ও পাসওয়ার্ড দিয়ে লগইন করতে পারবেন।
                   </p>
                 </div>
               </form>
