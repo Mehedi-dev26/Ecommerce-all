@@ -30,9 +30,25 @@ const Login = () => {
   const from = (location.state as any)?.from || "/";
 
   useEffect(() => {
-    if (!loading && user) {
+    if (loading || !user) return;
+    (async () => {
+      // If this user has an approved vendor account, route them to vendor panel
+      const { data: vendor } = await supabase
+        .from("vendors" as any)
+        .select("status")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const status = (vendor as any)?.status;
+      if (status === "approved") {
+        navigate("/vendor/dashboard", { replace: true });
+        return;
+      }
+      if (status === "pending" || status === "rejected" || status === "suspended") {
+        navigate("/vendor/dashboard", { replace: true }); // VendorLayout shows status screen
+        return;
+      }
       navigate(from, { replace: true });
-    }
+    })();
   }, [loading, user, navigate, from]);
 
   const handleGoogleLogin = async () => {
