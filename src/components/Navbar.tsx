@@ -47,12 +47,30 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
+          <Link
+            to="/vendor/register"
+            className="ml-2 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-[15px] font-bold text-primary shadow-md ring-2 ring-white/60 transition-all hover:bg-white/90 hover:scale-[1.03] hover:shadow-lg"
+          >
+            <Store className="h-4 w-4" />
+            বিক্রেতা হোন
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
           {headerPhone && <a href={`tel:${headerPhone.replace(/\s/g, "")}`} className="hidden rounded-lg bg-white/15 p-2 text-white/90 transition hover:bg-white/25 hover:text-white sm:block">
             <Phone className="h-4 w-4" />
           </a>}
+
+          {/* Mobile: Vendor register button when logged out (replaces visual weight near cart) */}
+          {!loading && !user && (
+            <Link
+              to="/vendor/register"
+              className="lg:hidden inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1.5 text-[12px] font-bold text-primary shadow-md ring-1 ring-white/60 transition active:scale-95"
+            >
+              <Store className="h-3.5 w-3.5" />
+              বিক্রেতা হোন
+            </Link>
+          )}
 
           <Link to="/cart" className="relative">
             <Button variant="ghost" size="icon" className="h-9 w-9 rounded-lg bg-white/15 text-white hover:bg-white/25 hover:text-white">
