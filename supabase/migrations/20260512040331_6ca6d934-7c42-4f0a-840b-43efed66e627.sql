@@ -1,0 +1,6 @@
+INSERT INTO public.products (name, name_bn, description_bn, price, compare_price, stock, weight, category_id, vendor_id, vendor_status, is_active, unit)
+VALUES
+('Premium Amrapali Mango', 'প্রিমিয়াম আম্রপালি আম', 'মেহেদী আমের বাগান থেকে সরাসরি প্রিমিয়াম আম্রপালি। মিষ্টি, রসালো ও পরিপূর্ণ পাকা।', 260, 320, 100, '5kg', 'ff4ecd7c-d7aa-4fa8-8137-402972e9611c', '89855548-451c-4a11-8408-50d4a778ab7d', 'approved', true, 'kg'),
+('Fresh Langra Mango', 'টাটকা ন্যাংরা আম', 'রাজশাহীর বিখ্যাত ন্যাংরা আম। সুমিষ্ট স্বাদ ও মন মাতানো ঘ্রাণ।', 210, 250, 80, '5kg', 'aec9db2b-101d-4fd0-8111-53fb9a3d09e2', '89855548-451c-4a11-8408-50d4a778ab7d', 'approved', true, 'kg'),
+('Pure Sundarbans Honey', 'খাঁটি সুন্দরবনের মধু', '১০০% খাঁটি সুন্দরবনের প্রাকৃতিক মধু। কোনো ভেজাল নেই।', 850, 1000, 30, '1kg', '47065dd6-986c-4a00-bce4-8518f107e7cc', '89855548-451c-4a11-8408-50d4a778ab7d', 'approved', true, 'kg'),
+('Premium Ajwa Dates', 'প্রিমিয়াম আজওয়া খেজুর', 'সৌদি আরবের আসল আজওয়া খেজুর। প্রিমিয়াম মানের।', 1200, 1500, 25, '1kg', 'd9ca9eb0-75ce-4084-b5f9-8edcf7f9978d', '89855548-451c-4a11-8408-50d4a778ab7d', 'approved', true, 'kg');
