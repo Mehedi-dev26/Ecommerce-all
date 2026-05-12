@@ -151,8 +151,10 @@ export type Database = {
           image_url: string | null
           name: string
           name_bn: string
+          pricing_note: string | null
           requires_weight: boolean
           sort_order: number
+          suggested_price_per_kg: number | null
         }
         Insert: {
           created_at?: string
@@ -161,8 +163,10 @@ export type Database = {
           image_url?: string | null
           name: string
           name_bn: string
+          pricing_note?: string | null
           requires_weight?: boolean
           sort_order?: number
+          suggested_price_per_kg?: number | null
         }
         Update: {
           created_at?: string
@@ -171,8 +175,10 @@ export type Database = {
           image_url?: string | null
           name?: string
           name_bn?: string
+          pricing_note?: string | null
           requires_weight?: boolean
           sort_order?: number
+          suggested_price_per_kg?: number | null
         }
         Relationships: []
       }
