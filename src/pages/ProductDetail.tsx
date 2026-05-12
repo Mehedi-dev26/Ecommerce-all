@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Minus, Plus, Heart, Share2, Truck, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight, Star, CheckCircle2, Package, Calculator, MapPin, Clock } from "lucide-react";
+import { ShoppingCart, Minus, Plus, Heart, Share2, Truck, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight, Star, CheckCircle2, Package, Calculator, MapPin, Clock, Store, ChevronRight as ChevRight, MessageCircle } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -48,13 +48,37 @@ const ProductDetail = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("id,name,name_bn,description,description_bn,category_id,price,compare_price,stock,image_url,images,weight,unit,grade,is_active,is_featured,coming_soon,created_at,updated_at,categories(name,name_bn)")
+        .select("id,name,name_bn,description,description_bn,category_id,price,compare_price,stock,image_url,images,weight,unit,grade,is_active,is_featured,coming_soon,created_at,updated_at,vendor_id,categories(name,name_bn)")
         .eq("id", id!)
         .single();
       if (error) throw error;
       return data;
     },
     enabled: !!id,
+  });
+
+  // Vendor info (only for vendor-listed products)
+  const { data: vendorInfo } = useQuery({
+    queryKey: ["product-vendor", (product as any)?.vendor_id],
+    queryFn: async () => {
+      const vendorId = (product as any).vendor_id as string;
+      const [{ data: v }, { count }] = await Promise.all([
+        supabase
+          .from("vendors" as any)
+          .select("id,shop_name,shop_name_bn,shop_slug,logo_url,description,division,district,upazila,total_orders,created_at")
+          .eq("id", vendorId)
+          .eq("status", "approved")
+          .maybeSingle(),
+        supabase
+          .from("products")
+          .select("id", { count: "exact", head: true })
+          .eq("vendor_id", vendorId)
+          .eq("is_active", true)
+          .eq("vendor_status", "approved"),
+      ]);
+      return v ? { ...(v as any), product_count: count ?? 0 } : null;
+    },
+    enabled: !!(product as any)?.vendor_id,
   });
 
   const { data: relatedProducts } = useQuery({
@@ -478,7 +502,49 @@ const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Tabs: Description + Reviews */}
+        {/* Vendor / Seller card — Daraz style */}
+        {vendorInfo && (
+          <div className="mt-6 sm:mt-8">
+            <div className="overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card to-muted/30 shadow-sm">
+              <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <Link to={`/shop/${vendorInfo.shop_slug}`} className="shrink-0">
+                    {vendorInfo.logo_url ? (
+                      <img src={vendorInfo.logo_url} alt={vendorInfo.shop_name_bn} className="h-14 w-14 rounded-xl border-2 border-primary/20 object-cover sm:h-16 sm:w-16" />
+                    ) : (
+                      <div className="flex h-14 w-14 items-center justify-center rounded-xl border-2 border-primary/20 bg-primary/10 sm:h-16 sm:w-16">
+                        <Store className="h-6 w-6 text-primary sm:h-7 sm:w-7" />
+                      </div>
+                    )}
+                  </Link>
+                  <div className="min-w-0 flex-1">
+                    <Link to={`/shop/${vendorInfo.shop_slug}`} className="group inline-flex items-center gap-1.5">
+                      <h3 className="text-base font-bold text-foreground group-hover:text-primary sm:text-lg line-clamp-1">
+                        {vendorInfo.shop_name_bn || vendorInfo.shop_name}
+                      </h3>
+                      <Badge variant="secondary" className="bg-primary/10 text-primary text-[10px] px-1.5 py-0">যাচাইকৃত বিক্রেতা</Badge>
+                    </Link>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground sm:text-xs">
+                      <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{vendorInfo.upazila}, {vendorInfo.district}</span>
+                      <span className="inline-flex items-center gap-1"><Package className="h-3 w-3" />{vendorInfo.product_count} পণ্য</span>
+                      <span className="inline-flex items-center gap-1"><ShoppingCart className="h-3 w-3" />{vendorInfo.total_orders} অর্ডার</span>
+                    </div>
+                    {vendorInfo.description && (
+                      <p className="mt-2 hidden text-xs text-foreground/70 line-clamp-2 sm:block">{vendorInfo.description}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <Button asChild size="sm" className="h-9 bg-primary text-primary-foreground hover:bg-primary/90">
+                    <Link to={`/shop/${vendorInfo.shop_slug}`}>
+                      <Store className="mr-1.5 h-4 w-4" /> দোকান ঘুরে আসুন
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="mt-8 sm:mt-12">
           <Tabs defaultValue="description" className="w-full">
             <TabsList className="w-full justify-start border-b bg-transparent p-0 h-auto">
