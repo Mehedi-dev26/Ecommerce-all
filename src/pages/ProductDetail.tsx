@@ -48,13 +48,37 @@ const ProductDetail = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("id,name,name_bn,description,description_bn,category_id,price,compare_price,stock,image_url,images,weight,unit,grade,is_active,is_featured,coming_soon,created_at,updated_at,categories(name,name_bn)")
+        .select("id,name,name_bn,description,description_bn,category_id,price,compare_price,stock,image_url,images,weight,unit,grade,is_active,is_featured,coming_soon,created_at,updated_at,vendor_id,categories(name,name_bn)")
         .eq("id", id!)
         .single();
       if (error) throw error;
       return data;
     },
     enabled: !!id,
+  });
+
+  // Vendor info (only for vendor-listed products)
+  const { data: vendorInfo } = useQuery({
+    queryKey: ["product-vendor", (product as any)?.vendor_id],
+    queryFn: async () => {
+      const vendorId = (product as any).vendor_id as string;
+      const [{ data: v }, { count }] = await Promise.all([
+        supabase
+          .from("vendors" as any)
+          .select("id,shop_name,shop_name_bn,shop_slug,logo_url,description,division,district,upazila,total_orders,created_at")
+          .eq("id", vendorId)
+          .eq("status", "approved")
+          .maybeSingle(),
+        supabase
+          .from("products")
+          .select("id", { count: "exact", head: true })
+          .eq("vendor_id", vendorId)
+          .eq("is_active", true)
+          .eq("vendor_status", "approved"),
+      ]);
+      return v ? { ...(v as any), product_count: count ?? 0 } : null;
+    },
+    enabled: !!(product as any)?.vendor_id,
   });
 
   const { data: relatedProducts } = useQuery({
