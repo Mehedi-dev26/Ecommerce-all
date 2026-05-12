@@ -39,6 +39,7 @@ const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsConditions = lazy(() => import("./pages/TermsConditions"));
 const VendorRegister = lazy(() => import("./pages/VendorRegister"));
+const VendorShop = lazy(() => import("./pages/VendorShop"));
 const VendorLayout = lazy(() => import("./layouts/VendorLayout"));
 const VendorDashboard = lazy(() => import("./pages/vendor/VendorDashboard"));
 const VendorProducts = lazy(() => import("./pages/vendor/VendorProducts"));
