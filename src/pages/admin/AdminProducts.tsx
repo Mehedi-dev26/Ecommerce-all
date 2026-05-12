@@ -330,19 +330,19 @@ const AdminProducts = () => {
           </div>
         </div>
 
-        <Dialog open={dialogOpen} onOpenChange={(v) => { setDialogOpen(v); if (!v) { setEditing(null); setForm(emptyProduct); } }}>
-          <DialogTrigger asChild>
+        <Sheet open={dialogOpen} onOpenChange={(v) => { setDialogOpen(v); if (!v) { setEditing(null); setForm(emptyProduct); } }}>
+          <SheetTrigger asChild>
             <Button className="gap-2 shadow-lg shadow-primary/20">
               <Plus className="h-4 w-4" />নতুন প্রোডাক্ট
             </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto rounded-2xl">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
+          </SheetTrigger>
+          <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
+            <SheetHeader className="pb-4 border-b">
+              <SheetTitle className="flex items-center gap-2">
                 <Package className="h-5 w-5 text-primary" />
                 {editing ? "প্রোডাক্ট এডিট" : "নতুন প্রোডাক্ট যোগ করুন"}
-              </DialogTitle>
-            </DialogHeader>
+              </SheetTitle>
+            </SheetHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
               <div className="space-y-2">
                 <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">নাম (English)</Label>
