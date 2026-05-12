@@ -533,8 +533,8 @@ const AdminProducts = () => {
               <Button variant="outline" onClick={() => setDialogOpen(false)}>বাতিল</Button>
               <Button onClick={handleSave} className="shadow-lg shadow-primary/20">{editing ? "আপডেট" : "সেভ করুন"}</Button>
             </div>
-          </DialogContent>
-        </Dialog>
+          </SheetContent>
+        </Sheet>
       </div>
 
       {/* Results count */}
