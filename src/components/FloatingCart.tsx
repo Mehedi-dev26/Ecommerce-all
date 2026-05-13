@@ -15,21 +15,21 @@ const FloatingCart = () => {
   const [open, setOpen] = useState(false);
 
   if (HIDDEN_PREFIXES.some((p) => pathname.startsWith(p))) return null;
-  if (totalItems === 0) return null;
+
+  const isEmpty = totalItems === 0;
 
   return (
     <>
-      {/* Sticky right-edge floating cart button */}
+      {/* Sticky right-edge floating cart button — always visible (gharerbazar style) */}
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label={`কার্ট দেখুন — ${totalItems}টি পণ্য, মোট ৳${totalPrice}`}
+        aria-label={isEmpty ? "কার্ট খালি" : `কার্ট দেখুন — ${totalItems}টি পণ্য, মোট ৳${totalPrice}`}
         className={cn(
           "fixed right-0 top-1/2 z-[55] -translate-y-1/2",
           "flex flex-col items-center gap-1.5 rounded-l-2xl",
           "bg-gradient-to-b from-amber-500 to-orange-600 px-2.5 py-3 text-white shadow-2xl ring-2 ring-white/40",
-          "transition-all duration-200 hover:px-3 hover:scale-[1.03] active:scale-95",
-          "animate-[loader-slide_0.4s_ease-out]"
+          "transition-all duration-200 hover:px-3 hover:scale-[1.03] active:scale-95"
         )}
       >
         <div className="relative">
@@ -38,7 +38,9 @@ const FloatingCart = () => {
             {totalItems}
           </span>
         </div>
-        <span className="text-[11px] font-bold leading-none drop-shadow sm:text-xs">৳{totalPrice}</span>
+        <span className="text-[11px] font-bold leading-none drop-shadow sm:text-xs">
+          {isEmpty ? "কার্ট" : `৳${totalPrice}`}
+        </span>
       </button>
 
       {/* Slide-in cart drawer */}
