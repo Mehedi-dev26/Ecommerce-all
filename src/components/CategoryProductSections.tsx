@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import ProductCard from "./ProductCard";
 import ProductCardSkeleton from "./ProductCardSkeleton";
 import { useVendorsMap } from "@/hooks/useVendorsMap";
+import { getCategoryIcon } from "@/lib/category-icons";
 
 const CategoryProductSections = () => {
   const { data, isLoading } = useQuery({
@@ -57,7 +58,9 @@ const CategoryProductSections = () => {
 
   return (
     <>
-      {data.map((cat, idx) => (
+      {data.map((cat, idx) => {
+        const { icon: Icon, tone } = getCategoryIcon(cat.name, cat.name_bn);
+        return (
         <section
           key={cat.id}
           className={`py-8 sm:py-12 ${idx % 2 === 0 ? "bg-background" : "bg-muted/40"}`}
@@ -65,7 +68,12 @@ const CategoryProductSections = () => {
           <div className="container mx-auto px-4">
             <div className="mb-5 flex items-end justify-between gap-3 sm:mb-7">
               <div className="flex items-center gap-3">
-                <span className="hidden h-8 w-1.5 rounded-full bg-primary sm:block" aria-hidden="true" />
+                <span
+                  className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${tone} text-white shadow-md ring-1 ring-black/5 transition-transform hover:scale-110 sm:h-14 sm:w-14`}
+                  aria-hidden="true"
+                >
+                  <Icon className="h-5 w-5 sm:h-7 sm:w-7" strokeWidth={2.2} />
+                </span>
                 <div>
                   <h2 className="text-lg font-bold leading-tight text-foreground sm:text-2xl">
                     {cat.name_bn}
@@ -84,24 +92,26 @@ const CategoryProductSections = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
-              {cat.products.map((p: any) => {
+              {cat.products.map((p: any, i: number) => {
                 const v = vendorMap?.[p.vendor_id];
+                const visClass = i >= 4 ? (i >= 6 ? "hidden lg:block" : "hidden md:block") : "";
                 return (
-                  <ProductCard
-                    key={p.id}
-                    id={p.id}
-                    name={p.name}
-                    name_bn={p.name_bn}
-                    price={Number(p.price)}
-                    compare_price={p.compare_price ? Number(p.compare_price) : null}
-                    image_url={p.image_url}
-                    weight={p.weight}
-                    category_name_bn={p.categories?.name_bn}
-                    grade={p.grade}
-                    coming_soon={p.coming_soon}
-                    vendor_shop_name_bn={v?.shop_name_bn}
-                    vendor_shop_slug={v?.shop_slug}
-                  />
+                  <div key={p.id} className={visClass}>
+                    <ProductCard
+                      id={p.id}
+                      name={p.name}
+                      name_bn={p.name_bn}
+                      price={Number(p.price)}
+                      compare_price={p.compare_price ? Number(p.compare_price) : null}
+                      image_url={p.image_url}
+                      weight={p.weight}
+                      category_name_bn={p.categories?.name_bn}
+                      grade={p.grade}
+                      coming_soon={p.coming_soon}
+                      vendor_shop_name_bn={v?.shop_name_bn}
+                      vendor_shop_slug={v?.shop_slug}
+                    />
+                  </div>
                 );
               })}
             </div>
@@ -115,7 +125,8 @@ const CategoryProductSections = () => {
             </div>
           </div>
         </section>
-      ))}
+        );
+      })}
     </>
   );
 };

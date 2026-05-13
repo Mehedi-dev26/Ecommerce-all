@@ -17,7 +17,7 @@ const FeaturedProducts = () => {
         .eq("is_featured", true)
         .eq("is_active", true)
         .order("created_at", { ascending: false })
-        .limit(16);
+        .limit(8);
       if (error) throw error;
       return data;
     },
@@ -35,30 +35,34 @@ const FeaturedProducts = () => {
         </div>
         {isLoading ? (
           <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
-            {Array.from({ length: 16 }).map((_, i) => (
-              <ProductCardSkeleton key={i} />
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className={i >= 4 ? (i >= 6 ? "hidden lg:block" : "hidden md:block") : ""}>
+                <ProductCardSkeleton />
+              </div>
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
-            {products?.map((p: any) => {
+            {products?.map((p: any, i: number) => {
               const v = vendorMap?.[p.vendor_id];
+              const visClass = i >= 4 ? (i >= 6 ? "hidden lg:block" : "hidden md:block") : "";
               return (
-                <ProductCard
-                  key={p.id}
-                  id={p.id}
-                  name={p.name}
-                  name_bn={p.name_bn}
-                  price={Number(p.price)}
-                  compare_price={p.compare_price ? Number(p.compare_price) : null}
-                  image_url={p.image_url}
-                  weight={p.weight}
-                  category_name_bn={p.categories?.name_bn}
-                  grade={p.grade}
-                  coming_soon={p.coming_soon}
-                  vendor_shop_name_bn={v?.shop_name_bn}
-                  vendor_shop_slug={v?.shop_slug}
-                />
+                <div key={p.id} className={visClass}>
+                  <ProductCard
+                    id={p.id}
+                    name={p.name}
+                    name_bn={p.name_bn}
+                    price={Number(p.price)}
+                    compare_price={p.compare_price ? Number(p.compare_price) : null}
+                    image_url={p.image_url}
+                    weight={p.weight}
+                    category_name_bn={p.categories?.name_bn}
+                    grade={p.grade}
+                    coming_soon={p.coming_soon}
+                    vendor_shop_name_bn={v?.shop_name_bn}
+                    vendor_shop_slug={v?.shop_slug}
+                  />
+                </div>
               );
             })}
           </div>
