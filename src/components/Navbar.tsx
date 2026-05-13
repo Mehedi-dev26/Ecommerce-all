@@ -76,7 +76,6 @@ const Navbar = () => {
             </Link>
           </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
           {headerPhone && <a href={`tel:${headerPhone.replace(/\s/g, "")}`} className="hidden rounded-lg bg-white/15 p-2 text-white/90 transition hover:bg-white/25 hover:text-white sm:block">
             <Phone className="h-4 w-4" />
           </a>}
