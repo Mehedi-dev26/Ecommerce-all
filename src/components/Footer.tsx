@@ -25,9 +25,9 @@ const Footer = () => {
   const copyright = settings.footer_copyright.replace("{year}", String(new Date().getFullYear()));
 
   const socials = [
-    { name: "Facebook", icon: Facebook, href: settings.footer_facebook, label: "Facebook" },
-    { name: "Instagram", icon: Instagram, href: settings.footer_instagram, label: "Instagram" },
-    { name: "YouTube", icon: Youtube, href: settings.footer_youtube, label: "YouTube" },
+    { name: "Facebook", icon: Facebook, href: settings.footer_facebook, label: "Facebook", color: "#1877F2", hoverBg: "hover:bg-[#1877F2]" },
+    { name: "Instagram", icon: Instagram, href: settings.footer_instagram, label: "Instagram", color: "#E1306C", hoverBg: "hover:bg-gradient-to-br hover:from-[#F58529] hover:via-[#DD2A7B] hover:to-[#8134AF]" },
+    { name: "YouTube", icon: Youtube, href: settings.footer_youtube, label: "YouTube", color: "#FF0000", hoverBg: "hover:bg-[#FF0000]" },
   ];
 
   return (
@@ -64,7 +64,7 @@ const Footer = () => {
               </div>
               <span className="font-brand text-3xl font-bold text-primary sm:text-4xl">{brandName}</span>
             </div>
-            {aboutText && <p className="text-sm leading-relaxed text-muted-foreground">{aboutText}</p>}
+            {aboutText && <p className="text-[15px] leading-relaxed text-foreground/85 font-medium">{aboutText}</p>}
 
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
@@ -76,9 +76,10 @@ const Footer = () => {
                     rel="noopener noreferrer"
                     aria-label={s.label}
                     title={s.label}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white/70 text-foreground/70 backdrop-blur transition hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-md"
+                    style={{ color: s.color }}
+                    className={`group inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white shadow-sm backdrop-blur transition-all hover:scale-110 hover:border-transparent hover:shadow-md ${s.hoverBg} hover:!text-white`}
                   >
-                    <s.icon className="h-4.5 w-4.5" />
+                    <s.icon className="h-[18px] w-[18px]" />
                   </a>
                 ))}
               </div>
@@ -108,24 +109,24 @@ const Footer = () => {
             </div>
           </div>
           <div>
-            <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-foreground">দ্রুত লিংক</h4>
-            <ul className="space-y-2.5 text-sm">
-              <li><Link to="/" className="text-muted-foreground transition-colors hover:text-primary">হোম</Link></li>
-              <li><Link to="/products" className="text-muted-foreground transition-colors hover:text-primary">পণ্য সমূহ</Link></li>
-              <li><Link to="/about" className="text-muted-foreground transition-colors hover:text-primary">আমাদের সম্পর্কে</Link></li>
-              <li><Link to="/contact" className="text-muted-foreground transition-colors hover:text-primary">যোগাযোগ</Link></li>
-              <li><Link to="/privacy-policy" className="text-muted-foreground transition-colors hover:text-primary">গোপনীয়তা নীতি</Link></li>
-              <li><Link to="/terms-conditions" className="text-muted-foreground transition-colors hover:text-primary">শর্তাবলী</Link></li>
+            <h4 className="mb-4 text-base font-extrabold tracking-wide text-foreground sm:text-lg">দ্রুত লিংক</h4>
+            <ul className="space-y-2.5 text-[15px] font-semibold">
+              <li><Link to="/" className="text-foreground/85 transition-colors hover:text-primary">হোম</Link></li>
+              <li><Link to="/products" className="text-foreground/85 transition-colors hover:text-primary">পণ্য সমূহ</Link></li>
+              <li><Link to="/about" className="text-foreground/85 transition-colors hover:text-primary">আমাদের সম্পর্কে</Link></li>
+              <li><Link to="/contact" className="text-foreground/85 transition-colors hover:text-primary">যোগাযোগ</Link></li>
+              <li><Link to="/privacy-policy" className="text-foreground/85 transition-colors hover:text-primary">গোপনীয়তা নীতি</Link></li>
+              <li><Link to="/terms-conditions" className="text-foreground/85 transition-colors hover:text-primary">শর্তাবলী</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-foreground">ক্যাটাগরি</h4>
-            <ul className="space-y-2.5 text-sm">
+            <h4 className="mb-4 text-base font-extrabold tracking-wide text-foreground sm:text-lg">ক্যাটাগরি</h4>
+            <ul className="space-y-2.5 text-[15px] font-semibold">
               {(categories ?? []).map((c) => (
                 <li key={c.name}>
                   <Link
                     to={`/products?category=${encodeURIComponent(c.name)}`}
-                    className="text-muted-foreground transition-colors hover:text-primary"
+                    className="text-foreground/85 transition-colors hover:text-primary"
                   >
                     {c.name_bn || c.name}
                   </Link>
@@ -134,21 +135,21 @@ const Footer = () => {
             </ul>
           </div>
           <div className="col-span-2 sm:col-span-1">
-            <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-foreground">যোগাযোগ</h4>
-            <ul className="space-y-3 text-sm">
+            <h4 className="mb-4 text-base font-extrabold tracking-wide text-foreground sm:text-lg">যোগাযোগ</h4>
+            <ul className="space-y-3 text-[15px] font-semibold">
               <li>
-                <a href={`tel:${settings.footer_phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-primary">
+                <a href={`tel:${settings.footer_phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-foreground/85 transition-colors hover:text-primary">
                   <Phone className="h-4 w-4 text-primary shrink-0" /> {settings.footer_phone}
                 </a>
               </li>
               <li>
-                <a href={`mailto:${settings.footer_email}`} className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-primary">
+                <a href={`mailto:${settings.footer_email}`} className="flex items-center gap-2 text-foreground/85 transition-colors hover:text-primary">
                   <Mail className="h-4 w-4 text-primary shrink-0" /> {settings.footer_email}
                 </a>
               </li>
-              <li className="flex items-center gap-2 text-muted-foreground"><MapPin className="h-4 w-4 text-primary shrink-0" /> {settings.footer_location}</li>
+              <li className="flex items-center gap-2 text-foreground/85"><MapPin className="h-4 w-4 text-primary shrink-0" /> {settings.footer_location}</li>
               <li>
-                <a href={settings.footer_facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-primary">
+                <a href={settings.footer_facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-foreground/85 transition-colors hover:text-primary">
                   <Facebook className="h-4 w-4 text-primary shrink-0" /> Facebook Page
                 </a>
               </li>
