@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Store, Download, Search, User, ShoppingCart } from "lucide-react";
+import { Home, Store, Download, Search, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
 import { MobileSearchOverlay } from "@/components/ProductSearch";
@@ -104,7 +104,7 @@ const MobileBottomNav = () => {
               </NavLink>
             </li>
 
-            {/* Search (replaces Cart per request — Cart still in header) */}
+            {/* Search (replaces Cart per request — Cart still accessible from header) */}
             <li>
               <button
                 type="button"
@@ -115,15 +115,9 @@ const MobileBottomNav = () => {
                 <span className="relative">
                   <Search className="h-[22px] w-[22px]" />
                   {cartCount > 0 && (
-                    <NavLink
-                      to="/cart"
-                      aria-label="কার্ট"
-                      onClick={(e) => e.stopPropagation()}
-                      className="absolute -right-3 -top-2 inline-flex min-w-[18px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-[18px] text-white shadow"
-                    >
-                      <ShoppingCart className="hidden" />
+                    <span className="absolute -right-2.5 -top-1.5 inline-flex min-w-[18px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-[18px] text-white shadow">
                       {cartCount > 99 ? "99+" : cartCount}
-                    </NavLink>
+                    </span>
                   )}
                 </span>
                 <span>সার্চ</span>
