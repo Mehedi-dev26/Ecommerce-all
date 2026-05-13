@@ -30,26 +30,20 @@ const Login = () => {
   const from = (location.state as any)?.from || "/";
 
   useEffect(() => {
-    if (loading || !user) return;
+    if (!user) return;
+    // Navigate immediately for snappy UX; vendor routing happens in parallel
+    navigate(from, { replace: true });
+    // Background vendor check — redirects to vendor panel if applicable
     (async () => {
-      // If this user has an approved vendor account, route them to vendor panel
       const { data: vendor } = await supabase
         .from("vendors" as any)
         .select("status")
         .eq("user_id", user.id)
         .maybeSingle();
       const status = (vendor as any)?.status;
-      if (status === "approved") {
-        navigate("/vendor/dashboard", { replace: true });
-        return;
-      }
-      if (status === "pending" || status === "rejected" || status === "suspended") {
-        navigate("/vendor/dashboard", { replace: true }); // VendorLayout shows status screen
-        return;
-      }
-      navigate(from, { replace: true });
+      if (status) navigate("/vendor/dashboard", { replace: true });
     })();
-  }, [loading, user, navigate, from]);
+  }, [user, navigate, from]);
 
   const handleGoogleLogin = async () => {
     setSigningIn(true);
@@ -181,14 +175,8 @@ const Login = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
+  // Skip blocking loader — render form immediately for snappy UX.
+  // If user is already logged in, the effect above navigates away.
   if (user) return null;
 
   return (
