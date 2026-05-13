@@ -21,7 +21,7 @@ const VendorShopSettings = () => {
   const { vendor, refresh } = useVendor();
   const qc = useQueryClient();
   const [shopForm, setShopForm] = useState({
-    shop_name: "", shop_name_bn: "", description: "", facebook_url: "", phone: "", email: "",
+    shop_name: "", shop_name_bn: "", description: "", facebook_url: "", phone: "", whatsapp_number: "", email: "",
   });
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
