@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import ProductCard from "./ProductCard";
 import ProductCardSkeleton from "./ProductCardSkeleton";
 import { useVendorsMap } from "@/hooks/useVendorsMap";
+import { getCategoryIcon } from "@/lib/category-icons";
 
 const CategoryProductSections = () => {
   const { data, isLoading } = useQuery({
