@@ -20,9 +20,12 @@ interface ProductCardProps {
   category_name_bn?: string;
   grade?: string | null;
   coming_soon?: boolean | null;
+  vendor_shop_name_bn?: string | null;
+  vendor_shop_slug?: string | null;
+  hideSeller?: boolean;
 }
 
-const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weight, category_name_bn, grade, coming_soon }: ProductCardProps) => {
+const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weight, category_name_bn, grade, coming_soon, vendor_shop_name_bn, vendor_shop_slug, hideSeller }: ProductCardProps) => {
   const { addItem } = useCart();
   const [wishlisted, setWishlisted] = useState(false);
 
