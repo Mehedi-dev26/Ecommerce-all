@@ -109,24 +109,24 @@ const Footer = () => {
             </div>
           </div>
           <div>
-            <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-foreground">দ্রুত লিংক</h4>
-            <ul className="space-y-2.5 text-sm">
-              <li><Link to="/" className="text-muted-foreground transition-colors hover:text-primary">হোম</Link></li>
-              <li><Link to="/products" className="text-muted-foreground transition-colors hover:text-primary">পণ্য সমূহ</Link></li>
-              <li><Link to="/about" className="text-muted-foreground transition-colors hover:text-primary">আমাদের সম্পর্কে</Link></li>
-              <li><Link to="/contact" className="text-muted-foreground transition-colors hover:text-primary">যোগাযোগ</Link></li>
-              <li><Link to="/privacy-policy" className="text-muted-foreground transition-colors hover:text-primary">গোপনীয়তা নীতি</Link></li>
-              <li><Link to="/terms-conditions" className="text-muted-foreground transition-colors hover:text-primary">শর্তাবলী</Link></li>
+            <h4 className="mb-4 text-base font-extrabold tracking-wide text-foreground sm:text-lg">দ্রুত লিংক</h4>
+            <ul className="space-y-2.5 text-[15px] font-semibold">
+              <li><Link to="/" className="text-foreground/85 transition-colors hover:text-primary">হোম</Link></li>
+              <li><Link to="/products" className="text-foreground/85 transition-colors hover:text-primary">পণ্য সমূহ</Link></li>
+              <li><Link to="/about" className="text-foreground/85 transition-colors hover:text-primary">আমাদের সম্পর্কে</Link></li>
+              <li><Link to="/contact" className="text-foreground/85 transition-colors hover:text-primary">যোগাযোগ</Link></li>
+              <li><Link to="/privacy-policy" className="text-foreground/85 transition-colors hover:text-primary">গোপনীয়তা নীতি</Link></li>
+              <li><Link to="/terms-conditions" className="text-foreground/85 transition-colors hover:text-primary">শর্তাবলী</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-foreground">ক্যাটাগরি</h4>
-            <ul className="space-y-2.5 text-sm">
+            <h4 className="mb-4 text-base font-extrabold tracking-wide text-foreground sm:text-lg">ক্যাটাগরি</h4>
+            <ul className="space-y-2.5 text-[15px] font-semibold">
               {(categories ?? []).map((c) => (
                 <li key={c.name}>
                   <Link
                     to={`/products?category=${encodeURIComponent(c.name)}`}
-                    className="text-muted-foreground transition-colors hover:text-primary"
+                    className="text-foreground/85 transition-colors hover:text-primary"
                   >
                     {c.name_bn || c.name}
                   </Link>
@@ -135,21 +135,21 @@ const Footer = () => {
             </ul>
           </div>
           <div className="col-span-2 sm:col-span-1">
-            <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-foreground">যোগাযোগ</h4>
-            <ul className="space-y-3 text-sm">
+            <h4 className="mb-4 text-base font-extrabold tracking-wide text-foreground sm:text-lg">যোগাযোগ</h4>
+            <ul className="space-y-3 text-[15px] font-semibold">
               <li>
-                <a href={`tel:${settings.footer_phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-primary">
+                <a href={`tel:${settings.footer_phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-foreground/85 transition-colors hover:text-primary">
                   <Phone className="h-4 w-4 text-primary shrink-0" /> {settings.footer_phone}
                 </a>
               </li>
               <li>
-                <a href={`mailto:${settings.footer_email}`} className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-primary">
+                <a href={`mailto:${settings.footer_email}`} className="flex items-center gap-2 text-foreground/85 transition-colors hover:text-primary">
                   <Mail className="h-4 w-4 text-primary shrink-0" /> {settings.footer_email}
                 </a>
               </li>
-              <li className="flex items-center gap-2 text-muted-foreground"><MapPin className="h-4 w-4 text-primary shrink-0" /> {settings.footer_location}</li>
+              <li className="flex items-center gap-2 text-foreground/85"><MapPin className="h-4 w-4 text-primary shrink-0" /> {settings.footer_location}</li>
               <li>
-                <a href={settings.footer_facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-primary">
+                <a href={settings.footer_facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-foreground/85 transition-colors hover:text-primary">
                   <Facebook className="h-4 w-4 text-primary shrink-0" /> Facebook Page
                 </a>
               </li>
