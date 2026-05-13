@@ -39,6 +39,9 @@ const Index = () => (
       <div className="cv-auto"><FeaturedProducts /></div>
     </Suspense>
     <Suspense fallback={<SectionFallback />}>
+      <div className="cv-auto"><CategoryProductSections /></div>
+    </Suspense>
+    <Suspense fallback={<SectionFallback />}>
       <div className="cv-auto"><WhyChooseUs /></div>
     </Suspense>
     <Suspense fallback={<SectionFallback />}>
