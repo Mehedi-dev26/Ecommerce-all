@@ -5,6 +5,7 @@ import ProductCardSkeleton from "./ProductCardSkeleton";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useVendorsMap } from "@/hooks/useVendorsMap";
 
 const FeaturedProducts = () => {
   const { data: products, isLoading } = useQuery({
@@ -12,7 +13,7 @@ const FeaturedProducts = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,categories(name_bn)")
+        .select("id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,vendor_id,categories(name_bn)")
         .eq("is_featured", true)
         .eq("is_active", true)
         .order("created_at", { ascending: false })
@@ -22,6 +23,8 @@ const FeaturedProducts = () => {
     },
     staleTime: 10 * 60 * 1000,
   });
+
+  const { data: vendorMap } = useVendorsMap(products?.map((p: any) => p.vendor_id));
 
   return (
     <section className="bg-muted/50 py-10 sm:py-16">
