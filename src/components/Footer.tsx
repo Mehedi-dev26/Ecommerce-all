@@ -64,7 +64,7 @@ const Footer = () => {
               </div>
               <span className="font-brand text-3xl font-bold text-primary sm:text-4xl">{brandName}</span>
             </div>
-            {aboutText && <p className="text-sm leading-relaxed text-muted-foreground">{aboutText}</p>}
+            {aboutText && <p className="text-[15px] leading-relaxed text-foreground/85 font-medium">{aboutText}</p>}
 
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-2">
@@ -76,9 +76,10 @@ const Footer = () => {
                     rel="noopener noreferrer"
                     aria-label={s.label}
                     title={s.label}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white/70 text-foreground/70 backdrop-blur transition hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-md"
+                    style={{ color: s.color }}
+                    className={`group inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white shadow-sm backdrop-blur transition-all hover:scale-110 hover:border-transparent hover:shadow-md ${s.hoverBg} hover:!text-white`}
                   >
-                    <s.icon className="h-4.5 w-4.5" />
+                    <s.icon className="h-[18px] w-[18px]" />
                   </a>
                 ))}
               </div>
