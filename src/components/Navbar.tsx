@@ -80,11 +80,11 @@ const Navbar = () => {
             <Phone className="h-4 w-4" />
           </a>}
 
-          {/* Mobile: Vendor register button when logged out (replaces visual weight near cart) */}
+          {/* Mobile: Vendor register button when logged out (mobile only) */}
           {!loading && !user && (
             <Link
               to="/vendor/register"
-              className="lg:hidden inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1.5 text-[12px] font-bold text-primary shadow-md ring-1 ring-white/60 transition active:scale-95"
+              className="md:hidden inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1.5 text-[12px] font-bold text-primary shadow-md ring-1 ring-white/60 transition active:scale-95"
             >
               <Store className="h-3.5 w-3.5" />
               বিক্রেতা হোন
