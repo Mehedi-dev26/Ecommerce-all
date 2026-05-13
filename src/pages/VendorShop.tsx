@@ -208,7 +208,7 @@ const VendorShop = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 sm:gap-4">
                   {g.items.map((p: any) => (
-                    <ProductCard key={p.id} {...p} category_name_bn={p.categories?.name_bn} />
+                    <ProductCard key={p.id} {...p} category_name_bn={p.categories?.name_bn} hideSeller />
                   ))}
                 </div>
               </section>
