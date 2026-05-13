@@ -190,6 +190,7 @@ const App = () => {
                       <Suspense fallback={<div className="h-64" aria-hidden />}><Footer /></Suspense>
                       <Suspense fallback={null}><SupportWidget /></Suspense>
                       <Suspense fallback={null}><MobileBottomNav /></Suspense>
+                      <Suspense fallback={null}><FloatingCart /></Suspense>
                     </div>
                   }
                 />
