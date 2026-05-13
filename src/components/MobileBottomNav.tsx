@@ -28,14 +28,20 @@ const MobileBottomNav = () => {
   return (
     <>
       {/* Spacer so page content isn't hidden behind the fixed bar on mobile */}
-      <div className="h-20 md:hidden" aria-hidden="true" />
+      <div
+        className="md:hidden"
+        style={{ height: "calc(64px + env(safe-area-inset-bottom))" }}
+        aria-hidden="true"
+      />
 
       <nav
         className="fixed inset-x-0 bottom-0 z-50 md:hidden"
         aria-label="Mobile bottom navigation"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
-        <div className="relative mx-auto border-t border-amber-200/70 bg-white/95 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur">
+        <div
+          className="relative mx-auto border-t border-amber-200/70 bg-white/95 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur"
+          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        >
           <ul className="grid grid-cols-5 items-end">
             {items.map((it) => {
               const Icon = it.icon;

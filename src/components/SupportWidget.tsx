@@ -48,7 +48,7 @@ const SupportWidget = () => {
     <>
       <div
         ref={ref}
-        className="fixed bottom-4 right-4 z-[60] flex flex-col items-end gap-2.5 sm:bottom-6 sm:right-6"
+        className="fixed right-4 z-[60] flex flex-col items-end gap-2.5 bottom-[calc(5rem+env(safe-area-inset-bottom))] sm:bottom-6 sm:right-6"
       >
         {/* Action menu — icon-only buttons */}
         <div
