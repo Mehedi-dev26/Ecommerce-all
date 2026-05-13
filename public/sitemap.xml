@@ -1,68 +1,183 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://sapaharama.pro.bd/</loc>
-    <lastmod>2026-05-04</lastmod>
+    <loc>https://sapaharama.pro.bd</loc>
+    <lastmod>2026-05-13T11:32:51.472Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://sapaharama.pro.bd/products</loc>
-    <lastmod>2026-05-04</lastmod>
+    <lastmod>2026-05-13T11:32:51.472Z</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.95</priority>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://sapaharama.pro.bd/about</loc>
-    <lastmod>2026-05-04</lastmod>
+    <lastmod>2026-05-13T11:32:51.472Z</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://sapaharama.pro.bd/contact</loc>
-    <lastmod>2026-05-04</lastmod>
+    <lastmod>2026-05-13T11:32:51.472Z</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://sapaharama.pro.bd/privacy-policy</loc>
-    <lastmod>2026-05-04</lastmod>
+    <lastmod>2026-05-13T11:32:51.472Z</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://sapaharama.pro.bd/terms-conditions</loc>
-    <lastmod>2026-05-04</lastmod>
+    <lastmod>2026-05-13T11:32:51.472Z</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://sapaharama.pro.bd/products/a1870057-1a5e-4eb3-95f7-fcc17e7ee2ed</loc>
-    <lastmod>2026-05-04</lastmod>
+    <loc>https://sapaharama.pro.bd/products?category=Amrapali%20Mango</loc>
+    <lastmod>2026-05-13T11:32:51.472Z</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-    <image:image><image:loc>https://sapaharama.pro.bd/brand-logo.png</image:loc></image:image>
+    <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sapaharama.pro.bd/products/5499ea82-f479-4118-bb0d-9fd6e30b97c3</loc>
-    <lastmod>2026-05-04</lastmod>
+    <loc>https://sapaharama.pro.bd/products?category=Langra%20Mango</loc>
+    <lastmod>2026-05-13T11:32:51.472Z</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-    <image:image><image:loc>https://sapaharama.pro.bd/brand-logo.png</image:loc></image:image>
+    <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sapaharama.pro.bd/products/73c63ce9-e9fb-4eb4-850d-de3a135d1030</loc>
-    <lastmod>2026-05-04</lastmod>
+    <loc>https://sapaharama.pro.bd/products?category=Dates</loc>
+    <lastmod>2026-05-13T11:32:51.472Z</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-    <image:image><image:loc>https://sapaharama.pro.bd/brand-logo.png</image:loc></image:image>
+    <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sapaharama.pro.bd/products/4ff68847-3ceb-4cd5-9039-c987990eb17c</loc>
-    <lastmod>2026-05-04</lastmod>
+    <loc>https://sapaharama.pro.bd/products?category=Honey</loc>
+    <lastmod>2026-05-13T11:32:51.472Z</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-    <image:image><image:loc>https://sapaharama.pro.bd/brand-logo.png</image:loc></image:image>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/ed21ea76-1823-4b0e-bd3e-90eac7505c7e</loc>
+    <lastmod>2026-05-13T05:08:19.145Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/184c45aa-4aa7-45e9-a3fb-7f95776e3554</loc>
+    <lastmod>2026-05-13T05:08:19.145Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/04e3dd87-c2de-4f8e-a722-e3c7f7fbcc8d</loc>
+    <lastmod>2026-05-13T05:08:19.145Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/4f8841f4-79ef-42dc-94a3-3254959b6400</loc>
+    <lastmod>2026-05-13T05:08:19.145Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/21abe5f8-760f-4b9f-8345-60450f3ca6ce</loc>
+    <lastmod>2026-05-13T05:08:19.145Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/e1658804-3157-4829-8bb6-25d29b44287b</loc>
+    <lastmod>2026-05-13T05:08:19.145Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/8957ab99-efa4-46d0-acb3-1b28a6468608</loc>
+    <lastmod>2026-05-13T05:08:19.145Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/daf0a7cf-bbe0-4187-b1bf-0b55da6b0e90</loc>
+    <lastmod>2026-05-13T05:08:19.145Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/e61ae30d-db37-46b4-aea3-293dbf84e9b9</loc>
+    <lastmod>2026-05-13T05:08:19.145Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/26a9f067-3f7c-4422-b4c4-c15f4d88b722</loc>
+    <lastmod>2026-05-13T05:08:19.145Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/0eaca201-1198-48c4-9a3f-284eda8c7dec</loc>
+    <lastmod>2026-05-13T05:08:19.145Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/a9e36276-d83f-4207-9419-0d3d175016c2</loc>
+    <lastmod>2026-05-13T05:08:19.145Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/3d5b3123-691e-4d2e-8f2b-3b3f4ca27d18</loc>
+    <lastmod>2026-05-13T05:08:19.145Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/feebe5ce-c54e-43a5-939c-1746c95d52ff</loc>
+    <lastmod>2026-05-13T05:08:19.145Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/1e868e51-fa19-4762-a6f1-cbd65f91ab28</loc>
+    <lastmod>2026-05-13T05:08:19.145Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/241642cb-7e84-4841-a06a-a8094b1ddc2c</loc>
+    <lastmod>2026-05-13T05:08:19.145Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/4eac773f-576d-4e9c-a8d4-4e324f8b822b</loc>
+    <lastmod>2026-05-12T04:03:28.309Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/807afb29-d2d7-453a-9314-9e89e6516877</loc>
+    <lastmod>2026-05-12T04:03:28.309Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/eb105bbe-33a0-4d16-94a6-132b9f0458da</loc>
+    <lastmod>2026-05-12T04:03:28.309Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sapaharama.pro.bd/products/88898d3e-5c33-4097-8f40-72a01db0202a</loc>
+    <lastmod>2026-05-12T04:03:28.309Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>
