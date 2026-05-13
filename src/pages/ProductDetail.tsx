@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Minus, Plus, Heart, Share2, Truck, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight, Star, CheckCircle2, Package, Calculator, MapPin, Clock, Store, ChevronRight as ChevRight, MessageCircle } from "lucide-react";
+import { ShoppingCart, Minus, Plus, Heart, Share2, Truck, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight, Star, CheckCircle2, Package, Calculator, MapPin, Clock, Store, ChevronRight as ChevRight, MessageCircle, Phone } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -16,6 +16,7 @@ import GradeBadge from "@/components/GradeBadge";
 import ProductReviews from "@/components/ProductReviews";
 import SEO from "@/components/SEO";
 import { breadcrumb, productSchema } from "@/lib/seo-schemas";
+import { buildProductWhatsAppMessage, buildTelUrl, buildWhatsAppUrl } from "@/lib/contact-helpers";
 
 const DEFAULT_DELIVERY_FEE = 120;
 
