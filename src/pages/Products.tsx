@@ -111,7 +111,7 @@ const Products = () => {
     queryFn: async () => {
       let query = supabase
         .from("products")
-        .select("id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,is_active,category_id,created_at,categories(name,name_bn)")
+        .select("id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,is_active,category_id,vendor_id,created_at,categories(name,name_bn)")
         .eq("is_active", true);
       if (selectedCategory) {
         const cat = categories?.find((c: any) => c.name === selectedCategory);
