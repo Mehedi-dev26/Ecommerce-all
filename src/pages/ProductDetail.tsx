@@ -66,7 +66,7 @@ const ProductDetail = () => {
       const [{ data: v }, { count }] = await Promise.all([
         supabase
           .from("vendors" as any)
-          .select("id,shop_name,shop_name_bn,shop_slug,logo_url,description,division,district,upazila,total_orders,created_at")
+          .select("id,shop_name,shop_name_bn,shop_slug,logo_url,description,division,district,upazila,total_orders,created_at,whatsapp_number,phone")
           .eq("id", vendorId)
           .eq("status", "approved")
           .maybeSingle(),
@@ -80,6 +80,21 @@ const ProductDetail = () => {
       return v ? { ...(v as any), product_count: count ?? 0 } : null;
     },
     enabled: !!(product as any)?.vendor_id,
+  });
+
+  // Fallback contact (main shop) from site_settings
+  const { data: contactFallback } = useQuery({
+    queryKey: ["site-contact-fallback"],
+    staleTime: 30 * 60 * 1000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("key,value")
+        .in("key", ["company_phone", "company_whatsapp"]);
+      const map: Record<string, string> = {};
+      (data || []).forEach((r: any) => { map[r.key] = r.value; });
+      return { phone: map.company_phone || "", whatsapp: map.company_whatsapp || map.company_phone || "" };
+    },
   });
 
   const { data: relatedProducts } = useQuery({
