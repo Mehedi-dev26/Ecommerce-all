@@ -25,9 +25,9 @@ const Footer = () => {
   const copyright = settings.footer_copyright.replace("{year}", String(new Date().getFullYear()));
 
   const socials = [
-    { name: "Facebook", icon: Facebook, href: settings.footer_facebook, label: "Facebook" },
-    { name: "Instagram", icon: Instagram, href: settings.footer_instagram, label: "Instagram" },
-    { name: "YouTube", icon: Youtube, href: settings.footer_youtube, label: "YouTube" },
+    { name: "Facebook", icon: Facebook, href: settings.footer_facebook, label: "Facebook", color: "#1877F2", hoverBg: "hover:bg-[#1877F2]" },
+    { name: "Instagram", icon: Instagram, href: settings.footer_instagram, label: "Instagram", color: "#E1306C", hoverBg: "hover:bg-gradient-to-br hover:from-[#F58529] hover:via-[#DD2A7B] hover:to-[#8134AF]" },
+    { name: "YouTube", icon: Youtube, href: settings.footer_youtube, label: "YouTube", color: "#FF0000", hoverBg: "hover:bg-[#FF0000]" },
   ];
 
   return (
