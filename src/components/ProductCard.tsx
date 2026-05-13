@@ -102,6 +102,17 @@ const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weigh
               <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </Button>
           </div>
+          {!hideSeller && vendor_shop_name_bn && (
+            <div
+              role="link"
+              tabIndex={0}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (vendor_shop_slug) window.location.href = `/shop/${vendor_shop_slug}`; }}
+              className="mt-1.5 flex items-center gap-1 border-t border-border/60 pt-1.5 text-[10px] text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+            >
+              <Store className="h-3 w-3 shrink-0" />
+              <span className="truncate">বিক্রেতা: <span className="font-medium text-foreground/90 hover:text-primary">{vendor_shop_name_bn}</span></span>
+            </div>
+          )}
         </CardContent>
       </Card>
     </Link>
