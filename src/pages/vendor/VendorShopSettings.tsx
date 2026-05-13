@@ -179,7 +179,19 @@ const VendorShopSettings = () => {
             </div>
             <div>
               <Label>মোবাইল</Label>
-              <Input value={shopForm.phone} onChange={(e) => setShopForm({ ...shopForm, phone: e.target.value })} />
+              <Input value={shopForm.phone} onChange={(e) => setShopForm({ ...shopForm, phone: e.target.value })} placeholder="01XXXXXXXXX" />
+            </div>
+            <div>
+              <Label className="flex items-center gap-1.5">
+                <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#25D366] text-white text-[9px] font-bold">W</span>
+                WhatsApp নাম্বার
+              </Label>
+              <Input
+                value={shopForm.whatsapp_number}
+                onChange={(e) => setShopForm({ ...shopForm, whatsapp_number: e.target.value })}
+                placeholder="01XXXXXXXXX (ক্রেতারা সরাসরি অর্ডার পাঠাবে)"
+              />
+              <p className="mt-1 text-[11px] text-muted-foreground">খালি রাখলে মোবাইল নাম্বারটিই ব্যবহৃত হবে।</p>
             </div>
             <div>
               <Label>ইমেইল</Label>
