@@ -223,7 +223,7 @@ const VendorShop = () => {
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 sm:gap-4">
             {filtered.map((p: any) => (
-              <ProductCard key={p.id} {...p} category_name_bn={p.categories?.name_bn} />
+              <ProductCard key={p.id} {...p} category_name_bn={p.categories?.name_bn} hideSeller />
             ))}
             {filtered.length === 0 && (
               <div className="col-span-full py-16 text-center text-muted-foreground">
