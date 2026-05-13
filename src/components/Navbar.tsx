@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
+import { DesktopSearchBar } from "@/components/ProductSearch";
 
 const Navbar = () => {
   const { totalItems } = useCart();
@@ -17,7 +18,13 @@ const Navbar = () => {
   const headerPhone = settings.header_phone || "";
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const navLinks = [
+  // Desktop nav: only primary shop links. About/Contact moved to footer.
+  const desktopNavLinks = [
+    { to: "/", label: "হোম" },
+    { to: "/products", label: "পণ্য সমূহ" },
+  ];
+  // Mobile sheet keeps full set for accessibility.
+  const mobileNavLinks = [
     { to: "/", label: "হোম" },
     { to: "/products", label: "পণ্য সমূহ" },
     { to: "/about", label: "আমাদের সম্পর্কে" },
@@ -38,23 +45,31 @@ const Navbar = () => {
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">
-          {navLinks.map((link) => (
+          {desktopNavLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}
-              className="rounded-lg px-4 py-2 text-base font-bold text-white tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-all hover:bg-white/20 hover:text-white lg:text-[17px]"
+              className="rounded-lg px-3 py-2 text-base font-bold text-white tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-all hover:bg-white/20 hover:text-white lg:text-[16px]"
             >
               {link.label}
             </Link>
           ))}
+        </nav>
+
+        {/* Desktop search bar — center stretch */}
+        <div className="mx-4 hidden flex-1 justify-center lg:flex">
+          <DesktopSearchBar />
+        </div>
+
+        <div className="hidden lg:flex">
           <Link
             to="/vendor/register"
-            className="ml-2 inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-[15px] font-bold text-primary shadow-md ring-2 ring-white/60 transition-all hover:bg-white/90 hover:scale-[1.03] hover:shadow-lg"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 text-[14px] font-bold text-primary shadow-md ring-2 ring-white/60 transition-all hover:bg-white/90 hover:scale-[1.03] hover:shadow-lg"
           >
             <Store className="h-4 w-4" />
             বিক্রেতা হোন
           </Link>
-        </nav>
+        </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
           {headerPhone && <a href={`tel:${headerPhone.replace(/\s/g, "")}`} className="hidden rounded-lg bg-white/15 p-2 text-white/90 transition hover:bg-white/25 hover:text-white sm:block">
@@ -150,7 +165,7 @@ const Navbar = () => {
                 </SheetTitle>
               </SheetHeader>
               <nav className="mt-8 flex flex-col gap-1">
-                {navLinks.map((link) => (
+                {mobileNavLinks.map((link) => (
                   <Link
                     key={link.to}
                     to={link.to}
