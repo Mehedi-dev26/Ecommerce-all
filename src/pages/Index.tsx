@@ -6,6 +6,7 @@ import { breadcrumb, organizationSchema, websiteSchema, faqSchema, localBusiness
 
 // Below-the-fold sections lazy-loaded for faster initial paint
 const FeaturedProducts = lazy(() => import("@/components/FeaturedProducts"));
+const CategoryProductSections = lazy(() => import("@/components/CategoryProductSections"));
 const WhyChooseUs = lazy(() => import("@/components/WhyChooseUs"));
 const LocationSection = lazy(() => import("@/components/LocationSection"));
 const CustomerReviews = lazy(() => import("@/components/CustomerReviews"));
