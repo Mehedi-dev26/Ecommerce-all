@@ -491,6 +491,49 @@ const ProductDetail = () => {
               )}
             </div>
 
+            {/* WhatsApp + Call buttons */}
+            {(() => {
+              const wa = vendorInfo?.whatsapp_number || vendorInfo?.phone || contactFallback?.whatsapp || "";
+              const tel = vendorInfo?.phone || contactFallback?.phone || "";
+              if (!wa && !tel) return null;
+              const productUrl = typeof window !== "undefined" ? window.location.href : `/products/${product.id}`;
+              const waMsg = buildProductWhatsAppMessage({
+                name_bn: product.name_bn,
+                price: unitPrice,
+                weight: `${qty} কেজি`,
+                productUrl,
+                imageUrl: allImages[0],
+                shopName: vendorInfo?.shop_name_bn || vendorInfo?.shop_name,
+              });
+              return (
+                <div className="mb-5 flex gap-2 sm:gap-3">
+                  {wa && (
+                    <Button
+                      asChild
+                      size="lg"
+                      className="flex-1 h-10 sm:h-12 text-xs sm:text-sm font-semibold bg-[#25D366] text-white hover:bg-[#1faa54] shadow-sm"
+                    >
+                      <a href={buildWhatsAppUrl(wa, waMsg)} target="_blank" rel="noopener noreferrer">
+                        <MessageCircle className="mr-1.5 h-4 w-4" /> WhatsApp-এ অর্ডার
+                      </a>
+                    </Button>
+                  )}
+                  {tel && (
+                    <Button
+                      asChild
+                      size="lg"
+                      variant="outline"
+                      className="flex-1 h-10 sm:h-12 text-xs sm:text-sm font-semibold border-2 border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground"
+                    >
+                      <a href={buildTelUrl(tel)}>
+                        <Phone className="mr-1.5 h-4 w-4" /> এখনই কল করুন
+                      </a>
+                    </Button>
+                  )}
+                </div>
+              );
+            })()}
+
             {/* Wishlist + Share */}
             <div className="mb-5 flex gap-4">
               <button className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive sm:text-sm transition-colors">
