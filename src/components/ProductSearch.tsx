@@ -62,7 +62,7 @@ const ResultRow = ({ p, onSelect }: { p: Product; onSelect: () => void }) => (
   >
     <div className="h-11 w-11 shrink-0 overflow-hidden rounded-md bg-muted ring-1 ring-border">
       {p.image_url ? (
-        <img src={getImageUrl(p.image_url)} alt={p.name_bn || p.name} className="h-full w-full object-cover" loading="lazy" />
+        <img src={optimizeRemoteImage(p.image_url)} alt={p.name_bn || p.name} className="h-full w-full object-cover" loading="lazy" />
       ) : null}
     </div>
     <div className="min-w-0 flex-1">
