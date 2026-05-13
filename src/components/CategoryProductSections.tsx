@@ -59,7 +59,7 @@ const CategoryProductSections = () => {
   return (
     <>
       {data.map((cat, idx) => {
-        const { icon: Icon, tone } = getCategoryIcon(cat.name, cat.name_bn);
+        const { emoji, tone } = getCategoryIcon(cat.name, cat.name_bn);
         return (
         <section
           key={cat.id}
@@ -69,10 +69,10 @@ const CategoryProductSections = () => {
             <div className="mb-5 flex items-end justify-between gap-3 sm:mb-7">
               <div className="flex items-center gap-3">
                 <span
-                  className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${tone} text-white shadow-md ring-1 ring-black/5 transition-transform hover:scale-110 sm:h-14 sm:w-14`}
+                  className={`inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${tone} text-2xl shadow-lg ring-1 ring-black/10 transition-transform hover:scale-110 hover:rotate-6 sm:h-16 sm:w-16 sm:text-4xl`}
                   aria-hidden="true"
                 >
-                  <Icon className="h-5 w-5 sm:h-7 sm:w-7" strokeWidth={2.2} />
+                  <span className="drop-shadow-sm">{emoji}</span>
                 </span>
                 <div>
                   <h2 className="text-lg font-bold leading-tight text-foreground sm:text-2xl">
