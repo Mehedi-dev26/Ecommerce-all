@@ -58,105 +58,118 @@ const FloatingCart = () => {
 
           {/* Items list */}
           <div className="flex-1 overflow-y-auto px-3 py-3">
-            <ul className="flex flex-col gap-2.5">
-              {items.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex gap-3 rounded-xl border border-border bg-card p-2.5 shadow-sm"
-                >
-                  <Link
-                    to={`/products/${item.id}`}
-                    onClick={() => setOpen(false)}
-                    className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted ring-1 ring-border"
+            {isEmpty ? (
+              <div className="flex h-full flex-col items-center justify-center gap-3 py-12 text-center">
+                <ShoppingBag className="h-12 w-12 text-muted-foreground/50" />
+                <p className="text-sm font-semibold text-foreground">আপনার কার্ট খালি</p>
+                <p className="text-xs text-muted-foreground">পণ্য যোগ করতে শপিং শুরু করুন</p>
+                <Button asChild className="mt-2" onClick={() => setOpen(false)}>
+                  <Link to="/products">পণ্য দেখুন</Link>
+                </Button>
+              </div>
+            ) : (
+              <ul className="flex flex-col gap-2.5">
+                {items.map((item) => (
+                  <li
+                    key={item.id}
+                    className="flex gap-3 rounded-xl border border-border bg-card p-2.5 shadow-sm"
                   >
-                    {item.image_url ? (
-                      <img
-                        src={optimizeRemoteImage(item.image_url)}
-                        alt={item.name_bn || item.name}
-                        loading="lazy"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : null}
-                  </Link>
-
-                  <div className="flex min-w-0 flex-1 flex-col">
                     <Link
                       to={`/products/${item.id}`}
                       onClick={() => setOpen(false)}
-                      className="line-clamp-2 text-sm font-semibold text-foreground hover:text-primary"
+                      className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted ring-1 ring-border"
                     >
-                      {item.name_bn || item.name}
+                      {item.image_url ? (
+                        <img
+                          src={optimizeRemoteImage(item.image_url)}
+                          alt={item.name_bn || item.name}
+                          loading="lazy"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : null}
                     </Link>
-                    {item.weight && (
-                      <span className="mt-0.5 text-[11px] text-muted-foreground">{item.weight}</span>
-                    )}
 
-                    <div className="mt-1.5 flex items-center justify-between gap-2">
-                      <div className="inline-flex items-center rounded-lg border border-border bg-background">
+                    <div className="flex min-w-0 flex-1 flex-col">
+                      <Link
+                        to={`/products/${item.id}`}
+                        onClick={() => setOpen(false)}
+                        className="line-clamp-2 text-sm font-semibold text-foreground hover:text-primary"
+                      >
+                        {item.name_bn || item.name}
+                      </Link>
+                      {item.weight && (
+                        <span className="mt-0.5 text-[11px] text-muted-foreground">{item.weight}</span>
+                      )}
+
+                      <div className="mt-1.5 flex items-center justify-between gap-2">
+                        <div className="inline-flex items-center rounded-lg border border-border bg-background">
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            aria-label="কমান"
+                            className="flex h-7 w-7 items-center justify-center text-muted-foreground hover:text-foreground"
+                          >
+                            <Minus className="h-3.5 w-3.5" />
+                          </button>
+                          <span className="min-w-[24px] text-center text-sm font-bold">{item.quantity}</span>
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            aria-label="বাড়ান"
+                            className="flex h-7 w-7 items-center justify-center text-muted-foreground hover:text-foreground"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                        <div className="text-sm font-bold text-primary">৳{item.price * item.quantity}</div>
                         <button
                           type="button"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          aria-label="কমান"
-                          className="flex h-7 w-7 items-center justify-center text-muted-foreground hover:text-foreground"
+                          onClick={() => removeItem(item.id)}
+                          aria-label="মুছুন"
+                          className="rounded-md p-1.5 text-destructive/80 hover:bg-destructive/10 hover:text-destructive"
                         >
-                          <Minus className="h-3.5 w-3.5" />
-                        </button>
-                        <span className="min-w-[24px] text-center text-sm font-bold">{item.quantity}</span>
-                        <button
-                          type="button"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          aria-label="বাড়ান"
-                          className="flex h-7 w-7 items-center justify-center text-muted-foreground hover:text-foreground"
-                        >
-                          <Plus className="h-3.5 w-3.5" />
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
-                      <div className="text-sm font-bold text-primary">৳{item.price * item.quantity}</div>
-                      <button
-                        type="button"
-                        onClick={() => removeItem(item.id)}
-                        aria-label="মুছুন"
-                        className="rounded-md p-1.5 text-destructive/80 hover:bg-destructive/10 hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
                     </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           {/* Footer with totals + CTA */}
-          <div className="border-t border-border bg-background p-3 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
-            <div className="mb-2 flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">সাব-টোটাল</span>
-              <span className="font-bold text-foreground">৳{totalPrice}</span>
+          {!isEmpty && (
+            <div className="border-t border-border bg-background p-3 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
+              <div className="mb-2 flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">সাব-টোটাল</span>
+                <span className="font-bold text-foreground">৳{totalPrice}</span>
+              </div>
+              <p className="mb-2.5 text-[11px] text-muted-foreground">
+                ডেলিভারি চার্জ চেকআউট পেইজে গণনা করা হবে
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-11 font-bold"
+                  onClick={() => setOpen(false)}
+                >
+                  <Link to="/cart">কার্ট দেখুন</Link>
+                </Button>
+                <Button
+                  asChild
+                  className="h-11 bg-gradient-to-r from-amber-500 to-orange-600 font-bold text-white shadow-md hover:from-amber-600 hover:to-orange-700"
+                  onClick={() => setOpen(false)}
+                >
+                  <Link to="/checkout">
+                    চেকআউট
+                    <ArrowRight className="ml-1.5 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
             </div>
-            <p className="mb-2.5 text-[11px] text-muted-foreground">
-              ডেলিভারি চার্জ চেকআউট পেইজে গণনা করা হবে
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                asChild
-                variant="outline"
-                className="h-11 font-bold"
-                onClick={() => setOpen(false)}
-              >
-                <Link to="/cart">কার্ট দেখুন</Link>
-              </Button>
-              <Button
-                asChild
-                className="h-11 bg-gradient-to-r from-amber-500 to-orange-600 font-bold text-white shadow-md hover:from-amber-600 hover:to-orange-700"
-                onClick={() => setOpen(false)}
-              >
-                <Link to="/checkout">
-                  চেকআউট
-                  <ArrowRight className="ml-1.5 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </div>
+          )}
         </SheetContent>
       </Sheet>
     </>
