@@ -145,6 +145,8 @@ const Products = () => {
     });
   }, [products, priceRange]);
 
+  const { data: vendorMap } = useVendorsMap(filteredProducts?.map((p: any) => p.vendor_id));
+
   const handleCategorySelect = useCallback((catName: string) => {
     if (catName) {
       setSearchParams({ category: catName });
