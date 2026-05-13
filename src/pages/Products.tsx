@@ -95,6 +95,7 @@ const FilterSidebar = ({
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedCategory = searchParams.get("category") || "";
+  const searchTerm = (searchParams.get("search") || "").trim().toLowerCase();
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
@@ -141,9 +142,14 @@ const Products = () => {
     if (!products) return [];
     return products.filter((p: any) => {
       const price = Number(p.price);
-      return price >= priceRange[0] && price <= priceRange[1];
+      if (price < priceRange[0] || price > priceRange[1]) return false;
+      if (searchTerm) {
+        const hay = `${p.name || ""} ${p.name_bn || ""}`.toLowerCase();
+        if (!hay.includes(searchTerm)) return false;
+      }
+      return true;
     });
-  }, [products, priceRange]);
+  }, [products, priceRange, searchTerm]);
 
   const { data: vendorMap } = useVendorsMap(filteredProducts?.map((p: any) => p.vendor_id));
 
