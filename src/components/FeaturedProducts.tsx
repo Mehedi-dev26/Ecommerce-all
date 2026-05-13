@@ -17,7 +17,7 @@ const FeaturedProducts = () => {
         .eq("is_featured", true)
         .eq("is_active", true)
         .order("created_at", { ascending: false })
-        .limit(16);
+        .limit(8);
       if (error) throw error;
       return data;
     },
