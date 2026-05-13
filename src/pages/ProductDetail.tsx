@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Minus, Plus, Heart, Share2, Truck, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight, Star, CheckCircle2, Package, Calculator, MapPin, Clock, Store, ChevronRight as ChevRight, MessageCircle } from "lucide-react";
+import { ShoppingCart, Minus, Plus, Heart, Share2, Truck, ShieldCheck, RotateCcw, ChevronLeft, ChevronRight, Star, CheckCircle2, Package, Calculator, MapPin, Clock, Store, ChevronRight as ChevRight, MessageCircle, Phone } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -16,6 +16,7 @@ import GradeBadge from "@/components/GradeBadge";
 import ProductReviews from "@/components/ProductReviews";
 import SEO from "@/components/SEO";
 import { breadcrumb, productSchema } from "@/lib/seo-schemas";
+import { buildProductWhatsAppMessage, buildTelUrl, buildWhatsAppUrl } from "@/lib/contact-helpers";
 
 const DEFAULT_DELIVERY_FEE = 120;
 
@@ -65,7 +66,7 @@ const ProductDetail = () => {
       const [{ data: v }, { count }] = await Promise.all([
         supabase
           .from("vendors" as any)
-          .select("id,shop_name,shop_name_bn,shop_slug,logo_url,description,division,district,upazila,total_orders,created_at")
+          .select("id,shop_name,shop_name_bn,shop_slug,logo_url,description,division,district,upazila,total_orders,created_at,whatsapp_number,phone")
           .eq("id", vendorId)
           .eq("status", "approved")
           .maybeSingle(),
@@ -79,6 +80,21 @@ const ProductDetail = () => {
       return v ? { ...(v as any), product_count: count ?? 0 } : null;
     },
     enabled: !!(product as any)?.vendor_id,
+  });
+
+  // Fallback contact (main shop) from site_settings
+  const { data: contactFallback } = useQuery({
+    queryKey: ["site-contact-fallback"],
+    staleTime: 30 * 60 * 1000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("key,value")
+        .in("key", ["company_phone", "company_whatsapp"]);
+      const map: Record<string, string> = {};
+      (data || []).forEach((r: any) => { map[r.key] = r.value; });
+      return { phone: map.company_phone || "", whatsapp: map.company_whatsapp || map.company_phone || "" };
+    },
   });
 
   const { data: relatedProducts } = useQuery({
@@ -474,6 +490,49 @@ const ProductDetail = () => {
                 </>
               )}
             </div>
+
+            {/* WhatsApp + Call buttons */}
+            {(() => {
+              const wa = vendorInfo?.whatsapp_number || vendorInfo?.phone || contactFallback?.whatsapp || "";
+              const tel = vendorInfo?.phone || contactFallback?.phone || "";
+              if (!wa && !tel) return null;
+              const productUrl = typeof window !== "undefined" ? window.location.href : `/products/${product.id}`;
+              const waMsg = buildProductWhatsAppMessage({
+                name_bn: product.name_bn,
+                price: unitPrice,
+                weight: `${qty} কেজি`,
+                productUrl,
+                imageUrl: allImages[0],
+                shopName: vendorInfo?.shop_name_bn || vendorInfo?.shop_name,
+              });
+              return (
+                <div className="mb-5 flex gap-2 sm:gap-3">
+                  {wa && (
+                    <Button
+                      asChild
+                      size="lg"
+                      className="flex-1 h-10 sm:h-12 text-xs sm:text-sm font-semibold bg-[#25D366] text-white hover:bg-[#1faa54] shadow-sm"
+                    >
+                      <a href={buildWhatsAppUrl(wa, waMsg)} target="_blank" rel="noopener noreferrer">
+                        <MessageCircle className="mr-1.5 h-4 w-4" /> WhatsApp-এ অর্ডার
+                      </a>
+                    </Button>
+                  )}
+                  {tel && (
+                    <Button
+                      asChild
+                      size="lg"
+                      variant="outline"
+                      className="flex-1 h-10 sm:h-12 text-xs sm:text-sm font-semibold border-2 border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground"
+                    >
+                      <a href={buildTelUrl(tel)}>
+                        <Phone className="mr-1.5 h-4 w-4" /> এখনই কল করুন
+                      </a>
+                    </Button>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Wishlist + Share */}
             <div className="mb-5 flex gap-4">
