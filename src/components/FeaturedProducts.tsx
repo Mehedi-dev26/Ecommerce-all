@@ -41,20 +41,26 @@ const FeaturedProducts = () => {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-5">
-            {products?.map((p: any) => (
-              <ProductCard
-                key={p.id}
-                id={p.id}
-                name={p.name}
-                name_bn={p.name_bn}
-                price={Number(p.price)}
-                compare_price={p.compare_price ? Number(p.compare_price) : null}
-                image_url={p.image_url}
-                weight={p.weight}
-                category_name_bn={p.categories?.name_bn}
-                grade={p.grade}
-              />
-            ))}
+            {products?.map((p: any) => {
+              const v = vendorMap?.[p.vendor_id];
+              return (
+                <ProductCard
+                  key={p.id}
+                  id={p.id}
+                  name={p.name}
+                  name_bn={p.name_bn}
+                  price={Number(p.price)}
+                  compare_price={p.compare_price ? Number(p.compare_price) : null}
+                  image_url={p.image_url}
+                  weight={p.weight}
+                  category_name_bn={p.categories?.name_bn}
+                  grade={p.grade}
+                  coming_soon={p.coming_soon}
+                  vendor_shop_name_bn={v?.shop_name_bn}
+                  vendor_shop_slug={v?.shop_slug}
+                />
+              );
+            })}
           </div>
         )}
         <div className="mt-6 text-center sm:mt-10">
