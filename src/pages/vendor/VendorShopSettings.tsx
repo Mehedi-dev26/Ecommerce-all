@@ -52,6 +52,7 @@ const VendorShopSettings = () => {
         description: vendor.description || "",
         facebook_url: vendor.facebook_url || "",
         phone: vendor.phone,
+        whatsapp_number: (vendor as any).whatsapp_number || "",
         email: vendor.email,
       });
     }
