@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Search, X, Loader2, PackageSearch } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { getImageUrl } from "@/lib/image-url";
+import { optimizeRemoteImage } from "@/lib/image-url";
 
 type Product = {
   id: string;
