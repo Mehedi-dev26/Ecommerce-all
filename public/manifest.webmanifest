@@ -1,0 +1,24 @@
+{
+  "name": "Sapahar Shop — সাপাহারের সেরা ও খাঁটি আম",
+  "short_name": "Sapahar Shop",
+  "description": "সাপাহারের বিশ্বস্ত আমের অনলাইন শপ। আম, মধু, খেজুর, লিচু — সরাসরি বাগান থেকে।",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fffaf0",
+  "theme_color": "#b45309",
+  "lang": "bn-BD",
+  "dir": "ltr",
+  "categories": ["shopping", "food"],
+  "icons": [
+    { "src": "/brand-logo.png?v=4", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/brand-logo.png?v=4", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/brand-logo.png?v=4", "sizes": "any", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "সব পণ্য", "url": "/products" },
+    { "name": "কার্ট", "url": "/cart" },
+    { "name": "আমার অর্ডার", "url": "/dashboard" }
+  ]
+}

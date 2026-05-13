@@ -39,6 +39,7 @@ const UserDashboard = lazy(() => import("./pages/UserDashboard"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsConditions = lazy(() => import("./pages/TermsConditions"));
 const VendorRegister = lazy(() => import("./pages/VendorRegister"));
+const Install = lazy(() => import("./pages/Install"));
 const VendorShop = lazy(() => import("./pages/VendorShop"));
 const VendorLayout = lazy(() => import("./layouts/VendorLayout"));
 const VendorDashboard = lazy(() => import("./pages/vendor/VendorDashboard"));
@@ -179,6 +180,7 @@ const App = () => {
                           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                           <Route path="/terms-conditions" element={<TermsConditions />} />
                           <Route path="/vendor/register" element={<VendorRegister />} />
+                          <Route path="/install" element={<Install />} />
                           <Route path="/shop/:slug" element={<VendorShop />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
