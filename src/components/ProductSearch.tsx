@@ -144,7 +144,7 @@ export const DesktopSearchBar = () => {
   const open = focused && (hasQuery || !!q);
 
   return (
-    <div ref={wrapRef} className="relative w-full max-w-xl">
+    <div ref={wrapRef} className="relative w-full">
       <form
         onSubmit={(e) => {
           e.preventDefault();
