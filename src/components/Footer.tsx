@@ -31,21 +31,43 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-secondary text-secondary-foreground">
-      <div className="container mx-auto px-4 py-10 sm:py-14">
+    <footer className="relative border-t border-border/60 bg-gradient-to-b from-background via-muted/40 to-background text-foreground">
+      {/* Subtle decorative glass blobs */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-24 -left-16 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -bottom-32 right-0 h-80 w-80 rounded-full bg-secondary/10 blur-3xl" />
+      </div>
+
+      {/* Top trust strip */}
+      <div className="relative border-b border-border/60 bg-white/60 backdrop-blur-md">
+        <div className="container mx-auto grid grid-cols-2 gap-3 px-4 py-4 text-center sm:grid-cols-4 sm:gap-6">
+          {[
+            { t: "১০০% খাঁটি", s: "সরাসরি বাগান থেকে" },
+            { t: "দ্রুত ডেলিভারি", s: "সারা বাংলাদেশে" },
+            { t: "সহজ পেমেন্ট", s: "COD, bKash, Nagad" },
+            { t: "২৪/৭ সাপোর্ট", s: "যেকোনো সাহায্যে" },
+          ].map((item) => (
+            <div key={item.t} className="flex flex-col items-center">
+              <span className="text-sm font-bold text-foreground sm:text-base">{item.t}</span>
+              <span className="text-[11px] text-muted-foreground sm:text-xs">{item.s}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="relative container mx-auto px-4 py-10 sm:py-14">
         <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-white ring-2 ring-accent/40 shrink-0">
+              <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-border shrink-0">
                 <img src={logoUrl} alt={`${brandName} logo`} width="56" height="56" loading="lazy" decoding="async" className="h-full w-full object-contain" />
               </div>
-              <span className="font-brand text-3xl font-bold text-accent sm:text-4xl">{brandName}</span>
+              <span className="font-brand text-3xl font-bold text-primary sm:text-4xl">{brandName}</span>
             </div>
-            {aboutText && <p className="text-base text-white/90 leading-relaxed">{aboutText}</p>}
+            {aboutText && <p className="text-sm leading-relaxed text-muted-foreground">{aboutText}</p>}
 
-            {/* Social row + credits inline */}
             <div className="mt-5 flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 {socials.map((s) => (
                   <a
                     key={s.name}
@@ -54,31 +76,30 @@ const Footer = () => {
                     rel="noopener noreferrer"
                     aria-label={s.label}
                     title={s.label}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white ring-1 ring-white/20 transition hover:bg-accent hover:text-secondary hover:ring-accent"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white/70 text-foreground/70 backdrop-blur transition hover:border-primary hover:bg-primary hover:text-primary-foreground hover:shadow-md"
                   >
-                    <s.icon className="h-5 w-5" />
+                    <s.icon className="h-4.5 w-4.5" />
                   </a>
                 ))}
               </div>
 
-              <div className="relative inline-flex overflow-hidden rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-3 py-1.5 shadow-[0_4px_16px_-8px_rgba(0,0,0,0.4)] ring-1 ring-inset ring-white/10">
-                <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-accent/10" />
-                <p className="relative text-[11px] text-white font-medium whitespace-nowrap">
+              <div className="relative inline-flex overflow-hidden rounded-full border border-border bg-white/70 backdrop-blur-md px-3 py-1.5 shadow-sm">
+                <p className="relative text-[11px] text-muted-foreground font-medium whitespace-nowrap">
                   Created by{" "}
                   <a
                     href="https://upnexit.pro.bd/"
                     target="_blank"
                     rel="noopener noreferrer author"
-                    className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent font-extrabold hover:underline"
+                    className="font-extrabold text-primary hover:underline"
                   >
                     Upnex IT
                   </a>
-                  <span className="mx-1 text-white/60">/</span>
+                  <span className="mx-1 text-muted-foreground/60">/</span>
                   <a
                     href="https://upnexit.pro.bd/about"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 bg-clip-text text-transparent font-extrabold hover:underline"
+                    className="font-extrabold text-primary hover:underline"
                   >
                     Mehedi
                   </a>
@@ -87,24 +108,24 @@ const Footer = () => {
             </div>
           </div>
           <div>
-            <h4 className="mb-4 text-base font-bold text-accent uppercase tracking-wider">দ্রুত লিংক</h4>
-            <ul className="space-y-3 text-base">
-              <li><Link to="/" className="text-white/90 hover:text-accent transition-colors font-medium">হোম</Link></li>
-              <li><Link to="/products" className="text-white/90 hover:text-accent transition-colors font-medium">পণ্য সমূহ</Link></li>
-              <li><Link to="/about" className="text-white/90 hover:text-accent transition-colors font-medium">আমাদের সম্পর্কে</Link></li>
-              <li><Link to="/contact" className="text-white/90 hover:text-accent transition-colors font-medium">যোগাযোগ</Link></li>
-              <li><Link to="/privacy-policy" className="text-white/90 hover:text-accent transition-colors font-medium">গোপনীয়তা নীতি</Link></li>
-              <li><Link to="/terms-conditions" className="text-white/90 hover:text-accent transition-colors font-medium">শর্তাবলী</Link></li>
+            <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-foreground">দ্রুত লিংক</h4>
+            <ul className="space-y-2.5 text-sm">
+              <li><Link to="/" className="text-muted-foreground transition-colors hover:text-primary">হোম</Link></li>
+              <li><Link to="/products" className="text-muted-foreground transition-colors hover:text-primary">পণ্য সমূহ</Link></li>
+              <li><Link to="/about" className="text-muted-foreground transition-colors hover:text-primary">আমাদের সম্পর্কে</Link></li>
+              <li><Link to="/contact" className="text-muted-foreground transition-colors hover:text-primary">যোগাযোগ</Link></li>
+              <li><Link to="/privacy-policy" className="text-muted-foreground transition-colors hover:text-primary">গোপনীয়তা নীতি</Link></li>
+              <li><Link to="/terms-conditions" className="text-muted-foreground transition-colors hover:text-primary">শর্তাবলী</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="mb-4 text-base font-bold text-accent uppercase tracking-wider">ক্যাটাগরি</h4>
-            <ul className="space-y-3 text-base">
+            <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-foreground">ক্যাটাগরি</h4>
+            <ul className="space-y-2.5 text-sm">
               {(categories ?? []).map((c) => (
                 <li key={c.name}>
                   <Link
                     to={`/products?category=${encodeURIComponent(c.name)}`}
-                    className="text-white/90 hover:text-accent transition-colors font-medium"
+                    className="text-muted-foreground transition-colors hover:text-primary"
                   >
                     {c.name_bn || c.name}
                   </Link>
@@ -113,28 +134,46 @@ const Footer = () => {
             </ul>
           </div>
           <div className="col-span-2 sm:col-span-1">
-            <h4 className="mb-4 text-base font-bold text-accent uppercase tracking-wider">যোগাযোগ</h4>
-            <ul className="space-y-3 text-base">
+            <h4 className="mb-4 text-xs font-bold uppercase tracking-wider text-foreground">যোগাযোগ</h4>
+            <ul className="space-y-3 text-sm">
               <li>
-                <a href={`tel:${settings.footer_phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-white/90 hover:text-accent transition-colors font-medium">
-                  <Phone className="h-5 w-5 text-accent shrink-0" /> {settings.footer_phone}
+                <a href={`tel:${settings.footer_phone.replace(/\s/g, "")}`} className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-primary">
+                  <Phone className="h-4 w-4 text-primary shrink-0" /> {settings.footer_phone}
                 </a>
               </li>
               <li>
-                <a href={`mailto:${settings.footer_email}`} className="flex items-center gap-2 text-white/90 hover:text-accent transition-colors font-medium">
-                  <Mail className="h-5 w-5 text-accent shrink-0" /> {settings.footer_email}
+                <a href={`mailto:${settings.footer_email}`} className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-primary">
+                  <Mail className="h-4 w-4 text-primary shrink-0" /> {settings.footer_email}
                 </a>
               </li>
-              <li className="flex items-center gap-2 text-white/90 font-medium"><MapPin className="h-5 w-5 text-accent shrink-0" /> {settings.footer_location}</li>
+              <li className="flex items-center gap-2 text-muted-foreground"><MapPin className="h-4 w-4 text-primary shrink-0" /> {settings.footer_location}</li>
               <li>
-                <a href={settings.footer_facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/90 hover:text-accent transition-colors font-medium">
-                  <Facebook className="h-5 w-5 text-accent shrink-0" /> Facebook Page
+                <a href={settings.footer_facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-muted-foreground transition-colors hover:text-primary">
+                  <Facebook className="h-4 w-4 text-primary shrink-0" /> Facebook Page
                 </a>
               </li>
             </ul>
           </div>
         </div>
-        <div className="mt-10 border-t border-white/20 pt-6 text-center text-sm text-white/85 sm:text-base font-medium">
+
+        {/* Payment / shipping methods strip */}
+        <div className="mt-10 flex flex-col gap-4 rounded-2xl border border-border bg-white/60 px-5 py-4 backdrop-blur-md sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">পেমেন্ট</span>
+            <div className="flex items-center gap-2">
+              {["COD", "bKash", "Nagad"].map((m) => (
+                <span key={m} className="rounded-md border border-border bg-background px-2.5 py-1 text-[11px] font-bold text-foreground">{m}</span>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">কুরিয়ার</span>
+            <span className="rounded-md border border-border bg-background px-2.5 py-1 text-[11px] font-bold text-foreground">Pathao</span>
+            <span className="rounded-md border border-border bg-background px-2.5 py-1 text-[11px] font-bold text-foreground">Steadfast</span>
+          </div>
+        </div>
+
+        <div className="mt-6 border-t border-border/70 pt-5 text-center text-xs text-muted-foreground sm:text-sm">
           {copyright}
         </div>
       </div>
