@@ -11,6 +11,7 @@ import { SlidersHorizontal, X } from "lucide-react";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useVendorsMap } from "@/hooks/useVendorsMap";
 
 const FilterSidebar = ({
   categories,
