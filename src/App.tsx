@@ -12,6 +12,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 const Footer = lazy(() => import("@/components/Footer"));
 const SupportWidget = lazy(() => import("@/components/SupportWidget"));
 const MobileBottomNav = lazy(() => import("@/components/MobileBottomNav"));
+const FloatingCart = lazy(() => import("@/components/FloatingCart"));
 const Toaster = lazy(() => import("@/components/ui/toaster").then((m) => ({ default: m.Toaster })));
 const Sonner = lazy(() => import("@/components/ui/sonner").then((m) => ({ default: m.Toaster })));
 
@@ -189,6 +190,7 @@ const App = () => {
                       <Suspense fallback={<div className="h-64" aria-hidden />}><Footer /></Suspense>
                       <Suspense fallback={null}><SupportWidget /></Suspense>
                       <Suspense fallback={null}><MobileBottomNav /></Suspense>
+                      <Suspense fallback={null}><FloatingCart /></Suspense>
                     </div>
                   }
                 />
