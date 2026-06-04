@@ -4,6 +4,7 @@ import { Search, X, Loader2, PackageSearch } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { optimizeRemoteImage } from "@/lib/image-url";
+import { getProductUrl } from "@/lib/product-url";
 
 type Product = {
   id: string;
@@ -11,7 +12,11 @@ type Product = {
   name_bn: string | null;
   price: number;
   image_url: string | null;
+  serial_number?: number | null;
+  vendor_id?: string | null;
+  vendor_shop_slug?: string | null;
 };
+
 
 function useDebounced<T>(value: T, delay = 250) {
   const [v, setV] = useState(value);
