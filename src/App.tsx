@@ -164,6 +164,9 @@ const App = () => {
                   <Route path="earnings" element={<VendorEarnings />} />
                   <Route path="withdrawals" element={<VendorWithdrawals />} />
                   <Route path="shop-settings" element={<VendorShopSettings />} />
+                  <Route path="landing-pages" element={<VendorLandingPages />} />
+                  <Route path="landing-pages/new" element={<VendorLandingPageEditor />} />
+                  <Route path="landing-pages/:id" element={<VendorLandingPageEditor />} />
                 </Route>
 
                 {/* Public Routes */}
