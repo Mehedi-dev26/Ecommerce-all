@@ -526,7 +526,7 @@ const ProductDetail = () => {
               const wa = vendorInfo?.whatsapp_number || vendorInfo?.phone || contactFallback?.whatsapp || "";
               const tel = vendorInfo?.phone || contactFallback?.phone || "";
               if (!wa && !tel) return null;
-              const productUrl = typeof window !== "undefined" ? window.location.href : `/products/${product.id}`;
+              const productUrl = typeof window !== "undefined" ? window.location.href : canonicalProductPath;
               const waMsg = buildProductWhatsAppMessage({
                 name_bn: product.name_bn,
                 price: unitPrice,
