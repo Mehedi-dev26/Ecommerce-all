@@ -37,15 +37,15 @@
 
     --radius: 0.5rem;
 
-    /* Sidebar — matches public header (Daraz orange) for unified admin/vendor experience */
-    --sidebar-background: 22 91% 50%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 22 91% 45%;
-    --sidebar-accent: 22 85% 42%;
+    /* Sidebar — calm deep slate with orange accent (less saturated for long work sessions) */
+    --sidebar-background: 222 28% 15%;
+    --sidebar-foreground: 210 20% 92%;
+    --sidebar-primary: 22 91% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 22% 22%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 22 80% 38%;
-    --sidebar-ring: 0 0% 100%;
+    --sidebar-border: 222 20% 24%;
+    --sidebar-ring: 22 91% 55%;
   }
 
   .dark {
