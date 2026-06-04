@@ -50,6 +50,8 @@ const VendorOrders = lazy(() => import("./pages/vendor/VendorOrders"));
 const VendorEarnings = lazy(() => import("./pages/vendor/VendorEarnings"));
 const VendorWithdrawals = lazy(() => import("./pages/vendor/VendorWithdrawals"));
 const VendorShopSettings = lazy(() => import("./pages/vendor/VendorShopSettings"));
+const VendorLandingPages = lazy(() => import("./pages/vendor/VendorLandingPages"));
+const VendorLandingPageEditor = lazy(() => import("./pages/vendor/VendorLandingPageEditor"));
 
 // Lazy load admin pages — bundled separately to avoid bloating the public bundle
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
