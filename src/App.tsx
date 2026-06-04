@@ -179,7 +179,9 @@ const App = () => {
                         <Routes>
                           <Route path="/" element={<Index />} />
                           <Route path="/products" element={<Products />} />
+                          <Route path="/products/:vendorSlug/:serial" element={<ProductDetail />} />
                           <Route path="/products/:id" element={<ProductDetail />} />
+
                           <Route path="/cart" element={<Cart />} />
                           <Route path="/checkout" element={<Checkout />} />
                           <Route path="/order-success/:orderNumber" element={<OrderSuccess />} />
