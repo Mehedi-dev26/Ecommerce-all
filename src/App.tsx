@@ -59,6 +59,8 @@ const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
 const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
+const AdminVendorOrders = lazy(() => import("./pages/admin/AdminVendorOrders"));
+
 const AdminCategories = lazy(() => import("./pages/admin/AdminCategories"));
 const AdminCustomers = lazy(() => import("./pages/admin/AdminCustomers"));
 const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
@@ -138,6 +140,8 @@ const App = () => {
                   <Route index element={<Dashboard />} />
                   <Route path="products" element={<AdminProducts />} />
                   <Route path="orders" element={<AdminOrders />} />
+                  <Route path="vendor-orders" element={<AdminVendorOrders />} />
+
                   <Route path="categories" element={<AdminCategories />} />
                   <Route path="customers" element={<AdminCustomers />} />
                   <Route path="payments" element={<AdminPayments />} />
@@ -179,7 +183,9 @@ const App = () => {
                         <Routes>
                           <Route path="/" element={<Index />} />
                           <Route path="/products" element={<Products />} />
+                          <Route path="/products/:vendorSlug/:serial" element={<ProductDetail />} />
                           <Route path="/products/:id" element={<ProductDetail />} />
+
                           <Route path="/cart" element={<Cart />} />
                           <Route path="/checkout" element={<Checkout />} />
                           <Route path="/order-success/:orderNumber" element={<OrderSuccess />} />

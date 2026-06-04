@@ -735,6 +735,7 @@ export type Database = {
           name: string
           name_bn: string
           price: number
+          serial_number: number | null
           stock: number
           unit: string | null
           updated_at: string
@@ -759,6 +760,7 @@ export type Database = {
           name: string
           name_bn: string
           price: number
+          serial_number?: number | null
           stock?: number
           unit?: string | null
           updated_at?: string
@@ -783,6 +785,7 @@ export type Database = {
           name?: string
           name_bn?: string
           price?: number
+          serial_number?: number | null
           stock?: number
           unit?: string | null
           updated_at?: string
@@ -1208,6 +1211,40 @@ export type Database = {
           product_name: string
           quantity: number
         }[]
+      }
+      lookup_product_by_vendor_serial: {
+        Args: { _serial: number; _vendor_slug: string }
+        Returns: {
+          category_id: string | null
+          coming_soon: boolean
+          compare_price: number | null
+          cost_price: number
+          created_at: string
+          description: string | null
+          description_bn: string | null
+          grade: string | null
+          id: string
+          image_url: string | null
+          images: string[] | null
+          is_active: boolean
+          is_featured: boolean
+          name: string
+          name_bn: string
+          price: number
+          serial_number: number | null
+          stock: number
+          unit: string | null
+          updated_at: string
+          vendor_id: string | null
+          vendor_status: string
+          weight: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "products"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       lookup_vendor_landing_page: {
         Args: { _custom_slug: string; _vendor_slug: string }

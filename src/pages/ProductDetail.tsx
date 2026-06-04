@@ -17,6 +17,9 @@ import ProductReviews from "@/components/ProductReviews";
 import SEO from "@/components/SEO";
 import { breadcrumb, productSchema } from "@/lib/seo-schemas";
 import { buildProductWhatsAppMessage, buildTelUrl, buildWhatsAppUrl } from "@/lib/contact-helpers";
+import { useVendorsMap } from "@/hooks/useVendorsMap";
+import { getProductUrl } from "@/lib/product-url";
+
 
 const DEFAULT_DELIVERY_FEE = 120;
 
@@ -32,7 +35,11 @@ const StarRating = ({ rating, size = "sm" }: { rating: number; size?: "sm" | "md
 };
 
 const ProductDetail = () => {
-  const { id } = useParams<{ id: string }>();
+  // Supports two URL shapes:
+  //   /products/:id                       (legacy UUID)
+  //   /products/:vendorSlug/:serial       (professional, e.g. /products/sapahar-shop/12)
+  const params = useParams<{ id?: string; vendorSlug?: string; serial?: string }>();
+  const isSerialRoute = !!(params.vendorSlug && params.serial);
   const { addItem } = useCart();
   const navigate = useNavigate();
   const WEIGHT_PRESETS = [5, 10, 20, 30];
@@ -45,18 +52,30 @@ const ProductDetail = () => {
   const [feeLoading, setFeeLoading] = useState(false);
 
   const { data: product, isLoading } = useQuery({
-    queryKey: ["product", id],
+    queryKey: ["product", isSerialRoute ? `${params.vendorSlug}/${params.serial}` : params.id],
     queryFn: async () => {
+      if (isSerialRoute) {
+        const { data, error } = await (supabase as any).rpc("lookup_product_by_vendor_serial", {
+          _vendor_slug: params.vendorSlug,
+          _serial: Number(params.serial),
+        });
+        if (error) throw error;
+        const row = Array.isArray(data) ? data[0] : data;
+        return row || null;
+      }
       const { data, error } = await supabase
         .from("products")
-        .select("id,name,name_bn,description,description_bn,category_id,price,compare_price,stock,image_url,images,weight,unit,grade,is_active,is_featured,coming_soon,created_at,updated_at,vendor_id,categories(name,name_bn)")
-        .eq("id", id!)
+        .select("id,name,name_bn,description,description_bn,category_id,price,compare_price,stock,image_url,images,weight,unit,grade,is_active,is_featured,coming_soon,serial_number,created_at,updated_at,vendor_id,categories(name,name_bn)")
+        .eq("id", params.id!)
         .single();
       if (error) throw error;
       return data;
     },
-    enabled: !!id,
+    enabled: isSerialRoute || !!params.id,
   });
+
+  const id = (product as any)?.id;
+
 
   // Vendor info (only for vendor-listed products)
   const { data: vendorInfo } = useQuery({
@@ -98,20 +117,24 @@ const ProductDetail = () => {
   });
 
   const { data: relatedProducts } = useQuery({
-    queryKey: ["related-products", product?.category_id],
+    queryKey: ["related-products", product?.category_id, id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,categories(name_bn)")
+        .select("id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,serial_number,vendor_id,categories(name_bn)")
         .eq("category_id", product!.category_id!)
-        .neq("id", product!.id)
+        .neq("id", id!)
         .eq("is_active", true)
         .limit(4);
       if (error) throw error;
       return data;
     },
-    enabled: !!product?.category_id,
+    enabled: !!product?.category_id && !!id,
   });
+
+  const relatedVendorIds = (relatedProducts || []).map((r: any) => r.vendor_id);
+  const { data: relatedVendors } = useVendorsMap(relatedVendorIds);
+
 
   // Real review aggregates from approved reviews for this product
   // IMPORTANT: This hook MUST be called before any early returns to comply with Rules of Hooks.
@@ -214,12 +237,18 @@ const ProductDetail = () => {
   const seoDesc = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
   const ogImage = allImages[0];
 
+  const canonicalProductPath = getProductUrl({
+    id: product.id,
+    serial_number: (product as any).serial_number,
+    vendor_shop_slug: (vendorInfo as any)?.shop_slug,
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <SEO
         title={seoTitle}
         description={seoDesc}
-        path={`/products/${product.id}`}
+        path={canonicalProductPath}
         type="product"
         image={ogImage}
         jsonLd={[
@@ -244,7 +273,8 @@ const ProductDetail = () => {
             ...((product as any).categories?.name_bn
               ? [{ name: (product as any).categories.name_bn, path: `/products?category=${(product as any).categories.name}` }]
               : []),
-            { name: product.name_bn, path: `/products/${product.id}` },
+            { name: product.name_bn, path: canonicalProductPath },
+
           ]),
         ]}
       />
@@ -496,7 +526,7 @@ const ProductDetail = () => {
               const wa = vendorInfo?.whatsapp_number || vendorInfo?.phone || contactFallback?.whatsapp || "";
               const tel = vendorInfo?.phone || contactFallback?.phone || "";
               if (!wa && !tel) return null;
-              const productUrl = typeof window !== "undefined" ? window.location.href : `/products/${product.id}`;
+              const productUrl = typeof window !== "undefined" ? window.location.href : canonicalProductPath;
               const waMsg = buildProductWhatsAppMessage({
                 name_bn: product.name_bn,
                 price: unitPrice,
@@ -654,7 +684,7 @@ const ProductDetail = () => {
               {relatedProducts.map((rp: any) => {
                 const rpDiscount = rp.compare_price ? Math.round(((Number(rp.compare_price) - Number(rp.price)) / Number(rp.compare_price)) * 100) : 0;
                 return (
-                  <Link key={rp.id} to={`/products/${rp.id}`} className="group overflow-hidden rounded-lg border bg-card shadow-sm transition hover:shadow-md">
+                  <Link key={rp.id} to={getProductUrl({ id: rp.id, serial_number: rp.serial_number, vendor_shop_slug: relatedVendors?.[rp.vendor_id]?.shop_slug })} className="group overflow-hidden rounded-lg border bg-card shadow-sm transition hover:shadow-md">
                     <div className="relative aspect-square overflow-hidden bg-muted">
                       {rp.image_url ? (
                         <img src={rp.image_url} alt={rp.name_bn} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />

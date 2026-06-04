@@ -8,6 +8,7 @@ import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { optimizeRemoteImage } from "@/lib/image-url";
+import { getProductUrl } from "@/lib/product-url";
 
 interface ProductCardProps {
   id: string;
@@ -22,10 +23,11 @@ interface ProductCardProps {
   coming_soon?: boolean | null;
   vendor_shop_name_bn?: string | null;
   vendor_shop_slug?: string | null;
+  serial_number?: number | null;
   hideSeller?: boolean;
 }
 
-const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weight, category_name_bn, grade, coming_soon, vendor_shop_name_bn, vendor_shop_slug, hideSeller }: ProductCardProps) => {
+const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weight, category_name_bn, grade, coming_soon, vendor_shop_name_bn, vendor_shop_slug, serial_number, hideSeller }: ProductCardProps) => {
   const { addItem } = useCart();
   const [wishlisted, setWishlisted] = useState(false);
 
@@ -47,7 +49,8 @@ const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weigh
   const discount = compare_price ? Math.round(((compare_price - price) / compare_price) * 100) : 0;
 
   return (
-    <Link to={`/products/${id}`}>
+    <Link to={getProductUrl({ id, serial_number, vendor_shop_slug })}>
+
       <Card className="group h-full overflow-hidden transition-all duration-300 hover:shadow-lg">
         <div className="relative aspect-square overflow-hidden bg-muted">
           {image_url ? (

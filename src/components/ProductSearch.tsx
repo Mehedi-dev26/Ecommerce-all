@@ -4,6 +4,7 @@ import { Search, X, Loader2, PackageSearch } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { optimizeRemoteImage } from "@/lib/image-url";
+import { getProductUrl } from "@/lib/product-url";
 
 type Product = {
   id: string;
@@ -11,7 +12,11 @@ type Product = {
   name_bn: string | null;
   price: number;
   image_url: string | null;
+  serial_number?: number | null;
+  vendor_id?: string | null;
+  vendor_shop_slug?: string | null;
 };
+
 
 function useDebounced<T>(value: T, delay = 250) {
   const [v, setV] = useState(value);
@@ -38,12 +43,23 @@ function useProductSearch(q: string) {
     (async () => {
       const { data } = await supabase
         .from("products")
-        .select("id,name,name_bn,price,image_url")
+        .select("id,name,name_bn,price,image_url,serial_number,vendor_id")
         .eq("is_active", true)
         .or(`name.ilike.%${debounced}%,name_bn.ilike.%${debounced}%`)
         .limit(8);
       if (cancelled) return;
-      setResults((data as Product[]) ?? []);
+      const rows = (data as any[]) ?? [];
+      const vendorIds = Array.from(new Set(rows.map((r) => r.vendor_id).filter(Boolean)));
+      let vendorMap: Record<string, string> = {};
+      if (vendorIds.length > 0) {
+        const { data: vs } = await supabase
+          .from("vendors" as any)
+          .select("id,shop_slug")
+          .in("id", vendorIds);
+        ((vs as any[]) || []).forEach((v) => { vendorMap[v.id] = v.shop_slug; });
+      }
+      const mapped = rows.map((r) => ({ ...r, vendor_shop_slug: vendorMap[r.vendor_id] ?? null }));
+      setResults(mapped as Product[]);
       setLoading(false);
     })();
     return () => {
@@ -51,12 +67,14 @@ function useProductSearch(q: string) {
     };
   }, [debounced]);
 
+
+
   return { results, loading, hasQuery: debounced.length > 0 };
 }
 
 const ResultRow = ({ p, onSelect }: { p: Product; onSelect: () => void }) => (
   <Link
-    to={`/products/${p.id}`}
+    to={getProductUrl({ id: p.id, serial_number: p.serial_number, vendor_shop_slug: p.vendor_shop_slug })}
     onClick={onSelect}
     className="flex items-center gap-3 rounded-lg px-2.5 py-2 transition-colors hover:bg-amber-50"
   >

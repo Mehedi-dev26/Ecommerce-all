@@ -40,7 +40,7 @@ const VendorShop = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("products")
-        .select("id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,category_id,is_featured,categories(name,name_bn)")
+        .select("id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,serial_number,category_id,is_featured,categories(name,name_bn)")
         .eq("vendor_id", vendor.id)
         .eq("is_active", true)
         .eq("vendor_status", "approved")
@@ -280,7 +280,7 @@ const VendorShop = () => {
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 sm:gap-4">
               {featured.map((p: any) => (
-                <ProductCard key={p.id} {...p} category_name_bn={p.categories?.name_bn} hideSeller />
+                <ProductCard key={p.id} {...p} category_name_bn={p.categories?.name_bn} vendor_shop_slug={vendor?.shop_slug} hideSeller />
               ))}
             </div>
           </div>
@@ -311,7 +311,7 @@ const VendorShop = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 sm:gap-4">
                   {g.items.slice(0, 8).map((p: any) => (
-                    <ProductCard key={p.id} {...p} category_name_bn={p.categories?.name_bn} hideSeller />
+                    <ProductCard key={p.id} {...p} category_name_bn={p.categories?.name_bn} vendor_shop_slug={vendor?.shop_slug} hideSeller />
                   ))}
                 </div>
               </section>
@@ -326,7 +326,7 @@ const VendorShop = () => {
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 sm:gap-4">
             {filtered.map((p: any) => (
-              <ProductCard key={p.id} {...p} category_name_bn={p.categories?.name_bn} hideSeller />
+              <ProductCard key={p.id} {...p} category_name_bn={p.categories?.name_bn} vendor_shop_slug={vendor?.shop_slug} hideSeller />
             ))}
             {filtered.length === 0 && (
               <div className="col-span-full py-16 text-center text-muted-foreground">
