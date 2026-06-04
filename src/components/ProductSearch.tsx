@@ -43,12 +43,22 @@ function useProductSearch(q: string) {
     (async () => {
       const { data } = await supabase
         .from("products")
-        .select("id,name,name_bn,price,image_url,serial_number,vendor_id,vendors:vendor_id(shop_slug)" as any)
+        .select("id,name,name_bn,price,image_url,serial_number,vendor_id")
         .eq("is_active", true)
         .or(`name.ilike.%${debounced}%,name_bn.ilike.%${debounced}%`)
         .limit(8);
       if (cancelled) return;
-      const mapped = ((data as any[]) ?? []).map((r) => ({ ...r, vendor_shop_slug: r.vendors?.shop_slug ?? null }));
+      const rows = (data as any[]) ?? [];
+      const vendorIds = Array.from(new Set(rows.map((r) => r.vendor_id).filter(Boolean)));
+      let vendorMap: Record<string, string> = {};
+      if (vendorIds.length > 0) {
+        const { data: vs } = await supabase
+          .from("vendors" as any)
+          .select("id,shop_slug")
+          .in("id", vendorIds);
+        ((vs as any[]) || []).forEach((v) => { vendorMap[v.id] = v.shop_slug; });
+      }
+      const mapped = rows.map((r) => ({ ...r, vendor_shop_slug: vendorMap[r.vendor_id] ?? null }));
       setResults(mapped as Product[]);
       setLoading(false);
     })();
@@ -56,6 +66,7 @@ function useProductSearch(q: string) {
       cancelled = true;
     };
   }, [debounced]);
+
 
 
   return { results, loading, hasQuery: debounced.length > 0 };
