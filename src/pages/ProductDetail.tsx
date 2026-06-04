@@ -49,7 +49,7 @@ const ProductDetail = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("id,name,name_bn,description,description_bn,category_id,price,compare_price,stock,image_url,images,weight,unit,grade,is_active,is_featured,coming_soon,created_at,updated_at,vendor_id,categories(name,name_bn)")
+        .select("id,name,name_bn,description,description_bn,category_id,price,compare_price,stock,image_url,images,weight,unit,grade,is_active,is_featured,coming_soon,serial_number,created_at,updated_at,vendor_id,categories(name,name_bn)")
         .eq("id", id!)
         .single();
       if (error) throw error;
