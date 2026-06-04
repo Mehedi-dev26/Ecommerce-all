@@ -13,7 +13,7 @@ const FeaturedProducts = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,vendor_id,categories(name_bn)")
+        .select("id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,serial_number,vendor_id,categories(name_bn)")
         .eq("is_featured", true)
         .eq("is_active", true)
         .order("created_at", { ascending: false })

@@ -40,7 +40,7 @@ const VendorShop = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("products")
-        .select("id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,category_id,is_featured,categories(name,name_bn)")
+        .select("id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,serial_number,category_id,is_featured,categories(name,name_bn)")
         .eq("vendor_id", vendor.id)
         .eq("is_active", true)
         .eq("vendor_status", "approved")
