@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Package, ShoppingCart, Wallet, Banknote,
-  Settings, LogOut, Globe, ChevronDown, ChevronRight, Store, ShoppingBag,
+  Settings, LogOut, Globe, ChevronDown, ChevronRight, Store, ShoppingBag, Rocket,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
