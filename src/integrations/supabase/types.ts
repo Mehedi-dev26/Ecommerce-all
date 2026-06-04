@@ -489,6 +489,7 @@ export type Database = {
           total_revenue: number
           trust_badges: Json
           updated_at: string
+          vendor_id: string | null
           view_count: number
         }
         Insert: {
@@ -523,6 +524,7 @@ export type Database = {
           total_revenue?: number
           trust_badges?: Json
           updated_at?: string
+          vendor_id?: string | null
           view_count?: number
         }
         Update: {
@@ -557,6 +559,7 @@ export type Database = {
           total_revenue?: number
           trust_badges?: Json
           updated_at?: string
+          vendor_id?: string | null
           view_count?: number
         }
         Relationships: []
@@ -1159,6 +1162,10 @@ export type Database = {
     }
     Functions: {
       admin_get_vendor_activity: { Args: { _vendor_id: string }; Returns: Json }
+      check_vendor_landing_slug_available: {
+        Args: { _exclude_id?: string; _slug: string; _vendor_id: string }
+        Returns: boolean
+      }
       count_orders_by_email: { Args: { _email: string }; Returns: number }
       generate_order_number: { Args: never; Returns: string }
       has_role: {
@@ -1201,6 +1208,50 @@ export type Database = {
           product_name: string
           quantity: number
         }[]
+      }
+      lookup_vendor_landing_page: {
+        Args: { _custom_slug: string; _vendor_slug: string }
+        Returns: {
+          bullet_points: Json
+          bundle_discount_percent: number | null
+          bundle_label: string | null
+          countdown_enabled: boolean
+          countdown_end_at: string | null
+          created_at: string
+          cta_text: string
+          enable_bundle: boolean
+          expire_at: string | null
+          facebook_pixel_id: string | null
+          faq_items: Json
+          featured_review_ids: string[]
+          hero_headline: string
+          hero_image_url: string | null
+          hero_subheadline: string | null
+          hero_video_url: string | null
+          id: string
+          long_description: string | null
+          meta_description: string | null
+          order_count: number
+          products: Json
+          publish_at: string | null
+          slug: string
+          status: string
+          stock_counter_enabled: boolean
+          stock_counter_value: number | null
+          theme_preset: string
+          title: string
+          total_revenue: number
+          trust_badges: Json
+          updated_at: string
+          vendor_id: string | null
+          view_count: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "landing_pages"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
     }
     Enums: {
