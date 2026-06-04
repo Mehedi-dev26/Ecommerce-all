@@ -14,7 +14,9 @@ const navGroups = [
     items: [
       { title: "ড্যাশবোর্ড", url: "/admin", icon: LayoutDashboard, badge: null },
       { title: "অর্ডার", url: "/admin/orders", icon: ShoppingCart, badge: "new" },
+      { title: "ভেন্ডর অর্ডার", url: "/admin/vendor-orders", icon: Store, badge: null },
     ],
+
   },
   {
     label: "পণ্য পরিচালনা",
