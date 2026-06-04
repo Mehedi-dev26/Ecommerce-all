@@ -17,6 +17,9 @@ import ProductReviews from "@/components/ProductReviews";
 import SEO from "@/components/SEO";
 import { breadcrumb, productSchema } from "@/lib/seo-schemas";
 import { buildProductWhatsAppMessage, buildTelUrl, buildWhatsAppUrl } from "@/lib/contact-helpers";
+import { useVendorsMap } from "@/hooks/useVendorsMap";
+import { getProductUrl } from "@/lib/product-url";
+
 
 const DEFAULT_DELIVERY_FEE = 120;
 
