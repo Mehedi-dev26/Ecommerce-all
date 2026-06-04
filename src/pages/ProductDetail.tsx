@@ -114,20 +114,24 @@ const ProductDetail = () => {
   });
 
   const { data: relatedProducts } = useQuery({
-    queryKey: ["related-products", product?.category_id],
+    queryKey: ["related-products", product?.category_id, id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,serial_number,categories(name_bn)")
+        .select("id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,serial_number,vendor_id,categories(name_bn)")
         .eq("category_id", product!.category_id!)
-        .neq("id", product!.id)
+        .neq("id", id!)
         .eq("is_active", true)
         .limit(4);
       if (error) throw error;
       return data;
     },
-    enabled: !!product?.category_id,
+    enabled: !!product?.category_id && !!id,
   });
+
+  const relatedVendorIds = (relatedProducts || []).map((r: any) => r.vendor_id);
+  const { data: relatedVendors } = useVendorsMap(relatedVendorIds);
+
 
   // Real review aggregates from approved reviews for this product
   // IMPORTANT: This hook MUST be called before any early returns to comply with Rules of Hooks.
