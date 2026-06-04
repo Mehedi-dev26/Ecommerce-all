@@ -43,18 +43,20 @@ function useProductSearch(q: string) {
     (async () => {
       const { data } = await supabase
         .from("products")
-        .select("id,name,name_bn,price,image_url")
+        .select("id,name,name_bn,price,image_url,serial_number,vendor_id,vendors:vendor_id(shop_slug)" as any)
         .eq("is_active", true)
         .or(`name.ilike.%${debounced}%,name_bn.ilike.%${debounced}%`)
         .limit(8);
       if (cancelled) return;
-      setResults((data as Product[]) ?? []);
+      const mapped = ((data as any[]) ?? []).map((r) => ({ ...r, vendor_shop_slug: r.vendors?.shop_slug ?? null }));
+      setResults(mapped as Product[]);
       setLoading(false);
     })();
     return () => {
       cancelled = true;
     };
   }, [debounced]);
+
 
   return { results, loading, hasQuery: debounced.length > 0 };
 }
