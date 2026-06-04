@@ -32,7 +32,11 @@ const StarRating = ({ rating, size = "sm" }: { rating: number; size?: "sm" | "md
 };
 
 const ProductDetail = () => {
-  const { id } = useParams<{ id: string }>();
+  // Supports two URL shapes:
+  //   /products/:id                       (legacy UUID)
+  //   /products/:vendorSlug/:serial       (professional, e.g. /products/sapahar-shop/12)
+  const params = useParams<{ id?: string; vendorSlug?: string; serial?: string }>();
+  const isSerialRoute = !!(params.vendorSlug && params.serial);
   const { addItem } = useCart();
   const navigate = useNavigate();
   const WEIGHT_PRESETS = [5, 10, 20, 30];
@@ -45,18 +49,30 @@ const ProductDetail = () => {
   const [feeLoading, setFeeLoading] = useState(false);
 
   const { data: product, isLoading } = useQuery({
-    queryKey: ["product", id],
+    queryKey: ["product", isSerialRoute ? `${params.vendorSlug}/${params.serial}` : params.id],
     queryFn: async () => {
+      if (isSerialRoute) {
+        const { data, error } = await (supabase as any).rpc("lookup_product_by_vendor_serial", {
+          _vendor_slug: params.vendorSlug,
+          _serial: Number(params.serial),
+        });
+        if (error) throw error;
+        const row = Array.isArray(data) ? data[0] : data;
+        return row || null;
+      }
       const { data, error } = await supabase
         .from("products")
         .select("id,name,name_bn,description,description_bn,category_id,price,compare_price,stock,image_url,images,weight,unit,grade,is_active,is_featured,coming_soon,serial_number,created_at,updated_at,vendor_id,categories(name,name_bn)")
-        .eq("id", id!)
+        .eq("id", params.id!)
         .single();
       if (error) throw error;
       return data;
     },
-    enabled: !!id,
+    enabled: isSerialRoute || !!params.id,
   });
+
+  const id = (product as any)?.id;
+
 
   // Vendor info (only for vendor-listed products)
   const { data: vendorInfo } = useQuery({
