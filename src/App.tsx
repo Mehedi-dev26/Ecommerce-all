@@ -59,6 +59,8 @@ const AdminLayout = lazy(() => import("./layouts/AdminLayout"));
 const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
 const AdminOrders = lazy(() => import("./pages/admin/AdminOrders"));
+const AdminVendorOrders = lazy(() => import("./pages/admin/AdminVendorOrders"));
+
 const AdminCategories = lazy(() => import("./pages/admin/AdminCategories"));
 const AdminCustomers = lazy(() => import("./pages/admin/AdminCustomers"));
 const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
