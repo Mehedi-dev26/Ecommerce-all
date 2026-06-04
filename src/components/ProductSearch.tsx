@@ -63,7 +63,7 @@ function useProductSearch(q: string) {
 
 const ResultRow = ({ p, onSelect }: { p: Product; onSelect: () => void }) => (
   <Link
-    to={`/products/${p.id}`}
+    to={getProductUrl({ id: p.id, serial_number: p.serial_number, vendor_shop_slug: p.vendor_shop_slug })}
     onClick={onSelect}
     className="flex items-center gap-3 rounded-lg px-2.5 py-2 transition-colors hover:bg-amber-50"
   >
