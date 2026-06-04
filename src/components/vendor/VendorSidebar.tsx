@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, Package, ShoppingCart, Wallet, Banknote,
-  Settings, LogOut, Globe, ChevronDown, ChevronRight, Store, ShoppingBag,
+  Settings, LogOut, Globe, ChevronDown, ChevronRight, Store, ShoppingBag, Rocket,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -18,6 +18,7 @@ const navGroups = [
     label: "পণ্য পরিচালনা",
     items: [
       { title: "আমার পণ্য", url: "/vendor/products", icon: Package, badge: null },
+      { title: "ল্যান্ডিং পেজ", url: "/vendor/landing-pages", icon: Rocket, badge: null },
     ],
   },
   {

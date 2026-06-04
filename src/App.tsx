@@ -50,6 +50,8 @@ const VendorOrders = lazy(() => import("./pages/vendor/VendorOrders"));
 const VendorEarnings = lazy(() => import("./pages/vendor/VendorEarnings"));
 const VendorWithdrawals = lazy(() => import("./pages/vendor/VendorWithdrawals"));
 const VendorShopSettings = lazy(() => import("./pages/vendor/VendorShopSettings"));
+const VendorLandingPages = lazy(() => import("./pages/vendor/VendorLandingPages"));
+const VendorLandingPageEditor = lazy(() => import("./pages/vendor/VendorLandingPageEditor"));
 
 // Lazy load admin pages — bundled separately to avoid bloating the public bundle
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
@@ -127,6 +129,8 @@ const App = () => {
               <Routes>
                 {/* Public Landing Pages (custom slugs) — no Navbar/Footer */}
                 <Route path="/lp/:slug" element={<LandingPageView />} />
+                {/* Vendor public landing pages: /{vendor-slug}/{custom-slug} */}
+                <Route path="/:vendorSlug/:customSlug" element={<LandingPageView />} />
 
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />
@@ -160,6 +164,9 @@ const App = () => {
                   <Route path="earnings" element={<VendorEarnings />} />
                   <Route path="withdrawals" element={<VendorWithdrawals />} />
                   <Route path="shop-settings" element={<VendorShopSettings />} />
+                  <Route path="landing-pages" element={<VendorLandingPages />} />
+                  <Route path="landing-pages/new" element={<VendorLandingPageEditor />} />
+                  <Route path="landing-pages/:id" element={<VendorLandingPageEditor />} />
                 </Route>
 
                 {/* Public Routes */}

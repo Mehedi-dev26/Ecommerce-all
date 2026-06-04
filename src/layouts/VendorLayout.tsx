@@ -17,6 +17,7 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/vendor/earnings": { title: "আয়", subtitle: "আপনার আয়ের বিশ্লেষণ" },
   "/vendor/withdrawals": { title: "টাকা উত্তোলন", subtitle: "উত্তোলন অনুরোধ ও ইতিহাস" },
   "/vendor/shop-settings": { title: "শপ সেটিংস", subtitle: "দোকানের তথ্য পরিচালনা" },
+  "/vendor/landing-pages": { title: "ল্যান্ডিং পেজ", subtitle: "আপনার নিজস্ব কাস্টম পেজ তৈরি ও পরিচালনা" },
 };
 
 const VendorLayout = () => {

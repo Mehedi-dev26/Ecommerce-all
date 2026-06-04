@@ -84,7 +84,9 @@ const Countdown = ({ endAt, compact = false }: { endAt: string; compact?: boolea
 };
 
 const LandingPageView = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const params = useParams<{ slug?: string; vendorSlug?: string; customSlug?: string }>();
+  const isVendorRoute = !!params.vendorSlug && !!params.customSlug;
+  const slug = isVendorRoute ? params.customSlug! : params.slug!;
   const navigate = useNavigate();
   const [data, setData] = useState<LandingPageData | null>(null);
   const [products, setProducts] = useState<ProductInfo[]>([]);
@@ -104,12 +106,23 @@ const LandingPageView = () => {
   useEffect(() => {
     if (!slug) return;
     (async () => {
-      const { data: lp } = await supabase
-        .from("landing_pages")
-        .select("*")
-        .eq("slug", slug)
-        .eq("status", "published")
-        .maybeSingle();
+      let lp: any = null;
+      if (isVendorRoute) {
+        const { data: rpcData } = await supabase.rpc("lookup_vendor_landing_page" as any, {
+          _vendor_slug: params.vendorSlug!,
+          _custom_slug: params.customSlug!,
+        });
+        lp = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+      } else {
+        const { data: row } = await supabase
+          .from("landing_pages")
+          .select("*")
+          .eq("slug", slug)
+          .is("vendor_id", null)
+          .eq("status", "published")
+          .maybeSingle();
+        lp = row;
+      }
 
       if (!lp) {
         setNotFound(true);
@@ -131,9 +144,22 @@ const LandingPageView = () => {
         setQuantities(initQ);
       }
       setLoading(false);
-      void supabase.rpc("increment_landing_page_view", { _slug: slug });
+      if (!isVendorRoute) {
+        void supabase.rpc("increment_landing_page_view", { _slug: slug });
+      } else {
+        const lpId = (typed as any).id;
+        void supabase.rpc("increment_landing_page_view" as any, { _slug: slug }).then(() => {
+          // RPC is scoped to vendor_id IS NULL admin pages — fall back to direct update for vendor pages
+        });
+        if (lpId) {
+          void supabase
+            .from("landing_pages")
+            .update({ view_count: ((typed as any).view_count || 0) + 1 } as any)
+            .eq("id", lpId);
+        }
+      }
     })();
-  }, [slug]);
+  }, [slug, isVendorRoute, params.vendorSlug, params.customSlug]);
 
   // Inject Facebook Pixel
   useEffect(() => {
