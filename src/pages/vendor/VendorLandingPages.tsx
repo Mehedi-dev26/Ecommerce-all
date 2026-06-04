@@ -45,13 +45,13 @@ const VendorLandingPages = () => {
   const load = async () => {
     if (!vendor?.id) return;
     setLoading(true);
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("landing_pages")
       .select("id,slug,title,status,view_count,order_count,total_revenue,updated_at")
-      .eq("vendor_id" as any, vendor.id)
+      .eq("vendor_id", vendor.id)
       .order("updated_at", { ascending: false });
     if (error) toast.error("লোড ব্যর্থ: " + error.message);
-    else setPages((data as any) || []);
+    else setPages((data as Row[]) || []);
     setLoading(false);
   };
 
