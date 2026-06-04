@@ -129,6 +129,8 @@ const App = () => {
               <Routes>
                 {/* Public Landing Pages (custom slugs) — no Navbar/Footer */}
                 <Route path="/lp/:slug" element={<LandingPageView />} />
+                {/* Vendor public landing pages: /{vendor-slug}/{custom-slug} */}
+                <Route path="/:vendorSlug/:customSlug" element={<LandingPageView />} />
 
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />
