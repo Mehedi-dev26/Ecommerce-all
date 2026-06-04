@@ -684,7 +684,7 @@ const ProductDetail = () => {
               {relatedProducts.map((rp: any) => {
                 const rpDiscount = rp.compare_price ? Math.round(((Number(rp.compare_price) - Number(rp.price)) / Number(rp.compare_price)) * 100) : 0;
                 return (
-                  <Link key={rp.id} to={`/products/${rp.id}`} className="group overflow-hidden rounded-lg border bg-card shadow-sm transition hover:shadow-md">
+                  <Link key={rp.id} to={getProductUrl({ id: rp.id, serial_number: rp.serial_number, vendor_shop_slug: relatedVendors?.[rp.vendor_id]?.shop_slug })} className="group overflow-hidden rounded-lg border bg-card shadow-sm transition hover:shadow-md">
                     <div className="relative aspect-square overflow-hidden bg-muted">
                       {rp.image_url ? (
                         <img src={rp.image_url} alt={rp.name_bn} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
