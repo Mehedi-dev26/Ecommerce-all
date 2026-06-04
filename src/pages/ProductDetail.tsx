@@ -237,12 +237,18 @@ const ProductDetail = () => {
   const seoDesc = rawDesc.length > 160 ? `${rawDesc.slice(0, 157)}...` : rawDesc;
   const ogImage = allImages[0];
 
+  const canonicalProductPath = getProductUrl({
+    id: product.id,
+    serial_number: (product as any).serial_number,
+    vendor_shop_slug: (vendorInfo as any)?.shop_slug,
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <SEO
         title={seoTitle}
         description={seoDesc}
-        path={`/products/${product.id}`}
+        path={canonicalProductPath}
         type="product"
         image={ogImage}
         jsonLd={[
@@ -267,7 +273,8 @@ const ProductDetail = () => {
             ...((product as any).categories?.name_bn
               ? [{ name: (product as any).categories.name_bn, path: `/products?category=${(product as any).categories.name}` }]
               : []),
-            { name: product.name_bn, path: `/products/${product.id}` },
+            { name: product.name_bn, path: canonicalProductPath },
+
           ]),
         ]}
       />
