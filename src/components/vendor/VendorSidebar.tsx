@@ -18,6 +18,7 @@ const navGroups = [
     label: "পণ্য পরিচালনা",
     items: [
       { title: "আমার পণ্য", url: "/vendor/products", icon: Package, badge: null },
+      { title: "ল্যান্ডিং পেজ", url: "/vendor/landing-pages", icon: Rocket, badge: null },
     ],
   },
   {
