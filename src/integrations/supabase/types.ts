@@ -1158,6 +1158,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_get_vendor_activity: { Args: { _vendor_id: string }; Returns: Json }
       count_orders_by_email: { Args: { _email: string }; Returns: number }
       generate_order_number: { Args: never; Returns: string }
       has_role: {

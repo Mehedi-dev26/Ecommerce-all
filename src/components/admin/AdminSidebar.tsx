@@ -39,6 +39,7 @@ const navGroups = [
     label: "বিক্রেতা ও মার্কেটপ্লেস",
     items: [
       { title: "দোকান নিবন্ধন", url: "/admin/vendors", icon: Store, badge: "new" as const },
+      { title: "ভেন্ডর ম্যানেজমেন্ট", url: "/admin/vendor-management", icon: Users, badge: null },
     ],
   },
   {
