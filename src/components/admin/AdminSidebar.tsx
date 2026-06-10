@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, Package, ShoppingCart, FolderTree, Users,
   LogOut, Settings, BarChart3, Globe, ChevronDown, ChevronRight,
-  Shield, CreditCard, Truck, Image as ImageIcon, DollarSign, MessageSquare, Mail, Rocket, Store
+  Shield, CreditCard, Truck, Image as ImageIcon, DollarSign, MessageSquare, Mail, Rocket, Store, Banknote
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
