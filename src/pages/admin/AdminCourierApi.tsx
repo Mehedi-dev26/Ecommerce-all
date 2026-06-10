@@ -145,6 +145,9 @@ const AdminCourierApi = () => {
               {p.display_name}
             </TabsTrigger>
           ))}
+          <TabsTrigger value="__shipments" className="data-[state=active]:bg-background gap-1.5">
+            <ListOrdered className="h-3.5 w-3.5" /> শিপমেন্ট লগ
+          </TabsTrigger>
         </TabsList>
 
         {providers.map((p) => (
@@ -152,6 +155,10 @@ const AdminCourierApi = () => {
             <ProviderForm provider={p} onSaved={fetchProviders} toast={toast} />
           </TabsContent>
         ))}
+
+        <TabsContent value="__shipments" className="mt-4">
+          <CourierShipmentsLog />
+        </TabsContent>
       </Tabs>
     </div>
   );
