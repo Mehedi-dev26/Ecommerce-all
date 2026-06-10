@@ -9,7 +9,8 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import AdminPageState from "@/components/admin/AdminPageState";
 import { getErrorMessage } from "@/lib/error-message";
-import { Truck, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle, ExternalLink, Save, Zap } from "lucide-react";
+import { Truck, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle, ExternalLink, Save, Zap, ListOrdered } from "lucide-react";
+import CourierShipmentsLog from "@/components/admin/CourierShipmentsLog";
 
 type Provider = {
   id: string;
@@ -144,6 +145,9 @@ const AdminCourierApi = () => {
               {p.display_name}
             </TabsTrigger>
           ))}
+          <TabsTrigger value="__shipments" className="data-[state=active]:bg-background gap-1.5">
+            <ListOrdered className="h-3.5 w-3.5" /> শিপমেন্ট লগ
+          </TabsTrigger>
         </TabsList>
 
         {providers.map((p) => (
@@ -151,6 +155,10 @@ const AdminCourierApi = () => {
             <ProviderForm provider={p} onSaved={fetchProviders} toast={toast} />
           </TabsContent>
         ))}
+
+        <TabsContent value="__shipments" className="mt-4">
+          <CourierShipmentsLog />
+        </TabsContent>
       </Tabs>
     </div>
   );
