@@ -19,6 +19,8 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/admin/delivery": { title: "ডেলিভারি", subtitle: "ডেলিভারি ট্র্যাকিং ও শিপমেন্ট" },
   "/admin/courier-charges": { title: "কুরিয়ার চার্জ", subtitle: "এলাকা ভিত্তিক কুরিয়ার চার্জ" },
   "/admin/vendors": { title: "দোকান নিবন্ধন", subtitle: "বিক্রেতা আবেদন রিভিউ ও অনুমোদন" },
+  "/admin/vendor-management": { title: "ভেন্ডর ম্যানেজমেন্ট", subtitle: "অনুমোদিত বিক্রেতা ও কমিশন" },
+  "/admin/vendor-withdrawals": { title: "ভেন্ডর উত্তোলন", subtitle: "ভেন্ডর আয় ও পেআউট অনুরোধ" },
   "/admin/reviews": { title: "গ্রাহক রিভিউ", subtitle: "কাস্টমার রিভিউ ও রেটিং পরিচালনা" },
   "/admin/reports": { title: "রিপোর্ট", subtitle: "ব্যবসায়িক বিশ্লেষণ ও রিপোর্ট" },
   "/admin/settings": { title: "সেটিংস", subtitle: "সাইট কনফিগারেশন" },
