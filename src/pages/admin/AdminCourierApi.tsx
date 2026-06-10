@@ -9,7 +9,8 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import AdminPageState from "@/components/admin/AdminPageState";
 import { getErrorMessage } from "@/lib/error-message";
-import { Truck, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle, ExternalLink, Save, Zap } from "lucide-react";
+import { Truck, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle, ExternalLink, Save, Zap, ListOrdered } from "lucide-react";
+import CourierShipmentsLog from "@/components/admin/CourierShipmentsLog";
 
 type Provider = {
   id: string;
