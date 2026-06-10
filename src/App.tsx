@@ -76,6 +76,7 @@ const AdminLandingPages = lazy(() => import("./pages/admin/AdminLandingPages"));
 const AdminLandingPageEditor = lazy(() => import("./pages/admin/AdminLandingPageEditor"));
 const AdminVendors = lazy(() => import("./pages/admin/AdminVendors"));
 const AdminVendorManagement = lazy(() => import("./pages/admin/AdminVendorManagement"));
+const AdminVendorWithdrawals = lazy(() => import("./pages/admin/AdminVendorWithdrawals"));
 const LandingPageView = lazy(() => import("./pages/LandingPageView"));
 
 const queryClient = new QueryClient({
