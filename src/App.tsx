@@ -159,6 +159,7 @@ const App = () => {
                   <Route path="landing-pages/:id" element={<AdminLandingPageEditor />} />
                   <Route path="vendors" element={<AdminVendors />} />
                   <Route path="vendor-management" element={<AdminVendorManagement />} />
+                  <Route path="vendor-withdrawals" element={<AdminVendorWithdrawals />} />
                 </Route>
 
                 {/* Vendor Routes */}
