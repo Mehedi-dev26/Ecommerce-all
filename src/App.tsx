@@ -77,6 +77,7 @@ const AdminLandingPageEditor = lazy(() => import("./pages/admin/AdminLandingPage
 const AdminVendors = lazy(() => import("./pages/admin/AdminVendors"));
 const AdminVendorManagement = lazy(() => import("./pages/admin/AdminVendorManagement"));
 const AdminVendorWithdrawals = lazy(() => import("./pages/admin/AdminVendorWithdrawals"));
+const AdminVendorSupport = lazy(() => import("./pages/admin/AdminVendorSupport"));
 const LandingPageView = lazy(() => import("./pages/LandingPageView"));
 
 const queryClient = new QueryClient({
@@ -160,6 +161,7 @@ const App = () => {
                   <Route path="vendors" element={<AdminVendors />} />
                   <Route path="vendor-management" element={<AdminVendorManagement />} />
                   <Route path="vendor-withdrawals" element={<AdminVendorWithdrawals />} />
+                  <Route path="vendor-support" element={<AdminVendorSupport />} />
                 </Route>
 
                 {/* Vendor Routes */}
