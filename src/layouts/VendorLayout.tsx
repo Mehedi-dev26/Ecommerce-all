@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import VendorSidebar from "@/components/vendor/VendorSidebar";
 import VendorBottomNav from "@/components/vendor/VendorBottomNav";
 import PageLoader from "@/components/PageLoader";
-import { Menu, Bell, RefreshCw, Store, Clock, XCircle, AlertTriangle } from "lucide-react";
+import { Menu, RefreshCw, Store, Clock, XCircle, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import VendorNotificationCenter from "@/components/vendor/VendorNotificationCenter";
 
 const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/vendor/dashboard": { title: "ড্যাশবোর্ড", subtitle: "আপনার দোকানের সারসংক্ষেপ" },
@@ -113,12 +114,7 @@ const VendorLayout = () => {
               <Button variant="ghost" size="icon" className="hidden md:flex text-muted-foreground hover:text-foreground">
                 <RefreshCw className="h-4 w-4" />
               </Button>
-              <div className="relative hidden md:block">
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
-                  <Bell className="h-4 w-4" />
-                </Button>
-                <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-destructive rounded-full" />
-              </div>
+              <VendorNotificationCenter vendorId={vendor.id} vendorName={vendor.shop_name_bn || vendor.owner_name} />
               <div className="h-8 w-px bg-border hidden md:block" />
               <div className="hidden md:flex items-center gap-2 pl-1">
                 <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">

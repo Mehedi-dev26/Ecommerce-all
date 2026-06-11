@@ -21,6 +21,7 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
   "/admin/vendors": { title: "দোকান নিবন্ধন", subtitle: "বিক্রেতা আবেদন রিভিউ ও অনুমোদন" },
   "/admin/vendor-management": { title: "ভেন্ডর ম্যানেজমেন্ট", subtitle: "অনুমোদিত বিক্রেতা ও কমিশন" },
   "/admin/vendor-withdrawals": { title: "ভেন্ডর উত্তোলন", subtitle: "ভেন্ডর আয় ও পেআউট অনুরোধ" },
+  "/admin/vendor-support": { title: "লাইভ সাপোর্ট", subtitle: "ভেন্ডরদের সাথে রিয়েল-টাইম চ্যাট ও AI সাজেশন" },
   "/admin/reviews": { title: "গ্রাহক রিভিউ", subtitle: "কাস্টমার রিভিউ ও রেটিং পরিচালনা" },
   "/admin/reports": { title: "রিপোর্ট", subtitle: "ব্যবসায়িক বিশ্লেষণ ও রিপোর্ট" },
   "/admin/settings": { title: "সেটিংস", subtitle: "সাইট কনফিগারেশন" },
