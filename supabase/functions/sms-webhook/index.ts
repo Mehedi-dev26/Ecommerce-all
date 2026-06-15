@@ -165,22 +165,37 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Try to match an unverified order within last 24h: same provider, same sender, amount within ±1
-    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const { data: candidates } = await supabase
-      .from("orders")
-      .select("id, payment_expected_amount, payment_sender_number, payment_provider, advance_amount, total, status")
-      .eq("payment_provider", parsed.provider)
-      .eq("payment_sender_number", parsed.senderNumber)
-      .is("payment_verified_at", null)
-      .gte("created_at", since)
-      .order("created_at", { ascending: false })
-      .limit(20);
+    // Match priority 1: explicit transaction ID submitted by the customer
+    let match: any = null;
+    if (parsed.txnId) {
+      const { data: byTxn } = await supabase
+        .from("orders")
+        .select("id, payment_expected_amount, advance_amount, total")
+        .eq("payment_txn_id", parsed.txnId)
+        .is("payment_verified_at", null)
+        .limit(1)
+        .maybeSingle();
+      if (byTxn) match = byTxn;
+    }
 
-    const match = (candidates || []).find((o: any) => {
-      const expected = Number(o.payment_expected_amount || 0);
-      return Math.abs(expected - (parsed.amount || 0)) <= 1;
-    });
+    // Match priority 2: provider + sender + amount (±1৳) within last 24h
+    if (!match) {
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { data: candidates } = await supabase
+        .from("orders")
+        .select("id, payment_expected_amount, payment_sender_number, payment_provider, advance_amount, total, status")
+        .eq("payment_provider", parsed.provider)
+        .eq("payment_sender_number", parsed.senderNumber)
+        .is("payment_verified_at", null)
+        .gte("created_at", since)
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      match = (candidates || []).find((o: any) => {
+        const expected = Number(o.payment_expected_amount || 0);
+        return Math.abs(expected - (parsed.amount || 0)) <= 1;
+      });
+    }
 
     if (!match) {
       return new Response(JSON.stringify({ matched: false, sms_id: inserted.id }), {
