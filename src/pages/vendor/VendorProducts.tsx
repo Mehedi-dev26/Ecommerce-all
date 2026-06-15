@@ -16,6 +16,7 @@ import {
   SheetFooter,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Loader2, Upload, Package, ChevronRight, ArrowLeft, CheckCircle2, Info } from "lucide-react";
 
