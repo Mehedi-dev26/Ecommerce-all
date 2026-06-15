@@ -14,7 +14,7 @@ import { divisions } from "@/data/bd-locations";
 import { getGuestAuthEmail, getGuestAuthEmailCandidates, getGuestAuthPassword } from "@/lib/guest-auth";
 import SEO from "@/components/SEO";
 import { sendEmail, buildOrderItemsHtml } from "@/lib/sendEmail";
-import PaymentMethodPicker, { type PaymentMethod } from "@/components/checkout/PaymentMethodPicker";
+// Multi-step payment flow lives on /payment/:orderId/* — see src/pages/payment/*
 
 interface SavedAddress {
   id: string;
@@ -47,8 +47,7 @@ const Checkout = () => {
   const [loading, setLoading] = useState(false);
   const [showPin, setShowPin] = useState(false);
   const [abandonedId, setAbandonedId] = useState<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
-  const [senderNumber, setSenderNumber] = useState("");
+  // Payment method is chosen on the next page (/payment/:orderId)
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -242,14 +241,7 @@ const Checkout = () => {
     if (!form.address.trim() || form.address.trim().length < 10) errs.address = "সম্পূর্ণ ঠিকানা লিখুন (কমপক্ষে ১০ অক্ষর)";
     // PIN required only if user is not already logged in
     if (!user && !/^\d{4}$/.test(form.pin)) errs.pin = "৪ ডিজিটের PIN দিন";
-    // Mobile banking requires sender number
-    if (paymentMethod !== "cod" && !BD_PHONE_REGEX.test(senderNumber)) {
-      errs.senderNumber = "যে নম্বর থেকে টাকা পাঠাবেন সেটি সঠিকভাবে লিখুন (01XXXXXXXXX)";
-    }
-    // Advance-required products cannot be ordered via plain COD
-    if (paymentMethod === "cod" && advanceTotal > 0) {
-      errs.paymentMethod = "এই অর্ডারে অগ্রিম পেমেন্ট প্রয়োজন — bKash / Nagad / Rocket নির্বাচন করুন";
-    }
+    // Payment method validation happens on the /payment/:orderId page
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -340,10 +332,10 @@ const Checkout = () => {
         shipping_cost: shippingCost,
         total: totalPrice + shippingCost,
         advance_amount: advanceTotal,
-        payment_method: paymentMethod,
-        payment_provider: paymentMethod === "cod" ? null : paymentMethod,
-        payment_sender_number: paymentMethod === "cod" ? null : senderNumber,
-        payment_expected_amount: paymentMethod === "cod" ? null : upfrontAmount,
+        payment_method: "pending",
+        payment_provider: null,
+        payment_sender_number: null,
+        payment_expected_amount: upfrontAmount,
         user_id: userId,
       }).select().single();
 
@@ -499,8 +491,9 @@ const Checkout = () => {
       })();
 
       clearCart();
-      toast({ title: "অর্ডার সফল!", description: `অর্ডার নম্বর: ${orderNumber}` });
-      navigate(`/order-success/${orderNumber}`);
+      toast({ title: "অর্ডার তৈরি হয়েছে!", description: `অর্ডার নম্বর: ${orderNumber}` });
+      // Redirect to the multi-step payment flow (Image 1 → 2 → 3 → success)
+      navigate(`/payment/${order.id}`, { replace: true });
     } catch (err: any) {
       toast({ title: "ত্রুটি", description: err.message || "অর্ডার করতে সমস্যা হয়েছে", variant: "destructive" });
     } finally {
@@ -863,26 +856,13 @@ const Checkout = () => {
             </div>
           )}
 
-          {/* Payment */}
-          <PaymentMethodPicker
-            amount={upfrontAmount}
-            method={paymentMethod}
-            onMethodChange={(m) => {
-              setPaymentMethod(m);
-              setErrors((prev) => ({ ...prev, paymentMethod: "", senderNumber: "" }));
-            }}
-            senderNumber={senderNumber}
-            onSenderChange={(n) => {
-              setSenderNumber(n);
-              setErrors((prev) => ({ ...prev, senderNumber: "" }));
-            }}
-            senderError={errors.senderNumber}
-          />
-          {errors.paymentMethod && (
-            <p className="-mt-2 flex items-center gap-1 text-xs text-destructive">
-              <AlertCircle className="h-3 w-3" />{errors.paymentMethod}
+          {/* Payment method is selected on the next page (/payment/:orderId) */}
+          <div className="rounded-xl border bg-card p-4 sm:p-5">
+            <p className="text-sm font-semibold mb-1">পেমেন্ট পদ্ধতি</p>
+            <p className="text-xs text-muted-foreground">
+              অর্ডার confirm করার পর পরবর্তী ধাপে আপনি bKash / Nagad / Rocket অথবা ক্যাশ অন ডেলিভারি নির্বাচন করতে পারবেন।
             </p>
-          )}
+          </div>
         </div>
 
         {/* Order Summary */}

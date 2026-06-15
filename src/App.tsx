@@ -33,6 +33,10 @@ const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
+const PaymentMethodSelect = lazy(() => import("./pages/payment/PaymentMethodSelect"));
+const PaymentNumberEntry = lazy(() => import("./pages/payment/PaymentNumberEntry"));
+const PaymentWaiting = lazy(() => import("./pages/payment/PaymentWaiting"));
+const PaymentSuccess = lazy(() => import("./pages/payment/PaymentSuccess"));
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -139,6 +143,12 @@ const App = () => {
                 <Route path="/lp/:slug" element={<LandingPageView />} />
                 {/* Vendor public landing pages: /{vendor-slug}/{custom-slug} */}
                 <Route path="/:vendorSlug/:customSlug" element={<LandingPageView />} />
+
+                {/* Standalone payment flow — no Navbar/Footer */}
+                <Route path="/payment/:orderId" element={<PaymentMethodSelect />} />
+                <Route path="/payment/:orderId/number" element={<PaymentNumberEntry />} />
+                <Route path="/payment/:orderId/waiting" element={<PaymentWaiting />} />
+                <Route path="/payment/:orderId/success" element={<PaymentSuccess />} />
 
                 {/* Admin Routes */}
                 <Route path="/admin/login" element={<AdminLogin />} />
