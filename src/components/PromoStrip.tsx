@@ -42,7 +42,7 @@ const PromoStrip = ({ position, className = "", inline = false }: Props) => {
   const Wrapper: React.ElementType = inline ? "div" : "section";
   const wrapperCls = inline
     ? `w-full ${className}`
-    : `container mx-auto px-3 sm:px-4 my-4 sm:my-6 ${className}`;
+    : `container mx-auto px-3 sm:px-4 my-5 sm:my-8 ${className}`;
 
   return (
     <Wrapper className={wrapperCls}>
