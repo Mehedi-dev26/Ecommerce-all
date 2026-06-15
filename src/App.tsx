@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { SiteSettingsProvider } from "@/contexts/SiteSettingsContext";
 import Navbar from "@/components/Navbar";
 import ScrollToTop from "@/components/ScrollToTop";
+import AuthRecoveryRedirect from "@/components/AuthRecoveryRedirect";
 
 // Heavy / below-the-fold pieces — defer to keep initial JS small.
 const Footer = lazy(() => import("@/components/Footer"));
@@ -131,6 +132,7 @@ const App = () => {
           </Suspense>
           <BrowserRouter>
             <ScrollToTop />
+            <AuthRecoveryRedirect />
             <Suspense fallback={<RouteFallback />}>
               <Routes>
                 {/* Public Landing Pages (custom slugs) — no Navbar/Footer */}

@@ -18,6 +18,7 @@ const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sendingReset, setSendingReset] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -43,6 +44,23 @@ const AdminLogin = () => {
       toast({ title: "লগইন ব্যর্থ", description: getErrorMessage(error, "লগইন করা যায়নি।"), variant: "destructive" });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast({ title: "ইমেইল দিন", description: "প্রথমে আপনার অ্যাডমিন ইমেইল লিখুন।", variant: "destructive" });
+      return;
+    }
+    setSendingReset(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setSendingReset(false);
+    if (error) {
+      toast({ title: "পাঠানো যায়নি", description: getErrorMessage(error, "রিসেট লিঙ্ক পাঠানো যায়নি।"), variant: "destructive" });
+    } else {
+      toast({ title: "ইমেইল পাঠানো হয়েছে", description: `${email}-এ পাসওয়ার্ড রিসেট লিঙ্ক পাঠানো হয়েছে।` });
     }
   };
 
@@ -98,6 +116,14 @@ const AdminLogin = () => {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "লগইন হচ্ছে..." : "লগইন করুন"}
             </Button>
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={sendingReset}
+              className="w-full text-center text-sm text-primary hover:underline disabled:opacity-50"
+            >
+              {sendingReset ? "পাঠানো হচ্ছে..." : "পাসওয়ার্ড ভুলে গেছেন?"}
+            </button>
           </form>
         </CardContent>
       </Card>
