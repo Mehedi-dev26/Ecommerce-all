@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { PAYMENT_THEMES, type PaymentProvider } from "@/lib/payment-themes";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
 interface OrderRow {
   id: string;
@@ -213,7 +214,7 @@ const PaymentWaiting = () => {
             <ShoppingCart className="h-5 w-5" style={{ color: theme.brand }} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold truncate">Sapahar Shop</p>
+            <p className="text-sm font-semibold truncate">{brandName}</p>
             <p className="text-[11px] text-muted-foreground truncate">Inv: {order.order_number}</p>
           </div>
           <div className="text-right font-extrabold text-lg" style={{ color: theme.brand }}>
