@@ -1,58 +1,108 @@
-## লক্ষ্য
-Sapahar Shop-এর existing checkout-এ bKash/Nagad/Rocket payment + SMS-based auto-verification যোগ করা। Advance payment ও full payment — দুটোতেই কাজ করবে। SMS forwarder থেকে আসা SMS Supabase Edge Function পার্স করে automatically order match করে paid করবে।
+# ZiniPay-style Payment Flow
 
-## ১. Database (migration)
-- `payment_accounts` টেবিল: id, method (bkash/nagad/rocket), account_number, account_type (personal/merchant), logo_url, instructions_bn, is_active, sort_order
-- `sms_inbox` টেবিল: id, raw_message, sender_address, provider, amount, txn_id, sender_number, received_at, matched_order_id (fk orders), matched_at, status (unmatched/matched/duplicate/invalid)
-- `orders` টেবিলে নতুন column: `payment_provider` (bkash/nagad/rocket/cod), `payment_sender_number`, `payment_txn_id`, `payment_verified_at`, `payment_expected_amount` (advance বা total)
-- `site_settings`-এ নতুন key: `sms_webhook` (secret token, allowed senders, tolerance)
-- সব নতুন টেবিলে GRANT + RLS (admin manage; webhook service_role; user নিজের order এর txn দেখতে পাবে)
-- বিদ্যমান data নষ্ট না করে শুধু ALTER ADD COLUMN
+আপনার তিনটি ছবি অনুযায়ী checkout থেকে আলাদা আলাদা page-এ payment flow তৈরি করব। প্রতিটি step আলাদা route, hubohu image-এর design।
 
-## ২. Checkout UI (3-step flow)
-File: নতুন `src/components/checkout/MobilePaymentFlow.tsx`, `src/pages/Checkout.tsx` update।
+## Flow Overview
 
-বর্তমান COD-only payment section বদলে যাবে:
-- **Step 1 — Method:** COD | bKash (pink) | Nagad (orange) | Rocket (purple) gradient card
-- **Step 2 — Account screen:** merchant number (one-tap copy), payable amount (advance থাকলে advance, না থাকলে full), Bangla instructions, sender number input (regex `^01[3-9]\d{8}$`, +880 normalize), real-time validation
-- **Step 3 — Waiting screen:** spinner, "অর্ডার যাচাই হচ্ছে…", 3s interval `recheckPayment` poll, success → OrderSuccess page, 10min timeout এ manual recheck button
+```text
+Checkout (form fill) 
+   ↓ [Place Order click]
+Order create (status=pending_payment) 
+   ↓
+/payment/:orderId                  ← Image 1 (method picker)
+   ↓ [bKash/Nagad/Rocket select]
+/payment/:orderId/number           ← Image 2 (provider themed number entry)
+   ↓ [Confirm]
+/payment/:orderId/waiting          ← Image 3 (merchant number + instructions + waiting)
+   ↓ 30s auto-poll for SMS match
+   ├─ matched → /payment/:orderId/success
+   └─ not matched → "Try Again" (2x, each 30s)
+        └─ after 2 tries → "Submit Transaction ID" form
+             ↓
+        order stays pending, admin verifies later OR webhook auto-matches when SMS arrives
+```
 
-Confirm button click হলে **আগে order create হবে (pending payment_verified=false), সাথে সাথে waiting screen-এ navigate** — await করবে না UI block-এর জন্য।
+COD নির্বাচন করলে সরাসরি `/order-success` এ যাবে (current flow)।
 
-## ৩. SMS Webhook (Edge Function)
-File: `supabase/functions/sms-webhook/index.ts` (public, verify_jwt=false)
-- Header `x-webhook-token` site_settings.sms_webhook.secret-এর সাথে match
-- Provider parsers (regex): bKash `TrxID`, Nagad `TxnID`, Rocket `TxnId`
-- `sms_inbox`-এ insert
-- Auto-match: same amount (±1৳), last 11 digit sender match, last 30 min-এর pending order, payment_provider মিল
-- Match হলে `orders.payment_verified_at`, `payment_txn_id` set; advance order হলে `advance_paid=true`, full হলে `status='confirmed'`
-- URL: `https://wqdirlxffyfplbhiadou.supabase.co/functions/v1/sms-webhook`
+## Pages (আলাদা routes)
 
-## ৪. Admin Panel
-নতুন route `/admin/payment-gateway` (existing `/admin/payments` finance-related, তাই আলাদা):
-- **Accounts tab:** bKash/Nagad/Rocket-এর জন্য number, type, instruction, active toggle (CRUD on `payment_accounts`)
-- **Webhook tab:** webhook URL (copy), secret token (regenerate), test payload sender, recent SMS log (last 50, match status badge)
-- **Pending payments tab:** advance/full pending order, manual approve/reject, auto-refresh 10s
+1. **`/payment/:orderId`** — `PaymentMethodSelect.tsx`
+   - Top: brand logo + "Order #SM-0001" + invoice ID copy button
+   - Support/Call icons (vendor contact)
+   - Tab: Mobile Banking / International (international disabled MVP)
+   - Grid: bKash, Nagad, Rocket cards (active accounts থেকে; logo দেখাবে)
+   - Bottom sticky: "Pay ৳{amount}" button
 
-AdminSidebar-এ নতুন link "পেমেন্ট গেটওয়ে"। admin role check `has_role` দিয়ে server-side।
+2. **`/payment/:orderId/number`** — `PaymentNumberEntry.tsx`
+   - Provider-themed background (bKash=pink #E2136E, Nagad=orange #EE7F25, Rocket=purple #8C3494)
+   - Top white header with provider logo
+   - Order summary row (cart icon + product name + amount)
+   - Center: "Your {Provider} Account Number" + large input (sender number)
+   - Bottom: Cancel / Confirm buttons
+   - BD phone validation
 
-## ৫. Order Success ও Tracking
-- OrderSuccess page-এ payment status badge ("পেমেন্ট যাচাইকৃত ✓" বা "যাচাই অপেক্ষমাণ")
-- UserDashboard-এ order list-এ txn_id ও payment status দেখানো
-- AdminOrders-এ filter "Payment pending", payment column যোগ
+3. **`/payment/:orderId/waiting`** — `PaymentWaiting.tsx`
+   - Provider-themed
+   - "MERCHANT NUMBER" box with copy button (admin-configured account number)
+   - Numbered Bengali instructions (1, 2, 3) + bKash app screenshot illustration
+   - "Waiting for payment..." pulsing text
+   - Bottom: Cancel + Waiting button (30s countdown)
+   - **30s timer**: poll `orders.payment_status` every 3s
+     - matched → success route
+     - timeout → enable "Try Again" (counter: 1/2, 2/2)
+     - after 2nd timeout → "Submit Transaction ID" form appears
+   - Submit txn ID → save to `orders.payment_txn_id`, status stays `pending_verification`
+   - Toast: "আমরা SMS পেলে automatically confirm হয়ে যাবে, না হলে admin verify করবে"
 
-## ৬. কী stack-adaptation
-Prompt-এ TanStack Start + createServerFn বলা ছিল, কিন্তু এই project React 18 + Vite + Supabase। সমস্ত server logic Supabase Edge Function-এ যাবে; client থেকে `supabase.functions.invoke()`। বাকি UX/design/flow হুবহু same।
+4. **`/payment/:orderId/success`** — `PaymentSuccess.tsx`
+   - Green checkmark animation
+   - Order number, amount, txn ID
+   - "Track Order" / "Continue Shopping" buttons
 
-## ৭. বাদ থাকছে (separate request করতে হবে)
-- Smart Investor packages, user_packages, referral commission, community chat — এগুলো আলাদা module, আজ skip
-- Real-time payment gateway API (bKash/Nagad official API) — পরে integrate
+## Backend Changes
 
-## ক্রম
-1. Migration (payment_accounts, sms_inbox, orders columns, site_settings key)
-2. sms-webhook edge function
-3. Admin payment-gateway page + sidebar link
-4. Checkout 3-step UI + recheckPayment client logic
-5. OrderSuccess/Dashboard/AdminOrders badge update
+**Migration:**
+- `orders` add columns: `payment_txn_id text`, `payment_sender_number text` (if missing), `payment_attempt_count int default 0`
+- `orders.payment_status` enum values used: `pending`, `pending_verification`, `paid`, `failed`
 
-প্রস্তুত হলে confirm করুন — শুরু করব।
+**SMS Webhook (already exists, enhance):**
+- বর্তমান webhook amount±1 + sender + 24h match করে। যোগ করব:
+  - Match on `payment_txn_id` যদি customer submit করে থাকে
+  - Realtime: orders table-এ update broadcast → waiting page তাত্ক্ষণিক success-এ যাবে (`supabase.channel` subscription)
+- Enable realtime on `orders` table
+
+**Checkout.tsx changes:**
+- COD → unchanged
+- bKash/Nagad/Rocket → order create with `payment_status='pending'`, then `navigate('/payment/' + orderId)`
+- Sender number input PaymentMethodPicker থেকে সরিয়ে number entry page-এ নেওয়া হবে
+
+## Technical Details
+
+- **Provider themes**: `src/lib/payment-themes.ts` — color, logo, name per method
+- **Realtime polling**: `useEffect` + `supabase.channel('order-'+id).on('postgres_changes', ...)` + 3s fallback poll
+- **Try again counter**: localStorage `payment_attempts_${orderId}` (survives page reload)
+- **Auto-match on late SMS**: webhook already matches; if order is `pending_verification` with txn ID, prefer txn match
+- **Realtime cleanup**: `removeChannel` in useEffect return (per project rule)
+- **Bengali text**: instructions, buttons all in Bangla per project standard
+
+## Files
+
+**Create:**
+- `src/pages/payment/PaymentMethodSelect.tsx`
+- `src/pages/payment/PaymentNumberEntry.tsx`
+- `src/pages/payment/PaymentWaiting.tsx`
+- `src/pages/payment/PaymentSuccess.tsx`
+- `src/lib/payment-themes.ts`
+
+**Edit:**
+- `src/App.tsx` (4 new lazy routes)
+- `src/pages/Checkout.tsx` (redirect to /payment/:id for mobile banking)
+- `supabase/functions/sms-webhook/index.ts` (txn_id matching + realtime notify)
+
+**Migration:**
+- Add `payment_txn_id`, `payment_attempt_count` columns + enable realtime on orders
+
+## Out of Scope (this iteration)
+- International payment tab (disabled placeholder)
+- QR code payments
+- Real-time payment gateway API (bKash PGW) — manual SMS-match only, যেমনটা current architecture
