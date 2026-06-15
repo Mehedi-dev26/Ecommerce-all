@@ -321,7 +321,7 @@ const UserDashboard = () => {
   const filteredOrders = statusFilter === "all" ? realOrders : realOrders.filter((o) => o.status === statusFilter);
 
   // Recent activity
-  const recentOrder = orders[0];
+  const recentOrder = realOrders[0];
   const memberSince = user?.created_at ? new Date(user.created_at).toLocaleDateString("bn-BD", { year: "numeric", month: "long" }) : "";
 
   if (authLoading) {
