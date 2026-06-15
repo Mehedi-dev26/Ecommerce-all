@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import ProductCard from "./ProductCard";
 import ProductCardSkeleton from "./ProductCardSkeleton";
+import PromoStrip from "./PromoStrip";
 import { useVendorsMap } from "@/hooks/useVendorsMap";
 import { getCategoryIcon } from "@/lib/category-icons";
 
@@ -56,6 +57,16 @@ const CategoryProductSections = () => {
 
   if (!data?.length) return null;
 
+  // Find Langra section index — promo strip will render inside it, above the heading.
+  // Falls back to the first section if no Langra match.
+  const langraIdx = (() => {
+    const i = data.findIndex((c) => {
+      const n = `${c.name ?? ""} ${c.name_bn ?? ""}`.toLowerCase();
+      return n.includes("langra") || n.includes("ল্যাংড়া") || n.includes("ন্যাংরা") || n.includes("ল্যাংরা");
+    });
+    return i === -1 ? 0 : i;
+  })();
+
   return (
     <>
       {data.map((cat, idx) => {
@@ -66,6 +77,11 @@ const CategoryProductSections = () => {
           className={`py-8 sm:py-12 ${idx % 2 === 0 ? "bg-background" : "bg-muted/40"}`}
         >
           <div className="container mx-auto px-4">
+            {idx === langraIdx && (
+              <div className="mb-6 sm:mb-8 -mx-1 sm:mx-0">
+                <PromoStrip position="top" inline className="!my-0 !px-0" />
+              </div>
+            )}
             <div className="mb-5 flex items-end justify-between gap-3 sm:mb-7">
               <div className="flex items-center gap-3">
                 <span
