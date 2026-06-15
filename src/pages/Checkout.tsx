@@ -856,26 +856,13 @@ const Checkout = () => {
             </div>
           )}
 
-          {/* Payment */}
-          <PaymentMethodPicker
-            amount={upfrontAmount}
-            method={paymentMethod}
-            onMethodChange={(m) => {
-              setPaymentMethod(m);
-              setErrors((prev) => ({ ...prev, paymentMethod: "", senderNumber: "" }));
-            }}
-            senderNumber={senderNumber}
-            onSenderChange={(n) => {
-              setSenderNumber(n);
-              setErrors((prev) => ({ ...prev, senderNumber: "" }));
-            }}
-            senderError={errors.senderNumber}
-          />
-          {errors.paymentMethod && (
-            <p className="-mt-2 flex items-center gap-1 text-xs text-destructive">
-              <AlertCircle className="h-3 w-3" />{errors.paymentMethod}
+          {/* Payment method is selected on the next page (/payment/:orderId) */}
+          <div className="rounded-xl border bg-card p-4 sm:p-5">
+            <p className="text-sm font-semibold mb-1">পেমেন্ট পদ্ধতি</p>
+            <p className="text-xs text-muted-foreground">
+              অর্ডার confirm করার পর পরবর্তী ধাপে আপনি bKash / Nagad / Rocket অথবা ক্যাশ অন ডেলিভারি নির্বাচন করতে পারবেন।
             </p>
-          )}
+          </div>
         </div>
 
         {/* Order Summary */}
