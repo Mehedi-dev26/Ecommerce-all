@@ -159,11 +159,11 @@ const PaymentMethodSelect = () => {
         <div className="mt-5 rounded-3xl bg-white shadow-[0_8px_32px_rgba(80,120,200,0.10)] p-6 sm:p-7 flex-1 flex flex-col">
           {/* Brand + Invoice */}
           <div className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 grid place-items-center text-2xl shrink-0">
-              🥭
+            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 grid place-items-center overflow-hidden shrink-0 border">
+              <img src={logoUrl} alt={brandName} className="h-full w-full object-contain p-1" />
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-base font-bold text-foreground">Sapahar Shop পেমেন্ট</h1>
+              <h1 className="text-base font-bold text-foreground truncate">{brandName} পেমেন্ট</h1>
               <button
                 onClick={handleCopyInvoice}
                 className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition"
