@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowLeft, X, Copy, Check, Loader2, Headphones, Phone, Truck,
+  ArrowLeft, X, Copy, Check, Loader2, Phone, Truck,
   ShieldCheck, Lock, BadgeCheck,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -12,6 +12,7 @@ import {
   PROVIDERS_ORDER,
   type PaymentProvider,
 } from "@/lib/payment-themes";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
 interface OrderRow {
   id: string;
@@ -35,6 +36,8 @@ type Selection = PaymentProvider | "cod" | null;
 const PaymentMethodSelect = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
+  const { settings, logoUrl } = useSiteSettings();
+  const brandName = settings.brand_name || "Sapahar Shop";
   const [order, setOrder] = useState<OrderRow | null>(null);
   const [accounts, setAccounts] = useState<AccountRow[]>([]);
   const [loading, setLoading] = useState(true);
