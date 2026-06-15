@@ -349,12 +349,6 @@ const VendorProducts = () => {
                       </div>
                     )}
                   </div>
-                    <Textarea
-                      value={form.description_bn}
-                      onChange={(e) => setForm({ ...form, description_bn: e.target.value })}
-                      rows={3}
-                    />
-                  </div>
 
                   <div>
                     <Label className="text-xs font-semibold uppercase text-muted-foreground">পণ্যের ছবি</Label>
