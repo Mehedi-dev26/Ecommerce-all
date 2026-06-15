@@ -32,6 +32,8 @@ const emptyForm = {
   category_id: "",
   image_url: "",
   is_active: true,
+  requires_advance_payment: false,
+  advance_percent: 50,
 };
 
 const VendorProducts = () => {
@@ -93,6 +95,8 @@ const VendorProducts = () => {
       category_id: p.category_id || "",
       image_url: p.image_url || "",
       is_active: p.is_active ?? true,
+      requires_advance_payment: !!p.requires_advance_payment,
+      advance_percent: Number(p.advance_percent ?? 50),
     });
     setImageFile(null);
     setStep("details");
@@ -142,6 +146,8 @@ const VendorProducts = () => {
         category_id: form.category_id || null,
         image_url: image_url || null,
         is_active: form.is_active,
+        requires_advance_payment: form.requires_advance_payment,
+        advance_percent: Number(form.advance_percent) || 50,
       };
 
       if (form.id) {
@@ -312,6 +318,37 @@ const VendorProducts = () => {
 
                   <div>
                     <Label className="text-xs font-semibold uppercase text-muted-foreground">বিবরণ (বাংলা)</Label>
+                    <Textarea
+                      value={form.description_bn}
+                      onChange={(e) => setForm({ ...form, description_bn: e.target.value })}
+                      rows={3}
+                    />
+                  </div>
+
+                  {/* Advance payment toggle */}
+                  <div className="rounded-xl border border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 p-3 space-y-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <Label className="text-sm font-semibold">অগ্রিম পেমেন্ট প্রয়োজন</Label>
+                      <Switch
+                        checked={form.requires_advance_payment}
+                        onCheckedChange={(v) => setForm({ ...form, requires_advance_payment: v })}
+                      />
+                    </div>
+                    {form.requires_advance_payment && (
+                      <div className="flex items-center gap-2">
+                        <Label className="text-xs whitespace-nowrap">শতাংশ:</Label>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={100}
+                          value={form.advance_percent}
+                          onChange={(e) => setForm({ ...form, advance_percent: Number(e.target.value) })}
+                          className="w-24"
+                        />
+                        <span className="text-xs text-muted-foreground">% checkout-এ advance দেখানো হবে।</span>
+                      </div>
+                    )}
+                  </div>
                     <Textarea
                       value={form.description_bn}
                       onChange={(e) => setForm({ ...form, description_bn: e.target.value })}
