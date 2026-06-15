@@ -14,6 +14,7 @@ import { divisions } from "@/data/bd-locations";
 import { getGuestAuthEmail, getGuestAuthEmailCandidates, getGuestAuthPassword } from "@/lib/guest-auth";
 import SEO from "@/components/SEO";
 import { sendEmail, buildOrderItemsHtml } from "@/lib/sendEmail";
+import PaymentMethodPicker, { type PaymentMethod } from "@/components/checkout/PaymentMethodPicker";
 
 interface SavedAddress {
   id: string;
@@ -46,6 +47,8 @@ const Checkout = () => {
   const [loading, setLoading] = useState(false);
   const [showPin, setShowPin] = useState(false);
   const [abandonedId, setAbandonedId] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
+  const [senderNumber, setSenderNumber] = useState("");
   const [form, setForm] = useState({
     name: "",
     phone: "",
