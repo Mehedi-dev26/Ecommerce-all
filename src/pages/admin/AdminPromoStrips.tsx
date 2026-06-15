@@ -152,8 +152,11 @@ const AdminPromoStrips = () => {
     void fetchStrips();
   };
 
-  if (loading || error) {
-    return <AdminPageState loading={loading} error={error} onRetry={fetchStrips} />;
+  if (loading) {
+    return <AdminPageState loading message="লোড হচ্ছে..." />;
+  }
+  if (error) {
+    return <AdminPageState message={error} onRetry={fetchStrips} />;
   }
 
   return (
