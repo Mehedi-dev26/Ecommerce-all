@@ -33,7 +33,8 @@ const navGroups = [
     label: "পেমেন্ট ও ডেলিভারি",
     items: [
       { title: "পেমেন্ট গেটওয়ে", url: "/admin/payment-gateway", icon: Wallet, badge: "new" as const },
-      { title: "পেমেন্ট", url: "/admin/payments", icon: CreditCard, badge: null },
+      { title: "পেমেন্ট Approval", url: "/admin/payment-approvals", icon: CreditCard, badge: "new" as const },
+      { title: "পেমেন্ট রিপোর্ট", url: "/admin/payments", icon: CreditCard, badge: null },
       { title: "ডেলিভারি", url: "/admin/delivery", icon: Truck, badge: null },
       { title: "কুরিয়ার চার্জ", url: "/admin/courier-charges", icon: DollarSign, badge: null },
       { title: "কুরিয়ার API", url: "/admin/courier-api", icon: Truck, badge: null },

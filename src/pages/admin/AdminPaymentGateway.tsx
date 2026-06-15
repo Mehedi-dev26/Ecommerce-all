@@ -515,20 +515,38 @@ function AccountEditor({
 
   const handleLogoUpload = async (file: File) => {
     if (!file) return;
+    // Pre-flight validation – avoids confusing storage errors
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "শুধু ছবি আপলোড করুন", description: "PNG, JPG, WEBP বা SVG ফাইল নির্বাচন করুন", variant: "destructive" });
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: "ফাইল অনেক বড়", description: "সর্বোচ্চ ২ MB পর্যন্ত ছবি আপলোড করা যাবে", variant: "destructive" });
+      return;
+    }
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() || "png";
+      // Make sure we are still authenticated as admin – otherwise storage RLS rejects with a vague error
+      const { data: sess } = await supabase.auth.getSession();
+      if (!sess.session) throw new Error("সেশন শেষ হয়েছে — আবার লগইন করুন");
+
+      // Sanitise extension: only ascii a-z0-9, default to png
+      const rawExt = (file.name.match(/\.([A-Za-z0-9]+)$/)?.[1] || "").toLowerCase();
+      const ext = /^(png|jpg|jpeg|webp|svg|gif)$/.test(rawExt) ? rawExt : "png";
+      const contentType = file.type && file.type !== "application/octet-stream" ? file.type : `image/${ext === "jpg" ? "jpeg" : ext}`;
+      // Keep path simple ASCII so storage never rejects with "Invalid key"
       const path = `payment-logos/${draft.method}-${Date.now()}.${ext}`;
+
       const { error: upErr } = await supabase.storage
         .from("product-images")
-        .upload(path, file, { upsert: true, contentType: file.type || "image/png" });
+        .upload(path, file, { upsert: true, contentType, cacheControl: "3600" });
       if (upErr) throw upErr;
+
       const { data } = supabase.storage.from("product-images").getPublicUrl(path);
       const newUrl = `${data.publicUrl}?v=${Date.now()}`;
       setDraft({ ...draft, logo_url: newUrl });
 
       // Auto-persist immediately so the new logo shows up on the storefront
-      // without the admin having to click "সংরক্ষণ" again.
       if (draft.id) {
         const { error: updErr } = await supabase
           .from("payment_accounts")
@@ -540,7 +558,13 @@ function AccountEditor({
         toast({ title: "লোগো আপলোড হয়েছে", description: "নিচের সংরক্ষণ বাটনে চাপ দিন" });
       }
     } catch (e: any) {
-      toast({ title: "আপলোড ব্যর্থ", description: e.message, variant: "destructive" });
+      const msg = e?.message || String(e);
+      const friendly = /row-level security|unauthorized|not authorized/i.test(msg)
+        ? "অনুমতি নেই — আপনি admin হিসেবে লগইন আছেন কিনা যাচাই করুন"
+        : /invalid key|key contains/i.test(msg)
+          ? "ফাইলের নামে সমস্যা — অন্য একটি ছবি দিয়ে আবার চেষ্টা করুন"
+          : msg;
+      toast({ title: "আপলোড ব্যর্থ", description: friendly, variant: "destructive" });
     } finally {
       setUploading(false);
     }
@@ -560,7 +584,16 @@ function AccountEditor({
           </div>
           <label className="block mt-1.5 text-[10px] text-center text-primary cursor-pointer hover:underline">
             Logo পরিবর্তন
-            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleLogoUpload(e.target.files[0])} />
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleLogoUpload(f);
+                e.target.value = "";
+              }}
+            />
           </label>
         </div>
         <div className="flex-1 grid sm:grid-cols-3 gap-3">
