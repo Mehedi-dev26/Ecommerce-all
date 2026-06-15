@@ -14,6 +14,7 @@ import { divisions } from "@/data/bd-locations";
 import { getGuestAuthEmail, getGuestAuthEmailCandidates, getGuestAuthPassword } from "@/lib/guest-auth";
 import SEO from "@/components/SEO";
 import { sendEmail, buildOrderItemsHtml } from "@/lib/sendEmail";
+import PaymentMethodPicker, { type PaymentMethod } from "@/components/checkout/PaymentMethodPicker";
 
 interface SavedAddress {
   id: string;
@@ -46,6 +47,8 @@ const Checkout = () => {
   const [loading, setLoading] = useState(false);
   const [showPin, setShowPin] = useState(false);
   const [abandonedId, setAbandonedId] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
+  const [senderNumber, setSenderNumber] = useState("");
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -222,6 +225,12 @@ const Checkout = () => {
     [selectedDivision, form.district]
   );
 
+  const grandTotal = totalPrice + shippingCost;
+  // Amount the customer must pay digitally upfront:
+  //  - if any product needs advance: only the advance amount
+  //  - otherwise: full order total
+  const upfrontAmount = advanceTotal > 0 ? advanceTotal : grandTotal;
+
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
     if (!form.name.trim() || form.name.trim().length < 3) errs.name = "সম্পূর্ণ নাম লিখুন (কমপক্ষে ৩ অক্ষর)";
@@ -233,6 +242,14 @@ const Checkout = () => {
     if (!form.address.trim() || form.address.trim().length < 10) errs.address = "সম্পূর্ণ ঠিকানা লিখুন (কমপক্ষে ১০ অক্ষর)";
     // PIN required only if user is not already logged in
     if (!user && !/^\d{4}$/.test(form.pin)) errs.pin = "৪ ডিজিটের PIN দিন";
+    // Mobile banking requires sender number
+    if (paymentMethod !== "cod" && !BD_PHONE_REGEX.test(senderNumber)) {
+      errs.senderNumber = "যে নম্বর থেকে টাকা পাঠাবেন সেটি সঠিকভাবে লিখুন (01XXXXXXXXX)";
+    }
+    // Advance-required products cannot be ordered via plain COD
+    if (paymentMethod === "cod" && advanceTotal > 0) {
+      errs.paymentMethod = "এই অর্ডারে অগ্রিম পেমেন্ট প্রয়োজন — bKash / Nagad / Rocket নির্বাচন করুন";
+    }
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -323,7 +340,10 @@ const Checkout = () => {
         shipping_cost: shippingCost,
         total: totalPrice + shippingCost,
         advance_amount: advanceTotal,
-        payment_method: "cod",
+        payment_method: paymentMethod,
+        payment_provider: paymentMethod === "cod" ? null : paymentMethod,
+        payment_sender_number: paymentMethod === "cod" ? null : senderNumber,
+        payment_expected_amount: paymentMethod === "cod" ? null : upfrontAmount,
         user_id: userId,
       }).select().single();
 
@@ -844,16 +864,25 @@ const Checkout = () => {
           )}
 
           {/* Payment */}
-          <div className="rounded-xl border bg-card p-4 sm:p-6">
-            <h2 className="mb-2 text-lg font-semibold">পেমেন্ট পদ্ধতি</h2>
-            <div className="flex items-center gap-3 rounded-lg border-2 border-primary p-4">
-              <div className="h-4 w-4 rounded-full border-4 border-primary" />
-              <div>
-                <p className="font-medium text-foreground">ক্যাশ অন ডেলিভারি</p>
-                <p className="text-sm text-muted-foreground">পণ্য হাতে পেয়ে টাকা পরিশোধ করুন</p>
-              </div>
-            </div>
-          </div>
+          <PaymentMethodPicker
+            amount={upfrontAmount}
+            method={paymentMethod}
+            onMethodChange={(m) => {
+              setPaymentMethod(m);
+              setErrors((prev) => ({ ...prev, paymentMethod: "", senderNumber: "" }));
+            }}
+            senderNumber={senderNumber}
+            onSenderChange={(n) => {
+              setSenderNumber(n);
+              setErrors((prev) => ({ ...prev, senderNumber: "" }));
+            }}
+            senderError={errors.senderNumber}
+          />
+          {errors.paymentMethod && (
+            <p className="-mt-2 flex items-center gap-1 text-xs text-destructive">
+              <AlertCircle className="h-3 w-3" />{errors.paymentMethod}
+            </p>
+          )}
         </div>
 
         {/* Order Summary */}

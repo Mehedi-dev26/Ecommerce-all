@@ -651,7 +651,12 @@ export type Database = {
           pathao_consignment_id: string | null
           pathao_order_status: string | null
           pathao_tracking_url: string | null
+          payment_expected_amount: number | null
           payment_method: string
+          payment_provider: string | null
+          payment_sender_number: string | null
+          payment_txn_id: string | null
+          payment_verified_at: string | null
           shipping_address: string
           shipping_cost: number
           status: string
@@ -679,7 +684,12 @@ export type Database = {
           pathao_consignment_id?: string | null
           pathao_order_status?: string | null
           pathao_tracking_url?: string | null
+          payment_expected_amount?: number | null
           payment_method?: string
+          payment_provider?: string | null
+          payment_sender_number?: string | null
+          payment_txn_id?: string | null
+          payment_verified_at?: string | null
           shipping_address: string
           shipping_cost?: number
           status?: string
@@ -707,7 +717,12 @@ export type Database = {
           pathao_consignment_id?: string | null
           pathao_order_status?: string | null
           pathao_tracking_url?: string | null
+          payment_expected_amount?: number | null
           payment_method?: string
+          payment_provider?: string | null
+          payment_sender_number?: string | null
+          payment_txn_id?: string | null
+          payment_verified_at?: string | null
           shipping_address?: string
           shipping_cost?: number
           status?: string
@@ -725,6 +740,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payment_accounts: {
+        Row: {
+          account_number: string
+          account_type: string
+          created_at: string
+          id: string
+          instructions_bn: string | null
+          is_active: boolean
+          logo_url: string | null
+          method: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          account_number: string
+          account_type?: string
+          created_at?: string
+          id?: string
+          instructions_bn?: string | null
+          is_active?: boolean
+          logo_url?: string | null
+          method: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          account_number?: string
+          account_type?: string
+          created_at?: string
+          id?: string
+          instructions_bn?: string | null
+          is_active?: boolean
+          logo_url?: string | null
+          method?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       products: {
         Row: {
@@ -977,6 +1031,59 @@ export type Database = {
           value?: string
         }
         Relationships: []
+      }
+      sms_inbox: {
+        Row: {
+          amount: number | null
+          created_at: string
+          id: string
+          matched_at: string | null
+          matched_order_id: string | null
+          provider: string | null
+          raw_message: string
+          received_at: string
+          sender_address: string | null
+          sender_number: string | null
+          status: string
+          txn_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          id?: string
+          matched_at?: string | null
+          matched_order_id?: string | null
+          provider?: string | null
+          raw_message: string
+          received_at?: string
+          sender_address?: string | null
+          sender_number?: string | null
+          status?: string
+          txn_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          id?: string
+          matched_at?: string | null
+          matched_order_id?: string | null
+          provider?: string | null
+          raw_message?: string
+          received_at?: string
+          sender_address?: string | null
+          sender_number?: string | null
+          status?: string
+          txn_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_inbox_matched_order_id_fkey"
+            columns: ["matched_order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
