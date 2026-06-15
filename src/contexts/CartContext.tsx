@@ -8,6 +8,8 @@ export interface CartItem {
   image_url: string | null;
   weight: string | null;
   quantity: number;
+  requires_advance_payment?: boolean;
+  advance_percent?: number;
 }
 
 interface CartContextType {
@@ -18,9 +20,19 @@ interface CartContextType {
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
+  /** Sum of advance amounts for items where requires_advance_payment is true */
+  advanceTotal: number;
+  /** totalPrice minus advanceTotal — to be paid on delivery */
+  dueOnDelivery: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
+
+export const calcItemAdvance = (item: CartItem): number => {
+  if (!item.requires_advance_payment) return 0;
+  const pct = Math.min(100, Math.max(0, Number(item.advance_percent ?? 50)));
+  return Math.round((item.price * item.quantity * pct) / 100);
+};
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -51,9 +63,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const totalItems = items.length;
   const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const advanceTotal = items.reduce((sum, i) => sum + calcItemAdvance(i), 0);
+  const dueOnDelivery = Math.max(0, totalPrice - advanceTotal);
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice, advanceTotal, dueOnDelivery }}>
       {children}
     </CartContext.Provider>
   );
