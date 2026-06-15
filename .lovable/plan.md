@@ -1,49 +1,58 @@
-# ভেন্ডর ল্যান্ডিং পেজ সিস্টেম
+## লক্ষ্য
+Sapahar Shop-এর existing checkout-এ bKash/Nagad/Rocket payment + SMS-based auto-verification যোগ করা। Advance payment ও full payment — দুটোতেই কাজ করবে। SMS forwarder থেকে আসা SMS Supabase Edge Function পার্স করে automatically order match করে paid করবে।
 
-প্রত্যেক অনুমোদিত ভেন্ডর তার নিজস্ব ব্র্যান্ডিং ও পণ্য দিয়ে অগণিত ল্যান্ডিং পেজ তৈরি করতে পারবে।
+## ১. Database (migration)
+- `payment_accounts` টেবিল: id, method (bkash/nagad/rocket), account_number, account_type (personal/merchant), logo_url, instructions_bn, is_active, sort_order
+- `sms_inbox` টেবিল: id, raw_message, sender_address, provider, amount, txn_id, sender_number, received_at, matched_order_id (fk orders), matched_at, status (unmatched/matched/duplicate/invalid)
+- `orders` টেবিলে নতুন column: `payment_provider` (bkash/nagad/rocket/cod), `payment_sender_number`, `payment_txn_id`, `payment_verified_at`, `payment_expected_amount` (advance বা total)
+- `site_settings`-এ নতুন key: `sms_webhook` (secret token, allowed senders, tolerance)
+- সব নতুন টেবিলে GRANT + RLS (admin manage; webhook service_role; user নিজের order এর txn দেখতে পাবে)
+- বিদ্যমান data নষ্ট না করে শুধু ALTER ADD COLUMN
 
-## URL স্ট্রাকচার
-`/{vendor-slug}/{custom-slug}` — যেমন `/sapahar-shop/aam-offer-2026`
-- vendor-slug অংশ স্বয়ংক্রিয়ভাবে ভেন্ডরের `shop_slug` থেকে আসবে (পরিবর্তন অযোগ্য)
-- custom-slug ভেন্ডর ইচ্ছামত দেবে
-- লেখার সাথে সাথে real-time check হবে — পাওয়া গেলে সবুজ ✓ tick, ব্যবহৃত হলে লাল ✗ এবং বিকল্প সাজেশন
+## ২. Checkout UI (3-step flow)
+File: নতুন `src/components/checkout/MobilePaymentFlow.tsx`, `src/pages/Checkout.tsx` update।
 
-> ⚠️ এই URL ফরম্যাট existing routes (`/products`, `/cart`, `/admin` ইত্যাদি) এর সাথে conflict এড়াতে vendor-slug কখনো reserved word হতে পারবে না। ভেন্ডর slug-এর জন্য reserved list এ ইতিমধ্যে protection আছে।
+বর্তমান COD-only payment section বদলে যাবে:
+- **Step 1 — Method:** COD | bKash (pink) | Nagad (orange) | Rocket (purple) gradient card
+- **Step 2 — Account screen:** merchant number (one-tap copy), payable amount (advance থাকলে advance, না থাকলে full), Bangla instructions, sender number input (regex `^01[3-9]\d{8}$`, +880 normalize), real-time validation
+- **Step 3 — Waiting screen:** spinner, "অর্ডার যাচাই হচ্ছে…", 3s interval `recheckPayment` poll, success → OrderSuccess page, 10min timeout এ manual recheck button
 
-## ডাটাবেস পরিবর্তন
-- `landing_pages` table-এ যোগ:
-  - `vendor_id uuid` (nullable — null মানে admin-owned যেমন এখন আছে)
-  - composite unique index `(vendor_id, slug)` — একই vendor-এর মধ্যে slug unique
-- নতুন RLS policy:
-  - ভেন্ডর শুধু নিজের vendor_id-এর পেজ create/update/delete/view করতে পারবে
-  - public `/lp/{slug}` এবং `/{vendor-slug}/{slug}` দুটোই কাজ করবে
-- নতুন function `check_landing_slug_available(_vendor_id, _slug)` → boolean (real-time tick এর জন্য)
-- নতুন function `lookup_vendor_landing_page(_vendor_slug, _custom_slug)` → published page row
+Confirm button click হলে **আগে order create হবে (pending payment_verified=false), সাথে সাথে waiting screen-এ navigate** — await করবে না UI block-এর জন্য।
 
-## ফ্রন্টএন্ড
-1. **নতুন ভেন্ডর পেজ** `/vendor/landing-pages`
-   - তালিকা, stats (views/orders/revenue), create/edit/delete
-   - admin-এর AdminLandingPages-এর মতই কিন্তু শুধু নিজের পেজ
-2. **নতুন এডিটর** `/vendor/landing-pages/new` এবং `/vendor/landing-pages/:id`
-   - admin editor-এর সব ফিচার (theme, hero, products, bullets, FAQ, countdown, pixel)
-   - product selector শুধু সেই ভেন্ডরের নিজস্ব approved products দেখাবে
-   - URL field-এ vendor-slug locked prefix + custom slug input + live availability tick
-   - publish/draft দুটোই ভেন্ডর নিজে করতে পারবে
-3. **VendorSidebar এ "ল্যান্ডিং পেজ" মেনু** আইটেম যোগ
-4. **নতুন route** `/:vendorSlug/:customSlug` → `VendorLandingPageView` (existing `LandingPageView` reuse করে vendor branding যোগ করা)
-5. ভেন্ডর ড্যাশবোর্ডে quick stats card
+## ৩. SMS Webhook (Edge Function)
+File: `supabase/functions/sms-webhook/index.ts` (public, verify_jwt=false)
+- Header `x-webhook-token` site_settings.sms_webhook.secret-এর সাথে match
+- Provider parsers (regex): bKash `TrxID`, Nagad `TxnID`, Rocket `TxnId`
+- `sms_inbox`-এ insert
+- Auto-match: same amount (±1৳), last 11 digit sender match, last 30 min-এর pending order, payment_provider মিল
+- Match হলে `orders.payment_verified_at`, `payment_txn_id` set; advance order হলে `advance_paid=true`, full হলে `status='confirmed'`
+- URL: `https://wqdirlxffyfplbhiadou.supabase.co/functions/v1/sms-webhook`
 
-## টেকনিক্যাল বিবরণ
-- নতুন lazy routes `App.tsx` এ
-- নতুন hook `useLandingSlugCheck(vendorId, slug)` — 400ms debounce + RPC call
-- কম্পোনেন্ট shared: existing `AdminLandingPageEditor` কে refactor করে `LandingPageEditorBase` বানানো হবে, যেটি admin ও vendor দুটোতেই কাজ করবে (mode prop)
-- conflict resolution: `/:vendorSlug/:customSlug` route Routes-এর সবচেয়ে শেষে বসবে যাতে existing routes-এর সাথে conflict না হয়; vendorSlug প্রথমে `vendors` table-এ লুকআপ করে validate হবে, fail হলে NotFound
-- analytics tracking (view_count, order_count) ভেন্ডর পেজে একইভাবে কাজ করবে
+## ৪. Admin Panel
+নতুন route `/admin/payment-gateway` (existing `/admin/payments` finance-related, তাই আলাদা):
+- **Accounts tab:** bKash/Nagad/Rocket-এর জন্য number, type, instruction, active toggle (CRUD on `payment_accounts`)
+- **Webhook tab:** webhook URL (copy), secret token (regenerate), test payload sender, recent SMS log (last 50, match status badge)
+- **Pending payments tab:** advance/full pending order, manual approve/reject, auto-refresh 10s
 
-## কাজের ধাপ
-1. Migration: `landing_pages.vendor_id` + index + RLS + 2টি RPC function
-2. Refactor: `AdminLandingPageEditor` → shared `LandingPageEditorBase`
-3. নতুন pages: `VendorLandingPages.tsx`, `VendorLandingPageEditor.tsx`
-4. নতুন route + view: `VendorLandingPageView.tsx` for `/:vendorSlug/:customSlug`
-5. VendorSidebar update
-6. App.tsx routes update
+AdminSidebar-এ নতুন link "পেমেন্ট গেটওয়ে"। admin role check `has_role` দিয়ে server-side।
+
+## ৫. Order Success ও Tracking
+- OrderSuccess page-এ payment status badge ("পেমেন্ট যাচাইকৃত ✓" বা "যাচাই অপেক্ষমাণ")
+- UserDashboard-এ order list-এ txn_id ও payment status দেখানো
+- AdminOrders-এ filter "Payment pending", payment column যোগ
+
+## ৬. কী stack-adaptation
+Prompt-এ TanStack Start + createServerFn বলা ছিল, কিন্তু এই project React 18 + Vite + Supabase। সমস্ত server logic Supabase Edge Function-এ যাবে; client থেকে `supabase.functions.invoke()`। বাকি UX/design/flow হুবহু same।
+
+## ৭. বাদ থাকছে (separate request করতে হবে)
+- Smart Investor packages, user_packages, referral commission, community chat — এগুলো আলাদা module, আজ skip
+- Real-time payment gateway API (bKash/Nagad official API) — পরে integrate
+
+## ক্রম
+1. Migration (payment_accounts, sms_inbox, orders columns, site_settings key)
+2. sms-webhook edge function
+3. Admin payment-gateway page + sidebar link
+4. Checkout 3-step UI + recheckPayment client logic
+5. OrderSuccess/Dashboard/AdminOrders badge update
+
+প্রস্তুত হলে confirm করুন — শুরু করব।
