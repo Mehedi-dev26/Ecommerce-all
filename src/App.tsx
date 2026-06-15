@@ -66,6 +66,7 @@ const AdminCustomers = lazy(() => import("./pages/admin/AdminCustomers"));
 const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
 const AdminDelivery = lazy(() => import("./pages/admin/AdminDelivery"));
 const AdminBanners = lazy(() => import("./pages/admin/AdminBanners"));
+const AdminPromoStrips = lazy(() => import("./pages/admin/AdminPromoStrips"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminCourierCharges = lazy(() => import("./pages/admin/AdminCourierCharges"));
 const AdminCourierApi = lazy(() => import("./pages/admin/AdminCourierApi"));
@@ -149,6 +150,7 @@ const App = () => {
                   <Route path="payments" element={<AdminPayments />} />
                   <Route path="delivery" element={<AdminDelivery />} />
                   <Route path="banners" element={<AdminBanners />} />
+                  <Route path="promo-strips" element={<AdminPromoStrips />} />
                   <Route path="settings" element={<AdminSettings />} />
                   <Route path="courier-charges" element={<AdminCourierCharges />} />
                   <Route path="courier-api" element={<AdminCourierApi />} />

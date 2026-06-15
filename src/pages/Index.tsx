@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import HeroSection from "@/components/HeroSection";
 import CategorySection from "@/components/CategorySection";
+import PromoStrip from "@/components/PromoStrip";
 import SEO from "@/components/SEO";
 import { breadcrumb, organizationSchema, websiteSchema, faqSchema, localBusinessSchema } from "@/lib/seo-schemas";
 
@@ -35,12 +36,14 @@ const Index = () => (
     />
     <HeroSection />
     <div className="cv-auto"><CategorySection /></div>
+    <PromoStrip position="top" />
     <Suspense fallback={<SectionFallback />}>
       <div className="cv-auto"><FeaturedProducts /></div>
     </Suspense>
     <Suspense fallback={<SectionFallback />}>
       <div className="cv-auto"><CategoryProductSections /></div>
     </Suspense>
+    <PromoStrip position="bottom" />
     <Suspense fallback={<SectionFallback />}>
       <div className="cv-auto"><WhyChooseUs /></div>
     </Suspense>
