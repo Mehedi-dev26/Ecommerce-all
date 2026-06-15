@@ -1,22 +1,30 @@
 // Provider-specific theme definitions for the multi-step payment flow.
-// Used by /payment/:orderId/* pages to render bKash/Nagad/Rocket in their
-// official brand colors (mimicking the ZiniPay-style flow from the design refs).
 
 export type PaymentProvider = "bkash" | "nagad" | "rocket";
+
+export interface PaymentInstruction {
+  step: string;
+  hint?: string;
+}
 
 export interface PaymentTheme {
   id: PaymentProvider;
   name: string;
   nameBn: string;
-  /** Solid brand color (used as page background on themed pages) */
   brand: string;
-  /** Slightly darker brand for buttons / dark accents */
   brandDark: string;
-  /** Color for text rendered on top of the brand background */
   onBrand: string;
-  /** Tailwind ring/border accent for selection state on the picker */
   accent: string;
-  instructions: string[];
+  /** Soft tint used as backdrop on selection card */
+  tint: string;
+  /** USSD dial code for non-smartphone users */
+  ussd: string;
+  /** App-based step-by-step instructions (Bengali) */
+  appSteps: PaymentInstruction[];
+  /** USSD/dial-code instructions for feature phones */
+  ussdSteps: PaymentInstruction[];
+  /** Short tagline shown on selector */
+  tagline: string;
 }
 
 export const PAYMENT_THEMES: Record<PaymentProvider, PaymentTheme> = {
@@ -28,10 +36,23 @@ export const PAYMENT_THEMES: Record<PaymentProvider, PaymentTheme> = {
     brandDark: "#B30E58",
     onBrand: "#FFFFFF",
     accent: "ring-pink-500",
-    instructions: [
-      "উপরের মার্চেন্ট অ্যাকাউন্ট নম্বরটি কপি করুন",
-      "বিকাশ অ্যাপ খুলুন এবং \"সেন্ড মানি\" নির্বাচন করুন",
-      "অ্যাকাউন্ট নম্বর পেস্ট করুন এবং নির্ধারিত পরিমাণ পাঠিয়ে দিন",
+    tint: "#FCE7F1",
+    ussd: "*247#",
+    tagline: "দ্রুত ও নিরাপদ",
+    appSteps: [
+      { step: "বিকাশ অ্যাপ খুলে \"Send Money\" নির্বাচন করুন", hint: "Pay Bill নয়, Send Money বেছে নিন" },
+      { step: "উপরের Personal নম্বরটি কপি করে পেস্ট করুন" },
+      { step: "নির্দিষ্ট টাকার পরিমাণ লিখুন", hint: "নিচে দেওয়া amount-ই পাঠাবেন" },
+      { step: "Reference এ আপনার Invoice ID লিখুন (ঐচ্ছিক)" },
+      { step: "PIN দিয়ে Send Money সম্পন্ন করুন" },
+      { step: "Confirmation SMS এর TrxID টি কপি করে নিচে দিন" },
+    ],
+    ussdSteps: [
+      { step: "ডায়াল করুন *247#" },
+      { step: "1 চাপুন → Send Money" },
+      { step: "উপরের Personal নম্বরটি লিখুন" },
+      { step: "Amount দিন এবং Reference এ Invoice ID দিন" },
+      { step: "PIN দিয়ে confirm করুন এবং SMS এর TrxID copy করুন" },
     ],
   },
   nagad: {
@@ -42,10 +63,23 @@ export const PAYMENT_THEMES: Record<PaymentProvider, PaymentTheme> = {
     brandDark: "#C9651A",
     onBrand: "#FFFFFF",
     accent: "ring-orange-500",
-    instructions: [
-      "উপরের মার্চেন্ট অ্যাকাউন্ট নম্বরটি কপি করুন",
-      "নগদ অ্যাপ খুলুন এবং \"সেন্ড মানি\" নির্বাচন করুন",
-      "অ্যাকাউন্ট নম্বর পেস্ট করুন এবং নির্ধারিত পরিমাণ পাঠিয়ে দিন",
+    tint: "#FFF1E3",
+    ussd: "*167#",
+    tagline: "ঝামেলাবিহীন পেমেন্ট",
+    appSteps: [
+      { step: "নগদ অ্যাপ খুলে \"Send Money\" নির্বাচন করুন" },
+      { step: "উপরের Personal নম্বরটি কপি করে পেস্ট করুন" },
+      { step: "নির্দিষ্ট টাকার পরিমাণ লিখুন" },
+      { step: "Reference এ Invoice ID দিন (ঐচ্ছিক)" },
+      { step: "PIN দিয়ে Send Money সম্পন্ন করুন" },
+      { step: "SMS এ আসা TxnID কপি করে নিচে দিন" },
+    ],
+    ussdSteps: [
+      { step: "ডায়াল করুন *167#" },
+      { step: "1 চাপুন → Send Money" },
+      { step: "উপরের Personal নম্বরটি লিখুন" },
+      { step: "Amount এবং Reference দিন" },
+      { step: "PIN দিয়ে confirm করুন এবং TxnID সংগ্রহ করুন" },
     ],
   },
   rocket: {
@@ -56,10 +90,22 @@ export const PAYMENT_THEMES: Record<PaymentProvider, PaymentTheme> = {
     brandDark: "#6E2873",
     onBrand: "#FFFFFF",
     accent: "ring-purple-500",
-    instructions: [
-      "উপরের মার্চেন্ট অ্যাকাউন্ট নম্বরটি কপি করুন",
-      "রকেট অ্যাপ খুলুন এবং \"সেন্ড মানি\" নির্বাচন করুন",
-      "অ্যাকাউন্ট নম্বর পেস্ট করুন এবং নির্ধারিত পরিমাণ পাঠিয়ে দিন",
+    tint: "#F1E6F3",
+    ussd: "*322#",
+    tagline: "DBBL Mobile Banking",
+    appSteps: [
+      { step: "Rocket অ্যাপ খুলে \"Send Money\" নির্বাচন করুন" },
+      { step: "উপরের Personal নম্বরটি দিন (শেষে চেক ডিজিট সহ)" },
+      { step: "Amount এবং Reference (Invoice ID) দিন" },
+      { step: "PIN দিয়ে Send Money complete করুন" },
+      { step: "TrxID টি SMS থেকে কপি করে নিচে দিন" },
+    ],
+    ussdSteps: [
+      { step: "ডায়াল করুন *322#" },
+      { step: "1 চাপুন → Send Money" },
+      { step: "উপরের Personal নম্বর লিখুন" },
+      { step: "Amount এবং Reference দিন" },
+      { step: "PIN দিয়ে confirm করুন → SMS এর TrxID সংগ্রহ করুন" },
     ],
   },
 };
