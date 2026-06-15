@@ -22,7 +22,7 @@ const CategoryProductSections = () => {
       const { data: prods, error: pErr } = await supabase
         .from("products")
         .select(
-          "id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,serial_number,vendor_id,category_id,categories(name_bn),created_at",
+          "id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,serial_number,vendor_id,category_id,categories(name_bn),created_at,requires_advance_payment,advance_percent",
         )
         .eq("is_active", true)
         .order("created_at", { ascending: false });
