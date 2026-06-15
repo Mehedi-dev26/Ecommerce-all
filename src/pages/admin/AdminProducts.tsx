@@ -52,6 +52,8 @@ const emptyProduct = {
   weight: "", unit: "kg",
   grade: "none",
   coming_soon: false,
+  requires_advance_payment: false,
+  advance_percent: 50,
 };
 
 const GRADE_OPTIONS = [
