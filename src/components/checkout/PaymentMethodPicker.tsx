@@ -144,11 +144,16 @@ export default function PaymentMethodPicker({
 
           {/* Merchant number */}
           <div className="rounded-lg border bg-card p-3 flex items-center justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">আমাদের {METHOD_META[selectedAccount.method].name} নম্বর ({selectedAccount.account_type === "merchant" ? "Merchant" : selectedAccount.account_type === "agent" ? "Agent" : "Personal"})</p>
-              <p className="text-2xl font-bold font-mono tracking-wider text-foreground select-all">
-                {selectedAccount.account_number}
-              </p>
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              {selectedAccount.logo_url && (
+                <img src={selectedAccount.logo_url} alt={METHOD_META[selectedAccount.method].name} className="w-12 h-12 rounded-lg object-contain bg-white p-1 shrink-0" />
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">আমাদের {METHOD_META[selectedAccount.method].name} নম্বর ({selectedAccount.account_type === "merchant" ? "Merchant" : selectedAccount.account_type === "agent" ? "Agent" : "Personal"})</p>
+                <p className="text-2xl font-bold font-mono tracking-wider text-foreground select-all">
+                  {selectedAccount.account_number}
+                </p>
+              </div>
             </div>
             <Button
               type="button"
