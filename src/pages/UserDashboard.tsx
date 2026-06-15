@@ -308,12 +308,17 @@ const UserDashboard = () => {
   const selectedDivision = divisions.find((d) => d.name === profileForm.default_division);
   const selectedDistrict = selectedDivision?.districts.find((d) => d.name === profileForm.default_district);
 
-  const totalSpent = orders.reduce((sum, o) => sum + Number(o.total), 0);
-  const deliveredCount = orders.filter((o) => o.status === "delivered").length;
-  const pendingCount = orders.filter((o) => ["pending", "confirmed", "processing"].includes(o.status)).length;
-  const cancelledCount = orders.filter((o) => o.status === "cancelled").length;
+  // Separate incomplete checkouts (user hasn't picked a payment method yet)
+  // from real orders. Incomplete ones are shown in a dedicated "Resume" card.
+  const incompleteOrders = orders.filter((o) => o.payment_method === "pending");
+  const realOrders = orders.filter((o) => o.payment_method !== "pending");
 
-  const filteredOrders = statusFilter === "all" ? orders : orders.filter((o) => o.status === statusFilter);
+  const totalSpent = realOrders.reduce((sum, o) => sum + Number(o.total), 0);
+  const deliveredCount = realOrders.filter((o) => o.status === "delivered").length;
+  const pendingCount = realOrders.filter((o) => ["pending", "confirmed", "processing"].includes(o.status)).length;
+  const cancelledCount = realOrders.filter((o) => o.status === "cancelled").length;
+
+  const filteredOrders = statusFilter === "all" ? realOrders : realOrders.filter((o) => o.status === statusFilter);
 
   // Recent activity
   const recentOrder = orders[0];
@@ -373,8 +378,44 @@ const UserDashboard = () => {
         </div>
       </div>
 
+      {/* Incomplete Checkout Banner — payment never completed */}
+      {incompleteOrders.length > 0 && (
+        <div className="mb-4 rounded-xl border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 p-3 sm:p-4">
+          <div className="flex items-start gap-3 mb-3">
+            <div className="h-10 w-10 rounded-full bg-amber-200 flex items-center justify-center flex-shrink-0">
+              <Clock className="h-5 w-5 text-amber-700" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-amber-900">
+                অসম্পূর্ণ পেমেন্ট ({incompleteOrders.length}টি)
+              </p>
+              <p className="text-xs text-amber-700">
+                পেমেন্ট সম্পন্ন না হওয়া পর্যন্ত এই অর্ডারগুলো prosess হবে না। নিচের বাটন থেকে সম্পূর্ণ করুন।
+              </p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            {incompleteOrders.slice(0, 3).map((o) => (
+              <div key={o.id} className="flex items-center justify-between gap-2 bg-white rounded-lg p-2.5 border border-amber-200">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-foreground truncate">{o.order_number}</p>
+                  <p className="text-[11px] text-muted-foreground">৳{Number(o.total).toLocaleString("bn-BD")} · {new Date(o.created_at).toLocaleDateString("bn-BD")}</p>
+                </div>
+                <Button
+                  size="sm"
+                  className="bg-amber-600 hover:bg-amber-700 text-white gap-1 text-xs flex-shrink-0"
+                  onClick={() => navigate(`/payment/${o.id}`)}
+                >
+                  সম্পূর্ণ করুন <ArrowRight className="h-3 w-3" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Active Order Alert */}
-      {recentOrder && ["pending", "confirmed", "processing", "shipped"].includes(recentOrder.status) && (
+      {recentOrder && recentOrder.payment_method !== "pending" && ["pending", "confirmed", "processing", "shipped"].includes(recentOrder.status) && (
         <div className="mb-4 rounded-xl border border-primary/20 bg-primary/5 p-3 sm:p-4">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
