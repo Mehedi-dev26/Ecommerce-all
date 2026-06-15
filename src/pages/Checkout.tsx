@@ -225,6 +225,12 @@ const Checkout = () => {
     [selectedDivision, form.district]
   );
 
+  const grandTotal = totalPrice + shippingCost;
+  // Amount the customer must pay digitally upfront:
+  //  - if any product needs advance: only the advance amount
+  //  - otherwise: full order total
+  const upfrontAmount = advanceTotal > 0 ? advanceTotal : grandTotal;
+
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
     if (!form.name.trim() || form.name.trim().length < 3) errs.name = "সম্পূর্ণ নাম লিখুন (কমপক্ষে ৩ অক্ষর)";
@@ -236,6 +242,14 @@ const Checkout = () => {
     if (!form.address.trim() || form.address.trim().length < 10) errs.address = "সম্পূর্ণ ঠিকানা লিখুন (কমপক্ষে ১০ অক্ষর)";
     // PIN required only if user is not already logged in
     if (!user && !/^\d{4}$/.test(form.pin)) errs.pin = "৪ ডিজিটের PIN দিন";
+    // Mobile banking requires sender number
+    if (paymentMethod !== "cod" && !BD_PHONE_REGEX.test(senderNumber)) {
+      errs.senderNumber = "যে নম্বর থেকে টাকা পাঠাবেন সেটি সঠিকভাবে লিখুন (01XXXXXXXXX)";
+    }
+    // Advance-required products cannot be ordered via plain COD
+    if (paymentMethod === "cod" && advanceTotal > 0) {
+      errs.paymentMethod = "এই অর্ডারে অগ্রিম পেমেন্ট প্রয়োজন — bKash / Nagad / Rocket নির্বাচন করুন";
+    }
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -326,7 +340,10 @@ const Checkout = () => {
         shipping_cost: shippingCost,
         total: totalPrice + shippingCost,
         advance_amount: advanceTotal,
-        payment_method: "cod",
+        payment_method: paymentMethod,
+        payment_provider: paymentMethod === "cod" ? null : paymentMethod,
+        payment_sender_number: paymentMethod === "cod" ? null : senderNumber,
+        payment_expected_amount: paymentMethod === "cod" ? null : upfrontAmount,
         user_id: userId,
       }).select().single();
 
