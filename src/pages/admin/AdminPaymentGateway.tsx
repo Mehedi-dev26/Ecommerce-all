@@ -584,7 +584,16 @@ function AccountEditor({
           </div>
           <label className="block mt-1.5 text-[10px] text-center text-primary cursor-pointer hover:underline">
             Logo পরিবর্তন
-            <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleLogoUpload(e.target.files[0])} />
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleLogoUpload(f);
+                e.target.value = "";
+              }}
+            />
           </label>
         </div>
         <div className="flex-1 grid sm:grid-cols-3 gap-3">
