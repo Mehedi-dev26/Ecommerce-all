@@ -100,7 +100,15 @@ const AdminOrders = () => {
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
+      // Exclude incomplete checkouts (payment_method='pending') — those orders
+      // are still in the customer's hands; they appear in the user's dashboard
+      // as "অসম্পূর্ণ অর্ডার" with a Resume button until the customer picks a
+      // payment method (COD or mobile banking).
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .neq("payment_method", "pending")
+        .order("created_at", { ascending: false });
       if (error) throw error;
       setOrders(data || []);
     } catch (error) {

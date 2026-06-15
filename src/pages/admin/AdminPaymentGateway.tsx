@@ -519,11 +519,26 @@ function AccountEditor({
     try {
       const ext = file.name.split(".").pop() || "png";
       const path = `payment-logos/${draft.method}-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("product-images").upload(path, file, { upsert: true });
+      const { error: upErr } = await supabase.storage
+        .from("product-images")
+        .upload(path, file, { upsert: true, contentType: file.type || "image/png" });
       if (upErr) throw upErr;
       const { data } = supabase.storage.from("product-images").getPublicUrl(path);
-      setDraft({ ...draft, logo_url: data.publicUrl });
-      toast({ title: "লোগো আপলোড হয়েছে — সংরক্ষণ চাপুন" });
+      const newUrl = `${data.publicUrl}?v=${Date.now()}`;
+      setDraft({ ...draft, logo_url: newUrl });
+
+      // Auto-persist immediately so the new logo shows up on the storefront
+      // without the admin having to click "সংরক্ষণ" again.
+      if (draft.id) {
+        const { error: updErr } = await supabase
+          .from("payment_accounts")
+          .update({ logo_url: newUrl })
+          .eq("id", draft.id);
+        if (updErr) throw updErr;
+        toast({ title: "লোগো সংরক্ষিত হয়েছে ✅", description: "Storefront এ সাথে সাথে দেখা যাবে" });
+      } else {
+        toast({ title: "লোগো আপলোড হয়েছে", description: "নিচের সংরক্ষণ বাটনে চাপ দিন" });
+      }
     } catch (e: any) {
       toast({ title: "আপলোড ব্যর্থ", description: e.message, variant: "destructive" });
     } finally {
