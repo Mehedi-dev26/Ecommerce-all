@@ -14,9 +14,11 @@ interface PromoStripRow {
 interface Props {
   position: "top" | "bottom";
   className?: string;
+  /** When true, render without the outer container/padding — for embedding inside another section */
+  inline?: boolean;
 }
 
-const PromoStrip = ({ position, className = "" }: Props) => {
+const PromoStrip = ({ position, className = "", inline = false }: Props) => {
   const [strips, setStrips] = useState<PromoStripRow[]>([]);
 
   useEffect(() => {
