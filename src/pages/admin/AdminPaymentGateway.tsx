@@ -299,30 +299,68 @@ function AccountEditor({
   onDelete: () => void;
 }) {
   const [draft, setDraft] = useState(account);
+  const [uploading, setUploading] = useState(false);
   useEffect(() => setDraft(account), [account]);
+
+  const handleLogoUpload = async (file: File) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const path = `payment-logos/${draft.method}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("product-images").upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+      const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+      setDraft({ ...draft, logo_url: data.publicUrl });
+      toast({ title: "লোগো আপলোড হয়েছে — সংরক্ষণ চাপুন" });
+    } catch (e: any) {
+      toast({ title: "আপলোড ব্যর্থ", description: e.message, variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <div className="rounded-xl border p-3 space-y-3 bg-muted/20">
-      <div className="grid sm:grid-cols-3 gap-3">
-        <div>
-          <Label className="text-xs">নম্বর</Label>
-          <Input value={draft.account_number} onChange={(e) => setDraft({ ...draft, account_number: e.target.value })} placeholder="01XXXXXXXXX" />
+      <div className="flex items-start gap-3">
+        <div className="shrink-0">
+          <Label className="text-xs">অফিসিয়াল লোগো</Label>
+          <div className="mt-1 w-20 h-20 rounded-lg border-2 border-dashed flex items-center justify-center bg-white overflow-hidden relative">
+            {draft.logo_url ? (
+              <img src={draft.logo_url} alt="logo" className="w-full h-full object-contain" />
+            ) : (
+              <span className="text-[10px] text-muted-foreground text-center px-1">লোগো নেই</span>
+            )}
+            {uploading && <div className="absolute inset-0 bg-black/40 flex items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-white" /></div>}
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            className="text-[10px] mt-1 w-20"
+            onChange={(e) => e.target.files?.[0] && handleLogoUpload(e.target.files[0])}
+          />
         </div>
-        <div>
-          <Label className="text-xs">টাইপ</Label>
-          <Select value={draft.account_type} onValueChange={(v) => setDraft({ ...draft, account_type: v as any })}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="personal">Personal</SelectItem>
-              <SelectItem value="merchant">Merchant</SelectItem>
-              <SelectItem value="agent">Agent</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex items-end gap-2">
-          <div className="flex items-center gap-2">
-            <Switch checked={draft.is_active} onCheckedChange={(v) => setDraft({ ...draft, is_active: v })} />
-            <span className="text-sm">Active</span>
+        <div className="flex-1 grid sm:grid-cols-3 gap-3">
+          <div>
+            <Label className="text-xs">নম্বর</Label>
+            <Input value={draft.account_number} onChange={(e) => setDraft({ ...draft, account_number: e.target.value })} placeholder="01XXXXXXXXX" />
+          </div>
+          <div>
+            <Label className="text-xs">টাইপ</Label>
+            <Select value={draft.account_type} onValueChange={(v) => setDraft({ ...draft, account_type: v as any })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="personal">Personal</SelectItem>
+                <SelectItem value="merchant">Merchant</SelectItem>
+                <SelectItem value="agent">Agent</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-end gap-2">
+            <div className="flex items-center gap-2">
+              <Switch checked={draft.is_active} onCheckedChange={(v) => setDraft({ ...draft, is_active: v })} />
+              <span className="text-sm">Active</span>
+            </div>
           </div>
         </div>
       </div>
