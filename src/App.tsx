@@ -163,6 +163,7 @@ const App = () => {
                   <Route path="customers" element={<AdminCustomers />} />
                   <Route path="payments" element={<AdminPayments />} />
                   <Route path="payment-gateway" element={<AdminPaymentGateway />} />
+                  <Route path="payment-approvals" element={<AdminPaymentApprovals />} />
                   <Route path="delivery" element={<AdminDelivery />} />
                   <Route path="banners" element={<AdminBanners />} />
                   <Route path="promo-strips" element={<AdminPromoStrips />} />
