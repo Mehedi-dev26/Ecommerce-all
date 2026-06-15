@@ -32,6 +32,8 @@ const PaymentWaiting = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const [params] = useSearchParams();
   const navigate = useNavigate();
+  const { settings } = useSiteSettings();
+  const brandName = settings.brand_name || "Sapahar Shop";
   const method = (params.get("method") || "bkash") as PaymentProvider;
   const theme = PAYMENT_THEMES[method] || PAYMENT_THEMES.bkash;
 
