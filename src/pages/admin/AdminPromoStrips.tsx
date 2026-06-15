@@ -79,7 +79,7 @@ const AdminPromoStrips = () => {
       setForm((f) => ({ ...f, image_url: data.publicUrl }));
       toast({ title: "ছবি আপলোড হয়েছে" });
     } catch (err) {
-      toast({ title: "আপলোড ব্যর্থ", description: getErrorMessage(err), variant: "destructive" });
+      toast({ title: "আপলোড ব্যর্থ", description: getErrorMessage(err, "ত্রুটি"), variant: "destructive" });
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -131,7 +131,7 @@ const AdminPromoStrips = () => {
       setDialogOpen(false);
       void fetchStrips();
     } catch (err) {
-      toast({ title: "সেভ ব্যর্থ", description: getErrorMessage(err), variant: "destructive" });
+      toast({ title: "সেভ ব্যর্থ", description: getErrorMessage(err, "ত্রুটি"), variant: "destructive" });
     }
   };
 
@@ -143,7 +143,7 @@ const AdminPromoStrips = () => {
       toast({ title: "ডিলিট হয়েছে" });
       void fetchStrips();
     } catch (err) {
-      toast({ title: "ডিলিট ব্যর্থ", description: getErrorMessage(err), variant: "destructive" });
+      toast({ title: "ডিলিট ব্যর্থ", description: getErrorMessage(err, "ত্রুটি"), variant: "destructive" });
     }
   };
 
