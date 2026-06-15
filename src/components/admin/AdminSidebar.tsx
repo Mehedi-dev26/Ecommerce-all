@@ -24,6 +24,7 @@ const navGroups = [
       { title: "প্রোডাক্ট", url: "/admin/products", icon: Package, badge: null },
       { title: "ক্যাটাগরি", url: "/admin/categories", icon: FolderTree, badge: null },
       { title: "ব্যানার", url: "/admin/banners", icon: ImageIcon, badge: null },
+      { title: "প্রোমো স্ট্রিপ", url: "/admin/promo-strips", icon: ImageIcon, badge: null },
       { title: "ল্যান্ডিং পেজ", url: "/admin/landing-pages", icon: Rocket, badge: null },
       { title: "গ্রাহক রিভিউ", url: "/admin/reviews", icon: MessageSquare, badge: null },
     ],
