@@ -566,6 +566,7 @@ export type Database = {
       }
       order_items: {
         Row: {
+          advance_amount: number
           commission_amount: number
           commission_percent: number
           created_at: string
@@ -579,6 +580,7 @@ export type Database = {
           vendor_payout_amount: number
         }
         Insert: {
+          advance_amount?: number
           commission_amount?: number
           commission_percent?: number
           created_at?: string
@@ -592,6 +594,7 @@ export type Database = {
           vendor_payout_amount?: number
         }
         Update: {
+          advance_amount?: number
           commission_amount?: number
           commission_percent?: number
           created_at?: string
@@ -630,6 +633,8 @@ export type Database = {
       }
       orders: {
         Row: {
+          advance_amount: number
+          advance_paid: boolean
           city: string
           courier_provider: string | null
           courier_tracking_id: string | null
@@ -656,6 +661,8 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          advance_amount?: number
+          advance_paid?: boolean
           city: string
           courier_provider?: string | null
           courier_tracking_id?: string | null
@@ -682,6 +689,8 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          advance_amount?: number
+          advance_paid?: boolean
           city?: string
           courier_provider?: string | null
           courier_tracking_id?: string | null
@@ -719,6 +728,7 @@ export type Database = {
       }
       products: {
         Row: {
+          advance_percent: number
           category_id: string | null
           coming_soon: boolean
           compare_price: number | null
@@ -735,6 +745,7 @@ export type Database = {
           name: string
           name_bn: string
           price: number
+          requires_advance_payment: boolean
           serial_number: number | null
           stock: number
           unit: string | null
@@ -744,6 +755,7 @@ export type Database = {
           weight: string | null
         }
         Insert: {
+          advance_percent?: number
           category_id?: string | null
           coming_soon?: boolean
           compare_price?: number | null
@@ -760,6 +772,7 @@ export type Database = {
           name: string
           name_bn: string
           price: number
+          requires_advance_payment?: boolean
           serial_number?: number | null
           stock?: number
           unit?: string | null
@@ -769,6 +782,7 @@ export type Database = {
           weight?: string | null
         }
         Update: {
+          advance_percent?: number
           category_id?: string | null
           coming_soon?: boolean
           compare_price?: number | null
@@ -785,6 +799,7 @@ export type Database = {
           name?: string
           name_bn?: string
           price?: number
+          requires_advance_payment?: boolean
           serial_number?: number | null
           stock?: number
           unit?: string | null
@@ -1383,6 +1398,7 @@ export type Database = {
       lookup_product_by_vendor_serial: {
         Args: { _serial: number; _vendor_slug: string }
         Returns: {
+          advance_percent: number
           category_id: string | null
           coming_soon: boolean
           compare_price: number | null
@@ -1399,6 +1415,7 @@ export type Database = {
           name: string
           name_bn: string
           price: number
+          requires_advance_payment: boolean
           serial_number: number | null
           stock: number
           unit: string | null

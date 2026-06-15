@@ -22,7 +22,7 @@ const CategoryProductSections = () => {
       const { data: prods, error: pErr } = await supabase
         .from("products")
         .select(
-          "id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,serial_number,vendor_id,category_id,categories(name_bn),created_at",
+          "id,name,name_bn,price,compare_price,image_url,weight,grade,coming_soon,serial_number,vendor_id,category_id,categories(name_bn),created_at,requires_advance_payment,advance_percent",
         )
         .eq("is_active", true)
         .order("created_at", { ascending: false });
@@ -126,6 +126,8 @@ const CategoryProductSections = () => {
                       coming_soon={p.coming_soon}
                       vendor_shop_name_bn={v?.shop_name_bn}
                       vendor_shop_slug={v?.shop_slug}
+                      requires_advance_payment={p.requires_advance_payment}
+                      advance_percent={p.advance_percent}
                     />
                   </div>
                 );

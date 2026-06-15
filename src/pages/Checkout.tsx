@@ -40,7 +40,7 @@ async function generateOrderNumber(): Promise<string> {
 }
 
 const Checkout = () => {
-  const { items, totalPrice, clearCart } = useCart();
+  const { items, totalPrice, advanceTotal, dueOnDelivery, clearCart } = useCart();
   const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -322,6 +322,7 @@ const Checkout = () => {
         subtotal: totalPrice,
         shipping_cost: shippingCost,
         total: totalPrice + shippingCost,
+        advance_amount: advanceTotal,
         payment_method: "cod",
         user_id: userId,
       }).select().single();
@@ -882,6 +883,21 @@ const Checkout = () => {
               <span>মোট</span>
               <span className="text-primary">৳{totalPrice + shippingCost}</span>
             </div>
+            {advanceTotal > 0 && (
+              <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/30 p-3 space-y-1.5 text-sm">
+                <div className="flex justify-between font-semibold text-amber-900 dark:text-amber-200">
+                  <span>অগ্রিম পরিশোধ করতে হবে</span>
+                  <span>৳{advanceTotal}</span>
+                </div>
+                <div className="flex justify-between text-xs text-amber-800/80 dark:text-amber-200/80">
+                  <span>ডেলিভারিতে পরিশোধ (COD)</span>
+                  <span>৳{dueOnDelivery + shippingCost}</span>
+                </div>
+                <p className="text-[11px] text-amber-700 dark:text-amber-300/80 pt-1 border-t border-amber-200">
+                  ⚠️ কিছু পণ্যের জন্য অগ্রিম পেমেন্ট প্রয়োজন। অর্ডার কনফার্ম করার পর আমাদের team আপনার সাথে যোগাযোগ করে অগ্রিম পেমেন্ট নিশ্চিত করবে।
+                </p>
+              </div>
+            )}
           </div>
           <Button type="submit" className="mt-6 w-full" size="lg" disabled={loading}>
             {loading ? (

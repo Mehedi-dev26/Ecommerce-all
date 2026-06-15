@@ -217,12 +217,22 @@ const ProductDetail = () => {
   };
 
   const handleAdd = () => {
-    addItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: unitPrice, image_url: product.image_url, weight: `${qty} কেজি` }, qty);
+    addItem({
+      id: product.id, name: product.name, name_bn: product.name_bn,
+      price: unitPrice, image_url: product.image_url, weight: `${qty} কেজি`,
+      requires_advance_payment: !!(product as any).requires_advance_payment,
+      advance_percent: (product as any).advance_percent ?? 50,
+    }, qty);
     toast({ title: "কার্টে যোগ হয়েছে", description: `${product.name_bn} (${qty} কেজি) কার্টে যোগ করা হয়েছে।` });
   };
 
   const handleBuyNow = () => {
-    addItem({ id: product.id, name: product.name, name_bn: product.name_bn, price: unitPrice, image_url: product.image_url, weight: `${qty} কেজি` }, qty);
+    addItem({
+      id: product.id, name: product.name, name_bn: product.name_bn,
+      price: unitPrice, image_url: product.image_url, weight: `${qty} কেজি`,
+      requires_advance_payment: !!(product as any).requires_advance_payment,
+      advance_percent: (product as any).advance_percent ?? 50,
+    }, qty);
     navigate("/checkout");
   };
 

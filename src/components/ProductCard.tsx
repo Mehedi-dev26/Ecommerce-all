@@ -25,17 +25,26 @@ interface ProductCardProps {
   vendor_shop_slug?: string | null;
   serial_number?: number | null;
   hideSeller?: boolean;
+  requires_advance_payment?: boolean | null;
+  advance_percent?: number | null;
 }
 
-const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weight, category_name_bn, grade, coming_soon, vendor_shop_name_bn, vendor_shop_slug, serial_number, hideSeller }: ProductCardProps) => {
+const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weight, category_name_bn, grade, coming_soon, vendor_shop_name_bn, vendor_shop_slug, serial_number, hideSeller, requires_advance_payment, advance_percent }: ProductCardProps) => {
   const { addItem } = useCart();
   const [wishlisted, setWishlisted] = useState(false);
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
-    addItem({ id, name, name_bn, price, image_url: image_url || null, weight: weight || null });
+    addItem({
+      id, name, name_bn, price,
+      image_url: image_url || null,
+      weight: weight || null,
+      requires_advance_payment: !!requires_advance_payment,
+      advance_percent: advance_percent ?? 50,
+    });
     toast({ title: "কার্টে যোগ হয়েছে", description: `${name_bn} কার্টে যোগ করা হয়েছে।` });
   };
+
 
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -81,6 +90,11 @@ const ProductCard = ({ id, name, name_bn, price, compare_price, image_url, weigh
             <div className="absolute left-1.5 bottom-1.5 sm:left-2 sm:bottom-2">
               <GradeBadge grade={grade} size="xs" />
             </div>
+          )}
+          {requires_advance_payment && (
+            <Badge className="absolute right-1.5 bottom-1.5 sm:right-2 sm:bottom-2 bg-amber-500 hover:bg-amber-500 text-white text-[9px] px-1.5 py-0.5 sm:text-[10px] shadow">
+              {advance_percent ?? 50}% অগ্রিম
+            </Badge>
           )}
           {/* Wishlist heart icon */}
           <button

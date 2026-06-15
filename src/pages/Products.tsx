@@ -279,6 +279,8 @@ const Products = () => {
                       coming_soon={p.coming_soon}
                       vendor_shop_name_bn={v?.shop_name_bn}
                       vendor_shop_slug={v?.shop_slug}
+                      requires_advance_payment={p.requires_advance_payment}
+                      advance_percent={p.advance_percent}
                     />
                   );
                 })}

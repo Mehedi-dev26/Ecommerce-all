@@ -52,6 +52,8 @@ const emptyProduct = {
   weight: "", unit: "kg",
   grade: "none",
   coming_soon: false,
+  requires_advance_payment: false,
+  advance_percent: 50,
 };
 
 const GRADE_OPTIONS = [
@@ -199,6 +201,8 @@ const AdminProducts = () => {
       unit: form.unit || null,
       grade: form.grade && form.grade !== "none" ? form.grade : null,
       coming_soon: form.coming_soon,
+      requires_advance_payment: form.requires_advance_payment,
+      advance_percent: Number(form.advance_percent) || 50,
     };
 
     let error;
@@ -255,6 +259,8 @@ const AdminProducts = () => {
       weight: p.weight || "", unit: p.unit || "kg",
       grade: p.grade || "none",
       coming_soon: !!p.coming_soon,
+      requires_advance_payment: !!(p as any).requires_advance_payment,
+      advance_percent: Number((p as any).advance_percent ?? 50),
     });
     setDialogOpen(true);
   };
@@ -527,6 +533,37 @@ const AdminProducts = () => {
                   <Switch checked={form.coming_soon} onCheckedChange={(v) => setForm({ ...form, coming_soon: v })} />
                   <Label className="flex items-center gap-1"><Clock className="h-3.5 w-3.5 text-primary" />কামিং সুন</Label>
                 </div>
+              </div>
+
+              {/* Advance payment */}
+              <div className="md:col-span-2 rounded-xl border border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 p-3 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <Label className="flex items-center gap-2 text-sm font-semibold">
+                    ৫০% অগ্রিম পেমেন্ট প্রয়োজন
+                  </Label>
+                  <Switch
+                    checked={form.requires_advance_payment}
+                    onCheckedChange={(v) => setForm({ ...form, requires_advance_payment: v })}
+                  />
+                </div>
+                {form.requires_advance_payment && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                    <div>
+                      <Label className="text-xs">অগ্রিম শতাংশ (%)</Label>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={100}
+                        value={form.advance_percent}
+                        onChange={(e) => setForm({ ...form, advance_percent: Number(e.target.value) })}
+                      />
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      চেকআউটে এই product-এর মূল্যের{" "}
+                      <b>{form.advance_percent || 50}%</b> অগ্রিম হিসেবে দেখানো হবে, বাকি delivery-তে।
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex justify-end gap-3 pt-4 border-t border-border">
