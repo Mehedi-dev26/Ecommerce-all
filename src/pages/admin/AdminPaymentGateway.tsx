@@ -83,6 +83,7 @@ export default function AdminPaymentGateway() {
         account_number: acc.account_number,
         account_type: acc.account_type,
         instructions_bn: acc.instructions_bn,
+        logo_url: acc.logo_url,
         is_active: acc.is_active,
       }).eq("id", acc.id);
       if (error) return toast({ title: "সংরক্ষণ ব্যর্থ", description: error.message, variant: "destructive" });
@@ -92,6 +93,7 @@ export default function AdminPaymentGateway() {
         account_number: acc.account_number || "",
         account_type: acc.account_type || "personal",
         instructions_bn: acc.instructions_bn || null,
+        logo_url: acc.logo_url || null,
         is_active: acc.is_active ?? true,
         sort_order: accounts.length + 1,
       });
