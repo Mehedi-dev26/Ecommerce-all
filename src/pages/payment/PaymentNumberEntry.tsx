@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Loader2, ShoppingCart, Lock, Info } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { PAYMENT_THEMES, type PaymentProvider } from "@/lib/payment-themes";
 
@@ -45,9 +45,10 @@ const PaymentNumberEntry = () => {
   }, [orderId, navigate]);
 
   const amount = order?.payment_expected_amount ?? order?.total ?? 0;
+  const valid = BD_PHONE_REGEX.test(sender);
 
   const confirm = async () => {
-    if (!BD_PHONE_REGEX.test(sender)) {
+    if (!valid) {
       toast({
         title: "ভুল নম্বর",
         description: "সঠিক মোবাইল নম্বর দিন (01XXXXXXXXX)",
@@ -92,17 +93,31 @@ const PaymentNumberEntry = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#9CA3AF] flex items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden">
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ background: `linear-gradient(135deg, ${theme.brand}33, #1f2937)` }}
+    >
+      <div className="w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden">
+        {/* Top bar */}
+        <div className="px-5 pt-4 flex items-center justify-between">
+          <button onClick={() => navigate(-1)} className="h-9 w-9 rounded-full bg-muted grid place-items-center hover:bg-muted/70 transition">
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground bg-muted rounded-full px-2.5 py-1">
+            <Lock className="h-3 w-3" /> Secure
+          </div>
+        </div>
+
         {/* Header with logo */}
-        <div className="py-6 px-6 flex items-center justify-center border-b">
-          <span className="text-2xl font-extrabold" style={{ color: theme.brand }}>
+        <div className="py-5 px-6 flex flex-col items-center gap-1">
+          <span className="text-3xl font-extrabold" style={{ color: theme.brand }}>
             {theme.name}
           </span>
+          <span className="text-[11px] text-muted-foreground">{theme.tagline}</span>
         </div>
 
         {/* Order row */}
-        <div className="px-6 py-4 flex items-center gap-3 border-b">
+        <div className="px-6 py-3 mx-5 rounded-2xl bg-muted/40 flex items-center gap-3">
           <div
             className="h-10 w-10 rounded-full grid place-items-center shrink-0"
             style={{ backgroundColor: theme.brand + "22" }}
@@ -110,26 +125,22 @@ const PaymentNumberEntry = () => {
             <ShoppingCart className="h-5 w-5" style={{ color: theme.brand }} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-foreground truncate">
-              Sapahar Shop অর্ডার
-            </p>
-            <p className="text-[11px] text-muted-foreground truncate">
-              Inv: {order.order_number}
-            </p>
+            <p className="text-sm font-semibold text-foreground truncate">Sapahar Shop</p>
+            <p className="text-[11px] text-muted-foreground truncate">Invoice: {order.order_number}</p>
           </div>
-          <div className="text-right font-bold text-lg" style={{ color: theme.brand }}>
+          <div className="text-right font-extrabold text-lg" style={{ color: theme.brand }}>
             ৳{amount.toLocaleString()}
           </div>
         </div>
 
-        {/* Pink/branded body */}
-        <div className="px-6 py-8" style={{ backgroundColor: theme.brand }}>
-          <h2
-            className="text-center font-semibold text-base mb-4"
-            style={{ color: theme.onBrand }}
-          >
+        {/* Branded body */}
+        <div className="px-6 pt-7 pb-6 mt-5" style={{ backgroundColor: theme.brand }}>
+          <h2 className="text-center font-semibold text-base mb-1" style={{ color: theme.onBrand }}>
             আপনার {theme.nameBn} অ্যাকাউন্ট নম্বর
           </h2>
+          <p className="text-center text-[11px] mb-4" style={{ color: theme.onBrand + "CC" }}>
+            যে নম্বর থেকে Send Money করবেন সেটি লিখুন
+          </p>
           <input
             type="tel"
             inputMode="numeric"
@@ -137,34 +148,33 @@ const PaymentNumberEntry = () => {
             value={sender}
             onChange={(e) => setSender(e.target.value.replace(/\D/g, ""))}
             placeholder="01XXXXXXXXX"
-            className="w-full text-center text-lg font-bold tracking-wide rounded-lg bg-white px-4 py-3 outline-none focus:ring-4 focus:ring-white/40"
+            autoFocus
+            className="w-full text-center text-xl font-bold tracking-widest rounded-xl bg-white px-4 py-3.5 outline-none focus:ring-4 focus:ring-white/40 placeholder:text-muted-foreground/50"
           />
-          <p
-            className="mt-4 text-center text-xs"
-            style={{ color: theme.onBrand }}
-          >
-            Confirm করে এগিয়ে যান, <span className="underline">terms & conditions</span>
+          <p className="mt-3 text-center text-[11px] leading-snug" style={{ color: theme.onBrand + "DD" }}>
+            <Info className="h-3 w-3 inline mr-1 -mt-0.5" />
+            এটি একটি <b>Personal</b> অ্যাকাউন্ট — Send Money অপশন ব্যবহার করতে হবে
           </p>
         </div>
 
         {/* Footer buttons */}
-        <div className="grid grid-cols-2 divide-x border-t bg-white">
+        <div className="grid grid-cols-5 divide-x border-t bg-white">
           <button
             onClick={() => navigate(-1)}
-            className="py-4 font-semibold text-foreground/80 hover:bg-muted transition"
+            className="col-span-2 py-4 font-semibold text-foreground/80 hover:bg-muted transition"
           >
             Cancel
           </button>
           <button
             onClick={confirm}
-            disabled={submitting || !BD_PHONE_REGEX.test(sender)}
-            className="py-4 font-semibold text-white transition disabled:opacity-60"
+            disabled={submitting || !valid}
+            className="col-span-3 py-4 font-bold text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ backgroundColor: theme.brandDark }}
           >
             {submitting ? (
               <Loader2 className="h-5 w-5 animate-spin mx-auto" />
             ) : (
-              "Confirm"
+              "Confirm & Continue →"
             )}
           </button>
         </div>

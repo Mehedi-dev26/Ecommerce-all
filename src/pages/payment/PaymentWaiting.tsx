@@ -3,7 +3,10 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Copy, Check, Loader2, ShoppingCart, RotateCw } from "lucide-react";
+import {
+  Copy, Check, Loader2, ShoppingCart, RotateCw, Smartphone, Hash,
+  ShieldCheck, Phone, Info,
+} from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { PAYMENT_THEMES, type PaymentProvider } from "@/lib/payment-themes";
 
@@ -17,6 +20,7 @@ interface OrderRow {
 
 interface AccountRow {
   account_number: string;
+  account_type: string | null;
   instructions_bn: string | null;
 }
 
@@ -39,12 +43,12 @@ const PaymentWaiting = () => {
     return v ? parseInt(v, 10) : 0;
   });
   const [phase, setPhase] = useState<"waiting" | "expired" | "txnForm">("waiting");
+  const [tab, setTab] = useState<"app" | "ussd">("app");
   const [txnId, setTxnId] = useState("");
   const [submittingTxn, setSubmittingTxn] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<"num" | "amt" | "ussd" | null>(null);
   const pollRef = useRef<number | null>(null);
 
-  // Initial fetch + realtime subscribe
   useEffect(() => {
     if (!orderId) return;
     let mounted = true;
@@ -58,7 +62,7 @@ const PaymentWaiting = () => {
           .maybeSingle(),
         supabase
           .from("payment_accounts")
-          .select("account_number, instructions_bn")
+          .select("account_number, account_type, instructions_bn")
           .eq("method", method)
           .eq("is_active", true)
           .order("sort_order", { ascending: true })
@@ -93,7 +97,6 @@ const PaymentWaiting = () => {
     };
   }, [orderId, method, navigate]);
 
-  // Countdown + fallback poll every 3s
   useEffect(() => {
     if (phase !== "waiting") return;
     setSeconds(WAIT_SECONDS);
@@ -158,17 +161,16 @@ const PaymentWaiting = () => {
     localStorage.removeItem(`payment_attempts_${orderId}`);
     toast({
       title: "জমা হয়েছে",
-      description: "SMS এলে automatically confirm হবে, অন্যথায় admin verify করবে।",
+      description: "SMS এলে automatically confirm হবে, অন্যথায় admin verify করবেন।",
     });
     navigate(`/order-success/${order.order_number}`, { replace: true });
   };
 
-  const handleCopy = async () => {
-    if (!account) return;
-    await navigator.clipboard.writeText(account.account_number);
-    setCopied(true);
+  const copyText = async (text: string, key: "num" | "amt" | "ussd") => {
+    await navigator.clipboard.writeText(text);
+    setCopied(key);
     toast({ title: "কপি হয়েছে" });
-    setTimeout(() => setCopied(false), 1500);
+    setTimeout(() => setCopied(null), 1500);
   };
 
   const cancel = () => {
@@ -194,12 +196,16 @@ const PaymentWaiting = () => {
   }
 
   const amount = order.payment_expected_amount ?? order.total;
+  const steps = tab === "app" ? theme.appSteps : theme.ussdSteps;
 
   return (
-    <div className="min-h-screen bg-[#9CA3AF] flex items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden">
+    <div
+      className="min-h-screen flex items-center justify-center p-3 sm:p-4"
+      style={{ background: `linear-gradient(135deg, ${theme.brand}33, #111827)` }}
+    >
+      <div className="w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden">
         {/* Order row */}
-        <div className="px-6 py-4 flex items-center gap-3">
+        <div className="px-5 py-4 flex items-center gap-3 bg-white">
           <div
             className="h-10 w-10 rounded-full grid place-items-center shrink-0"
             style={{ backgroundColor: theme.brand + "22" }}
@@ -207,80 +213,156 @@ const PaymentWaiting = () => {
             <ShoppingCart className="h-5 w-5" style={{ color: theme.brand }} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold truncate">Sapahar Shop অর্ডার</p>
-            <p className="text-[11px] text-muted-foreground truncate">
-              Inv: {order.order_number}
-            </p>
+            <p className="text-sm font-semibold truncate">Sapahar Shop</p>
+            <p className="text-[11px] text-muted-foreground truncate">Inv: {order.order_number}</p>
           </div>
-          <div className="text-right font-bold text-lg" style={{ color: theme.brand }}>
+          <div className="text-right font-extrabold text-lg" style={{ color: theme.brand }}>
             ৳{amount.toLocaleString()}
           </div>
         </div>
 
         {/* Branded body */}
-        <div className="px-6 py-6" style={{ backgroundColor: theme.brand }}>
+        <div className="px-5 py-5" style={{ backgroundColor: theme.brand }}>
+          {/* Personal badge */}
+          <div className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider mb-3"
+            style={{ backgroundColor: "rgba(255,255,255,0.2)", color: theme.onBrand }}>
+            <ShieldCheck className="h-3 w-3" /> Personal Account · Send Money
+          </div>
+
           {/* Merchant number box */}
-          <div className="rounded-xl border-2 border-white/40 px-4 py-3 flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p
-                className="text-[10px] uppercase tracking-widest font-semibold"
-                style={{ color: theme.onBrand + "CC" }}
-              >
-                Merchant Number
+          <div className="rounded-2xl bg-white/10 backdrop-blur border border-white/30 p-4 space-y-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-widest font-semibold mb-1" style={{ color: theme.onBrand + "CC" }}>
+                {theme.nameBn} Personal নম্বর
               </p>
-              <p
-                className="text-2xl font-extrabold tracking-wide truncate"
-                style={{ color: theme.onBrand }}
-              >
-                {account.account_number}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-2xl font-extrabold tracking-wide flex-1" style={{ color: theme.onBrand }}>
+                  {account.account_number}
+                </p>
+                <button
+                  onClick={() => copyText(account.account_number, "num")}
+                  className="h-9 px-3 rounded-lg bg-white/20 hover:bg-white/30 grid place-items-center transition text-xs font-semibold gap-1 inline-flex"
+                  style={{ color: theme.onBrand }}
+                >
+                  {copied === "num" ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copied === "num" ? "Copied" : "Copy"}
+                </button>
+              </div>
             </div>
+
+            <div className="h-px bg-white/20" />
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <p className="text-[10px] uppercase tracking-widest font-semibold mb-1" style={{ color: theme.onBrand + "CC" }}>
+                  Amount
+                </p>
+                <button
+                  onClick={() => copyText(String(amount), "amt")}
+                  className="text-left flex items-center gap-1.5 font-bold text-lg"
+                  style={{ color: theme.onBrand }}
+                >
+                  ৳{amount.toLocaleString()}
+                  {copied === "amt" ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5 opacity-70" />}
+                </button>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest font-semibold mb-1" style={{ color: theme.onBrand + "CC" }}>
+                  Reference
+                </p>
+                <p className="font-bold text-xs truncate" style={{ color: theme.onBrand }}>
+                  {order.order_number}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Tab switcher: App vs USSD */}
+          <div className="mt-5 grid grid-cols-2 gap-1.5 rounded-xl p-1" style={{ backgroundColor: "rgba(0,0,0,0.15)" }}>
             <button
-              onClick={handleCopy}
-              className="h-10 w-10 rounded-full bg-white/20 hover:bg-white/30 grid place-items-center transition shrink-0"
-              aria-label="Copy"
+              onClick={() => setTab("app")}
+              className="py-2 rounded-lg text-xs font-bold inline-flex items-center justify-center gap-1.5 transition"
+              style={{
+                backgroundColor: tab === "app" ? theme.onBrand : "transparent",
+                color: tab === "app" ? theme.brandDark : theme.onBrand,
+              }}
             >
-              {copied ? (
-                <Check className="h-5 w-5" style={{ color: theme.onBrand }} />
-              ) : (
-                <Copy className="h-5 w-5" style={{ color: theme.onBrand }} />
-              )}
+              <Smartphone className="h-3.5 w-3.5" /> Smartphone App
+            </button>
+            <button
+              onClick={() => setTab("ussd")}
+              className="py-2 rounded-lg text-xs font-bold inline-flex items-center justify-center gap-1.5 transition"
+              style={{
+                backgroundColor: tab === "ussd" ? theme.onBrand : "transparent",
+                color: tab === "ussd" ? theme.brandDark : theme.onBrand,
+              }}
+            >
+              <Hash className="h-3.5 w-3.5" /> Dial Code ({theme.ussd})
             </button>
           </div>
 
+          {/* USSD quick-dial */}
+          {tab === "ussd" && (
+            <a
+              href={`tel:${encodeURIComponent(theme.ussd)}`}
+              onClick={() => copyText(theme.ussd, "ussd")}
+              className="mt-3 flex items-center justify-between rounded-xl bg-white/15 hover:bg-white/25 transition px-4 py-3"
+              style={{ color: theme.onBrand }}
+            >
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4" />
+                <span className="text-sm font-semibold">Tap to dial</span>
+              </div>
+              <span className="text-lg font-extrabold tracking-wider">{theme.ussd}</span>
+            </a>
+          )}
+
           {/* Instructions */}
-          <ol className="mt-5 space-y-2.5" style={{ color: theme.onBrand }}>
-            {theme.instructions.map((line, i) => (
-              <li key={i} className="flex gap-2.5 text-sm">
+          <ol className="mt-4 space-y-2.5">
+            {steps.map((s, i) => (
+              <li key={i} className="flex gap-2.5">
                 <span
-                  className="h-5 w-5 rounded-full grid place-items-center text-[11px] font-bold shrink-0 mt-0.5"
+                  className="h-6 w-6 rounded-full grid place-items-center text-[11px] font-bold shrink-0 mt-0.5"
                   style={{ backgroundColor: theme.onBrand, color: theme.brandDark }}
                 >
                   {i + 1}
                 </span>
-                <span className="leading-snug">{line}</span>
+                <div className="flex-1 leading-snug" style={{ color: theme.onBrand }}>
+                  <p className="text-sm font-medium">{s.step}</p>
+                  {s.hint && (
+                    <p className="text-[11px] mt-0.5" style={{ color: theme.onBrand + "AA" }}>
+                      <Info className="h-3 w-3 inline -mt-0.5 mr-1" />{s.hint}
+                    </p>
+                  )}
+                </div>
               </li>
             ))}
           </ol>
 
+          {/* Admin custom instructions */}
+          {account.instructions_bn && (
+            <div className="mt-4 rounded-xl bg-black/15 p-3 text-xs leading-snug" style={{ color: theme.onBrand }}>
+              <p className="font-bold mb-1">📌 অতিরিক্ত নির্দেশনা:</p>
+              <p>{account.instructions_bn}</p>
+            </div>
+          )}
+
           {/* Waiting status */}
-          <div className="mt-6 text-center">
+          <div className="mt-5 text-center">
             {phase === "waiting" && (
               <>
-                <p
-                  className="font-bold text-base animate-pulse"
-                  style={{ color: theme.onBrand }}
-                >
-                  Waiting for payment... ({seconds}s)
-                </p>
-                <p className="mt-1 text-[11px]" style={{ color: theme.onBrand + "CC" }}>
-                  Attempt {attempts + 1} / {MAX_RETRIES + 1}
+                <div className="inline-flex items-center gap-2 rounded-full px-4 py-2 bg-white/15 backdrop-blur" style={{ color: theme.onBrand }}>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="font-bold text-sm">Payment auto-detect হচ্ছে... {seconds}s</span>
+                </div>
+                <p className="mt-2 text-[11px]" style={{ color: theme.onBrand + "CC" }}>
+                  Attempt {attempts + 1} / {MAX_RETRIES + 1} · টাকা পাঠান, আমরা SMS check করছি
                 </p>
               </>
             )}
             {phase === "expired" && (
               <p className="font-semibold text-sm" style={{ color: theme.onBrand }}>
-                Payment confirm হয়নি — আবার চেষ্টা করুন
+                Payment confirm হয়নি — আবার চেষ্টা করুন বা TrxID দিন
               </p>
             )}
             {phase === "txnForm" && (
@@ -290,29 +372,29 @@ const PaymentWaiting = () => {
             )}
           </div>
 
-          {/* Txn form */}
           {phase === "txnForm" && (
-            <div className="mt-4 rounded-xl bg-white p-3 space-y-2">
-              <Input
-                value={txnId}
-                onChange={(e) => setTxnId(e.target.value.toUpperCase())}
-                placeholder="যেমন: 8N7AB9CDE1"
-                className="text-center font-mono tracking-wider"
-              />
+            <div className="mt-4 rounded-2xl bg-white p-4 space-y-3">
+              <div>
+                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+                  Transaction ID (SMS থেকে)
+                </label>
+                <Input
+                  value={txnId}
+                  onChange={(e) => setTxnId(e.target.value.toUpperCase())}
+                  placeholder="যেমন: 8N7AB9CDE1"
+                  className="mt-1 text-center font-mono tracking-wider text-base"
+                />
+              </div>
               <Button
                 onClick={submitTxn}
                 disabled={submittingTxn}
-                className="w-full font-bold"
+                className="w-full font-bold py-3"
                 style={{ backgroundColor: theme.brandDark, color: theme.onBrand }}
               >
-                {submittingTxn ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Submit Transaction ID"
-                )}
+                {submittingTxn ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit Transaction ID"}
               </Button>
-              <p className="text-[10px] text-muted-foreground text-center">
-                SMS এলে auto match হবে, না হলে admin manual verify করবে
+              <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
+                SMS এলে auto match হবে — না হলে admin manually verify করে অর্ডার confirm করবেন
               </p>
             </div>
           )}
@@ -329,35 +411,29 @@ const PaymentWaiting = () => {
           {phase === "waiting" && (
             <button
               disabled
-              className="py-4 font-semibold text-white/90 inline-flex items-center justify-center gap-2"
-              style={{ backgroundColor: theme.brandDark, opacity: 0.7 }}
+              className="py-4 font-semibold inline-flex items-center justify-center gap-2"
+              style={{ backgroundColor: theme.brandDark, color: theme.onBrand, opacity: 0.85 }}
             >
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Waiting...
+              <Loader2 className="h-4 w-4 animate-spin" /> Waiting...
             </button>
           )}
           {phase === "expired" && (
             <button
               onClick={tryAgain}
-              className="py-4 font-semibold text-white inline-flex items-center justify-center gap-2"
-              style={{ backgroundColor: theme.brandDark }}
+              className="py-4 font-bold inline-flex items-center justify-center gap-2"
+              style={{ backgroundColor: theme.brandDark, color: theme.onBrand }}
             >
-              <RotateCw className="h-4 w-4" />
-              Try Again ({MAX_RETRIES - attempts} left)
+              <RotateCw className="h-4 w-4" /> Try Again ({MAX_RETRIES - attempts} left)
             </button>
           )}
           {phase === "txnForm" && (
             <button
               onClick={submitTxn}
               disabled={submittingTxn}
-              className="py-4 font-semibold text-white disabled:opacity-60"
-              style={{ backgroundColor: theme.brandDark }}
+              className="py-4 font-bold disabled:opacity-60"
+              style={{ backgroundColor: theme.brandDark, color: theme.onBrand }}
             >
-              {submittingTxn ? (
-                <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-              ) : (
-                "Submit"
-              )}
+              {submittingTxn ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "Submit"}
             </button>
           )}
         </div>
