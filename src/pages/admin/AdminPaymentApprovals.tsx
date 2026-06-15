@@ -120,7 +120,7 @@ export default function AdminPaymentApprovals() {
 
   const approve = async (o: PendingOrder) => {
     const isAdvance = Number(o.advance_amount || 0) > 0 && Number(o.advance_amount) < Number(o.total);
-    const updates: Record<string, unknown> = {
+    const updates: { payment_verified_at: string; advance_paid?: boolean } = {
       payment_verified_at: new Date().toISOString(),
     };
     if (isAdvance) updates.advance_paid = true;
