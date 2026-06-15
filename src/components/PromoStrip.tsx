@@ -42,11 +42,11 @@ const PromoStrip = ({ position, className = "", inline = false }: Props) => {
   const Wrapper: React.ElementType = inline ? "div" : "section";
   const wrapperCls = inline
     ? `w-full ${className}`
-    : `container mx-auto px-3 sm:px-4 my-4 sm:my-6 ${className}`;
+    : `container mx-auto px-3 sm:px-4 my-5 sm:my-8 ${className}`;
 
   return (
     <Wrapper className={wrapperCls}>
-      <div className="flex flex-col gap-3 max-w-6xl mx-auto">
+      <div className="flex flex-col gap-3 sm:gap-4 max-w-7xl mx-auto">
         {strips.map((s) => {
           const img = (
             <img
@@ -55,7 +55,7 @@ const PromoStrip = ({ position, className = "", inline = false }: Props) => {
               loading="lazy"
               decoding="async"
               className="w-full h-auto object-cover rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow"
-              style={{ aspectRatio: "8 / 1" }}
+              style={{ aspectRatio: "5 / 1.2" }}
             />
           );
           return s.link_url ? (
