@@ -145,7 +145,7 @@ export default function AdminPaymentApprovals() {
     const order = orders.find((o) => o.id === orderId);
     if (!order) return;
     const isAdvance = Number(order.advance_amount || 0) > 0 && Number(order.advance_amount) < Number(order.total);
-    const updates: Record<string, unknown> = {
+    const updates: { payment_txn_id: string | null; payment_verified_at: string; advance_paid?: boolean } = {
       payment_txn_id: smsRow.txn_id,
       payment_verified_at: new Date().toISOString(),
     };
