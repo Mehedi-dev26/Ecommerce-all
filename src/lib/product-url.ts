@@ -10,7 +10,8 @@ export interface ProductUrlInput {
 
 export const getProductUrl = (p: ProductUrlInput): string => {
   if (p.vendor_shop_slug && p.serial_number) {
-    return `/products/${p.vendor_shop_slug}/${p.serial_number}`;
+    // Encode the slug so Bengali / Unicode characters survive routing safely.
+    return `/products/${encodeURIComponent(p.vendor_shop_slug)}/${p.serial_number}`;
   }
   return `/products/${p.id}`;
 };
