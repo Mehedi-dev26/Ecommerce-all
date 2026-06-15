@@ -864,16 +864,25 @@ const Checkout = () => {
           )}
 
           {/* Payment */}
-          <div className="rounded-xl border bg-card p-4 sm:p-6">
-            <h2 className="mb-2 text-lg font-semibold">পেমেন্ট পদ্ধতি</h2>
-            <div className="flex items-center gap-3 rounded-lg border-2 border-primary p-4">
-              <div className="h-4 w-4 rounded-full border-4 border-primary" />
-              <div>
-                <p className="font-medium text-foreground">ক্যাশ অন ডেলিভারি</p>
-                <p className="text-sm text-muted-foreground">পণ্য হাতে পেয়ে টাকা পরিশোধ করুন</p>
-              </div>
-            </div>
-          </div>
+          <PaymentMethodPicker
+            amount={upfrontAmount}
+            method={paymentMethod}
+            onMethodChange={(m) => {
+              setPaymentMethod(m);
+              setErrors((prev) => ({ ...prev, paymentMethod: "", senderNumber: "" }));
+            }}
+            senderNumber={senderNumber}
+            onSenderChange={(n) => {
+              setSenderNumber(n);
+              setErrors((prev) => ({ ...prev, senderNumber: "" }));
+            }}
+            senderError={errors.senderNumber}
+          />
+          {errors.paymentMethod && (
+            <p className="-mt-2 flex items-center gap-1 text-xs text-destructive">
+              <AlertCircle className="h-3 w-3" />{errors.paymentMethod}
+            </p>
+          )}
         </div>
 
         {/* Order Summary */}
