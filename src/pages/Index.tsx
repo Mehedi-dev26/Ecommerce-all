@@ -36,7 +36,6 @@ const Index = () => (
     />
     <HeroSection />
     <div className="cv-auto"><CategorySection /></div>
-    <PromoStrip position="top" />
     <Suspense fallback={<SectionFallback />}>
       <div className="cv-auto"><FeaturedProducts /></div>
     </Suspense>
