@@ -39,9 +39,14 @@ const PromoStrip = ({ position, className = "", inline = false }: Props) => {
 
   if (strips.length === 0) return null;
 
+  const Wrapper: React.ElementType = inline ? "div" : "section";
+  const wrapperCls = inline
+    ? `w-full ${className}`
+    : `container mx-auto px-3 sm:px-4 my-4 sm:my-6 ${className}`;
+
   return (
-    <section className={`container mx-auto px-3 sm:px-4 my-4 sm:my-6 ${className}`}>
-      <div className="flex flex-col gap-3">
+    <Wrapper className={wrapperCls}>
+      <div className="flex flex-col gap-3 max-w-6xl mx-auto">
         {strips.map((s) => {
           const img = (
             <img
@@ -49,7 +54,7 @@ const PromoStrip = ({ position, className = "", inline = false }: Props) => {
               alt={s.alt_text || "অফার ব্যানার"}
               loading="lazy"
               decoding="async"
-              className="w-full h-auto object-cover rounded-xl shadow-sm hover:shadow-md transition-shadow"
+              className="w-full h-auto object-cover rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-shadow"
               style={{ aspectRatio: "8 / 1" }}
             />
           );
@@ -62,7 +67,7 @@ const PromoStrip = ({ position, className = "", inline = false }: Props) => {
           );
         })}
       </div>
-    </section>
+    </Wrapper>
   );
 };
 
