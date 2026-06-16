@@ -2,6 +2,16 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
+const VENDOR_LOAD_TIMEOUT_MS = 8000;
+
+const withTimeout = <T,>(promise: PromiseLike<T>, ms: number, message: string) =>
+  new Promise<T>((resolve, reject) => {
+    const timer = window.setTimeout(() => reject(new Error(message)), ms);
+    Promise.resolve(promise)
+      .then(resolve, reject)
+      .finally(() => window.clearTimeout(timer));
+  });
+
 export interface VendorRecord {
   id: string;
   user_id: string;
@@ -39,13 +49,23 @@ export const useVendor = () => {
       return;
     }
     setLoading(true);
-    const { data } = await supabase
-      .from("vendors" as any)
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle();
-    setVendor((data as any) || null);
-    setLoading(false);
+    try {
+      const { data } = await withTimeout(
+        supabase
+          .from("vendors" as any)
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle(),
+        VENDOR_LOAD_TIMEOUT_MS,
+        "Vendor profile load timed out"
+      );
+      setVendor((data as any) || null);
+    } catch (error) {
+      console.error("Failed to load vendor profile", error);
+      setVendor(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {

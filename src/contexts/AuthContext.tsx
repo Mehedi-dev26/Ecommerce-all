@@ -3,6 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 import { sendEmail } from "@/lib/sendEmail";
 
+const AUTH_TIMEOUT_MS = 8000;
+
+const withTimeout = <T,>(promise: PromiseLike<T>, ms: number, message: string) =>
+  new Promise<T>((resolve, reject) => {
+    const timer = window.setTimeout(() => reject(new Error(message)), ms);
+    Promise.resolve(promise)
+      .then(resolve, reject)
+      .finally(() => window.clearTimeout(timer));
+  });
+
 interface Profile {
   id: string;
   user_id: string;
@@ -50,9 +60,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    let isActive = true;
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
+        if (!isActive) return;
         setSession(newSession);
         setUser(newSession?.user ?? null);
         
@@ -67,16 +80,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
-      setSession(existingSession);
-      setUser(existingSession?.user ?? null);
-      if (existingSession?.user) {
-        fetchProfile(existingSession.user.id);
-      }
-      setLoading(false);
-    });
+    withTimeout(supabase.auth.getSession(), AUTH_TIMEOUT_MS, "Auth session restore timed out")
+      .then(({ data: { session: existingSession } }) => {
+        if (!isActive) return;
+        setSession(existingSession);
+        setUser(existingSession?.user ?? null);
+        if (existingSession?.user) {
+          void fetchProfile(existingSession.user.id);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to restore auth session", error);
+        if (!isActive) return;
+        setSession(null);
+        setUser(null);
+        setProfile(null);
+      })
+      .finally(() => {
+        if (isActive) setLoading(false);
+      });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isActive = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signInWithGoogle = async () => {

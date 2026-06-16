@@ -4,6 +4,16 @@ import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { hasAdminRole } from "@/lib/admin-auth";
 
+const ADMIN_AUTH_TIMEOUT_MS = 8000;
+
+const withTimeout = <T,>(promise: PromiseLike<T>, ms: number, message: string) =>
+  new Promise<T>((resolve, reject) => {
+    const timer = window.setTimeout(() => reject(new Error(message)), ms);
+    Promise.resolve(promise)
+      .then(resolve, reject)
+      .finally(() => window.clearTimeout(timer));
+  });
+
 export function useAdminAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -27,7 +37,11 @@ export function useAdminAuth() {
       }
 
       try {
-        const admin = await hasAdminRole(sessionUser.id);
+        const admin = await withTimeout(
+          hasAdminRole(sessionUser.id),
+          ADMIN_AUTH_TIMEOUT_MS,
+          "Admin verification timed out"
+        );
 
         if (!isActive || requestId !== requestIdRef.current) {
           return;
@@ -71,8 +85,11 @@ export function useAdminAuth() {
       void resolveSession(session?.user ?? null);
     });
 
-    void supabase.auth
-      .getSession()
+    void withTimeout(
+      supabase.auth.getSession(),
+      ADMIN_AUTH_TIMEOUT_MS,
+      "Admin session restore timed out"
+    )
       .then(({ data: { session } }) => resolveSession(session?.user ?? null))
       .catch((error) => {
         console.error("Failed to restore admin session", error);
