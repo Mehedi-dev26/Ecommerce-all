@@ -37,14 +37,14 @@
 
     --radius: 0.5rem;
 
-    /* Sidebar — deep leaf green for a calm, professional, natural look */
-    --sidebar-background: 150 38% 14%;
-    --sidebar-foreground: 140 20% 92%;
+    /* Sidebar — refined forest/emerald leaf green for a professional, calm look */
+    --sidebar-background: 158 48% 11%;
+    --sidebar-foreground: 145 25% 94%;
     --sidebar-primary: 22 91% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 150 30% 22%;
+    --sidebar-accent: 156 35% 19%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 150 25% 26%;
+    --sidebar-border: 156 28% 24%;
     --sidebar-ring: 22 91% 55%;
   }
 
