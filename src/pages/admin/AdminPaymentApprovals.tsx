@@ -221,53 +221,68 @@ export default function AdminPaymentApprovals() {
         </Button>
       </div>
 
-      {/* Stat cards */}
+      {/* Stat cards — colorful gradient */}
       <div className="grid grid-cols-3 gap-3">
-        <Card className="border-amber-200 bg-amber-50/60">
-          <CardContent className="p-3 flex items-center gap-3">
-            <div className="rounded-lg bg-amber-100 p-2"><Clock className="h-4 w-4 text-amber-700" /></div>
+        <Card className="border-0 bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 text-white shadow-lg shadow-amber-500/30 overflow-hidden relative">
+          <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10 blur-xl" />
+          <CardContent className="p-3 flex items-center gap-3 relative">
+            <div className="rounded-xl bg-white/20 backdrop-blur p-2.5 ring-1 ring-white/30"><Clock className="h-5 w-5" /></div>
             <div>
-              <div className="text-[10px] text-amber-700 font-medium">Pending Approval</div>
-              <div className="text-xl font-bold text-amber-900">{stats.pending}</div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider opacity-90">Pending</div>
+              <div className="text-2xl font-extrabold leading-tight">{stats.pending}</div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-emerald-200 bg-emerald-50/60">
-          <CardContent className="p-3 flex items-center gap-3">
-            <div className="rounded-lg bg-emerald-100 p-2"><CheckCircle2 className="h-4 w-4 text-emerald-700" /></div>
+        <Card className="border-0 bg-gradient-to-br from-emerald-400 via-green-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30 overflow-hidden relative">
+          <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10 blur-xl" />
+          <CardContent className="p-3 flex items-center gap-3 relative">
+            <div className="rounded-xl bg-white/20 backdrop-blur p-2.5 ring-1 ring-white/30"><CheckCircle2 className="h-5 w-5" /></div>
             <div>
-              <div className="text-[10px] text-emerald-700 font-medium">Approved (24h)</div>
-              <div className="text-xl font-bold text-emerald-900">{stats.verifiedToday}</div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider opacity-90">Approved · 24h</div>
+              <div className="text-2xl font-extrabold leading-tight">{stats.verifiedToday}</div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-blue-200 bg-blue-50/60">
-          <CardContent className="p-3 flex items-center gap-3">
-            <div className="rounded-lg bg-blue-100 p-2"><Inbox className="h-4 w-4 text-blue-700" /></div>
+        <Card className="border-0 bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30 overflow-hidden relative">
+          <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/10 blur-xl" />
+          <CardContent className="p-3 flex items-center gap-3 relative">
+            <div className="rounded-xl bg-white/20 backdrop-blur p-2.5 ring-1 ring-white/30"><Inbox className="h-5 w-5" /></div>
             <div>
-              <div className="text-[10px] text-blue-700 font-medium">Unmatched SMS</div>
-              <div className="text-xl font-bold text-blue-900">{stats.unmatchedSms}</div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider opacity-90">Unmatched SMS</div>
+              <div className="text-2xl font-extrabold leading-tight">{stats.unmatchedSms}</div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-2 border-b">
+      {/* Tabs — colorful pill style */}
+      <div className="flex items-center gap-2 flex-wrap">
         {([
-          { k: "pending", label: `Pending (${stats.pending})`, icon: Clock },
-          { k: "verified", label: "Approved", icon: CheckCircle2 },
-          { k: "sms", label: `SMS Inbox (${sms.length})`, icon: Inbox },
+          {
+            k: "pending", label: `Pending (${stats.pending})`, icon: Clock,
+            active: "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30 border-transparent",
+            idle: "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100",
+          },
+          {
+            k: "verified", label: `Approved (${verified.length})`, icon: CheckCircle2,
+            active: "bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/30 border-transparent",
+            idle: "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100",
+          },
+          {
+            k: "sms", label: `SMS Inbox (${sms.length})`, icon: Inbox,
+            active: "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30 border-transparent",
+            idle: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100",
+          },
         ] as const).map((t) => (
           <button
             key={t.k}
             onClick={() => setTab(t.k)}
             className={cn(
-              "px-3 py-2 text-sm flex items-center gap-1.5 border-b-2 -mb-px transition",
-              tab === t.k ? "border-primary text-primary font-semibold" : "border-transparent text-muted-foreground hover:text-foreground"
+              "px-4 py-2 text-sm font-semibold flex items-center gap-2 rounded-xl border transition-all",
+              tab === t.k ? t.active : t.idle
             )}
           >
-            <t.icon className="h-3.5 w-3.5" /> {t.label}
+            <t.icon className="h-4 w-4" /> {t.label}
           </button>
         ))}
       </div>
