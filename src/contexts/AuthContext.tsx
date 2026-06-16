@@ -5,10 +5,10 @@ import { sendEmail } from "@/lib/sendEmail";
 
 const AUTH_TIMEOUT_MS = 8000;
 
-const withTimeout = <T,>(promise: Promise<T>, ms: number, message: string) =>
+const withTimeout = <T,>(promise: PromiseLike<T>, ms: number, message: string) =>
   new Promise<T>((resolve, reject) => {
     const timer = window.setTimeout(() => reject(new Error(message)), ms);
-    promise
+    Promise.resolve(promise)
       .then(resolve, reject)
       .finally(() => window.clearTimeout(timer));
   });

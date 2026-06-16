@@ -6,10 +6,10 @@ import { hasAdminRole } from "@/lib/admin-auth";
 
 const ADMIN_AUTH_TIMEOUT_MS = 8000;
 
-const withTimeout = <T,>(promise: Promise<T>, ms: number, message: string) =>
+const withTimeout = <T,>(promise: PromiseLike<T>, ms: number, message: string) =>
   new Promise<T>((resolve, reject) => {
     const timer = window.setTimeout(() => reject(new Error(message)), ms);
-    promise
+    Promise.resolve(promise)
       .then(resolve, reject)
       .finally(() => window.clearTimeout(timer));
   });
@@ -85,9 +85,11 @@ export function useAdminAuth() {
       void resolveSession(session?.user ?? null);
     });
 
-    void supabase.auth
-      .getSession()
-      .then((result) => withTimeout(Promise.resolve(result), ADMIN_AUTH_TIMEOUT_MS, "Admin session restore timed out"))
+    void withTimeout(
+      supabase.auth.getSession(),
+      ADMIN_AUTH_TIMEOUT_MS,
+      "Admin session restore timed out"
+    )
       .then(({ data: { session } }) => resolveSession(session?.user ?? null))
       .catch((error) => {
         console.error("Failed to restore admin session", error);
