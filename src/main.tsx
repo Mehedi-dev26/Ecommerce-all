@@ -30,6 +30,10 @@ window.addEventListener("unhandledrejection", (e) => {
   const msg = (e?.reason && (e.reason.message || String(e.reason))) || "";
   if (isChunkLoadError(msg)) tryReload();
 });
+window.addEventListener("vite:preloadError", (e) => {
+  e.preventDefault();
+  tryReload();
+});
 // Clear the guard once the new build loads cleanly
 window.addEventListener("load", () => {
   try {

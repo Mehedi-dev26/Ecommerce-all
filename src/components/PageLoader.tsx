@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
 interface PageLoaderProps {
@@ -8,8 +9,16 @@ interface PageLoaderProps {
 
 const PageLoader = ({ fullScreen = false, message = "লোড হচ্ছে" }: PageLoaderProps) => {
   const { settings, logoUrl } = useSiteSettings();
+  const [showRecovery, setShowRecovery] = useState(false);
   const brandName = settings.brand_name || "Sapahar Shop";
   const tagline = settings.brand_tagline || "সাপাহারের সেরা ও খাঁটি আম";
+
+  useEffect(() => {
+    if (!fullScreen) return;
+    const timer = window.setTimeout(() => setShowRecovery(true), 9000);
+    return () => window.clearTimeout(timer);
+  }, [fullScreen]);
+
   return (
     <div
       className={
@@ -41,6 +50,16 @@ const PageLoader = ({ fullScreen = false, message = "লোড হচ্ছে" 
           <span className="animate-[loader-dot_1.4s_infinite_both] [animation-delay:.4s]">.</span>
         </span>
       </p>
+
+      {showRecovery && (
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="rounded-lg border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary shadow-sm transition-colors hover:bg-primary/15 focus:outline-none focus:ring-2 focus:ring-primary/30"
+        >
+          আবার চেষ্টা করুন
+        </button>
+      )}
     </div>
   );
 };
