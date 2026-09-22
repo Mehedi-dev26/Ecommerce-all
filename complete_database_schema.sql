@@ -781,9 +781,15 @@ EXECUTE FUNCTION public.update_updated_at_column();
 -- ---------------------------------------------------------------------
 -- STEP 22/68  (20260422122049)
 -- ---------------------------------------------------------------------
--- Add grade column to products (A, B, C, D — nullable so existing products unaffected)
+-- Add grade column to products (nullable so existing products unaffected).
+-- Allowed grades include premium plus/minus variants used by the shop (A+, A, A-, B+, ...).
 ALTER TABLE public.products
-  ADD COLUMN IF NOT EXISTS grade TEXT CHECK (grade IN ('A', 'B', 'C', 'D'));
+  ADD COLUMN IF NOT EXISTS grade TEXT;
+
+ALTER TABLE public.products DROP CONSTRAINT IF EXISTS products_grade_check;
+ALTER TABLE public.products
+  ADD CONSTRAINT products_grade_check
+  CHECK (grade IS NULL OR grade IN ('A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D'));
 
 -- Add a flag to categories so admin can mark which categories need a weight field
 ALTER TABLE public.categories
