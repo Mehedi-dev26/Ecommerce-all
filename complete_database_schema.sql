@@ -31,6 +31,12 @@
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+-- Enums are created up-front so later policies can use every value
+-- (Postgres forbids using an enum value added in the same transaction).
+DO $enum$ BEGIN
+  CREATE TYPE public.app_role AS ENUM ('admin', 'moderator', 'user', 'vendor');
+EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
+
 
 -- ---------------------------------------------------------------------
 -- STEP 01/68  (20260404055349)
@@ -259,7 +265,7 @@ INSERT INTO public.products (name, name_bn, description, description_bn, categor
 -- STEP 07/68  (20260406084019)
 -- ---------------------------------------------------------------------
 -- Create app_role enum
-CREATE TYPE public.app_role AS ENUM ('admin', 'moderator', 'user');
+-- app_role enum already created at the top of this file (includes 'vendor')
 
 -- Create user_roles table
 CREATE TABLE public.user_roles (
@@ -2551,7 +2557,7 @@ SELECT * FROM (VALUES
 -- STEP 51/68  (20260511071837)
 -- ---------------------------------------------------------------------
 -- Add 'vendor' to app_role enum
-ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'vendor';
+-- 'vendor' value is already part of app_role (created at the top of this file)
 
 -- Create vendors table
 CREATE TABLE public.vendors (
