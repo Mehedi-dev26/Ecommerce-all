@@ -42,7 +42,7 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $enum$;
 -- STEP 01/68  (20260404055349)
 -- ---------------------------------------------------------------------
 -- Categories table
-CREATE TABLE public.categories (
+CREATE TABLE IF NOT EXISTS public.categories (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   name_bn TEXT NOT NULL,
@@ -53,7 +53,7 @@ CREATE TABLE public.categories (
 );
 
 -- Products table
-CREATE TABLE public.products (
+CREATE TABLE IF NOT EXISTS public.products (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   category_id UUID REFERENCES public.categories(id) ON DELETE SET NULL,
   name TEXT NOT NULL,
@@ -74,7 +74,7 @@ CREATE TABLE public.products (
 );
 
 -- Orders table
-CREATE TABLE public.orders (
+CREATE TABLE IF NOT EXISTS public.orders (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   order_number TEXT NOT NULL UNIQUE,
   customer_name TEXT NOT NULL,
@@ -94,7 +94,7 @@ CREATE TABLE public.orders (
 );
 
 -- Order items table
-CREATE TABLE public.order_items (
+CREATE TABLE IF NOT EXISTS public.order_items (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   order_id UUID NOT NULL REFERENCES public.orders(id) ON DELETE CASCADE,
   product_id UUID REFERENCES public.products(id) ON DELETE SET NULL,
@@ -111,17 +111,23 @@ ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
 
 -- Categories: public read
+DROP POLICY IF EXISTS "Anyone can view categories" ON public.categories;
 CREATE POLICY "Anyone can view categories" ON public.categories FOR SELECT USING (true);
 
 -- Products: public read
+DROP POLICY IF EXISTS "Anyone can view active products" ON public.products;
 CREATE POLICY "Anyone can view active products" ON public.products FOR SELECT USING (is_active = true);
 
 -- Orders: anyone can insert, select by phone
+DROP POLICY IF EXISTS "Anyone can create orders" ON public.orders;
 CREATE POLICY "Anyone can create orders" ON public.orders FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Anyone can view orders by phone" ON public.orders;
 CREATE POLICY "Anyone can view orders by phone" ON public.orders FOR SELECT USING (true);
 
 -- Order items: public read
+DROP POLICY IF EXISTS "Anyone can create order items" ON public.order_items;
 CREATE POLICY "Anyone can create order items" ON public.order_items FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Anyone can view order items" ON public.order_items;
 CREATE POLICY "Anyone can view order items" ON public.order_items FOR SELECT USING (true);
 
 -- Update timestamp function
@@ -133,7 +139,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SET search_path = public;
 
+DROP TRIGGER IF EXISTS update_products_updated_at ON public.products;
 CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON public.products FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+DROP TRIGGER IF EXISTS update_orders_updated_at ON public.orders;
 CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON public.orders FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- Seed categories
@@ -268,7 +276,7 @@ INSERT INTO public.products (name, name_bn, description, description_bn, categor
 -- app_role enum already created at the top of this file (includes 'vendor')
 
 -- Create user_roles table
-CREATE TABLE public.user_roles (
+CREATE TABLE IF NOT EXISTS public.user_roles (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
     role app_role NOT NULL,
@@ -294,64 +302,80 @@ AS $$
 $$;
 
 -- RLS policies for user_roles
+DROP POLICY IF EXISTS "Users can view own roles" ON public.user_roles;
 CREATE POLICY "Users can view own roles" ON public.user_roles
 FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Admins can view all roles" ON public.user_roles;
 CREATE POLICY "Admins can view all roles" ON public.user_roles
 FOR SELECT USING (public.has_role(auth.uid(), 'admin'));
 
+DROP POLICY IF EXISTS "Admins can insert roles" ON public.user_roles;
 CREATE POLICY "Admins can insert roles" ON public.user_roles
 FOR INSERT WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
+DROP POLICY IF EXISTS "Admins can delete roles" ON public.user_roles;
 CREATE POLICY "Admins can delete roles" ON public.user_roles
 FOR DELETE USING (public.has_role(auth.uid(), 'admin'));
 
 -- Admin policies for products
+DROP POLICY IF EXISTS "Admins can insert products" ON public.products;
 CREATE POLICY "Admins can insert products" ON public.products
 FOR INSERT WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
+DROP POLICY IF EXISTS "Admins can update products" ON public.products;
 CREATE POLICY "Admins can update products" ON public.products
 FOR UPDATE USING (public.has_role(auth.uid(), 'admin'));
 
+DROP POLICY IF EXISTS "Admins can delete products" ON public.products;
 CREATE POLICY "Admins can delete products" ON public.products
 FOR DELETE USING (public.has_role(auth.uid(), 'admin'));
 
 -- Admin policies for categories
+DROP POLICY IF EXISTS "Admins can insert categories" ON public.categories;
 CREATE POLICY "Admins can insert categories" ON public.categories
 FOR INSERT WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
+DROP POLICY IF EXISTS "Admins can update categories" ON public.categories;
 CREATE POLICY "Admins can update categories" ON public.categories
 FOR UPDATE USING (public.has_role(auth.uid(), 'admin'));
 
+DROP POLICY IF EXISTS "Admins can delete categories" ON public.categories;
 CREATE POLICY "Admins can delete categories" ON public.categories
 FOR DELETE USING (public.has_role(auth.uid(), 'admin'));
 
 -- Admin policies for orders (update status)
+DROP POLICY IF EXISTS "Admins can update orders" ON public.orders;
 CREATE POLICY "Admins can update orders" ON public.orders
 FOR UPDATE USING (public.has_role(auth.uid(), 'admin'));
 
+DROP POLICY IF EXISTS "Admins can delete orders" ON public.orders;
 CREATE POLICY "Admins can delete orders" ON public.orders
 FOR DELETE USING (public.has_role(auth.uid(), 'admin'));
 
 -- Storage bucket for product images
 INSERT INTO storage.buckets (id, name, public) VALUES ('product-images', 'product-images', true);
 
+DROP POLICY IF EXISTS "Anyone can view product images" ON storage.objects;
 CREATE POLICY "Anyone can view product images" ON storage.objects
 FOR SELECT USING (bucket_id = 'product-images');
 
+DROP POLICY IF EXISTS "Authenticated users can upload product images" ON storage.objects;
 CREATE POLICY "Authenticated users can upload product images" ON storage.objects
 FOR INSERT WITH CHECK (bucket_id = 'product-images' AND auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Authenticated users can update product images" ON storage.objects;
 CREATE POLICY "Authenticated users can update product images" ON storage.objects
 FOR UPDATE USING (bucket_id = 'product-images' AND auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Authenticated users can delete product images" ON storage.objects;
 CREATE POLICY "Authenticated users can delete product images" ON storage.objects
 FOR DELETE USING (bucket_id = 'product-images' AND auth.role() = 'authenticated');
 
 -- ---------------------------------------------------------------------
 -- STEP 08/68  (20260409160516)
 -- ---------------------------------------------------------------------
-CREATE TABLE public.banners (
+CREATE TABLE IF NOT EXISTS public.banners (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title text NOT NULL,
   subtitle text,
@@ -366,18 +390,23 @@ CREATE TABLE public.banners (
 
 ALTER TABLE public.banners ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can view active banners" ON public.banners;
 CREATE POLICY "Anyone can view active banners" ON public.banners FOR SELECT USING (is_active = true);
+DROP POLICY IF EXISTS "Admins can insert banners" ON public.banners;
 CREATE POLICY "Admins can insert banners" ON public.banners FOR INSERT WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
+DROP POLICY IF EXISTS "Admins can update banners" ON public.banners;
 CREATE POLICY "Admins can update banners" ON public.banners FOR UPDATE USING (has_role(auth.uid(), 'admin'::app_role));
+DROP POLICY IF EXISTS "Admins can delete banners" ON public.banners;
 CREATE POLICY "Admins can delete banners" ON public.banners FOR DELETE USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP TRIGGER IF EXISTS update_banners_updated_at ON public.banners;
 CREATE TRIGGER update_banners_updated_at BEFORE UPDATE ON public.banners FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- ---------------------------------------------------------------------
 -- STEP 09/68  (20260409161243)
 -- ---------------------------------------------------------------------
 -- Create profiles table
-CREATE TABLE public.profiles (
+CREATE TABLE IF NOT EXISTS public.profiles (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name text,
@@ -394,18 +423,22 @@ CREATE TABLE public.profiles (
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 -- Users can view their own profile
+DROP POLICY IF EXISTS "Users can view own profile" ON public.profiles;
 CREATE POLICY "Users can view own profile" ON public.profiles
   FOR SELECT USING (auth.uid() = user_id);
 
 -- Users can update their own profile
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile" ON public.profiles
   FOR UPDATE USING (auth.uid() = user_id);
 
 -- Users can insert their own profile
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
 CREATE POLICY "Users can insert own profile" ON public.profiles
   FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- Admins can view all profiles
+DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
 CREATE POLICY "Admins can view all profiles" ON public.profiles
   FOR SELECT USING (has_role(auth.uid(), 'admin'::app_role));
 
@@ -427,6 +460,7 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
@@ -435,6 +469,7 @@ CREATE TRIGGER on_auth_user_created
 ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS user_id uuid REFERENCES auth.users(id);
 
 -- Trigger for updated_at
+DROP TRIGGER IF EXISTS update_profiles_updated_at ON public.profiles;
 CREATE TRIGGER update_profiles_updated_at
   BEFORE UPDATE ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
@@ -455,7 +490,7 @@ CREATE INDEX IF NOT EXISTS idx_orders_pathao_consignment ON public.orders(pathao
 -- ---------------------------------------------------------------------
 -- STEP 11/68  (20260410095359)
 -- ---------------------------------------------------------------------
-CREATE TABLE public.abandoned_checkouts (
+CREATE TABLE IF NOT EXISTS public.abandoned_checkouts (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   customer_name text,
   customer_phone text,
@@ -474,22 +509,27 @@ CREATE TABLE public.abandoned_checkouts (
 
 ALTER TABLE public.abandoned_checkouts ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can view all abandoned checkouts" ON public.abandoned_checkouts;
 CREATE POLICY "Admins can view all abandoned checkouts"
 ON public.abandoned_checkouts FOR SELECT
 USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Anyone can insert abandoned checkouts" ON public.abandoned_checkouts;
 CREATE POLICY "Anyone can insert abandoned checkouts"
 ON public.abandoned_checkouts FOR INSERT
 WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Anyone can update own abandoned checkout" ON public.abandoned_checkouts;
 CREATE POLICY "Anyone can update own abandoned checkout"
 ON public.abandoned_checkouts FOR UPDATE
 USING (true);
 
+DROP POLICY IF EXISTS "Admins can delete abandoned checkouts" ON public.abandoned_checkouts;
 CREATE POLICY "Admins can delete abandoned checkouts"
 ON public.abandoned_checkouts FOR DELETE
 USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP TRIGGER IF EXISTS update_abandoned_checkouts_updated_at ON public.abandoned_checkouts;
 CREATE TRIGGER update_abandoned_checkouts_updated_at
 BEFORE UPDATE ON public.abandoned_checkouts
 FOR EACH ROW
@@ -498,7 +538,7 @@ EXECUTE FUNCTION public.update_updated_at_column();
 -- ---------------------------------------------------------------------
 -- STEP 12/68  (20260410101209)
 -- ---------------------------------------------------------------------
-CREATE TABLE public.site_settings (
+CREATE TABLE IF NOT EXISTS public.site_settings (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   key text NOT NULL UNIQUE,
   value text NOT NULL DEFAULT '',
@@ -509,22 +549,27 @@ CREATE TABLE public.site_settings (
 
 ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can view site settings" ON public.site_settings;
 CREATE POLICY "Anyone can view site settings"
 ON public.site_settings FOR SELECT
 USING (true);
 
+DROP POLICY IF EXISTS "Admins can update site settings" ON public.site_settings;
 CREATE POLICY "Admins can update site settings"
 ON public.site_settings FOR UPDATE
 USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can insert site settings" ON public.site_settings;
 CREATE POLICY "Admins can insert site settings"
 ON public.site_settings FOR INSERT
 WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can delete site settings" ON public.site_settings;
 CREATE POLICY "Admins can delete site settings"
 ON public.site_settings FOR DELETE
 USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP TRIGGER IF EXISTS update_site_settings_updated_at ON public.site_settings;
 CREATE TRIGGER update_site_settings_updated_at
 BEFORE UPDATE ON public.site_settings
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
@@ -540,7 +585,7 @@ INSERT INTO public.site_settings (key, value, label) VALUES
 -- ---------------------------------------------------------------------
 -- STEP 13/68  (20260410102350)
 -- ---------------------------------------------------------------------
-CREATE TABLE public.courier_charges (
+CREATE TABLE IF NOT EXISTS public.courier_charges (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   division text NOT NULL,
   district text NOT NULL,
@@ -554,22 +599,27 @@ CREATE TABLE public.courier_charges (
 
 ALTER TABLE public.courier_charges ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can view courier charges" ON public.courier_charges;
 CREATE POLICY "Anyone can view courier charges"
 ON public.courier_charges FOR SELECT
 USING (true);
 
+DROP POLICY IF EXISTS "Admins can insert courier charges" ON public.courier_charges;
 CREATE POLICY "Admins can insert courier charges"
 ON public.courier_charges FOR INSERT
 WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can update courier charges" ON public.courier_charges;
 CREATE POLICY "Admins can update courier charges"
 ON public.courier_charges FOR UPDATE
 USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can delete courier charges" ON public.courier_charges;
 CREATE POLICY "Admins can delete courier charges"
 ON public.courier_charges FOR DELETE
 USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP TRIGGER IF EXISTS update_courier_charges_updated_at ON public.courier_charges;
 CREATE TRIGGER update_courier_charges_updated_at
 BEFORE UPDATE ON public.courier_charges
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
@@ -641,7 +691,7 @@ WHERE NOT EXISTS (SELECT 1 FROM public.site_settings WHERE key = 'footer_locatio
 -- ---------------------------------------------------------------------
 -- STEP 17/68  (20260421114235)
 -- ---------------------------------------------------------------------
-CREATE TABLE public.customer_reviews (
+CREATE TABLE IF NOT EXISTS public.customer_reviews (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   customer_name text NOT NULL,
   customer_image text,
@@ -656,21 +706,27 @@ CREATE TABLE public.customer_reviews (
 
 ALTER TABLE public.customer_reviews ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can view active reviews" ON public.customer_reviews;
 CREATE POLICY "Anyone can view active reviews" ON public.customer_reviews
   FOR SELECT USING (is_active = true);
 
+DROP POLICY IF EXISTS "Admins can view all reviews" ON public.customer_reviews;
 CREATE POLICY "Admins can view all reviews" ON public.customer_reviews
   FOR SELECT USING (public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can insert reviews" ON public.customer_reviews;
 CREATE POLICY "Admins can insert reviews" ON public.customer_reviews
   FOR INSERT WITH CHECK (public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can update reviews" ON public.customer_reviews;
 CREATE POLICY "Admins can update reviews" ON public.customer_reviews
   FOR UPDATE USING (public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can delete reviews" ON public.customer_reviews;
 CREATE POLICY "Admins can delete reviews" ON public.customer_reviews
   FOR DELETE USING (public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP TRIGGER IF EXISTS update_customer_reviews_updated_at ON public.customer_reviews;
 CREATE TRIGGER update_customer_reviews_updated_at
   BEFORE UPDATE ON public.customer_reviews
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
@@ -716,12 +772,14 @@ INSERT INTO public.customer_reviews (customer_name, customer_image, rating, revi
 DROP POLICY IF EXISTS "Anyone can insert abandoned checkouts" ON public.abandoned_checkouts;
 DROP POLICY IF EXISTS "Anyone can update abandoned checkouts" ON public.abandoned_checkouts;
 
+DROP POLICY IF EXISTS "Anyone can insert abandoned checkouts" ON public.abandoned_checkouts;
 CREATE POLICY "Anyone can insert abandoned checkouts"
 ON public.abandoned_checkouts
 FOR INSERT
 TO anon, authenticated
 WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Anyone can update abandoned checkouts" ON public.abandoned_checkouts;
 CREATE POLICY "Anyone can update abandoned checkouts"
 ON public.abandoned_checkouts
 FOR UPDATE
@@ -733,7 +791,7 @@ WITH CHECK (true);
 -- STEP 21/68  (20260422105229)
 -- ---------------------------------------------------------------------
 -- Saved addresses for logged-in customers (Daraz-style address book)
-CREATE TABLE public.saved_addresses (
+CREATE TABLE IF NOT EXISTS public.saved_addresses (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid NOT NULL,
   label text NOT NULL DEFAULT 'বাসা',
@@ -751,28 +809,34 @@ CREATE TABLE public.saved_addresses (
 
 ALTER TABLE public.saved_addresses ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own addresses" ON public.saved_addresses;
 CREATE POLICY "Users can view own addresses"
 ON public.saved_addresses FOR SELECT
 USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert own addresses" ON public.saved_addresses;
 CREATE POLICY "Users can insert own addresses"
 ON public.saved_addresses FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own addresses" ON public.saved_addresses;
 CREATE POLICY "Users can update own addresses"
 ON public.saved_addresses FOR UPDATE
 USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete own addresses" ON public.saved_addresses;
 CREATE POLICY "Users can delete own addresses"
 ON public.saved_addresses FOR DELETE
 USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Admins can view all addresses" ON public.saved_addresses;
 CREATE POLICY "Admins can view all addresses"
 ON public.saved_addresses FOR SELECT
 USING (has_role(auth.uid(), 'admin'::app_role));
 
-CREATE INDEX idx_saved_addresses_user_id ON public.saved_addresses(user_id);
+CREATE INDEX IF NOT EXISTS idx_saved_addresses_user_id ON public.saved_addresses(user_id);
 
+DROP TRIGGER IF EXISTS update_saved_addresses_updated_at ON public.saved_addresses;
 CREATE TRIGGER update_saved_addresses_updated_at
 BEFORE UPDATE ON public.saved_addresses
 FOR EACH ROW
@@ -815,12 +879,14 @@ UPDATE public.customer_reviews SET status = 'approved' WHERE status = 'pending';
 -- Drop old public SELECT policy and recreate with status filter
 DROP POLICY IF EXISTS "Anyone can view active reviews" ON public.customer_reviews;
 
+DROP POLICY IF EXISTS "Anyone can view approved active reviews" ON public.customer_reviews;
 CREATE POLICY "Anyone can view approved active reviews"
   ON public.customer_reviews
   FOR SELECT
   USING (is_active = true AND status = 'approved');
 
 -- Allow anyone (guest or authenticated) to submit a new review
+DROP POLICY IF EXISTS "Anyone can submit reviews" ON public.customer_reviews;
 CREATE POLICY "Anyone can submit reviews"
   ON public.customer_reviews
   FOR INSERT
@@ -852,7 +918,8 @@ BEGIN
     SELECT 1 FROM pg_policies
     WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'Anyone can upload review images'
   ) THEN
-    CREATE POLICY "Anyone can upload review images"
+    DROP POLICY IF EXISTS "Anyone can upload review images" ON storage.objects;
+CREATE POLICY "Anyone can upload review images"
       ON storage.objects FOR INSERT
       TO anon, authenticated
       WITH CHECK (bucket_id = 'product-images' AND (storage.foldername(name))[1] = 'reviews');
@@ -862,7 +929,8 @@ BEGIN
     SELECT 1 FROM pg_policies
     WHERE schemaname = 'storage' AND tablename = 'objects' AND policyname = 'Public can read product images'
   ) THEN
-    CREATE POLICY "Public can read product images"
+    DROP POLICY IF EXISTS "Public can read product images" ON storage.objects;
+CREATE POLICY "Public can read product images"
       ON storage.objects FOR SELECT
       TO public
       USING (bucket_id = 'product-images');
@@ -995,15 +1063,18 @@ $$;
 
 -- 4. Triggers
 DROP TRIGGER IF EXISTS trg_decrement_stock_on_order_item ON public.order_items;
+DROP TRIGGER IF EXISTS trg_decrement_stock_on_order_item ON public.order_items;
 CREATE TRIGGER trg_decrement_stock_on_order_item
   AFTER INSERT ON public.order_items
   FOR EACH ROW EXECUTE FUNCTION public.decrement_product_stock();
 
 DROP TRIGGER IF EXISTS trg_restore_stock_on_order_cancel ON public.orders;
+DROP TRIGGER IF EXISTS trg_restore_stock_on_order_cancel ON public.orders;
 CREATE TRIGGER trg_restore_stock_on_order_cancel
   AFTER UPDATE OF status ON public.orders
   FOR EACH ROW EXECUTE FUNCTION public.restore_stock_on_cancel();
 
+DROP TRIGGER IF EXISTS trg_restore_stock_on_item_delete ON public.order_items;
 DROP TRIGGER IF EXISTS trg_restore_stock_on_item_delete ON public.order_items;
 CREATE TRIGGER trg_restore_stock_on_item_delete
   BEFORE DELETE ON public.order_items
@@ -1015,7 +1086,7 @@ CREATE TRIGGER trg_restore_stock_on_item_delete
 -- ============================================
 -- Landing Pages Table
 -- ============================================
-CREATE TABLE public.landing_pages (
+CREATE TABLE IF NOT EXISTS public.landing_pages (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   
   -- URL & Status
@@ -1077,13 +1148,14 @@ CREATE TABLE public.landing_pages (
 );
 
 -- Index for fast slug lookup
-CREATE INDEX idx_landing_pages_slug ON public.landing_pages(slug);
-CREATE INDEX idx_landing_pages_status ON public.landing_pages(status);
+CREATE INDEX IF NOT EXISTS idx_landing_pages_slug ON public.landing_pages(slug);
+CREATE INDEX IF NOT EXISTS idx_landing_pages_status ON public.landing_pages(status);
 
 -- Enable RLS
 ALTER TABLE public.landing_pages ENABLE ROW LEVEL SECURITY;
 
 -- RLS: Public can view published pages within schedule
+DROP POLICY IF EXISTS "Public can view published landing pages" ON public.landing_pages;
 CREATE POLICY "Public can view published landing pages"
 ON public.landing_pages
 FOR SELECT
@@ -1094,30 +1166,35 @@ USING (
 );
 
 -- RLS: Admins can view all
+DROP POLICY IF EXISTS "Admins can view all landing pages" ON public.landing_pages;
 CREATE POLICY "Admins can view all landing pages"
 ON public.landing_pages
 FOR SELECT
 USING (has_role(auth.uid(), 'admin'::app_role));
 
 -- RLS: Admins can insert
+DROP POLICY IF EXISTS "Admins can insert landing pages" ON public.landing_pages;
 CREATE POLICY "Admins can insert landing pages"
 ON public.landing_pages
 FOR INSERT
 WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
 
 -- RLS: Admins can update
+DROP POLICY IF EXISTS "Admins can update landing pages" ON public.landing_pages;
 CREATE POLICY "Admins can update landing pages"
 ON public.landing_pages
 FOR UPDATE
 USING (has_role(auth.uid(), 'admin'::app_role));
 
 -- RLS: Admins can delete
+DROP POLICY IF EXISTS "Admins can delete landing pages" ON public.landing_pages;
 CREATE POLICY "Admins can delete landing pages"
 ON public.landing_pages
 FOR DELETE
 USING (has_role(auth.uid(), 'admin'::app_role));
 
 -- Trigger for updated_at
+DROP TRIGGER IF EXISTS update_landing_pages_updated_at ON public.landing_pages;
 CREATE TRIGGER update_landing_pages_updated_at
 BEFORE UPDATE ON public.landing_pages
 FOR EACH ROW
@@ -1129,7 +1206,7 @@ EXECUTE FUNCTION public.update_updated_at_column();
 ALTER TABLE public.orders
 ADD COLUMN landing_page_id UUID REFERENCES public.landing_pages(id) ON DELETE SET NULL;
 
-CREATE INDEX idx_orders_landing_page_id ON public.orders(landing_page_id);
+CREATE INDEX IF NOT EXISTS idx_orders_landing_page_id ON public.orders(landing_page_id);
 
 -- ============================================
 -- Public function to increment view count safely
@@ -1183,6 +1260,7 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS landing_page_order_stats ON public.orders;
 CREATE TRIGGER landing_page_order_stats
 AFTER INSERT OR UPDATE ON public.orders
 FOR EACH ROW
@@ -1192,7 +1270,7 @@ EXECUTE FUNCTION public.update_landing_page_stats();
 -- STEP 28/68  (20260424113524)
 -- ---------------------------------------------------------------------
 -- Email Templates Table
-CREATE TABLE public.email_templates (
+CREATE TABLE IF NOT EXISTS public.email_templates (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   template_key text NOT NULL UNIQUE,
   name text NOT NULL,
@@ -1207,21 +1285,26 @@ CREATE TABLE public.email_templates (
 
 ALTER TABLE public.email_templates ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can view templates" ON public.email_templates;
 CREATE POLICY "Admins can view templates" ON public.email_templates
   FOR SELECT USING (public.has_role(auth.uid(), 'admin'::app_role));
+DROP POLICY IF EXISTS "Admins can insert templates" ON public.email_templates;
 CREATE POLICY "Admins can insert templates" ON public.email_templates
   FOR INSERT WITH CHECK (public.has_role(auth.uid(), 'admin'::app_role));
+DROP POLICY IF EXISTS "Admins can update templates" ON public.email_templates;
 CREATE POLICY "Admins can update templates" ON public.email_templates
   FOR UPDATE USING (public.has_role(auth.uid(), 'admin'::app_role));
+DROP POLICY IF EXISTS "Admins can delete templates" ON public.email_templates;
 CREATE POLICY "Admins can delete templates" ON public.email_templates
   FOR DELETE USING (public.has_role(auth.uid(), 'admin'::app_role) AND is_system = false);
 
+DROP TRIGGER IF EXISTS update_email_templates_updated_at ON public.email_templates;
 CREATE TRIGGER update_email_templates_updated_at
   BEFORE UPDATE ON public.email_templates
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- Email Logs Table
-CREATE TABLE public.email_logs (
+CREATE TABLE IF NOT EXISTS public.email_logs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   recipient_email text NOT NULL,
   recipient_name text,
@@ -1240,17 +1323,20 @@ CREATE TABLE public.email_logs (
 
 ALTER TABLE public.email_logs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can view email logs" ON public.email_logs;
 CREATE POLICY "Admins can view email logs" ON public.email_logs
   FOR SELECT USING (public.has_role(auth.uid(), 'admin'::app_role));
+DROP POLICY IF EXISTS "Anyone can insert email logs" ON public.email_logs;
 CREATE POLICY "Anyone can insert email logs" ON public.email_logs
   FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Admins can delete email logs" ON public.email_logs;
 CREATE POLICY "Admins can delete email logs" ON public.email_logs
   FOR DELETE USING (public.has_role(auth.uid(), 'admin'::app_role));
 
-CREATE INDEX idx_email_logs_recipient ON public.email_logs(recipient_email);
-CREATE INDEX idx_email_logs_created ON public.email_logs(created_at DESC);
-CREATE INDEX idx_email_logs_status ON public.email_logs(status);
-CREATE INDEX idx_email_logs_order ON public.email_logs(related_order_id) WHERE related_order_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_email_logs_recipient ON public.email_logs(recipient_email);
+CREATE INDEX IF NOT EXISTS idx_email_logs_created ON public.email_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_email_logs_status ON public.email_logs(status);
+CREATE INDEX IF NOT EXISTS idx_email_logs_order ON public.email_logs(related_order_id) WHERE related_order_id IS NOT NULL;
 
 -- Seed 5 bilingual professional email templates
 INSERT INTO public.email_templates (template_key, name, description, subject, html_body, is_system) VALUES
@@ -1664,22 +1750,27 @@ CREATE TABLE IF NOT EXISTS public.inventory_purchases (
 
 ALTER TABLE public.inventory_purchases ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can view inventory purchases" ON public.inventory_purchases;
 CREATE POLICY "Admins can view inventory purchases"
 ON public.inventory_purchases FOR SELECT
 USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can insert inventory purchases" ON public.inventory_purchases;
 CREATE POLICY "Admins can insert inventory purchases"
 ON public.inventory_purchases FOR INSERT
 WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can update inventory purchases" ON public.inventory_purchases;
 CREATE POLICY "Admins can update inventory purchases"
 ON public.inventory_purchases FOR UPDATE
 USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can delete inventory purchases" ON public.inventory_purchases;
 CREATE POLICY "Admins can delete inventory purchases"
 ON public.inventory_purchases FOR DELETE
 USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP TRIGGER IF EXISTS update_inventory_purchases_updated_at ON public.inventory_purchases;
 CREATE TRIGGER update_inventory_purchases_updated_at
 BEFORE UPDATE ON public.inventory_purchases
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
@@ -1699,22 +1790,27 @@ CREATE TABLE IF NOT EXISTS public.business_expenses (
 
 ALTER TABLE public.business_expenses ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can view business expenses" ON public.business_expenses;
 CREATE POLICY "Admins can view business expenses"
 ON public.business_expenses FOR SELECT
 USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can insert business expenses" ON public.business_expenses;
 CREATE POLICY "Admins can insert business expenses"
 ON public.business_expenses FOR INSERT
 WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can update business expenses" ON public.business_expenses;
 CREATE POLICY "Admins can update business expenses"
 ON public.business_expenses FOR UPDATE
 USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can delete business expenses" ON public.business_expenses;
 CREATE POLICY "Admins can delete business expenses"
 ON public.business_expenses FOR DELETE
 USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP TRIGGER IF EXISTS update_business_expenses_updated_at ON public.business_expenses;
 CREATE TRIGGER update_business_expenses_updated_at
 BEFORE UPDATE ON public.business_expenses
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
@@ -2287,7 +2383,7 @@ INSERT INTO public.products (name, name_bn, description, description_bn, categor
 -- STEP 44/68  (20260506112041)
 -- ---------------------------------------------------------------------
 -- Courier providers table
-CREATE TABLE public.courier_providers (
+CREATE TABLE IF NOT EXISTS public.courier_providers (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   provider_key TEXT NOT NULL UNIQUE,
   display_name TEXT NOT NULL,
@@ -2301,22 +2397,27 @@ CREATE TABLE public.courier_providers (
 
 ALTER TABLE public.courier_providers ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can view courier providers" ON public.courier_providers;
 CREATE POLICY "Admins can view courier providers"
   ON public.courier_providers FOR SELECT
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can insert courier providers" ON public.courier_providers;
 CREATE POLICY "Admins can insert courier providers"
   ON public.courier_providers FOR INSERT
   WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can update courier providers" ON public.courier_providers;
 CREATE POLICY "Admins can update courier providers"
   ON public.courier_providers FOR UPDATE
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can delete courier providers" ON public.courier_providers;
 CREATE POLICY "Admins can delete courier providers"
   ON public.courier_providers FOR DELETE
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP TRIGGER IF EXISTS courier_providers_updated_at ON public.courier_providers;
 CREATE TRIGGER courier_providers_updated_at
   BEFORE UPDATE ON public.courier_providers
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
@@ -2343,10 +2444,12 @@ ALTER TABLE public.products ADD COLUMN IF NOT EXISTS coming_soon boolean NOT NUL
 -- 1) ORDERS: drop public SELECT, add owner + admin SELECT
 DROP POLICY IF EXISTS "Anyone can view orders by phone" ON public.orders;
 
+DROP POLICY IF EXISTS "Admins can view all orders" ON public.orders;
 CREATE POLICY "Admins can view all orders"
   ON public.orders FOR SELECT
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Users can view own orders" ON public.orders;
 CREATE POLICY "Users can view own orders"
   ON public.orders FOR SELECT
   USING (auth.uid() IS NOT NULL AND auth.uid() = user_id);
@@ -2354,10 +2457,12 @@ CREATE POLICY "Users can view own orders"
 -- 2) ORDER_ITEMS: drop public SELECT, restrict to owner/admin
 DROP POLICY IF EXISTS "Anyone can view order items" ON public.order_items;
 
+DROP POLICY IF EXISTS "Admins can view all order items" ON public.order_items;
 CREATE POLICY "Admins can view all order items"
   ON public.order_items FOR SELECT
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Users can view own order items" ON public.order_items;
 CREATE POLICY "Users can view own order items"
   ON public.order_items FOR SELECT
   USING (
@@ -2373,15 +2478,18 @@ CREATE POLICY "Users can view own order items"
 DROP POLICY IF EXISTS "Anyone can insert abandoned checkouts" ON public.abandoned_checkouts;
 DROP POLICY IF EXISTS "Anyone can update abandoned checkouts" ON public.abandoned_checkouts;
 
+DROP POLICY IF EXISTS "Users can insert own abandoned checkout" ON public.abandoned_checkouts;
 CREATE POLICY "Users can insert own abandoned checkout"
   ON public.abandoned_checkouts FOR INSERT
   WITH CHECK (auth.uid() IS NOT NULL AND auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own abandoned checkout" ON public.abandoned_checkouts;
 CREATE POLICY "Users can update own abandoned checkout"
   ON public.abandoned_checkouts FOR UPDATE
   USING (auth.uid() IS NOT NULL AND auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Admins can update abandoned checkouts" ON public.abandoned_checkouts;
 CREATE POLICY "Admins can update abandoned checkouts"
   ON public.abandoned_checkouts FOR UPDATE
   USING (has_role(auth.uid(), 'admin'::app_role))
@@ -2566,7 +2674,7 @@ SELECT * FROM (VALUES
 -- 'vendor' value is already part of app_role (created at the top of this file)
 
 -- Create vendors table
-CREATE TABLE public.vendors (
+CREATE TABLE IF NOT EXISTS public.vendors (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL,
   shop_name text NOT NULL,
@@ -2596,56 +2704,67 @@ CREATE TABLE public.vendors (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_vendors_user_id ON public.vendors(user_id);
-CREATE INDEX idx_vendors_status ON public.vendors(status);
-CREATE UNIQUE INDEX idx_vendors_nid ON public.vendors(nid_number);
+CREATE INDEX IF NOT EXISTS idx_vendors_user_id ON public.vendors(user_id);
+CREATE INDEX IF NOT EXISTS idx_vendors_status ON public.vendors(status);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_vendors_nid ON public.vendors(nid_number);
 
 ALTER TABLE public.vendors ENABLE ROW LEVEL SECURITY;
 
 -- RLS policies
+DROP POLICY IF EXISTS "Anyone can submit vendor registration" ON public.vendors;
 CREATE POLICY "Anyone can submit vendor registration"
 ON public.vendors FOR INSERT
 WITH CHECK (status = 'pending' AND auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can view own vendor record" ON public.vendors;
 CREATE POLICY "Users can view own vendor record"
 ON public.vendors FOR SELECT
 USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update own pending vendor record" ON public.vendors;
 CREATE POLICY "Users can update own pending vendor record"
 ON public.vendors FOR UPDATE
 USING (auth.uid() = user_id AND status = 'pending')
 WITH CHECK (auth.uid() = user_id AND status = 'pending');
 
+DROP POLICY IF EXISTS "Public can view approved vendors" ON public.vendors;
 CREATE POLICY "Public can view approved vendors"
 ON public.vendors FOR SELECT
 USING (status = 'approved');
 
+DROP POLICY IF EXISTS "Admins can view all vendors" ON public.vendors;
 CREATE POLICY "Admins can view all vendors"
 ON public.vendors FOR SELECT
 USING (has_role(auth.uid(), 'admin'));
 
+DROP POLICY IF EXISTS "Admins can update all vendors" ON public.vendors;
 CREATE POLICY "Admins can update all vendors"
 ON public.vendors FOR UPDATE
 USING (has_role(auth.uid(), 'admin'));
 
+DROP POLICY IF EXISTS "Admins can delete vendors" ON public.vendors;
 CREATE POLICY "Admins can delete vendors"
 ON public.vendors FOR DELETE
 USING (has_role(auth.uid(), 'admin'));
 
+DROP POLICY IF EXISTS "Admins can insert vendors" ON public.vendors;
 CREATE POLICY "Admins can insert vendors"
 ON public.vendors FOR INSERT
 WITH CHECK (has_role(auth.uid(), 'admin'));
 
 -- updated_at trigger
+DROP TRIGGER IF EXISTS update_vendors_updated_at ON public.vendors;
 CREATE TRIGGER update_vendors_updated_at
 BEFORE UPDATE ON public.vendors
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- Storage policies for vendor logos in product-images bucket
+DROP POLICY IF EXISTS "Vendor logos publicly viewable" ON storage.objects;
 CREATE POLICY "Vendor logos publicly viewable"
 ON storage.objects FOR SELECT
 USING (bucket_id = 'product-images' AND (storage.foldername(name))[1] = 'vendor-logos');
 
+DROP POLICY IF EXISTS "Authenticated users can upload vendor logos" ON storage.objects;
 CREATE POLICY "Authenticated users can upload vendor logos"
 ON storage.objects FOR INSERT
 WITH CHECK (
@@ -2654,6 +2773,7 @@ WITH CHECK (
   AND auth.uid() IS NOT NULL
 );
 
+DROP POLICY IF EXISTS "Users can update vendor logos they uploaded" ON storage.objects;
 CREATE POLICY "Users can update vendor logos they uploaded"
 ON storage.objects FOR UPDATE
 USING (
@@ -2662,6 +2782,7 @@ USING (
   AND (auth.uid() = owner OR has_role(auth.uid(), 'admin'))
 );
 
+DROP POLICY IF EXISTS "Admins can delete vendor logos" ON storage.objects;
 CREATE POLICY "Admins can delete vendor logos"
 ON storage.objects FOR DELETE
 USING (
@@ -2690,11 +2811,13 @@ CREATE INDEX IF NOT EXISTS idx_products_vendor_status ON public.products(vendor_
 
 -- Existing public select policy needs to also require approved vendor_status
 DROP POLICY IF EXISTS "Anyone can view active products" ON public.products;
+DROP POLICY IF EXISTS "Anyone can view active products" ON public.products;
 CREATE POLICY "Anyone can view active products"
   ON public.products FOR SELECT
   USING (is_active = true AND vendor_status = 'approved');
 
 -- Vendors manage their own products (new ones start as pending)
+DROP POLICY IF EXISTS "Vendors can insert own products" ON public.products;
 CREATE POLICY "Vendors can insert own products"
   ON public.products FOR INSERT
   WITH CHECK (
@@ -2706,6 +2829,7 @@ CREATE POLICY "Vendors can insert own products"
     AND vendor_status = 'pending'
   );
 
+DROP POLICY IF EXISTS "Vendors can update own products" ON public.products;
 CREATE POLICY "Vendors can update own products"
   ON public.products FOR UPDATE
   USING (
@@ -2716,6 +2840,7 @@ CREATE POLICY "Vendors can update own products"
     )
   );
 
+DROP POLICY IF EXISTS "Vendors can delete own products" ON public.products;
 CREATE POLICY "Vendors can delete own products"
   ON public.products FOR DELETE
   USING (
@@ -2726,6 +2851,7 @@ CREATE POLICY "Vendors can delete own products"
     )
   );
 
+DROP POLICY IF EXISTS "Vendors can view own products regardless of status" ON public.products;
 CREATE POLICY "Vendors can view own products regardless of status"
   ON public.products FOR SELECT
   USING (
@@ -2780,12 +2906,14 @@ END;
 $$;
 
 DROP TRIGGER IF EXISTS trg_order_items_vendor_commission ON public.order_items;
+DROP TRIGGER IF EXISTS trg_order_items_vendor_commission ON public.order_items;
 CREATE TRIGGER trg_order_items_vendor_commission
 BEFORE INSERT ON public.order_items
 FOR EACH ROW
 EXECUTE FUNCTION public.set_order_item_vendor_commission();
 
 -- Vendors can view their own order items
+DROP POLICY IF EXISTS "Vendors can view own order items" ON public.order_items;
 CREATE POLICY "Vendors can view own order items"
   ON public.order_items FOR SELECT
   USING (
@@ -2818,30 +2946,37 @@ CREATE TABLE IF NOT EXISTS public.vendor_settings (
 
 ALTER TABLE public.vendor_settings ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Vendors can view own settings" ON public.vendor_settings;
 CREATE POLICY "Vendors can view own settings"
   ON public.vendor_settings FOR SELECT
   USING (EXISTS (SELECT 1 FROM public.vendors v WHERE v.id = vendor_id AND v.user_id = auth.uid()));
 
+DROP POLICY IF EXISTS "Vendors can insert own settings" ON public.vendor_settings;
 CREATE POLICY "Vendors can insert own settings"
   ON public.vendor_settings FOR INSERT
   WITH CHECK (EXISTS (SELECT 1 FROM public.vendors v WHERE v.id = vendor_id AND v.user_id = auth.uid()));
 
+DROP POLICY IF EXISTS "Vendors can update own settings" ON public.vendor_settings;
 CREATE POLICY "Vendors can update own settings"
   ON public.vendor_settings FOR UPDATE
   USING (EXISTS (SELECT 1 FROM public.vendors v WHERE v.id = vendor_id AND v.user_id = auth.uid()));
 
+DROP POLICY IF EXISTS "Admins can view all vendor settings" ON public.vendor_settings;
 CREATE POLICY "Admins can view all vendor settings"
   ON public.vendor_settings FOR SELECT
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can update all vendor settings" ON public.vendor_settings;
 CREATE POLICY "Admins can update all vendor settings"
   ON public.vendor_settings FOR UPDATE
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can delete vendor settings" ON public.vendor_settings;
 CREATE POLICY "Admins can delete vendor settings"
   ON public.vendor_settings FOR DELETE
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP TRIGGER IF EXISTS update_vendor_settings_updated_at ON public.vendor_settings;
 CREATE TRIGGER update_vendor_settings_updated_at
 BEFORE UPDATE ON public.vendor_settings
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
@@ -2871,10 +3006,12 @@ CREATE INDEX IF NOT EXISTS idx_vendor_payouts_status ON public.vendor_payouts(st
 
 ALTER TABLE public.vendor_payouts ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Vendors can view own payouts" ON public.vendor_payouts;
 CREATE POLICY "Vendors can view own payouts"
   ON public.vendor_payouts FOR SELECT
   USING (EXISTS (SELECT 1 FROM public.vendors v WHERE v.id = vendor_id AND v.user_id = auth.uid()));
 
+DROP POLICY IF EXISTS "Vendors can request payouts" ON public.vendor_payouts;
 CREATE POLICY "Vendors can request payouts"
   ON public.vendor_payouts FOR INSERT
   WITH CHECK (
@@ -2882,18 +3019,22 @@ CREATE POLICY "Vendors can request payouts"
     AND EXISTS (SELECT 1 FROM public.vendors v WHERE v.id = vendor_id AND v.user_id = auth.uid() AND v.status = 'approved')
   );
 
+DROP POLICY IF EXISTS "Admins can view all payouts" ON public.vendor_payouts;
 CREATE POLICY "Admins can view all payouts"
   ON public.vendor_payouts FOR SELECT
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can update payouts" ON public.vendor_payouts;
 CREATE POLICY "Admins can update payouts"
   ON public.vendor_payouts FOR UPDATE
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can delete payouts" ON public.vendor_payouts;
 CREATE POLICY "Admins can delete payouts"
   ON public.vendor_payouts FOR DELETE
   USING (has_role(auth.uid(), 'admin'::app_role));
 
+DROP TRIGGER IF EXISTS update_vendor_payouts_updated_at ON public.vendor_payouts;
 CREATE TRIGGER update_vendor_payouts_updated_at
 BEFORE UPDATE ON public.vendor_payouts
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
@@ -2934,6 +3075,7 @@ DROP POLICY IF EXISTS "Vendor logos publicly viewable" ON storage.objects;
 
 -- 3) Tighten "always true" insert policies on orders / order_items
 DROP POLICY IF EXISTS "Anyone can create orders" ON public.orders;
+DROP POLICY IF EXISTS "Anyone can create orders" ON public.orders;
 CREATE POLICY "Anyone can create orders"
 ON public.orders
 FOR INSERT
@@ -2943,6 +3085,7 @@ WITH CHECK (
   OR (auth.uid() IS NOT NULL AND (user_id IS NULL OR user_id = auth.uid()))
 );
 
+DROP POLICY IF EXISTS "Anyone can create order items" ON public.order_items;
 DROP POLICY IF EXISTS "Anyone can create order items" ON public.order_items;
 CREATE POLICY "Anyone can create order items"
 ON public.order_items
@@ -2974,6 +3117,7 @@ REVOKE EXECUTE ON FUNCTION public.has_role(uuid, app_role) FROM anon, authentica
 -- ---------------------------------------------------------------------
 -- STEP 57/68  (20260512165349)
 -- ---------------------------------------------------------------------
+DROP POLICY IF EXISTS "Admins can update abandoned checkouts" ON public.abandoned_checkouts;
 DROP POLICY IF EXISTS "Admins can update abandoned checkouts" ON public.abandoned_checkouts;
 CREATE POLICY "Admins can update abandoned checkouts"
 ON public.abandoned_checkouts
@@ -3096,6 +3240,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS landing_pages_vendor_slug_unique
 
 -- Vendor RLS policies
 DROP POLICY IF EXISTS "Vendors can view own landing pages" ON public.landing_pages;
+DROP POLICY IF EXISTS "Vendors can view own landing pages" ON public.landing_pages;
 CREATE POLICY "Vendors can view own landing pages"
   ON public.landing_pages FOR SELECT
   USING (
@@ -3106,6 +3251,7 @@ CREATE POLICY "Vendors can view own landing pages"
     )
   );
 
+DROP POLICY IF EXISTS "Vendors can insert own landing pages" ON public.landing_pages;
 DROP POLICY IF EXISTS "Vendors can insert own landing pages" ON public.landing_pages;
 CREATE POLICY "Vendors can insert own landing pages"
   ON public.landing_pages FOR INSERT
@@ -3120,6 +3266,7 @@ CREATE POLICY "Vendors can insert own landing pages"
   );
 
 DROP POLICY IF EXISTS "Vendors can update own landing pages" ON public.landing_pages;
+DROP POLICY IF EXISTS "Vendors can update own landing pages" ON public.landing_pages;
 CREATE POLICY "Vendors can update own landing pages"
   ON public.landing_pages FOR UPDATE
   USING (
@@ -3130,6 +3277,7 @@ CREATE POLICY "Vendors can update own landing pages"
     )
   );
 
+DROP POLICY IF EXISTS "Vendors can delete own landing pages" ON public.landing_pages;
 DROP POLICY IF EXISTS "Vendors can delete own landing pages" ON public.landing_pages;
 CREATE POLICY "Vendors can delete own landing pages"
   ON public.landing_pages FOR DELETE
@@ -3209,6 +3357,7 @@ BEGIN
 END $$;
 
 DROP TRIGGER IF EXISTS trg_assign_product_serial ON public.products;
+DROP TRIGGER IF EXISTS trg_assign_product_serial ON public.products;
 CREATE TRIGGER trg_assign_product_serial
 BEFORE INSERT ON public.products
 FOR EACH ROW EXECUTE FUNCTION public.assign_product_serial();
@@ -3237,7 +3386,7 @@ GRANT EXECUTE ON FUNCTION public.lookup_product_by_vendor_serial(text, integer) 
 -- STEP 64/68  (20260611053449)
 -- ---------------------------------------------------------------------
 -- Threads
-CREATE TABLE public.vendor_support_threads (
+CREATE TABLE IF NOT EXISTS public.vendor_support_threads (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   vendor_id uuid NOT NULL REFERENCES public.vendors(id) ON DELETE CASCADE,
   subject text,
@@ -3249,37 +3398,42 @@ CREATE TABLE public.vendor_support_threads (
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
-CREATE INDEX vst_vendor_idx ON public.vendor_support_threads(vendor_id);
-CREATE INDEX vst_last_msg_idx ON public.vendor_support_threads(last_message_at DESC);
+CREATE INDEX IF NOT EXISTS vst_vendor_idx ON public.vendor_support_threads(vendor_id);
+CREATE INDEX IF NOT EXISTS vst_last_msg_idx ON public.vendor_support_threads(last_message_at DESC);
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.vendor_support_threads TO authenticated;
 GRANT ALL ON public.vendor_support_threads TO service_role;
 ALTER TABLE public.vendor_support_threads ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Vendors view own support threads" ON public.vendor_support_threads;
 CREATE POLICY "Vendors view own support threads" ON public.vendor_support_threads
   FOR SELECT TO authenticated
   USING (vendor_id IN (SELECT id FROM public.vendors WHERE user_id = auth.uid())
          OR public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Vendors create own support threads" ON public.vendor_support_threads;
 CREATE POLICY "Vendors create own support threads" ON public.vendor_support_threads
   FOR INSERT TO authenticated
   WITH CHECK (vendor_id IN (SELECT id FROM public.vendors WHERE user_id = auth.uid())
               OR public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Vendors update own threads" ON public.vendor_support_threads;
 CREATE POLICY "Vendors update own threads" ON public.vendor_support_threads
   FOR UPDATE TO authenticated
   USING (vendor_id IN (SELECT id FROM public.vendors WHERE user_id = auth.uid())
          OR public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins delete threads" ON public.vendor_support_threads;
 CREATE POLICY "Admins delete threads" ON public.vendor_support_threads
   FOR DELETE TO authenticated
   USING (public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP TRIGGER IF EXISTS vst_updated_at ON public.vendor_support_threads;
 CREATE TRIGGER vst_updated_at BEFORE UPDATE ON public.vendor_support_threads
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
 -- Messages
-CREATE TABLE public.vendor_support_messages (
+CREATE TABLE IF NOT EXISTS public.vendor_support_messages (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   thread_id uuid NOT NULL REFERENCES public.vendor_support_threads(id) ON DELETE CASCADE,
   sender_role text NOT NULL CHECK (sender_role IN ('vendor','admin','system')),
@@ -3290,12 +3444,13 @@ CREATE TABLE public.vendor_support_messages (
   read_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now()
 );
-CREATE INDEX vsm_thread_idx ON public.vendor_support_messages(thread_id, created_at);
+CREATE INDEX IF NOT EXISTS vsm_thread_idx ON public.vendor_support_messages(thread_id, created_at);
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.vendor_support_messages TO authenticated;
 GRANT ALL ON public.vendor_support_messages TO service_role;
 ALTER TABLE public.vendor_support_messages ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Members view thread messages" ON public.vendor_support_messages;
 CREATE POLICY "Members view thread messages" ON public.vendor_support_messages
   FOR SELECT TO authenticated
   USING (thread_id IN (
@@ -3303,6 +3458,7 @@ CREATE POLICY "Members view thread messages" ON public.vendor_support_messages
     WHERE vendor_id IN (SELECT id FROM public.vendors WHERE user_id = auth.uid())
   ) OR public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Members send messages" ON public.vendor_support_messages;
 CREATE POLICY "Members send messages" ON public.vendor_support_messages
   FOR INSERT TO authenticated
   WITH CHECK (thread_id IN (
@@ -3310,6 +3466,7 @@ CREATE POLICY "Members send messages" ON public.vendor_support_messages
     WHERE vendor_id IN (SELECT id FROM public.vendors WHERE user_id = auth.uid())
   ) OR public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Members update read state" ON public.vendor_support_messages;
 CREATE POLICY "Members update read state" ON public.vendor_support_messages
   FOR UPDATE TO authenticated
   USING (thread_id IN (
@@ -3331,11 +3488,12 @@ BEGIN
   RETURN NEW;
 END $$;
 
+DROP TRIGGER IF EXISTS vsm_touch_thread ON public.vendor_support_messages;
 CREATE TRIGGER vsm_touch_thread AFTER INSERT ON public.vendor_support_messages
   FOR EACH ROW EXECUTE FUNCTION public.touch_vendor_support_thread();
 
 -- Notifications
-CREATE TABLE public.vendor_notifications (
+CREATE TABLE IF NOT EXISTS public.vendor_notifications (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   vendor_id uuid NOT NULL REFERENCES public.vendors(id) ON DELETE CASCADE,
   type text NOT NULL DEFAULT 'info',
@@ -3345,26 +3503,30 @@ CREATE TABLE public.vendor_notifications (
   is_read boolean NOT NULL DEFAULT false,
   created_at timestamptz NOT NULL DEFAULT now()
 );
-CREATE INDEX vn_vendor_idx ON public.vendor_notifications(vendor_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS vn_vendor_idx ON public.vendor_notifications(vendor_id, created_at DESC);
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.vendor_notifications TO authenticated;
 GRANT ALL ON public.vendor_notifications TO service_role;
 ALTER TABLE public.vendor_notifications ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Vendors view own notifications" ON public.vendor_notifications;
 CREATE POLICY "Vendors view own notifications" ON public.vendor_notifications
   FOR SELECT TO authenticated
   USING (vendor_id IN (SELECT id FROM public.vendors WHERE user_id = auth.uid())
          OR public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Vendors mark own notifications" ON public.vendor_notifications;
 CREATE POLICY "Vendors mark own notifications" ON public.vendor_notifications
   FOR UPDATE TO authenticated
   USING (vendor_id IN (SELECT id FROM public.vendors WHERE user_id = auth.uid())
          OR public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins create notifications" ON public.vendor_notifications;
 CREATE POLICY "Admins create notifications" ON public.vendor_notifications
   FOR INSERT TO authenticated
   WITH CHECK (public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins delete notifications" ON public.vendor_notifications;
 CREATE POLICY "Admins delete notifications" ON public.vendor_notifications
   FOR DELETE TO authenticated
   USING (public.has_role(auth.uid(), 'admin'::app_role));
@@ -3372,7 +3534,7 @@ CREATE POLICY "Admins delete notifications" ON public.vendor_notifications
 -- ---------------------------------------------------------------------
 -- STEP 65/68  (20260615055651)
 -- ---------------------------------------------------------------------
-CREATE TABLE public.promo_strips (
+CREATE TABLE IF NOT EXISTS public.promo_strips (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   image_url TEXT NOT NULL,
   link_url TEXT,
@@ -3390,22 +3552,27 @@ GRANT ALL ON public.promo_strips TO service_role;
 
 ALTER TABLE public.promo_strips ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can view active promo strips" ON public.promo_strips;
 CREATE POLICY "Anyone can view active promo strips"
   ON public.promo_strips FOR SELECT
   USING (is_active = true OR public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can insert promo strips" ON public.promo_strips;
 CREATE POLICY "Admins can insert promo strips"
   ON public.promo_strips FOR INSERT
   WITH CHECK (public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can update promo strips" ON public.promo_strips;
 CREATE POLICY "Admins can update promo strips"
   ON public.promo_strips FOR UPDATE
   USING (public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP POLICY IF EXISTS "Admins can delete promo strips" ON public.promo_strips;
 CREATE POLICY "Admins can delete promo strips"
   ON public.promo_strips FOR DELETE
   USING (public.has_role(auth.uid(), 'admin'::app_role));
 
+DROP TRIGGER IF EXISTS update_promo_strips_updated_at ON public.promo_strips;
 CREATE TRIGGER update_promo_strips_updated_at
   BEFORE UPDATE ON public.promo_strips
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
@@ -3453,16 +3620,19 @@ GRANT ALL ON public.payment_accounts TO service_role;
 
 ALTER TABLE public.payment_accounts ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can view active payment accounts" ON public.payment_accounts;
 CREATE POLICY "Anyone can view active payment accounts"
   ON public.payment_accounts FOR SELECT
   USING (is_active = true OR public.has_role(auth.uid(), 'admin'));
 
+DROP POLICY IF EXISTS "Admins manage payment accounts" ON public.payment_accounts;
 CREATE POLICY "Admins manage payment accounts"
   ON public.payment_accounts FOR ALL
   TO authenticated
   USING (public.has_role(auth.uid(), 'admin'))
   WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
+DROP TRIGGER IF EXISTS trg_payment_accounts_updated ON public.payment_accounts;
 CREATE TRIGGER trg_payment_accounts_updated
   BEFORE UPDATE ON public.payment_accounts
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
@@ -3501,11 +3671,13 @@ GRANT ALL ON public.sms_inbox TO service_role;
 
 ALTER TABLE public.sms_inbox ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins read all sms" ON public.sms_inbox;
 CREATE POLICY "Admins read all sms"
   ON public.sms_inbox FOR SELECT
   TO authenticated
   USING (public.has_role(auth.uid(), 'admin'));
 
+DROP POLICY IF EXISTS "Users read sms for their orders" ON public.sms_inbox;
 CREATE POLICY "Users read sms for their orders"
   ON public.sms_inbox FOR SELECT
   TO authenticated
@@ -3516,6 +3688,7 @@ CREATE POLICY "Users read sms for their orders"
     )
   );
 
+DROP POLICY IF EXISTS "Admins manage sms" ON public.sms_inbox;
 CREATE POLICY "Admins manage sms"
   ON public.sms_inbox FOR ALL
   TO authenticated
@@ -3543,6 +3716,7 @@ WHERE NOT EXISTS (SELECT 1 FROM public.payment_accounts);
 -- STEP 68/68  (20260615071511)
 -- ---------------------------------------------------------------------
 -- Allow customers to update their own order's payment fields while unverified
+DROP POLICY IF EXISTS "Users update own pending order payment" ON public.orders;
 CREATE POLICY "Users update own pending order payment"
   ON public.orders
   FOR UPDATE
