@@ -1,4 +1,4 @@
-project_id = "wqdirlxffyfplbhiadou"
+project_id = "jgrqriiosiebhtkekgfo"
 
 [functions.vendor-signup]
 verify_jwt = false

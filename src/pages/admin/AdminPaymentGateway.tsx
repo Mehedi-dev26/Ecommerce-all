@@ -40,7 +40,7 @@ interface SmsRow {
   matched_order_id: string | null;
 }
 
-const WEBHOOK_URL = `https://wqdirlxffyfplbhiadou.supabase.co/functions/v1/sms-webhook`;
+const WEBHOOK_URL = `${import.meta.env.VITE_SUPABASE_URL || "https://jgrqriiosiebhtkekgfo.supabase.co"}/functions/v1/sms-webhook`;
 
 const METHOD_THEME: Record<PaymentAccount["method"], { name: string; gradient: string; accent: string; ring: string }> = {
   bkash:  { name: "bKash",  gradient: "from-pink-500 to-rose-600",     accent: "text-pink-600",   ring: "ring-pink-200" },
