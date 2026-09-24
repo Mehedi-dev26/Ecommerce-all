@@ -40,7 +40,7 @@ const Footer = () => {
 
       {/* Top trust strip */}
       <div className="relative border-b border-border/60 bg-white/60 backdrop-blur-md">
-        <div className="container mx-auto grid grid-cols-2 gap-3 px-4 py-4 text-center sm:grid-cols-4 sm:gap-6">
+        <div className="w-full max-w-7xl mx-auto grid grid-cols-2 gap-3 px-3 sm:px-4 md:px-6 lg:px-8 py-4 text-center sm:grid-cols-4 sm:gap-6">
           {[
             { t: "১০০% খাঁটি", s: "সরাসরি বাগান থেকে" },
             { t: "দ্রুত ডেলিভারি", s: "সারা বাংলাদেশে" },
@@ -55,7 +55,7 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="relative container mx-auto px-4 py-10 sm:py-14">
+      <div className="relative w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-10 sm:py-14">
         <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <div className="flex items-center gap-3 mb-4">

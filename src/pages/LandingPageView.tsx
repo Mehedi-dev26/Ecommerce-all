@@ -83,9 +83,17 @@ const Countdown = ({ endAt, compact = false }: { endAt: string; compact?: boolea
   );
 };
 
+const SYSTEM_RESERVED_SLUGS = new Set([
+  "products", "admin", "vendor", "cart", "checkout", "payment",
+  "order-success", "about", "contact", "login", "reset-password",
+  "dashboard", "privacy-policy", "terms-conditions", "install",
+  "shop", "lp", "api", "auth", "static", "assets"
+]);
+
 const LandingPageView = () => {
   const params = useParams<{ slug?: string; vendorSlug?: string; customSlug?: string }>();
   const isVendorRoute = !!params.vendorSlug && !!params.customSlug;
+  const isReserved = isVendorRoute && params.vendorSlug && SYSTEM_RESERVED_SLUGS.has(params.vendorSlug.toLowerCase());
   const slug = isVendorRoute ? params.customSlug! : params.slug!;
   const navigate = useNavigate();
   const [data, setData] = useState<LandingPageData | null>(null);
@@ -104,6 +112,11 @@ const LandingPageView = () => {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    if (isReserved) {
+      setNotFound(true);
+      setLoading(false);
+      return;
+    }
     if (!slug) return;
     (async () => {
       let lp: any = null;

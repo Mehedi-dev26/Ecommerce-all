@@ -195,7 +195,7 @@ const Products = () => {
       />
       {/* Header */}
       <div className="border-b bg-muted/30">
-        <div className="container mx-auto px-4 py-4 sm:py-6">
+        <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 sm:py-6">
           <h1 className="text-xl font-bold text-foreground sm:text-2xl">{catLabel || "পণ্যসমূহ"}</h1>
           <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
             আমাদের সকল খাঁটি পণ্য এখানে দেখুন
@@ -206,7 +206,7 @@ const Products = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-4 sm:py-6">
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 sm:py-6">
         <div className="flex gap-6">
           {/* Desktop Sidebar */}
           <aside className="hidden w-60 shrink-0 lg:block">

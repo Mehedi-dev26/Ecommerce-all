@@ -157,42 +157,43 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative w-full overflow-hidden">
-      <div
-        className="relative aspect-[21/9] overflow-hidden bg-muted select-none touch-pan-y"
-        onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
-        onTouchEnd={(e) => handleDragEnd(e.changedTouches[0].clientX)}
-        onMouseDown={(e) => handleDragStart(e.clientX)}
-        onMouseUp={(e) => handleDragEnd(e.clientX)}
-        onMouseLeave={() => { dragState.current.active = false; }}
-      >
-        {slides.map((slideItem, index) => (
-          <img
-            key={`${slideItem.image}-${index}`}
-            src={slideItem.image}
-            alt={slideItem.title || "হোমপেজ ব্যানার"}
-            draggable={false}
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${index === current ? "opacity-100" : "pointer-events-none opacity-0"}`}
-            width={1920}
-            height={820}
-            sizes="100vw"
-            decoding="async"
-            {...(index === 0
-              ? { loading: "eager" as const, fetchPriority: "high" as const }
-              : { loading: "lazy" as const })}
-          />
-        ))}
+    <section className="relative w-full">
+      <div className="w-full md:max-w-7xl md:mx-auto md:px-6 lg:px-8 md:pt-4 lg:pt-6">
+        <div
+          className="relative aspect-[21/9] overflow-hidden bg-muted select-none touch-pan-y rounded-none md:rounded-2xl lg:rounded-3xl shadow-none md:shadow-lg ring-0 md:ring-1 md:ring-black/5"
+          onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
+          onTouchEnd={(e) => handleDragEnd(e.changedTouches[0].clientX)}
+          onMouseDown={(e) => handleDragStart(e.clientX)}
+          onMouseUp={(e) => handleDragEnd(e.clientX)}
+          onMouseLeave={() => { dragState.current.active = false; }}
+        >
+          {slides.map((slideItem, index) => (
+            <img
+              key={`${slideItem.image}-${index}`}
+              src={slideItem.image}
+              alt={slideItem.title || "হোমপেজ ব্যানার"}
+              draggable={false}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${index === current ? "opacity-100" : "pointer-events-none opacity-0"}`}
+              width={1920}
+              height={820}
+              sizes="(max-width: 768px) 100vw, 1280px"
+              decoding="async"
+              {...(index === 0
+                ? { loading: "eager" as const, fetchPriority: "high" as const }
+                : { loading: "lazy" as const })}
+            />
+          ))}
 
-        {slide.showTextOverlay && (
-          <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-transparent" />
-        )}
+          {slide.showTextOverlay && (
+            <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-transparent" />
+          )}
 
-        {slide.showTextOverlay && (
-          <div className="absolute inset-0 flex items-center">
-            <div className="container mx-auto px-4">
-              <div className="max-w-lg">
-                <h1
-                  key={`title-${current}`}
+          {slide.showTextOverlay && (
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12">
+                <div className="max-w-lg">
+                  <h1
+                    key={`title-${current}`}
                   className="mb-2 text-xl font-bold leading-tight text-white animate-in fade-in slide-in-from-bottom-4 duration-500 sm:text-4xl lg:text-5xl"
                 >
                   {slide.title}
@@ -227,6 +228,7 @@ const HeroSection = () => {
             ))}
           </div>
         )}
+        </div>
       </div>
     </section>
   );

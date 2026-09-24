@@ -157,7 +157,7 @@ const ProductDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-6 sm:py-10">
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6 sm:py-10">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
             <Skeleton className="aspect-square rounded-lg" />
@@ -173,7 +173,7 @@ const ProductDetail = () => {
   }
 
   if (!product) {
-    return <div className="container mx-auto px-4 py-20 text-center text-muted-foreground">পণ্য পাওয়া যায়নি</div>;
+    return <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-20 text-center text-muted-foreground">পণ্য পাওয়া যায়নি</div>;
   }
 
   const discount = product.compare_price ? Math.round(((Number(product.compare_price) - Number(product.price)) / Number(product.compare_price)) * 100) : 0;
@@ -290,7 +290,7 @@ const ProductDetail = () => {
       />
       {/* Breadcrumb */}
       <div className="border-b bg-muted/30">
-        <div className="container mx-auto px-4 py-2 sm:py-3">
+        <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-2 sm:py-3">
           <nav className="flex items-center gap-1.5 text-[11px] text-muted-foreground sm:text-sm">
             <Link to="/" className="hover:text-primary">হোম</Link>
             <span>/</span>
@@ -309,7 +309,7 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-4 sm:py-8">
+      <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 sm:py-8">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5 lg:gap-10">
           {/* Image Gallery */}
           <div className="lg:col-span-2">

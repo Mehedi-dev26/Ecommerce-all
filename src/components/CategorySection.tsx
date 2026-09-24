@@ -18,21 +18,21 @@ const CategorySection = () => {
   });
 
   return (
-    <section className="py-8 sm:py-14">
-      <div className="container mx-auto px-4">
+    <section className="py-8 sm:py-12 md:py-14">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         <div className="mb-5 text-center sm:mb-8">
           <h2 className="mb-1 text-lg font-bold text-foreground sm:text-2xl">ক্যাটাগরি সমূহ</h2>
           <p className="text-xs text-muted-foreground sm:text-sm">পছন্দের ক্যাটাগরি থেকে পণ্য বেছে নিন</p>
         </div>
 
         {isLoading ? (
-          <div className="mx-auto grid max-w-3xl grid-cols-3 gap-2.5 sm:gap-4">
-            {Array.from({ length: 3 }).map((_, i) => (
+          <div className="mx-auto grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5 sm:gap-4">
+            {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-32 rounded-xl" />
             ))}
           </div>
         ) : (
-          <div className="mx-auto grid max-w-4xl grid-cols-3 gap-3 sm:gap-5">
+          <div className="mx-auto grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 sm:gap-5">
             {categories?.map((cat) => (
               <Link
                 key={cat.id}

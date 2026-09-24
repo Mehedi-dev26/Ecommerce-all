@@ -28,7 +28,7 @@ const FeaturedProducts = () => {
 
   return (
     <section className="bg-muted/50 py-10 sm:py-16">
-      <div className="container mx-auto px-4">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         <div className="mb-6 text-center sm:mb-10">
           <h2 className="mb-1 text-xl font-bold text-foreground sm:mb-2 sm:text-3xl">জনপ্রিয় পণ্য সমূহ</h2>
           <p className="text-xs text-muted-foreground sm:text-base">আমাদের সবচেয়ে জনপ্রিয় ও সেরা পণ্যসমূহ</p>

@@ -44,7 +44,7 @@ const CategoryProductSections = () => {
   if (isLoading) {
     return (
       <section className="py-10 sm:py-14">
-        <div className="container mx-auto px-4">
+        <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <ProductCardSkeleton key={i} />
@@ -76,7 +76,7 @@ const CategoryProductSections = () => {
           key={cat.id}
           className={`py-8 sm:py-12 ${idx % 2 === 0 ? "bg-background" : "bg-muted/40"}`}
         >
-          <div className="container mx-auto px-4">
+          <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
             {idx === langraIdx && (
               <div className="mb-6 sm:mb-8 -mx-1 sm:mx-0">
                 <PromoStrip position="top" inline className="!my-0 !px-0" />

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Outlet } from "react-router-dom";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -114,6 +114,19 @@ const prefetchRoutes = () => {
   });
 };
 
+const PublicLayout = () => (
+  <div className="flex min-h-screen flex-col bg-background text-foreground">
+    <Navbar />
+    <main className="flex-1">
+      <Outlet />
+    </main>
+    <Suspense fallback={<div className="h-64" aria-hidden />}><Footer /></Suspense>
+    <Suspense fallback={null}><SupportWidget /></Suspense>
+    <Suspense fallback={null}><MobileBottomNav /></Suspense>
+    <Suspense fallback={null}><FloatingCart /></Suspense>
+  </div>
+);
+
 const App = () => {
   // Remove the initial HTML loader once React has mounted
   useEffect(() => {
@@ -140,10 +153,8 @@ const App = () => {
             <AuthRecoveryRedirect />
             <Suspense fallback={<RouteFallback />}>
               <Routes>
-                {/* Public Landing Pages (custom slugs) — no Navbar/Footer */}
+                {/* Public Landing Pages (custom slugs) — standalone, no Navbar/Footer */}
                 <Route path="/lp/:slug" element={<LandingPageView />} />
-                {/* Vendor public landing pages: /{vendor-slug}/{custom-slug} */}
-                <Route path="/:vendorSlug/:customSlug" element={<LandingPageView />} />
 
                 {/* Standalone payment flow — no Navbar/Footer */}
                 <Route path="/payment/:orderId" element={<PaymentMethodSelect />} />
@@ -195,39 +206,42 @@ const App = () => {
                   <Route path="landing-pages/:id" element={<VendorLandingPageEditor />} />
                 </Route>
 
-                {/* Public Routes */}
+                {/* Public Storefront Routes with Navbar & Footer */}
+                <Route element={<PublicLayout />}>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/products/:vendorSlug/:serial" element={<ProductDetail />} />
+                  <Route path="/products/:id" element={<ProductDetail />} />
+
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/order-success/:orderNumber" element={<OrderSuccess />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/dashboard" element={<UserDashboard />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/terms-conditions" element={<TermsConditions />} />
+                  <Route path="/vendor/register" element={<VendorRegister />} />
+                  <Route path="/install" element={<Install />} />
+                  <Route path="/shop/:slug" element={<VendorShop />} />
+                </Route>
+
+                {/* Vendor public landing pages: /{vendor-slug}/{custom-slug} */}
+                {/* Placed AFTER specific public routes so /products/:id, /vendor/register etc. always take precedence */}
+                <Route path="/:vendorSlug/:customSlug" element={<LandingPageView />} />
+
+                {/* Fallback 404 Route */}
                 <Route
                   path="*"
                   element={
-                    <div className="flex min-h-screen flex-col">
+                    <div className="flex min-h-screen flex-col bg-background text-foreground">
                       <Navbar />
                       <main className="flex-1">
-                        <Routes>
-                          <Route path="/" element={<Index />} />
-                          <Route path="/products" element={<Products />} />
-                          <Route path="/products/:vendorSlug/:serial" element={<ProductDetail />} />
-                          <Route path="/products/:id" element={<ProductDetail />} />
-
-                          <Route path="/cart" element={<Cart />} />
-                          <Route path="/checkout" element={<Checkout />} />
-                          <Route path="/order-success/:orderNumber" element={<OrderSuccess />} />
-                          <Route path="/about" element={<About />} />
-                          <Route path="/contact" element={<Contact />} />
-                          <Route path="/login" element={<Login />} />
-                          <Route path="/reset-password" element={<ResetPassword />} />
-                          <Route path="/dashboard" element={<UserDashboard />} />
-                          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                          <Route path="/terms-conditions" element={<TermsConditions />} />
-                          <Route path="/vendor/register" element={<VendorRegister />} />
-                          <Route path="/install" element={<Install />} />
-                          <Route path="/shop/:slug" element={<VendorShop />} />
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
+                        <NotFound />
                       </main>
                       <Suspense fallback={<div className="h-64" aria-hidden />}><Footer /></Suspense>
-                      <Suspense fallback={null}><SupportWidget /></Suspense>
-                      <Suspense fallback={null}><MobileBottomNav /></Suspense>
-                      <Suspense fallback={null}><FloatingCart /></Suspense>
                     </div>
                   }
                 />

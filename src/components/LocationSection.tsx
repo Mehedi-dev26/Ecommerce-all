@@ -9,7 +9,7 @@ const MAP_DIRECTIONS = `https://www.google.com/maps/dir/?api=1&destination=${MAP
 
 const LocationSection = () => (
   <section className="py-12 sm:py-16 bg-muted/30">
-    <div className="container mx-auto px-4">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
       <div className="mb-8 text-center sm:mb-10">
         <h2 className="mb-2 text-2xl font-bold text-foreground sm:text-3xl">
           আমাদের <span className="font-brand text-primary text-3xl sm:text-4xl">Location</span>

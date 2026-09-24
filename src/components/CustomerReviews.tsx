@@ -55,7 +55,7 @@ const CustomerReviews = () => {
 
   return (
     <section className="py-12 md:py-20 bg-gradient-to-b from-background via-secondary/20 to-background">
-      <div className="container mx-auto px-4">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         {/* Heading — matches LocationSection typography */}
         <div className="mb-8 text-center sm:mb-10">
           <h2 className="mb-2 text-2xl font-bold text-foreground sm:text-3xl">

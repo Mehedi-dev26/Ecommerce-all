@@ -9,7 +9,7 @@ const features = [
 
 const WhyChooseUs = () => (
   <section className="py-12 sm:py-16">
-    <div className="container mx-auto px-4">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
       <div className="mb-8 text-center sm:mb-10">
         <h2 className="mb-2 text-2xl font-bold text-foreground sm:text-3xl">কেন <span className="font-brand text-primary text-3xl sm:text-4xl">Sapahar Shop</span>?</h2>
         <p className="text-sm text-muted-foreground sm:text-base">আপনার পছন্দের পণ্য, সেরা মানে</p>
