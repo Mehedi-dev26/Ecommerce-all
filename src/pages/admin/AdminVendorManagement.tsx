@@ -318,27 +318,50 @@ const AdminVendorManagement = () => {
           .replace(/\s+/g, "-") ||
         `vendor-${Date.now()}`;
 
-      const { data, error } = await (supabase as any).rpc("admin_create_vendor", {
-        _shop_name: newVendor.shop_name.trim(),
-        _shop_name_bn: newVendor.shop_name_bn.trim() || newVendor.shop_name.trim(),
-        _shop_slug: slug,
-        _owner_name: newVendor.owner_name.trim(),
-        _phone: newVendor.phone.trim(),
-        _email: newVendor.email.trim(),
-        _password: newVendor.password.trim(),
-        _commission_percent: Number(newVendor.commission_percent) || 10,
-        _division: newVendor.division,
-        _district: newVendor.district,
-        _upazila: newVendor.upazila,
-        _address: newVendor.address.trim(),
-        _description: newVendor.description.trim(),
+      // Call dedicated edge function using official GoTrue Admin API
+      const { data: fnData, error: fnErr } = await supabase.functions.invoke("admin-vendor-auth", {
+        body: {
+          action: "create_vendor",
+          email: newVendor.email.trim(),
+          password: newVendor.password.trim(),
+          shop_name: newVendor.shop_name.trim(),
+          shop_name_bn: newVendor.shop_name_bn.trim() || newVendor.shop_name.trim(),
+          shop_slug: slug,
+          owner_name: newVendor.owner_name.trim(),
+          phone: newVendor.phone.trim(),
+          commission_percent: Number(newVendor.commission_percent) || 10,
+          division: newVendor.division,
+          district: newVendor.district,
+          upazila: newVendor.upazila,
+          address: newVendor.address.trim(),
+          description: newVendor.description.trim(),
+        },
       });
 
-      if (error) throw error;
+      if (fnErr || fnData?.error) {
+        // Fallback to database RPC
+        const { error: rpcErr } = await (supabase as any).rpc("admin_create_vendor", {
+          _shop_name: newVendor.shop_name.trim(),
+          _shop_name_bn: newVendor.shop_name_bn.trim() || newVendor.shop_name.trim(),
+          _shop_slug: slug,
+          _owner_name: newVendor.owner_name.trim(),
+          _phone: newVendor.phone.trim(),
+          _email: newVendor.email.trim(),
+          _password: newVendor.password.trim(),
+          _commission_percent: Number(newVendor.commission_percent) || 10,
+          _division: newVendor.division,
+          _district: newVendor.district,
+          _upazila: newVendor.upazila,
+          _address: newVendor.address.trim(),
+          _description: newVendor.description.trim(),
+        });
+
+        if (rpcErr) throw new Error(fnData?.error || rpcErr.message || fnErr?.message);
+      }
 
       toast({
         title: "ভেন্ডর সফলভাবে তৈরি হয়েছে! 🎉",
-        description: `${newVendor.shop_name} অ্যাকাউন্ট তৈরি ও অনুমোদন সম্পন্ন হয়েছে।`,
+        description: `${newVendor.shop_name} অ্যাকাউন্ট তৈরি ও অনুমোদন সম্পন্ন হয়েছে। ভেন্ডর এখন এই ইমেইল ও পাসওয়ার্ড দিয়ে সরাসরি লগইন করতে পারবেন।`,
       });
 
       setCreateOpen(false);
@@ -417,16 +440,27 @@ const AdminVendorManagement = () => {
     setSavingPassword(true);
 
     try {
-      const { error } = await (supabase as any).rpc("admin_update_vendor_password", {
-        _vendor_id: pwdModalVendor.id,
-        _new_password: newPasswordValue.trim(),
+      // First invoke dedicated edge function to sync with GoTrue auth
+      const { data: fnData, error: fnErr } = await supabase.functions.invoke("admin-vendor-auth", {
+        body: {
+          action: "update_password",
+          vendor_id: pwdModalVendor.id,
+          new_password: newPasswordValue.trim(),
+        },
       });
 
-      if (error) throw error;
+      if (fnErr || fnData?.error) {
+        // Fallback to database RPC
+        const { error: rpcErr } = await (supabase as any).rpc("admin_update_vendor_password", {
+          _vendor_id: pwdModalVendor.id,
+          _new_password: newPasswordValue.trim(),
+        });
+        if (rpcErr) throw new Error(fnData?.error || rpcErr.message || fnErr?.message);
+      }
 
       toast({
-        title: "পাসওয়ার্ড আপডেট সম্পন্ন!",
-        description: `${pwdModalVendor.shop_name_bn}-এর জন্য নতুন পাসওয়ার্ড কার্যকর হয়েছে।`,
+        title: "পাসওয়ার্ড আপডেট সম্পন্ন! ✅",
+        description: `${pwdModalVendor.shop_name_bn}-এর জন্য নতুন পাসওয়ার্ড সফলভাবে কার্যকর হয়েছে।`,
       });
 
       // Update local state
