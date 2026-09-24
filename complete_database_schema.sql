@@ -625,28 +625,8 @@ ALTER TABLE public.banners ADD COLUMN IF NOT EXISTS show_text_overlay boolean NO
 
 
 -- Insert new products
-WITH cat AS (
-  SELECT id, name FROM categories
-)
-INSERT INTO products (name, name_bn, description, description_bn, price, compare_price, image_url, images, category_id, is_active, is_featured, stock, unit, weight)
-VALUES
--- Electronics
-('Samsung Galaxy A55 5G', 'স্যামসাং গ্যালাক্সি A55 5G', 'Samsung Galaxy A55 5G with 8GB RAM, 128GB storage, 50MP triple camera and 5000mAh battery.', 'স্যামসাং গ্যালাক্সি A55 5G - ৮GB RAM, ১২৮GB স্টোরেজ, ৫০MP ক্যামেরা ও ৫০০০mAh ব্যাটারি।', 48999, 54999, 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=600&q=80', ARRAY['https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=800&q=80'], (SELECT id FROM cat WHERE name='Electronics'), true, true, 25, 'piece', '200g'),
-('iPhone 15 128GB', 'আইফোন ১৫ ১২৮GB', 'Apple iPhone 15 with A16 Bionic chip, 48MP main camera, USB-C and Dynamic Island.', 'অ্যাপল আইফোন ১৫ - A16 Bionic চিপ, ৪৮MP ক্যামেরা, USB-C ও Dynamic Island।', 134999, 144999, 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=600&q=80', ARRAY['https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800&q=80'], (SELECT id FROM cat WHERE name='Electronics'), true, true, 10, 'piece', '180g'),
-('HP Pavilion 15 Laptop', 'এইচপি প্যাভিলিয়ন ১৫ ল্যাপটপ', '15.6" FHD, Intel Core i5 13th Gen, 16GB RAM, 512GB SSD, Windows 11.', '১৫.৬" FHD ডিসপ্লে, Intel Core i5 13th Gen, ১৬GB RAM, ৫১২GB SSD, উইন্ডোজ ১১।', 89999, 99999, 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&q=80', ARRAY['https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80'], (SELECT id FROM cat WHERE name='Electronics'), true, true, 15, 'piece', '1.75kg'),
-('Sony 55" 4K Smart TV', 'সনি ৫৫" 4K স্মার্ট টিভি', 'Sony Bravia 55 inch 4K UHD Smart Android TV with Dolby Vision & Atmos.', 'সনি ব্রাভিয়া ৫৫ ইঞ্চি 4K UHD স্মার্ট অ্যান্ড্রয়েড টিভি, Dolby Vision ও Atmos সহ।', 79999, 89999, 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=600&q=80', ARRAY['https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800&q=80'], (SELECT id FROM cat WHERE name='Electronics'), true, false, 8, 'piece', '15kg'),
+-- (demo data removed)
 
--- Home Appliances
-('Walton 240L Refrigerator', 'ওয়ালটন ২৪০L ফ্রিজ', 'Walton 240L double-door refrigerator with inverter compressor and 12-year warranty.', 'ওয়ালটন ২৪০L ডাবল-ডোর ফ্রিজ, ইনভার্টার কম্প্রেসর ও ১২ বছরের ওয়ারেন্টি।', 38500, 42000, 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=600&q=80', ARRAY['https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=800&q=80'], (SELECT id FROM cat WHERE name='Home Appliances'), true, true, 12, 'piece', '55kg'),
-('Gree 1.5 Ton Inverter AC', 'গ্রি ১.৫ টন ইনভার্টার এসি', 'Gree 1.5 Ton split inverter AC with 5-star rating, eco-friendly R32 gas.', 'গ্রি ১.৫ টন স্প্লিট ইনভার্টার এসি, ৫-স্টার রেটিং, R32 গ্যাস।', 65999, 72000, 'https://images.unsplash.com/photo-1631545308456-15ee7f55de4f?w=600&q=80', ARRAY['https://images.unsplash.com/photo-1631545308456-15ee7f55de4f?w=800&q=80'], (SELECT id FROM cat WHERE name='Home Appliances'), true, true, 10, 'piece', '45kg'),
-('LG 8kg Washing Machine', 'এলজি ৮কেজি ওয়াশিং মেশিন', 'LG 8kg fully-automatic front-load washing machine with AI Direct Drive.', 'এলজি ৮কেজি ফুল-অটো ফ্রন্ট লোড ওয়াশিং মেশিন, AI Direct Drive সহ।', 54999, 59999, 'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=600&q=80', ARRAY['https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=800&q=80'], (SELECT id FROM cat WHERE name='Home Appliances'), true, false, 7, 'piece', '60kg'),
-('Panasonic Microwave Oven 25L', 'প্যানাসনিক মাইক্রোওয়েভ ২৫L', 'Panasonic 25L convection microwave oven with auto-cook menu.', 'প্যানাসনিক ২৫L কনভেকশন মাইক্রোওয়েভ ওভেন, অটো-কুক মেনু সহ।', 17500, 19999, 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=600&q=80', ARRAY['https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=800&q=80'], (SELECT id FROM cat WHERE name='Home Appliances'), true, false, 18, 'piece', '15kg'),
-
--- Bicycles & Vehicles
-('Duranta Allure 26" Bicycle', 'দুরন্ত অ্যালুর ২৬" সাইকেল', 'Duranta Allure 26 inch single-speed bicycle, sturdy steel frame.', 'দুরন্ত অ্যালুর ২৬ ইঞ্চি সিঙ্গেল-স্পিড সাইকেল, মজবুত স্টিল ফ্রেম।', 9500, 11000, 'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=600&q=80', ARRAY['https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=800&q=80'], (SELECT id FROM cat WHERE name='Bicycles & Vehicles'), true, true, 30, 'piece', '14kg'),
-('Veloce Mountain Bike 21-Speed', 'ভেলোস মাউন্টেন বাইক ২১-স্পিড', '21-speed mountain bike with shock absorbers and disc brakes.', '২১-স্পিড মাউন্টেন বাইক, শক অ্যাবজরবার ও ডিস্ক ব্রেক সহ।', 16500, 19000, 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=600&q=80', ARRAY['https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=800&q=80'], (SELECT id FROM cat WHERE name='Bicycles & Vehicles'), true, true, 20, 'piece', '15kg'),
-('Kids Bicycle 16" Pink', 'কিডস সাইকেল ১৬" পিংক', 'Kids 16-inch bicycle with training wheels for ages 4-7.', 'বাচ্চাদের ১৬ ইঞ্চি সাইকেল, ট্রেনিং হুইল সহ (৪-৭ বছর)।', 5800, 6500, 'https://images.unsplash.com/photo-1502744688674-c619d1586c9e?w=600&q=80', ARRAY['https://images.unsplash.com/photo-1502744688674-c619d1586c9e?w=800&q=80'], (SELECT id FROM cat WHERE name='Bicycles & Vehicles'), true, false, 25, 'piece', '8kg'),
-('Electric Scooter Pro', 'ইলেকট্রিক স্কুটার প্রো', 'Foldable electric scooter, 25km range, 25km/h top speed.', 'ফোল্ডেবল ইলেকট্রিক স্কুটার, ২৫কিমি রেঞ্জ, ২৫কিমি/ঘ. গতি।', 32999, 38000, 'https://images.unsplash.com/photo-1604868189265-219ba7bf7ea3?w=600&q=80', ARRAY['https://images.unsplash.com/photo-1604868189265-219ba7bf7ea3?w=800&q=80'], (SELECT id FROM cat WHERE name='Bicycles & Vehicles'), true, true, 8, 'piece', '12kg');
 
 -- Insert new banners
 -- (demo data removed)
@@ -1845,65 +1825,8 @@ ON CONFLICT (key) DO NOTHING;
 
 
 -- Insert products referencing mango category
-WITH cat AS (
-  SELECT id FROM public.categories WHERE name = 'mango' LIMIT 1
-)
-INSERT INTO public.products
-  (name, name_bn, description, description_bn, category_id, price, compare_price, cost_price, stock, image_url, images, weight, unit, grade, is_active, is_featured)
-SELECT * FROM (VALUES
-  (
-    'Amrapali Mango (Rupali)',
-    'আম্রপালি আম (রুপালি)',
-    'Amrapali (locally Rupali) is a hybrid of Dasheri and Neelum. Small to medium fruit, deep orange flesh, very sweet (22–24° Brix), fiberless and aromatic. Hand-picked from Sapahar orchards, naturally ripened — no carbide.',
-    'আম্রপালি (স্থানীয় ভাবে রুপালি) দশেহারি ও নীলম জাতের সংকর। ছোট থেকে মাঝারি আকার, গাঢ় কমলা রঙের শাঁস, অত্যন্ত মিষ্টি (২২-২৪° ব্রিক্স), আঁশহীন ও সুগন্ধি। সাপাহারের বাগান থেকে হাতে পাড়া, প্রাকৃতিকভাবে পাকানো — কোন কার্বাইড ব্যবহার নেই।',
-    (SELECT id FROM cat), 110, 140, 70, 500,
-    'https://images.unsplash.com/photo-1591073113125-e46713c829ed?w=800&q=80&auto=format&fit=crop',
-    ARRAY[
-      'https://images.unsplash.com/photo-1591073113125-e46713c829ed?w=800&q=80&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1605027990121-cbae9e0642db?w=800&q=80&auto=format&fit=crop'
-    ],
-    '১ কেজি', 'kg', 'A+', true, true
-  ),
-  (
-    'Langra Mango',
-    'ল্যাংড়া আম',
-    'Heritage Langra mango — green-yellow skin even when ripe, lemon-yellow fiberless flesh with a unique turpentine-sweet aroma. A GI-tagged variety prized across Bengal. Tree-ripened in Sapahar.',
-    'ঐতিহ্যবাহী ল্যাংড়া আম — পাকলেও সবুজাভ-হলুদ খোসা, লেবু-হলুদ আঁশহীন শাঁস ও অনন্য মিষ্টি-গন্ধ। সাপাহারের গাছে পাকানো GI-ট্যাগ প্রাপ্ত বিশেষ জাত।',
-    (SELECT id FROM cat), 95, 120, 60, 400,
-    'https://images.unsplash.com/photo-1605027990121-cbae9e0642db?w=800&q=80&auto=format&fit=crop',
-    ARRAY[
-      'https://images.unsplash.com/photo-1605027990121-cbae9e0642db?w=800&q=80&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1553279768-865429fa0078?w=800&q=80&auto=format&fit=crop'
-    ],
-    '১ কেজি', 'kg', 'A', true, true
-  ),
-  (
-    'Gopalbhog Mango',
-    'গোপালভোগ আম',
-    'The early-season king of Bangladeshi mangoes — Gopalbhog is medium sized, golden yellow, with rich aroma, soft melting flesh and intense sweetness. The first premium mango of the season from Sapahar.',
-    'বাংলাদেশী আমের রাজা গোপালভোগ — মাঝারি আকার, সোনালি হলুদ রঙ, ঘন সুগন্ধ, নরম গলে যাওয়া শাঁস ও তীব্র মিষ্টতা। সাপাহারের মৌসুমের প্রথম প্রিমিয়াম আম।',
-    (SELECT id FROM cat), 130, 160, 85, 300,
-    'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=800&q=80&auto=format&fit=crop',
-    ARRAY[
-      'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=800&q=80&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1591073113125-e46713c829ed?w=800&q=80&auto=format&fit=crop'
-    ],
-    '১ কেজি', 'kg', 'A+', true, true
-  ),
-  (
-    'Katimon Mango (Twelve-month)',
-    'কাটিমন আম (বারোমাসি)',
-    'Thai-origin Katimon — a year-round (Baromasi) mango that fruits 2–3 times a year. Long oval shape, crisp when raw, super sweet (20–22° Brix) when ripe, with very small seed and almost no fiber. Sapahar''s newest premium variety.',
-    'থাই জাতের কাটিমন — বছরে ২-৩ বার ফলনশীল বারোমাসি আম। লম্বাটে আকৃতি, কাঁচায় কুড়মুড়ে, পাকলে অত্যন্ত মিষ্টি (২০-২২° ব্রিক্স), খুব ছোট আঁটি ও প্রায় আঁশহীন। সাপাহারের নতুন প্রিমিয়াম জাত।',
-    (SELECT id FROM cat), 180, 220, 110, 250,
-    'https://images.unsplash.com/photo-1623930154200-ed53fc909c54?w=800&q=80&auto=format&fit=crop',
-    ARRAY[
-      'https://images.unsplash.com/photo-1623930154200-ed53fc909c54?w=800&q=80&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1553279768-865429fa0078?w=800&q=80&auto=format&fit=crop'
-    ],
-    '১ কেজি', 'kg', 'A+', true, true
-  )
-) AS v(name, name_bn, description, description_bn, category_id, price, compare_price, cost_price, stock, image_url, images, weight, unit, grade, is_active, is_featured);
+-- (demo data removed)
+
 
 -- ---------------------------------------------------------------------
 -- STEP 39/68  (20260504190945)
@@ -1913,97 +1836,8 @@ SELECT * FROM (VALUES
 
 
 -- Insert additional mango varieties + new products
-WITH cat AS (SELECT id, name FROM public.categories)
-INSERT INTO public.products
-  (name, name_bn, description, description_bn, category_id, price, compare_price, cost_price, stock, image_url, images, weight, unit, grade, is_active, is_featured)
-SELECT
-  v.name, v.name_bn, v.description, v.description_bn,
-  (SELECT id FROM cat WHERE name = v.cat_name),
-  v.price, v.compare_price, v.cost_price, v.stock,
-  v.image_url, ARRAY[v.image_url, v.image_url2], v.weight, v.unit, v.grade, true, v.featured
-FROM (VALUES
-  -- More mango varieties
-  ('Fazli Mango', 'ফজলি আম',
-   'King-size late-season Fazli — large 800g–1.5kg fruit with smooth golden skin, pale yellow fiberless flesh and mild sweetness. Perfect for desserts and aam-shotto.',
-   'মৌসুমের শেষ দিকের রাজা আকৃতির ফজলি — ৮০০ গ্রাম থেকে ১.৫ কেজি ওজনের বড় ফল, মসৃণ সোনালি খোসা, হালকা হলুদ আঁশহীন শাঁস ও মৃদু মিষ্টতা। আমসত্ত্ব ও মিষ্টান্নের জন্য আদর্শ।',
-   'mango', 90, 120, 55, 350,
-   'https://images.unsplash.com/photo-1605027990121-cbae9e0642db?w=800&q=80&auto=format&fit=crop',
-   'https://images.unsplash.com/photo-1553279768-865429fa0078?w=800&q=80&auto=format&fit=crop',
-   '১ কেজি', 'kg', 'A', true),
-  ('Himsagar Mango', 'হিমসাগর আম',
-   'Himsagar — the "King of Mangoes" of Bengal. Medium green-yellow fruit, fiberless saffron-colored flesh, intensely sweet and aromatic. Limited season — May to June only.',
-   'হিমসাগর — বাংলার "আমের রাজা"। মাঝারি সবুজ-হলুদ ফল, আঁশহীন জাফরান রঙের শাঁস, তীব্র মিষ্টি ও সুগন্ধি। সীমিত মৌসুম — শুধু মে-জুন।',
-   'mango', 140, 180, 90, 300,
-   'https://images.unsplash.com/photo-1591073113125-e46713c829ed?w=800&q=80&auto=format&fit=crop',
-   'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=800&q=80&auto=format&fit=crop',
-   '১ কেজি', 'kg', 'A+', true),
-  ('Haribhanga Mango', 'হাড়িভাঙ্গা আম',
-   'Famous Rangpur-origin Haribhanga — uniform sized, golden-green skin, fiberless juicy flesh and sugar-like sweetness. Long shelf life, ideal for shipping.',
-   'রংপুরের বিখ্যাত হাড়িভাঙ্গা — সমান আকার, সোনালি-সবুজ খোসা, আঁশহীন রসালো শাঁস ও চিনির মতো মিষ্টতা। দীর্ঘ সংরক্ষণযোগ্য, পাঠানোর জন্য আদর্শ।',
-   'mango', 120, 150, 75, 400,
-   'https://images.unsplash.com/photo-1623930154200-ed53fc909c54?w=800&q=80&auto=format&fit=crop',
-   'https://images.unsplash.com/photo-1591073113125-e46713c829ed?w=800&q=80&auto=format&fit=crop',
-   '১ কেজি', 'kg', 'A+', false),
-  ('Khirsapat Mango', 'ক্ষিরসাপাত আম',
-   'GI-tagged Chapainawabganj Khirsapat — medium oval fruit, thin yellow skin, dense saffron flesh, very sweet with floral aroma. Premium gifting variety.',
-   'GI-ট্যাগ প্রাপ্ত চাঁপাইনবাবগঞ্জের ক্ষিরসাপাত — মাঝারি ডিম্বাকৃতি ফল, পাতলা হলুদ খোসা, ঘন জাফরান শাঁস, ফুলের সুগন্ধযুক্ত অত্যন্ত মিষ্টি। উপহারের জন্য প্রিমিয়াম।',
-   'mango', 135, 170, 85, 280,
-   'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=800&q=80&auto=format&fit=crop',
-   'https://images.unsplash.com/photo-1605027990121-cbae9e0642db?w=800&q=80&auto=format&fit=crop',
-   '১ কেজি', 'kg', 'A+', false),
-  ('Ashwina Mango', 'আশ্বিনা আম',
-   'Late-season Ashwina (August–September) — large green fruit even when ripe, slightly tangy-sweet, perfect for pickles, juice and chutney. Long-lasting.',
-   'মৌসুমের শেষের আশ্বিনা (আগস্ট-সেপ্টেম্বর) — পাকলেও বড় সবুজ ফল, হালকা টক-মিষ্টি, আচার, জুস ও চাটনির জন্য আদর্শ। দীর্ঘস্থায়ী।',
-   'mango', 70, 95, 45, 500,
-   'https://images.unsplash.com/photo-1553279768-865429fa0078?w=800&q=80&auto=format&fit=crop',
-   'https://images.unsplash.com/photo-1623930154200-ed53fc909c54?w=800&q=80&auto=format&fit=crop',
-   '১ কেজি', 'kg', 'A', false),
-  ('Banana Mango (Sagor Kola)', 'বানানা আম (সাগর কলা)',
-   'Elongated banana-shaped Thai variety — small seed, fiberless thick flesh, candy-like sweetness. A unique novelty mango from Sapahar orchards.',
-   'লম্বাটে কলার মতো আকৃতির থাই জাত — ছোট আঁটি, আঁশহীন পুরু শাঁস, ক্যান্ডির মতো মিষ্টতা। সাপাহার বাগানের অনন্য জাত।',
-   'mango', 200, 250, 130, 150,
-   'https://images.unsplash.com/photo-1623930154200-ed53fc909c54?w=800&q=80&auto=format&fit=crop',
-   'https://images.unsplash.com/photo-1591073113125-e46713c829ed?w=800&q=80&auto=format&fit=crop',
-   '১ কেজি', 'kg', 'A+', false),
-  -- Lychee
-  ('Bombai Lychee', 'বোম্বাই লিচু',
-   'Premium Rajshahi Bombai lychee — large red fruit, crisp translucent flesh, small seed, super juicy and sweet. Limited 3-week season.',
-   'প্রিমিয়াম রাজশাহীর বোম্বাই লিচু — বড় লাল ফল, কুড়মুড়ে স্বচ্ছ শাঁস, ছোট আঁটি, অত্যন্ত রসালো ও মিষ্টি। সীমিত ৩ সপ্তাহের মৌসুম।',
-   'lychee', 350, 450, 230, 200,
-   'https://images.unsplash.com/photo-1629211044657-c2db75bf76b8?w=800&q=80&auto=format&fit=crop',
-   'https://images.unsplash.com/photo-1629211044657-c2db75bf76b8?w=800&q=80&auto=format&fit=crop',
-   '১ কেজি', 'kg', 'A+', true),
-  ('China-3 Lychee', 'চায়না-৩ লিচু',
-   'China-3 variety — heart-shaped, deep red skin, large fleshy fruit with tiny seed. Sweet-aromatic and very popular in Bangladesh.',
-   'চায়না-৩ জাত — হৃদয় আকৃতির, গাঢ় লাল খোসা, ছোট আঁটিযুক্ত বড় মাংসল ফল। মিষ্টি-সুগন্ধি ও বাংলাদেশে অত্যন্ত জনপ্রিয়।',
-   'lychee', 400, 500, 260, 180,
-   'https://images.unsplash.com/photo-1629211044657-c2db75bf76b8?w=800&q=80&auto=format&fit=crop',
-   'https://images.unsplash.com/photo-1629211044657-c2db75bf76b8?w=800&q=80&auto=format&fit=crop',
-   '১ কেজি', 'kg', 'A+', false),
-  -- Honey
-  ('Sundarban Wild Honey', 'সুন্দরবনের মধু',
-   'Pure wild honey collected by Mawalis from Sundarban mangrove forest. Raw, unprocessed, dark amber color with distinctive flavor. 100% natural.',
-   'সুন্দরবনের ম্যানগ্রোভ বন থেকে মৌয়ালদের সংগৃহীত খাঁটি বুনো মধু। কাঁচা, প্রক্রিয়াবিহীন, গাঢ় অ্যাম্বার রঙ ও স্বতন্ত্র স্বাদ। ১০০% প্রাকৃতিক।',
-   'honey', 850, 1100, 550, 100,
-   'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&q=80&auto=format&fit=crop',
-   'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&q=80&auto=format&fit=crop',
-   '১ কেজি', 'kg', 'A+', true),
-  ('Mustard Flower Honey', 'সরিষা ফুলের মধু',
-   'Light golden mustard flower honey from Naogaon mustard fields. Mild, smooth taste, crystallizes naturally — sign of purity.',
-   'নওগাঁর সরিষা ক্ষেতের হালকা সোনালি সরিষা ফুলের মধু। মৃদু, মসৃণ স্বাদ, প্রাকৃতিকভাবে জমে যায় — খাঁটিত্বের প্রমাণ।',
-   'honey', 600, 800, 400, 150,
-   'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&q=80&auto=format&fit=crop',
-   'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&q=80&auto=format&fit=crop',
-   '১ কেজি', 'kg', 'A', false),
-  -- Pickle
-  ('Mango Pickle (Achar)', 'আমের আচার',
-   'Traditional homemade mango pickle — sun-cured raw Ashwina mango with mustard oil, panch-phoron and chili. No preservatives, 1-year shelf life.',
-   'ঐতিহ্যবাহী ঘরে তৈরি আমের আচার — সরিষার তেল, পাঁচফোড়ন ও মরিচসহ রোদে শুকানো কাঁচা আশ্বিনা আম। কোন প্রিজারভেটিভ নেই, ১ বছর সংরক্ষণযোগ্য।',
-   'pickle', 450, 550, 280, 80,
-   'https://images.unsplash.com/photo-1599639957043-f3aa5c986398?w=800&q=80&auto=format&fit=crop',
-   'https://images.unsplash.com/photo-1599639957043-f3aa5c986398?w=800&q=80&auto=format&fit=crop',
-   '৫০০ গ্রাম', 'piece', 'A+', false)
-) AS v(name, name_bn, description, description_bn, cat_name, price, compare_price, cost_price, stock, image_url, image_url2, weight, unit, grade, featured);
+-- (demo data removed)
+
 
 -- ---------------------------------------------------------------------
 -- STEP 40/68  (20260504191605)
@@ -2021,44 +1855,8 @@ FROM (VALUES
 
 
 -- Add one premium product per category
-WITH cat AS (SELECT id, name FROM public.categories)
-INSERT INTO public.products
-  (name, name_bn, description, description_bn, category_id, price, compare_price, cost_price, stock, image_url, images, weight, unit, grade, is_active, is_featured)
-SELECT
-  v.name, v.name_bn, v.description, v.description_bn,
-  (SELECT id FROM cat WHERE name = v.cat_name),
-  v.price, v.compare_price, v.cost_price, v.stock,
-  v.image_url, ARRAY[v.image_url, v.image_url2], v.weight, v.unit, v.grade, true, true
-FROM (VALUES
-  ('Amrapali Mango (Rupali)', 'আম্রপালি আম (রুপালি)',
-   'Hybrid of Dasheri and Neelum. Small to medium fruit, deep orange fiberless flesh, intensely sweet (22–24° Brix). Hand-picked from Sapahar, naturally ripened — no carbide, no chemicals.',
-   'দশেহারি ও নীলম জাতের সংকর। ছোট থেকে মাঝারি আকার, গাঢ় কমলা আঁশহীন শাঁস, অত্যন্ত মিষ্টি (২২-২৪° ব্রিক্স)। সাপাহার থেকে হাতে পাড়া, প্রাকৃতিকভাবে পাকানো — কোন কার্বাইড বা রাসায়নিক নেই।',
-   'amrapali', 110, 140, 70, 500,
-   'https://images.unsplash.com/photo-1591073113125-e46713c829ed?w=1000&q=80&auto=format&fit=crop',
-   'https://images.unsplash.com/photo-1605027990121-cbae9e0642db?w=1000&q=80&auto=format&fit=crop',
-   '১ কেজি', 'kg', 'A+'),
-  ('Haribhanga Mango', 'হাড়িভাঙা আম',
-   'Famous Rangpur-origin Haribhanga — uniform sized, golden-green skin, fiberless juicy flesh, sugar-like sweetness. Long shelf life, ideal for home delivery across Bangladesh.',
-   'রংপুরের বিখ্যাত হাড়িভাঙা — সমান আকার, সোনালি-সবুজ খোসা, আঁশহীন রসালো শাঁস ও চিনির মতো মিষ্টতা। দীর্ঘ সংরক্ষণযোগ্য, সারা বাংলাদেশে হোম ডেলিভারির জন্য আদর্শ।',
-   'haribhanga', 120, 150, 75, 500,
-   'https://images.unsplash.com/photo-1623930154200-ed53fc909c54?w=1000&q=80&auto=format&fit=crop',
-   'https://images.unsplash.com/photo-1591073113125-e46713c829ed?w=1000&q=80&auto=format&fit=crop',
-   '১ কেজি', 'kg', 'A+'),
-  ('Fazli Mango', 'ফজলি আম',
-   'King-size late-season Fazli — large 800g–1.5kg fruit with smooth golden skin, pale yellow fiberless flesh and mild balanced sweetness. Perfect for desserts, juice and aam-shotto.',
-   'মৌসুমের শেষের রাজা আকৃতির ফজলি — ৮০০ গ্রাম থেকে ১.৫ কেজি ওজনের বড় ফল, মসৃণ সোনালি খোসা, হালকা হলুদ আঁশহীন শাঁস ও সুষম মিষ্টতা। আমসত্ত্ব, জুস ও মিষ্টান্নের জন্য আদর্শ।',
-   'fazli', 90, 120, 55, 400,
-   'https://images.unsplash.com/photo-1605027990121-cbae9e0642db?w=1000&q=80&auto=format&fit=crop',
-   'https://images.unsplash.com/photo-1553279768-865429fa0078?w=1000&q=80&auto=format&fit=crop',
-   '১ কেজি', 'kg', 'A'),
-  ('Katimon Mango (Twelve-month)', 'কাঁঠিমুন আম (বারোমাসি)',
-   'Thai-origin Katimon — Baromasi mango fruiting 2–3 times a year. Long oval shape, crisp when raw, super sweet (20–22° Brix) when ripe, very small seed and almost no fiber. Sapahar''s newest premium variety.',
-   'থাই জাতের কাঁঠিমুন — বছরে ২-৩ বার ফলনশীল বারোমাসি আম। লম্বাটে আকৃতি, কাঁচায় কুড়মুড়ে, পাকলে অত্যন্ত মিষ্টি (২০-২২° ব্রিক্স), খুব ছোট আঁটি ও প্রায় আঁশহীন। সাপাহারের নতুন প্রিমিয়াম জাত।',
-   'katimon', 180, 220, 110, 300,
-   'https://images.unsplash.com/photo-1553279768-865429fa0078?w=1000&q=80&auto=format&fit=crop',
-   'https://images.unsplash.com/photo-1623930154200-ed53fc909c54?w=1000&q=80&auto=format&fit=crop',
-   '১ কেজি', 'kg', 'A+')
-) AS v(name, name_bn, description, description_bn, cat_name, price, compare_price, cost_price, stock, image_url, image_url2, weight, unit, grade);
+-- (demo data removed)
+
 
 -- ---------------------------------------------------------------------
 -- STEP 41/68  (20260504192839)
@@ -2083,98 +1881,8 @@ UPDATE public.site_settings SET value = 'সাপাহার বাজার, 
 
 
 -- Products
-WITH cats AS (SELECT id, name FROM public.categories)
-INSERT INTO public.products (name, name_bn, description, description_bn, category_id, price, compare_price, cost_price, stock, image_url, weight, unit, grade, is_active, is_featured) VALUES
-(
-  'Gopalbhog Mango',
-  'গোপালভোগ আম',
-  'Premium Gopalbhog mango from Rajshahi — extremely sweet, fiberless, aromatic early-season variety. Hand-picked from Sapahar orchards.',
-  'রাজশাহীর প্রিমিয়াম গোপালভোগ আম — অসম্ভব মিষ্টি, আঁশহীন এবং সুগন্ধি। মৌসুমের শুরুর দিকে পাকে। সাপাহারের বাগান থেকে গাছপাকা সংগ্রহ। মিষ্টি স্বাদ, হলুদ-কমলা শাঁস ও ছোট আঁটি — পরিবারের সবার পছন্দের আম।',
-  (SELECT id FROM cats WHERE name='gopalbhog'), 140, 170, 90, 300,
-  'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=1000&q=80&auto=format&fit=crop',
-  '1 kg', 'kg', 'A+', true, true
-),
-(
-  'Khirsapat (Himsagar) Mango',
-  'খিরসাপাত (হিমসাগর) আম',
-  'World-renowned Khirsapat / Himsagar mango — GI-certified, creamy texture, intense sweetness, minimal fiber. The king of Bangladeshi mangoes.',
-  'বিশ্বখ্যাত খিরসাপাত তথা হিমসাগর আম — GI স্বীকৃতিপ্রাপ্ত। ক্রিমের মতো মিহি শাঁস, অসাধারণ মিষ্টি ও সুগন্ধি। আঁশ একদম নেই বললেই চলে। বাংলাদেশের আমের রাজা হিসেবে পরিচিত।',
-  (SELECT id FROM cats WHERE name='khirsapat'), 150, 180, 100, 400,
-  'https://images.unsplash.com/photo-1591073113125-e46713c829ed?w=1000&q=80&auto=format&fit=crop',
-  '1 kg', 'kg', 'A+', true, true
-),
-(
-  'Langra Mango',
-  'ল্যাংড়া আম',
-  'Famous Langra mango — green skin even when ripe, juicy yellow pulp, distinctive aroma and balanced sweet-tart flavor.',
-  'রাজশাহীর বিখ্যাত ল্যাংড়া আম — পাকলেও খোসা সবুজ থাকে। রসালো হলুদ শাঁস, অনন্য সুগন্ধ এবং মিষ্টি-টক ভারসাম্যপূর্ণ স্বাদ। আম প্রেমীদের প্রথম পছন্দ।',
-  (SELECT id FROM cats WHERE name='langra'), 130, 160, 85, 350,
-  'https://images.unsplash.com/photo-1568909344668-6f14a07b56a0?w=1000&q=80&auto=format&fit=crop',
-  '1 kg', 'kg', 'A', true, true
-),
-(
-  'Miyazaki Mango',
-  'মিয়াজাকি আম',
-  'Premium Japanese Miyazaki "Egg of the Sun" mango — deep red skin, ultra-sweet with unique flavor. Limited stock.',
-  'জাপানের বিখ্যাত মিয়াজাকি আম — "Egg of the Sun" নামে পরিচিত। গাঢ় লাল রঙের খোসা, অসাধারণ মিষ্টি ও অনন্য স্বাদ। বিশ্বের সবচেয়ে দামি আম। সীমিত স্টক।',
-  (SELECT id FROM cats WHERE name='miyazaki'), 1500, 2000, 900, 30,
-  'https://images.unsplash.com/photo-1546173159-315724a31696?w=1000&q=80&auto=format&fit=crop',
-  '1 kg', 'kg', 'A++', true, true
-),
-(
-  'Suryapuri Mango',
-  'সূর্যপুরী আম',
-  'Heritage Suryapuri mango from northern Bangladesh — large size, golden yellow pulp, traditional taste.',
-  'উত্তরবঙ্গের ঐতিহ্যবাহী সূর্যপুরী আম — বড় আকার, সোনালি হলুদ শাঁস, ঐতিহ্যবাহী মিষ্টি স্বাদ। গ্রামীণ স্বাদ পেতে চাইলে এটি আপনার জন্য।',
-  (SELECT id FROM cats WHERE name='suryapuri'), 100, 130, 65, 250,
-  'https://images.unsplash.com/photo-1519096845289-95806ee03a1a?w=1000&q=80&auto=format&fit=crop',
-  '1 kg', 'kg', 'A', true, false
-),
-(
-  'Ashwina Mango',
-  'আশ্বিনা আম',
-  'Late-season Ashwina mango — available when other mangoes are gone. Slightly tart, firm flesh, excellent for pickles and fresh eating.',
-  'মৌসুমের শেষের আশ্বিনা আম — যখন অন্য আম শেষ তখনও পাওয়া যায়। হালকা টক-মিষ্টি স্বাদ, শক্ত শাঁস। আচার এবং তাজা খাওয়া দুটোতেই দারুণ।',
-  (SELECT id FROM cats WHERE name='ashwina'), 80, 110, 55, 300,
-  'https://images.unsplash.com/photo-1572635148818-ef6fd45eb394?w=1000&q=80&auto=format&fit=crop',
-  '1 kg', 'kg', 'A', true, false
-),
-(
-  'Gourmoti Mango',
-  'গৌরমতি আম',
-  'Late-variety Gourmoti mango — rich sweet flavor, deep yellow pulp, harvested in late August.',
-  'নাবি জাতের গৌরমতি আম — গভীর মিষ্টি স্বাদ, গাঢ় হলুদ শাঁস। আগস্টের শেষে সংগ্রহ করা হয়। দেরিতে পাওয়া আমের মধ্যে অন্যতম সেরা।',
-  (SELECT id FROM cats WHERE name='gourmoti'), 160, 200, 110, 200,
-  'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=1000&q=80&auto=format&fit=crop',
-  '1 kg', 'kg', 'A+', true, true
-),
-(
-  'BARI Aam-4',
-  'বারি আম-৪',
-  'BARI-developed high-yield mango variety — large fruit, sweet, fiberless, excellent shelf life.',
-  'বাংলাদেশ কৃষি গবেষণা ইনস্টিটিউট (BARI) উদ্ভাবিত উচ্চফলনশীল আম — বড় আকার, মিষ্টি, আঁশহীন এবং দীর্ঘ সংরক্ষণযোগ্য।',
-  (SELECT id FROM cats WHERE name='bari4'), 120, 150, 80, 300,
-  'https://images.unsplash.com/photo-1564594985645-4427056e22e2?w=1000&q=80&auto=format&fit=crop',
-  '1 kg', 'kg', 'A', true, false
-),
-(
-  'Banana Mango',
-  'বানানা ম্যাঙ্গো',
-  'Unique elongated Banana mango — looks like a banana, sweet flavor, fiberless pulp, conversation-starter fruit.',
-  'অনন্য বানানা ম্যাঙ্গো — কলার মতো লম্বাটে আকৃতি। মিষ্টি স্বাদ, আঁশহীন শাঁস। দেখতে যেমন আকর্ষণীয়, খেতেও তেমনই দারুণ।',
-  (SELECT id FROM cats WHERE name='banana_mango'), 200, 250, 130, 150,
-  'https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=1000&q=80&auto=format&fit=crop',
-  '1 kg', 'kg', 'A+', true, true
-),
-(
-  'Deshi Ashla Mango',
-  'দেশি আঁশলা আম',
-  'Traditional village Deshi Ashla mango — slightly fibrous, intensely aromatic, perfect for chusha (sucking) and juice.',
-  'গ্রামবাংলার ঐতিহ্যবাহী দেশি আঁশলা আম — হালকা আঁশযুক্ত, তীব্র সুগন্ধি। চুষে খাওয়া এবং জুস বানানোর জন্য পারফেক্ট। দাদির হাতের আমের স্বাদ ফিরিয়ে আনে।',
-  (SELECT id FROM cats WHERE name='deshi_ashla'), 90, 120, 60, 400,
-  'https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=1000&q=80&auto=format&fit=crop',
-  '1 kg', 'kg', 'A', true, false
-);
+-- (demo data removed)
+
 
 -- ---------------------------------------------------------------------
 -- STEP 44/68  (20260506112041)
@@ -2432,37 +2140,8 @@ INSERT INTO public.user_roles (user_id, role) SELECT id, 'admin'::public.app_rol
 -- STEP 50/68  (20260511070911)
 -- ---------------------------------------------------------------------
 -- Categories
-WITH new_cats AS (
-  INSERT INTO public.categories (name, name_bn, description, image_url, sort_order, requires_weight) VALUES
-  ('Amrapali Mango', 'আম্রপালি আম', 'সাপাহারের সেরা আম্রপালি আম', 'https://images.unsplash.com/photo-1591073113125-e46713c829ed?w=600&q=80&auto=format&fit=crop', 1, true),
-  ('Langra Mango', 'ন্যাংরা আম', 'রাজশাহীর বিখ্যাত ন্যাংরা আম', 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&q=80&auto=format&fit=crop', 2, true),
-  ('Dates', 'খেজুর', 'প্রিমিয়াম মানের খেজুর', 'https://images.unsplash.com/photo-1609252924088-2a45ee971cdf?w=600&q=80&auto=format&fit=crop', 3, false),
-  ('Honey', 'মধু', '১০০% খাঁটি প্রাকৃতিক মধু', 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=600&q=80&auto=format&fit=crop', 4, false)
-  RETURNING id, name
-)
-INSERT INTO public.products (name, name_bn, description_bn, category_id, price, compare_price, cost_price, stock, image_url, weight, unit, grade, is_active, is_featured)
-SELECT * FROM (VALUES
-  -- Amrapali (4 products)
-  ('Amrapali 5kg', 'আম্রপালি আম ৫ কেজি', 'সরাসরি বাগান থেকে গাছপাকা আম্রপালি আম', (SELECT id FROM new_cats WHERE name='Amrapali Mango'), 950::numeric, 1100::numeric, 600::numeric, 100, 'https://images.unsplash.com/photo-1591073113125-e46713c829ed?w=800&q=80&auto=format&fit=crop', '5 kg', 'kg', 'A', true, true),
-  ('Amrapali 10kg', 'আম্রপালি আম ১০ কেজি', 'পরিবারের জন্য পরিপূর্ণ ১০ কেজি প্যাক', (SELECT id FROM new_cats WHERE name='Amrapali Mango'), 1800::numeric, 2100::numeric, 1150::numeric, 80, 'https://images.unsplash.com/photo-1591073113125-e46713c829ed?w=800&q=80&auto=format&fit=crop', '10 kg', 'kg', 'A', true, true),
-  ('Amrapali Premium 5kg', 'আম্রপালি প্রিমিয়াম ৫ কেজি', 'বাছাইকৃত বড় সাইজের প্রিমিয়াম আম', (SELECT id FROM new_cats WHERE name='Amrapali Mango'), 1100::numeric, 1300::numeric, 700::numeric, 60, 'https://images.unsplash.com/photo-1605027990121-cbae9e0642db?w=800&q=80&auto=format&fit=crop', '5 kg', 'kg', 'A+', true, false),
-  ('Amrapali Premium 10kg', 'আম্রপালি প্রিমিয়াম ১০ কেজি', 'প্রিমিয়াম গ্রেড বড় সাইজের আম ১০ কেজি', (SELECT id FROM new_cats WHERE name='Amrapali Mango'), 2100::numeric, 2400::numeric, 1350::numeric, 50, 'https://images.unsplash.com/photo-1605027990121-cbae9e0642db?w=800&q=80&auto=format&fit=crop', '10 kg', 'kg', 'A+', true, false),
-  -- Langra (4 products)
-  ('Langra 5kg', 'ন্যাংরা আম ৫ কেজি', 'রাজশাহীর বিখ্যাত মিষ্টি ন্যাংরা আম', (SELECT id FROM new_cats WHERE name='Langra Mango'), 1000::numeric, 1200::numeric, 650::numeric, 90, 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=800&q=80&auto=format&fit=crop', '5 kg', 'kg', 'A', true, true),
-  ('Langra 10kg', 'ন্যাংরা আম ১০ কেজি', 'পরিবারের জন্য ১০ কেজি ন্যাংরা আম', (SELECT id FROM new_cats WHERE name='Langra Mango'), 1900::numeric, 2300::numeric, 1250::numeric, 70, 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=800&q=80&auto=format&fit=crop', '10 kg', 'kg', 'A', true, true),
-  ('Langra Premium 5kg', 'ন্যাংরা প্রিমিয়াম ৫ কেজি', 'বাছাইকৃত প্রিমিয়াম ন্যাংরা', (SELECT id FROM new_cats WHERE name='Langra Mango'), 1200::numeric, 1400::numeric, 750::numeric, 50, 'https://images.unsplash.com/photo-1623930154130-d3f8b9d92850?w=800&q=80&auto=format&fit=crop', '5 kg', 'kg', 'A+', true, false),
-  ('Langra Premium 10kg', 'ন্যাংরা প্রিমিয়াম ১০ কেজি', 'প্রিমিয়াম গ্রেড ১০ কেজি ন্যাংরা', (SELECT id FROM new_cats WHERE name='Langra Mango'), 2300::numeric, 2700::numeric, 1450::numeric, 40, 'https://images.unsplash.com/photo-1623930154130-d3f8b9d92850?w=800&q=80&auto=format&fit=crop', '10 kg', 'kg', 'A+', true, false),
-  -- Dates (4 products)
-  ('Ajwa Dates 1kg', 'আজওয়া খেজুর ১ কেজি', 'সৌদি আরবের প্রিমিয়াম আজওয়া খেজুর', (SELECT id FROM new_cats WHERE name='Dates'), 1800::numeric, 2200::numeric, 1300::numeric, 50, 'https://images.unsplash.com/photo-1609252924088-2a45ee971cdf?w=800&q=80&auto=format&fit=crop', '1 kg', 'kg', 'Premium', true, true),
-  ('Mariam Dates 1kg', 'মরিয়ম খেজুর ১ কেজি', 'মিষ্টি ও নরম মরিয়ম খেজুর', (SELECT id FROM new_cats WHERE name='Dates'), 950::numeric, 1100::numeric, 650::numeric, 80, 'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=800&q=80&auto=format&fit=crop', '1 kg', 'kg', 'A', true, true),
-  ('Medjool Dates 1kg', 'মেডজুল খেজুর ১ কেজি', 'রাজকীয় স্বাদের মেডজুল খেজুর', (SELECT id FROM new_cats WHERE name='Dates'), 1500::numeric, 1700::numeric, 1050::numeric, 60, 'https://images.unsplash.com/photo-1605387950330-25e9b6ee0bcc?w=800&q=80&auto=format&fit=crop', '1 kg', 'kg', 'Premium', true, false),
-  ('Safawi Dates 1kg', 'সাফাওয়ী খেজুর ১ কেজি', 'গাঢ় কালো রঙের প্রিমিয়াম খেজুর', (SELECT id FROM new_cats WHERE name='Dates'), 1100::numeric, 1300::numeric, 750::numeric, 70, 'https://images.unsplash.com/photo-1574575394131-1f1c0ddae5ae?w=800&q=80&auto=format&fit=crop', '1 kg', 'kg', 'A', true, false),
-  -- Honey (4 products)
-  ('Sundarban Honey 1kg', 'সুন্দরবনের মধু ১ কেজি', '১০০% খাঁটি সুন্দরবনের প্রাকৃতিক মধু', (SELECT id FROM new_cats WHERE name='Honey'), 1200::numeric, 1500::numeric, 800::numeric, 50, 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=800&q=80&auto=format&fit=crop', '1 kg', 'kg', 'Premium', true, true),
-  ('Mustard Honey 1kg', 'সরিষা ফুলের মধু ১ কেজি', 'খাঁটি সরিষা ফুলের মধু', (SELECT id FROM new_cats WHERE name='Honey'), 700::numeric, 850::numeric, 450::numeric, 100, 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=800&q=80&auto=format&fit=crop', '1 kg', 'kg', 'A', true, true),
-  ('Litchi Honey 1kg', 'লিচু ফুলের মধু ১ কেজি', 'রাজশাহীর লিচু ফুলের সুগন্ধি মধু', (SELECT id FROM new_cats WHERE name='Honey'), 950::numeric, 1100::numeric, 600::numeric, 60, 'https://images.unsplash.com/photo-1582126892906-5ba111b943f6?w=800&q=80&auto=format&fit=crop', '1 kg', 'kg', 'A', true, false),
-  ('Black Seed Honey 500g', 'কালিজিরা ফুলের মধু ৫০০ গ্রাম', 'ঔষধি গুণসম্পন্ন কালিজিরা ফুলের মধু', (SELECT id FROM new_cats WHERE name='Honey'), 600::numeric, 750::numeric, 380::numeric, 80, 'https://images.unsplash.com/photo-1471943311424-646960669fbc?w=800&q=80&auto=format&fit=crop', '500 g', 'g', 'Premium', true, false)
-) AS v(name, name_bn, description_bn, category_id, price, compare_price, cost_price, stock, image_url, weight, unit, grade, is_active, is_featured);
+-- (demo data removed)
+
 
 -- ---------------------------------------------------------------------
 -- STEP 51/68  (20260511071837)
@@ -3128,12 +2807,8 @@ GRANT EXECUTE ON FUNCTION public.lookup_vendor_landing_page(text, text) TO anon,
 ALTER TABLE public.products ADD COLUMN IF NOT EXISTS serial_number integer;
 
 -- 2. Backfill: per-vendor serial ordered by created_at
-WITH ranked AS (
-  SELECT id, ROW_NUMBER() OVER (PARTITION BY vendor_id ORDER BY created_at, id) AS rn
-  FROM public.products
-)
-UPDATE public.products p SET serial_number = r.rn
-FROM ranked r WHERE r.id = p.id AND p.serial_number IS NULL;
+-- (demo data removed)
+
 
 -- 3. Trigger to auto-assign serial on insert (per-vendor; null vendor gets global)
 CREATE OR REPLACE FUNCTION public.assign_product_serial()
