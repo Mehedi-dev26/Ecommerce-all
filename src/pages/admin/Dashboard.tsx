@@ -27,8 +27,9 @@ import {
 } from "lucide-react";
 import {
   ResponsiveContainer,
-  AreaChart,
+  ComposedChart,
   Area,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -63,7 +64,6 @@ interface RecentOrder {
   payment_method: string;
 }
 
-type MetricType = "revenue" | "orders" | "delivered" | "pending" | "cancelled";
 type PeriodType = "7" | "15" | "30";
 
 const Dashboard = () => {
@@ -86,7 +86,6 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   // Chart controls
-  const [chartMetric, setChartMetric] = useState<MetricType>("revenue");
   const [chartPeriod, setChartPeriod] = useState<PeriodType>("7");
   const [pieMode, setPieMode] = useState<"status" | "payment">("status");
 
@@ -251,73 +250,31 @@ const Dashboard = () => {
     return result;
   }, [rawOrders, chartPeriod]);
 
-  // Metric configuration for Area Chart
-  const metricConfigs: Record<
-    MetricType,
-    {
-      label: string;
-      unit: string;
-      stroke: string;
-      fillStart: string;
-      dataKey: "revenue" | "orders" | "delivered" | "pending" | "cancelled";
-      format: (v: number) => string;
-    }
-  > = {
-    revenue: {
-      label: "মোট আয় (৳)",
-      unit: "৳",
-      stroke: "#10b981",
-      fillStart: "#10b981",
-      dataKey: "revenue",
-      format: (v) => `৳${Math.round(v).toLocaleString("bn-BD")}`,
-    },
-    orders: {
-      label: "মোট অর্ডার",
-      unit: "টি",
-      stroke: "#3b82f6",
-      fillStart: "#3b82f6",
-      dataKey: "orders",
-      format: (v) => `${v.toLocaleString("bn-BD")} টি`,
-    },
-    delivered: {
-      label: "ডেলিভারড অর্ডার",
-      unit: "টি",
-      stroke: "#06b6d4",
-      fillStart: "#06b6d4",
-      dataKey: "delivered",
-      format: (v) => `${v.toLocaleString("bn-BD")} টি`,
-    },
-    pending: {
-      label: "পেন্ডিং ও প্রসেসিং",
-      unit: "টি",
-      stroke: "#f59e0b",
-      fillStart: "#f59e0b",
-      dataKey: "pending",
-      format: (v) => `${v.toLocaleString("bn-BD")} টি`,
-    },
-    cancelled: {
-      label: "বাতিল অর্ডার",
-      unit: "টি",
-      stroke: "#f43f5e",
-      fillStart: "#f43f5e",
-      dataKey: "cancelled",
-      format: (v) => `${v.toLocaleString("bn-BD")} টি`,
-    },
-  };
+  // Wide chart summary stats across the selected period
+  const periodStats = useMemo(() => {
+    const days = parseInt(chartPeriod, 10);
+    const totalRev = timelineData.reduce((sum, item) => sum + item.revenue, 0);
+    const totalOrd = timelineData.reduce((sum, item) => sum + item.orders, 0);
+    const totalDelivered = timelineData.reduce((sum, item) => sum + item.delivered, 0);
+    const totalPending = timelineData.reduce((sum, item) => sum + item.pending, 0);
+    const totalCancelled = timelineData.reduce((sum, item) => sum + item.cancelled, 0);
 
-  const activeMetric = metricConfigs[chartMetric];
-
-  // Wide chart summary stats
-  const periodTotal = useMemo(() => {
-    return timelineData.reduce((sum, item) => sum + item[activeMetric.dataKey], 0);
-  }, [timelineData, activeMetric]);
-
-  const peakDay = useMemo(() => {
-    if (timelineData.length === 0) return { label: "", value: 0 };
-    return timelineData.reduce((prev, curr) =>
-      curr[activeMetric.dataKey] > prev[activeMetric.dataKey] ? curr : prev
+    const peakRevDay = timelineData.reduce(
+      (prev, curr) => (curr.revenue > prev.revenue ? curr : prev),
+      timelineData[0] || { label: "—", revenue: 0, orders: 0 }
     );
-  }, [timelineData, activeMetric]);
+
+    return {
+      totalRev,
+      totalOrd,
+      totalDelivered,
+      totalPending,
+      totalCancelled,
+      avgDailyRev: days > 0 ? Math.round(totalRev / days) : 0,
+      avgDailyOrders: days > 0 ? (totalOrd / days).toFixed(1) : "0",
+      peakRevDay,
+    };
+  }, [timelineData, chartPeriod]);
 
   // 2. Process Circular Chart (Pie/Donut)
   const statusPieData = useMemo(() => {
@@ -377,6 +334,22 @@ const Dashboard = () => {
     () => activePieData.reduce((sum, item) => sum + (item.key === "empty" ? 0 : item.value), 0),
     [activePieData]
   );
+
+  // Performance progress rates for circular section
+  const performanceRates = useMemo(() => {
+    const total = stats.totalOrders || 1;
+    const deliveryRate = Math.min(100, Math.round((stats.completedOrders / total) * 100));
+    const activePipeline = stats.pendingOrders + stats.processingOrders + stats.shippedOrders;
+    const pipelineRate = Math.min(100, Math.round((activePipeline / total) * 100));
+    const cancelRate = Math.min(100, Math.round((stats.cancelledOrders / total) * 100));
+
+    return {
+      deliveryRate,
+      activePipeline,
+      pipelineRate,
+      cancelRate,
+    };
+  }, [stats]);
 
   const getStatusBadge = (status: string) => {
     const config: Record<string, { bg: string; label: string }> = {
@@ -461,12 +434,12 @@ const Dashboard = () => {
       </div>
 
       {/* ============================================================== */}
-      {/* 🚀 NEW PROFESSIONAL GRAPH CHARTS SECTION (WIDESCREEN & CIRCULAR) */}
+      {/* 🚀 ADVANCED UNIFIED GRAPH CHARTS SECTION (WIDESCREEN & CIRCULAR) */}
       {/* ============================================================== */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
-        {/* Left: Wide Trend Graph Chart (লম্বা গ্রাফ চার্ট) */}
+        {/* Left: Wide Trend Graph Chart (একক চার্টে বহু-রঙিন ট্রেন্ড লাইন) */}
         <Card className="lg:col-span-2 border-border/60 shadow-xs rounded-2xl overflow-hidden flex flex-col">
-          <CardHeader className="p-4 sm:p-5 pb-2 border-b border-border/40 bg-muted/20">
+          <CardHeader className="p-4 sm:p-5 pb-2.5 border-b border-border/40 bg-muted/20">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
@@ -478,11 +451,11 @@ const Dashboard = () => {
                   </CardTitle>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  বাস্তব ডেটার ভিত্তিতে আয়ের ওঠানামা ও অর্ডারের গতিবিধি
+                  একটি গ্রাফে বাস্তব ডেটার ভিত্তিতে আয়, অর্ডার ও ডেলিভারি ট্রেন্ড
                 </p>
               </div>
 
-              {/* Period selection */}
+              {/* Period selection: 7 days, 15 days, 30 days */}
               <div className="flex items-center gap-1 bg-background p-1 rounded-xl border border-border/60 self-start sm:self-auto">
                 <Calendar className="h-3.5 w-3.5 text-muted-foreground ml-1.5 mr-0.5" />
                 {(["7", "15", "30"] as PeriodType[]).map((period) => (
@@ -503,72 +476,74 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* 5 Metric Switcher Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pt-3 pb-1">
-              {(
-                [
-                  { key: "revenue", label: "মোট আয়", icon: DollarSign },
-                  { key: "orders", label: "মোট অর্ডার", icon: ShoppingCart },
-                  { key: "delivered", label: "ডেলিভারড", icon: CheckCircle2 },
-                  { key: "pending", label: "পেন্ডিং/প্রসেসিং", icon: Clock },
-                  { key: "cancelled", label: "বাতিল", icon: AlertCircle },
-                ] as const
-              ).map((m) => {
-                const isSelected = chartMetric === m.key;
-                return (
-                  <button
-                    key={m.key}
-                    type="button"
-                    onClick={() => setChartMetric(m.key)}
-                    className={cn(
-                      "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border",
-                      isSelected
-                        ? "bg-card border-primary text-primary shadow-xs ring-1 ring-primary/20"
-                        : "bg-background/80 border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
-                    )}
-                  >
-                    <m.icon className="h-3.5 w-3.5 shrink-0" />
-                    <span>{m.label}</span>
-                  </button>
-                );
-              })}
+            {/* Clean Static Multi-Color Legend Indicators (No individual filtering needed) */}
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-3 pb-1 text-xs">
+              <div className="flex items-center gap-1.5">
+                <span className="h-2.5 w-5 rounded-full bg-emerald-500 inline-block shadow-xs" />
+                <span className="font-medium text-foreground/90">মোট আয় (৳)</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="h-2.5 w-5 rounded-full bg-blue-500 inline-block shadow-xs" />
+                <span className="font-medium text-foreground/90">মোট অর্ডার</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="h-2.5 w-5 rounded-full bg-cyan-500 inline-block shadow-xs" />
+                <span className="font-medium text-foreground/90">ডেলিভারড</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="h-2.5 w-5 rounded-full bg-amber-500 inline-block shadow-xs" />
+                <span className="font-medium text-foreground/90">পেন্ডিং/প্রসেসিং</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="h-2.5 w-5 rounded-full bg-rose-500 inline-block shadow-xs" />
+                <span className="font-medium text-foreground/90">বাতিল</span>
+              </div>
             </div>
           </CardHeader>
 
           <CardContent className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
-            {/* Quick Metrics Bar on top of graph */}
+            {/* Quick Metrics Bar: নির্বাচিত সময়ের মোট, দৈনিক গড়, শীর্ষ দিন */}
             <div className="grid grid-cols-3 gap-2 p-2.5 mb-4 rounded-xl bg-muted/30 border border-border/40 text-center">
               <div>
-                <p className="text-[10px] text-muted-foreground">নির্বাচিত সময়ের মোট</p>
-                <p className="text-sm sm:text-base font-bold text-foreground">
-                  {activeMetric.format(periodTotal)}
+                <p className="text-[10px] text-muted-foreground">নির্বাচিত সময়ের মোট আয়</p>
+                <p className="text-sm sm:text-base font-bold text-emerald-600 dark:text-emerald-400">
+                  ৳{periodStats.totalRev.toLocaleString("bn-BD")}
+                </p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  ({periodStats.totalOrd.toLocaleString("bn-BD")} টি অর্ডার)
                 </p>
               </div>
               <div className="border-x border-border/50">
-                <p className="text-[10px] text-muted-foreground">দৈনিক গড়</p>
+                <p className="text-[10px] text-muted-foreground">দৈনিক গড় (আয় / অর্ডার)</p>
                 <p className="text-sm sm:text-base font-bold text-foreground">
-                  {activeMetric.format(periodTotal / parseInt(chartPeriod, 10))}
+                  ৳{periodStats.avgDailyRev.toLocaleString("bn-BD")}
+                </p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  গড় {periodStats.avgDailyOrders} টি/দিন
                 </p>
               </div>
               <div>
-                <p className="text-[10px] text-muted-foreground">শীর্ষ দিন ({peakDay.label})</p>
+                <p className="text-[10px] text-muted-foreground">শীর্ষ দিন ({periodStats.peakRevDay.label})</p>
                 <p className="text-sm sm:text-base font-bold text-primary">
-                  {activeMetric.format(peakDay[activeMetric.dataKey] || 0)}
+                  ৳{Math.round(periodStats.peakRevDay.revenue || 0).toLocaleString("bn-BD")}
+                </p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  {(periodStats.peakRevDay.orders || 0).toLocaleString("bn-BD")} টি অর্ডার
                 </p>
               </div>
             </div>
 
-            {/* Recharts Area Chart */}
+            {/* Recharts ComposedChart: Multi-Color Lines on a Single Chart with Dual Y-Axis */}
             <div className="h-[270px] sm:h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
+                <ComposedChart
                   data={timelineData}
-                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                  margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
                 >
                   <defs>
-                    <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={activeMetric.fillStart} stopOpacity={0.35} />
-                      <stop offset="95%" stopColor={activeMetric.fillStart} stopOpacity={0.0} />
+                    <linearGradient id="revenueFillGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.5} />
@@ -579,38 +554,88 @@ const Dashboard = () => {
                     tickMargin={8}
                     tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
                   />
+                  {/* Left Y-Axis for Order Counts */}
                   <YAxis
+                    yAxisId="ordersAxis"
+                    orientation="left"
+                    allowDecimals={false}
                     tickLine={false}
                     axisLine={false}
-                    tickMargin={8}
+                    tickMargin={6}
+                    tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+                    tickFormatter={(val) => String(val)}
+                  />
+                  {/* Right Y-Axis for Revenue */}
+                  <YAxis
+                    yAxisId="revenueAxis"
+                    orientation="right"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={6}
                     tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
                     tickFormatter={(val) =>
-                      chartMetric === "revenue"
-                        ? `৳${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`
-                        : String(val)
+                      `৳${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`
                     }
                   />
+                  {/* Comprehensive Hover Tooltip Showing All Metrics */}
                   <Tooltip
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload;
-                        const val = payload[0].value as number;
                         return (
-                          <div className="bg-popover/95 backdrop-blur-md border border-border/80 shadow-xl rounded-xl p-3 text-xs z-50">
-                            <p className="font-bold text-foreground mb-1">{data.fullDate}</p>
-                            <div className="flex items-center gap-2">
-                              <span
-                                className="h-2.5 w-2.5 rounded-full"
-                                style={{ backgroundColor: activeMetric.stroke }}
-                              />
-                              <span className="text-muted-foreground">{activeMetric.label}:</span>
-                              <span className="font-extrabold text-foreground">
-                                {activeMetric.format(val)}
+                          <div className="bg-popover/95 backdrop-blur-md border border-border/80 shadow-2xl rounded-2xl p-3.5 text-xs z-50 min-w-[210px] space-y-2">
+                            <div className="border-b border-border/50 pb-1.5 flex items-center justify-between">
+                              <p className="font-bold text-foreground text-xs">{data.fullDate}</p>
+                              <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                                {chartPeriod} দিনের ট্রেন্ড
                               </span>
                             </div>
-                            <div className="mt-1 pt-1 border-t border-border/40 text-[10px] text-muted-foreground flex gap-3">
-                              <span>মোট অর্ডার: {data.orders}</span>
-                              <span>ডেলিভারড: {data.delivered}</span>
+                            <div className="space-y-1.5">
+                              <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+                                  <span className="text-muted-foreground">মোট আয়:</span>
+                                </div>
+                                <span className="font-extrabold text-emerald-600 dark:text-emerald-400">
+                                  ৳{Math.round(data.revenue).toLocaleString("bn-BD")}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="h-2 w-2 rounded-full bg-blue-500 shrink-0" />
+                                  <span className="text-muted-foreground">মোট অর্ডার:</span>
+                                </div>
+                                <span className="font-bold text-foreground">
+                                  {data.orders.toLocaleString("bn-BD")} টি
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="h-2 w-2 rounded-full bg-cyan-500 shrink-0" />
+                                  <span className="text-muted-foreground">ডেলিভারড:</span>
+                                </div>
+                                <span className="font-semibold text-cyan-600 dark:text-cyan-400">
+                                  {data.delivered.toLocaleString("bn-BD")} টি
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+                                  <span className="text-muted-foreground">পেন্ডিং/প্রসেসিং:</span>
+                                </div>
+                                <span className="font-semibold text-amber-600 dark:text-amber-400">
+                                  {data.pending.toLocaleString("bn-BD")} টি
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="h-2 w-2 rounded-full bg-rose-500 shrink-0" />
+                                  <span className="text-muted-foreground">বাতিল অর্ডার:</span>
+                                </div>
+                                <span className="font-semibold text-rose-600 dark:text-rose-400">
+                                  {data.cancelled.toLocaleString("bn-BD")} টি
+                                </span>
+                              </div>
                             </div>
                           </div>
                         );
@@ -618,16 +643,64 @@ const Dashboard = () => {
                       return null;
                     }}
                   />
+                  {/* Revenue Area & Stroke */}
                   <Area
+                    yAxisId="revenueAxis"
                     type="monotone"
-                    dataKey={activeMetric.dataKey}
-                    stroke={activeMetric.stroke}
+                    dataKey="revenue"
+                    stroke="#10b981"
                     strokeWidth={2.5}
                     fillOpacity={1}
-                    fill="url(#chartGradient)"
-                    activeDot={{ r: 6, stroke: activeMetric.stroke, strokeWidth: 2, fill: "#fff" }}
+                    fill="url(#revenueFillGradient)"
+                    name="মোট আয়"
+                    activeDot={{ r: 5, stroke: "#10b981", strokeWidth: 2, fill: "#fff" }}
                   />
-                </AreaChart>
+                  {/* Total Orders Line */}
+                  <Line
+                    yAxisId="ordersAxis"
+                    type="monotone"
+                    dataKey="orders"
+                    stroke="#3b82f6"
+                    strokeWidth={2.5}
+                    dot={{ r: 3, fill: "#3b82f6" }}
+                    activeDot={{ r: 6, stroke: "#3b82f6", strokeWidth: 2, fill: "#fff" }}
+                    name="মোট অর্ডার"
+                  />
+                  {/* Delivered Orders Line */}
+                  <Line
+                    yAxisId="ordersAxis"
+                    type="monotone"
+                    dataKey="delivered"
+                    stroke="#06b6d4"
+                    strokeWidth={2}
+                    strokeDasharray="4 3"
+                    dot={{ r: 2.5, fill: "#06b6d4" }}
+                    activeDot={{ r: 5 }}
+                    name="ডেলিভারড"
+                  />
+                  {/* Pending Orders Line */}
+                  <Line
+                    yAxisId="ordersAxis"
+                    type="monotone"
+                    dataKey="pending"
+                    stroke="#f59e0b"
+                    strokeWidth={2}
+                    dot={{ r: 2.5, fill: "#f59e0b" }}
+                    activeDot={{ r: 5 }}
+                    name="পেন্ডিং"
+                  />
+                  {/* Cancelled Orders Line */}
+                  <Line
+                    yAxisId="ordersAxis"
+                    type="monotone"
+                    dataKey="cancelled"
+                    stroke="#f43f5e"
+                    strokeWidth={2}
+                    dot={{ r: 2.5, fill: "#f43f5e" }}
+                    activeDot={{ r: 5 }}
+                    name="বাতিল"
+                  />
+                </ComposedChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
@@ -753,6 +826,65 @@ const Dashboard = () => {
                   </div>
                 );
               })}
+            </div>
+
+            {/* 3 Real-Time Graphical Progress Overview Lines (গ্রাফিক্যাল রিয়েল-টাইম ওভারভিউ লাইন) */}
+            <div className="w-full pt-3 mt-2 border-t border-border/40 space-y-2.5">
+              <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
+                <span>রিয়েল-টাইম কার্যকারিতা ওভারভিউ</span>
+                <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  লাইভ
+                </span>
+              </div>
+
+              {/* Line 1: ডেলিভারি সম্পন্ন হার */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-foreground/80 font-medium">ডেলিভারি সফলতার হার</span>
+                  <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                    {performanceRates.deliveryRate}% ({stats.completedOrders.toLocaleString("bn-BD")}/{stats.totalOrders.toLocaleString("bn-BD")})
+                  </span>
+                </div>
+                <div className="h-2 w-full bg-muted/80 rounded-full overflow-hidden p-0.5 shadow-inner">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 transition-all duration-500 shadow-xs"
+                    style={{ width: `${Math.max(4, performanceRates.deliveryRate)}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Line 2: সক্রিয় পাইপলাইন (পেন্ডিং/প্রসেসিং/শিপড) */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-foreground/80 font-medium">সক্রিয় পাইপলাইন (প্রসেসিং)</span>
+                  <span className="font-bold text-blue-600 dark:text-blue-400">
+                    {performanceRates.pipelineRate}% ({performanceRates.activePipeline.toLocaleString("bn-BD")} টি)
+                  </span>
+                </div>
+                <div className="h-2 w-full bg-muted/80 rounded-full overflow-hidden p-0.5 shadow-inner">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 transition-all duration-500 shadow-xs"
+                    style={{ width: `${Math.max(4, performanceRates.pipelineRate)}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Line 3: অর্ডার বাতিল / ড্রপ হার */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-foreground/80 font-medium">অর্ডার বাতিল / ড্রপ হার</span>
+                  <span className="font-bold text-rose-600 dark:text-rose-400">
+                    {performanceRates.cancelRate}% ({stats.cancelledOrders.toLocaleString("bn-BD")} টি)
+                  </span>
+                </div>
+                <div className="h-2 w-full bg-muted/80 rounded-full overflow-hidden p-0.5 shadow-inner">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-rose-500 to-red-600 transition-all duration-500 shadow-xs"
+                    style={{ width: `${Math.max(4, performanceRates.cancelRate)}%` }}
+                  />
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
