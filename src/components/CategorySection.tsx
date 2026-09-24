@@ -191,35 +191,35 @@ const CategorySection = () => {
 
   return (
     <section
-      className="py-10 sm:py-14 md:py-16 overflow-hidden select-none bg-gradient-to-b from-background via-secondary/15 to-background"
+      className="py-5 sm:py-7 md:py-8 overflow-hidden select-none bg-gradient-to-b from-background via-secondary/10 to-background"
       aria-label="ক্যাটাগরি সমূহ"
     >
-      <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-        {/* Header section with title and CTA */}
-        <div className="mb-6 sm:mb-10 text-center flex flex-col items-center">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-2">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>প্রিমিয়াম কালেকশন</span>
+      <div className="w-full max-w-6xl mx-auto px-3 sm:px-4 md:px-6">
+        {/* Compact Heading */}
+        <div className="mb-3 sm:mb-5 text-center flex flex-col items-center">
+          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-semibold mb-1">
+            <Sparkles className="h-3 w-3" />
+            <span>প্রিমিয়াম ক্যাটাগরি</span>
           </div>
-          <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+          <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-foreground tracking-tight">
             ক্যাটাগরি সমূহ
           </h2>
-          <p className="mt-1.5 text-xs sm:text-sm md:text-base text-muted-foreground max-w-md">
-            সরাসরি নওগাঁ ও রাজশাহীর সেরা বাগান থেকে বাছাইকৃত তাজা পণ্য
+          <p className="mt-0.5 text-[11px] sm:text-xs text-muted-foreground">
+            পছন্দের তাজা ফল ও পণ্যের ক্যাটাগরি বেছে নিন
           </p>
         </div>
 
         {/* Loading Skeleton */}
         {isLoading ? (
-          <div className="relative h-[340px] sm:h-[400px] flex items-center justify-center">
-            <div className="flex items-center justify-center gap-3 sm:gap-6">
-              <Skeleton className="hidden sm:block h-[320px] w-[240px] rounded-3xl opacity-60 scale-90" />
-              <Skeleton className="h-[340px] w-[220px] sm:w-[280px] rounded-3xl shadow-xl" />
-              <Skeleton className="hidden sm:block h-[320px] w-[240px] rounded-3xl opacity-60 scale-90" />
+          <div className="relative h-[170px] sm:h-[210px] flex items-center justify-center">
+            <div className="flex items-center justify-center gap-2 sm:gap-4">
+              <Skeleton className="hidden sm:block h-[160px] w-[180px] rounded-2xl opacity-60 scale-90" />
+              <Skeleton className="h-[180px] w-[170px] sm:w-[220px] rounded-2xl shadow-md" />
+              <Skeleton className="hidden sm:block h-[160px] w-[180px] rounded-2xl opacity-60 scale-90" />
             </div>
           </div>
         ) : (
-          /* 3D Centered Coverflow Carousel Stage */
+          /* Compact 3D Centered Coverflow Carousel Stage */
           <div
             ref={containerRef}
             tabIndex={0}
@@ -235,12 +235,12 @@ const CategorySection = () => {
             onMouseDown={(e) => handleDragStart(e.clientX)}
             onMouseMove={(e) => handleDragMove(e.clientX)}
             onMouseUp={handleDragEnd}
-            className="relative h-[330px] sm:h-[400px] md:h-[430px] w-full flex items-center justify-center focus:outline-none cursor-grab active:cursor-grabbing"
-            style={{ perspective: "1200px" }}
+            className="relative h-[180px] sm:h-[215px] md:h-[230px] w-full flex items-center justify-center focus:outline-none cursor-grab active:cursor-grabbing"
+            style={{ perspective: "1000px" }}
             role="region"
             aria-roledescription="carousel"
           >
-            {/* Left and Right Navigation Buttons */}
+            {/* Left Navigation Button */}
             <button
               type="button"
               onClick={(e) => {
@@ -248,11 +248,12 @@ const CategorySection = () => {
                 prevSlide();
               }}
               aria-label="পূর্ববর্তী ক্যাটাগরি"
-              className="absolute left-2 sm:left-4 md:left-8 z-40 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-background/85 text-foreground backdrop-blur-md border border-border shadow-lg transition-all duration-200 hover:bg-background hover:scale-110 active:scale-95 hover:border-primary/40 focus:outline-none"
+              className="absolute left-1 sm:left-3 md:left-6 z-40 flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-background/90 text-foreground backdrop-blur-md border border-border shadow-md transition-all duration-200 hover:bg-background hover:scale-110 active:scale-95 hover:border-primary/40 focus:outline-none"
             >
-              <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+              <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
 
+            {/* Right Navigation Button */}
             <button
               type="button"
               onClick={(e) => {
@@ -260,9 +261,9 @@ const CategorySection = () => {
                 nextSlide();
               }}
               aria-label="পরবর্তী ক্যাটাগরি"
-              className="absolute right-2 sm:right-4 md:right-8 z-40 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-background/85 text-foreground backdrop-blur-md border border-border shadow-lg transition-all duration-200 hover:bg-background hover:scale-110 active:scale-95 hover:border-primary/40 focus:outline-none"
+              className="absolute right-1 sm:right-3 md:right-6 z-40 flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-background/90 text-foreground backdrop-blur-md border border-border shadow-md transition-all duration-200 hover:bg-background hover:scale-110 active:scale-95 hover:border-primary/40 focus:outline-none"
             >
-              <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+              <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
 
             {/* Slides container */}
@@ -284,42 +285,26 @@ const CategorySection = () => {
                       ...slideStyle,
                       transition: isDragging
                         ? "none"
-                        : "transform 500ms cubic-bezier(0.25, 1, 0.5, 1), opacity 500ms cubic-bezier(0.25, 1, 0.5, 1), box-shadow 500ms ease",
+                        : "transform 450ms cubic-bezier(0.25, 1, 0.5, 1), opacity 450ms cubic-bezier(0.25, 1, 0.5, 1), box-shadow 450ms ease",
                     }}
-                    className={`absolute w-[210px] sm:w-[260px] md:w-[290px] h-[300px] sm:h-[370px] md:h-[390px] rounded-3xl p-4 sm:p-5 flex flex-col items-center justify-between cursor-pointer border transition-colors ${
+                    className={`absolute w-[160px] sm:w-[200px] md:w-[220px] h-[160px] sm:h-[195px] md:h-[210px] rounded-2xl p-2.5 sm:p-3.5 flex flex-col items-center justify-center cursor-pointer border transition-colors ${
                       isCenter
-                        ? "bg-card/95 border-primary/40 shadow-2xl shadow-primary/15 ring-2 ring-primary/30 backdrop-blur-md"
-                        : "bg-card/85 border-border/70 shadow-md backdrop-blur-sm hover:border-primary/30"
+                        ? "bg-card/98 border-primary/50 shadow-xl shadow-primary/10 ring-2 ring-primary/25 backdrop-blur-md"
+                        : "bg-card/85 border-border/70 shadow-sm backdrop-blur-sm hover:border-primary/30"
                     }`}
                   >
-                    {/* Top Badge */}
-                    <div className="w-full flex items-center justify-between">
-                      <span
-                        className={`text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full transition-colors ${
-                          isCenter
-                            ? "bg-primary text-primary-foreground shadow-sm"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {isCenter ? "তাজা ও সেরা" : "ক্যাটাগরি"}
-                      </span>
-                      <span className="text-[11px] font-medium text-muted-foreground/80">
-                        0{((index % (rawCategories?.length || 1)) + 1)}
-                      </span>
-                    </div>
-
-                    {/* Circular Product Image Container with 3D Depth */}
+                    {/* Category Image */}
                     <div
-                      className={`relative w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-2xl overflow-hidden my-auto border-2 transition-transform duration-300 ${
+                      className={`relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-xl overflow-hidden border transition-all duration-300 ${
                         isCenter
-                          ? "border-primary/40 shadow-lg scale-100 ring-4 ring-primary/10"
+                          ? "border-primary/40 shadow-md scale-100 ring-2 ring-primary/10"
                           : "border-border/60 shadow-sm scale-95"
                       }`}
                     >
                       <img
-                        src={optimizeRemoteImage(cat.image_url, 400) || DEFAULT_CATEGORY_FALLBACK}
+                        src={optimizeRemoteImage(cat.image_url, 300) || DEFAULT_CATEGORY_FALLBACK}
                         alt={cat.name_bn || cat.name}
-                        className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
+                        className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
                         loading={isCenter ? "eager" : "lazy"}
                         decoding="async"
                         draggable={false}
@@ -329,35 +314,16 @@ const CategorySection = () => {
                       />
                     </div>
 
-                    {/* Category Title & Action */}
-                    <div className="w-full text-center space-y-1 sm:space-y-1.5">
-                      <h3
-                        className={`font-bold transition-colors line-clamp-1 ${
-                          isCenter
-                            ? "text-base sm:text-lg md:text-xl text-foreground"
-                            : "text-sm sm:text-base text-foreground/85"
-                        }`}
-                      >
-                        {cat.name_bn || cat.name}
-                      </h3>
-                      <p className="text-[11px] sm:text-xs text-muted-foreground line-clamp-1">
-                        {cat.name}
-                      </p>
-
-                      {/* Explore Action Button */}
-                      <div className="pt-1.5 sm:pt-2">
-                        <span
-                          className={`inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full transition-all ${
-                            isCenter
-                              ? "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground"
-                              : "text-muted-foreground hover:text-foreground"
-                          }`}
-                        >
-                          পণ্য দেখুন
-                          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                        </span>
-                      </div>
-                    </div>
+                    {/* Category Name in Bengali ONLY (clean & compact) */}
+                    <h3
+                      className={`mt-2 font-bold transition-colors text-center line-clamp-1 w-full px-1 ${
+                        isCenter
+                          ? "text-xs sm:text-sm md:text-base text-foreground font-extrabold"
+                          : "text-xs sm:text-sm text-foreground/80"
+                      }`}
+                    >
+                      {cat.name_bn || cat.name}
+                    </h3>
                   </div>
                 );
               })}
@@ -367,7 +333,7 @@ const CategorySection = () => {
 
         {/* Bottom Pagination Dots */}
         {!isLoading && total > 0 && (
-          <div className="mt-6 sm:mt-8 flex items-center justify-center gap-2">
+          <div className="mt-3 sm:mt-4 flex items-center justify-center gap-1.5">
             {(rawCategories || []).map((_, idx) => {
               const currentModulo = activeIndex % (rawCategories?.length || 1);
               const isActive = currentModulo === idx;
@@ -377,10 +343,10 @@ const CategorySection = () => {
                   type="button"
                   onClick={() => setActiveIndex(idx)}
                   aria-label={`ক্যাটাগরি ${idx + 1}`}
-                  className={`h-2 rounded-full transition-all duration-300 focus:outline-none ${
+                  className={`h-1.5 rounded-full transition-all duration-300 focus:outline-none ${
                     isActive
-                      ? "w-7 sm:w-8 bg-primary shadow-sm"
-                      : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/60"
+                      ? "w-5 sm:w-6 bg-primary shadow-sm"
+                      : "w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/60"
                   }`}
                 />
               );
@@ -388,14 +354,14 @@ const CategorySection = () => {
           </div>
         )}
 
-        {/* All Products link */}
-        <div className="mt-4 text-center">
+        {/* Compact All Products link */}
+        <div className="mt-2.5 text-center">
           <Link
             to="/products"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+            className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
           >
-            <span>সবগুলো ক্যাটাগরি ও প্রোডাক্ট ব্রাউজ করুন</span>
-            <ArrowRight className="h-4 w-4" />
+            <span>সবগুলো ক্যাটাগরি ও পণ্য দেখুন</span>
+            <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
       </div>

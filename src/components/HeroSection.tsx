@@ -6,12 +6,29 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface BannerSlide {
   image: string;
+  mobileImage: string | null;
+  mobileAspectRatio: string;
   title: string;
   subtitle: string;
   cta: string;
   ctaLink: string;
   showTextOverlay: boolean;
 }
+
+// Map custom mobile ratio to Tailwind classes
+const getMobileAspectClass = (ratio: string | null) => {
+  switch (ratio) {
+    case "4/3":
+      return "aspect-[4/3] sm:aspect-[21/9]";
+    case "1/1":
+      return "aspect-square sm:aspect-[21/9]";
+    case "9/16":
+      return "aspect-[9/16] sm:aspect-[21/9]";
+    case "16/9":
+    default:
+      return "aspect-[16/9] sm:aspect-[21/9]";
+  }
+};
 
 // Append cache-busting version + ensure Unsplash images are right-sized for the viewport.
 // Smaller payloads = faster LCP on mobile (Lighthouse "Properly size images" + "Efficient image formats").
@@ -80,13 +97,17 @@ const HeroSection = () => {
         const mappedSlides = (data || [])
           .map((banner) => ({
             image: optimizeImageUrl(banner.image_url, banner.updated_at),
+            mobileImage: banner.mobile_image_url
+              ? optimizeImageUrl(banner.mobile_image_url, banner.updated_at)
+              : null,
+            mobileAspectRatio: banner.mobile_aspect_ratio || "16/9",
             title: banner.title,
             subtitle: banner.subtitle || "",
             cta: banner.cta_text || "অর্ডার করুন",
             ctaLink: banner.cta_link || "/products",
             showTextOverlay: banner.show_text_overlay !== false,
           }))
-          .filter((slide) => slide.image.trim().length > 0);
+          .filter((slide) => slide.image.trim().length > 0 || (slide.mobileImage && slide.mobileImage.trim().length > 0));
 
         setSlides(mappedSlides);
         setCurrent(0);
@@ -94,7 +115,12 @@ const HeroSection = () => {
 
         // Warm cache for remaining slides in background — don't block first paint
         if (mappedSlides.length > 1) {
-          void Promise.allSettled(mappedSlides.slice(1).map((slide) => preloadImage(slide.image)));
+          void Promise.allSettled(
+            mappedSlides.slice(1).flatMap((slide) => [
+              preloadImage(slide.image),
+              ...(slide.mobileImage ? [preloadImage(slide.mobileImage)] : []),
+            ])
+          );
         }
       } catch {
         if (!cancelled) {
@@ -133,7 +159,7 @@ const HeroSection = () => {
   if (loading) {
     return (
       <section className="relative w-full overflow-hidden">
-        <div className="relative aspect-[21/9] overflow-hidden bg-muted" />
+        <div className="relative aspect-[16/9] sm:aspect-[21/9] overflow-hidden bg-muted" />
       </section>
     );
   }
@@ -141,8 +167,7 @@ const HeroSection = () => {
   if (slides.length === 0) return null;
 
   const slide = slides[current];
-
-  // Swipe / drag handling — works for touch & mouse
+  const aspectClass = getMobileAspectClass(slide.mobileAspectRatio);
 
   const handleDragStart = (clientX: number) => {
     dragState.current = { startX: clientX, active: true };
@@ -161,7 +186,7 @@ const HeroSection = () => {
   return (
     <section className="relative w-full overflow-hidden">
       <div
-        className="relative aspect-[21/9] w-full overflow-hidden bg-muted select-none touch-pan-y"
+        className={`relative w-full overflow-hidden bg-muted select-none touch-pan-y transition-all duration-300 ${aspectClass}`}
         onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
         onTouchEnd={(e) => handleDragEnd(e.changedTouches[0].clientX)}
         onMouseDown={(e) => handleDragStart(e.clientX)}
@@ -169,20 +194,30 @@ const HeroSection = () => {
         onMouseLeave={() => { dragState.current.active = false; }}
       >
         {slides.map((slideItem, index) => (
-          <img
+          <picture
             key={`${slideItem.image}-${index}`}
-            src={slideItem.image}
-            alt={slideItem.title || "হোমপেজ ব্যানার"}
-            draggable={false}
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${index === current ? "opacity-100" : "pointer-events-none opacity-0"}`}
-            width={1920}
-            height={820}
-            sizes="100vw"
-            decoding="async"
-            {...(index === 0
-              ? { loading: "eager" as const, fetchPriority: "high" as const }
-              : { loading: "lazy" as const })}
-          />
+            className={`absolute inset-0 h-full w-full transition-opacity duration-500 ${
+              index === current ? "opacity-100" : "pointer-events-none opacity-0"
+            }`}
+          >
+            {slideItem.mobileImage && (
+              <source media="(max-width: 639px)" srcSet={slideItem.mobileImage} />
+            )}
+            <source media="(min-width: 640px)" srcSet={slideItem.image} />
+            <img
+              src={slideItem.image}
+              alt={slideItem.title || "হোমপেজ ব্যানার"}
+              draggable={false}
+              className="h-full w-full object-cover"
+              width={1920}
+              height={820}
+              sizes="100vw"
+              decoding="async"
+              {...(index === 0
+                ? { loading: "eager" as const, fetchPriority: "high" as const }
+                : { loading: "lazy" as const })}
+            />
+          </picture>
         ))}
 
         {slide.showTextOverlay && (
