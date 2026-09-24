@@ -112,8 +112,8 @@ const AdminSidebar = ({ open, onToggle, onSignOut, userEmail }: AdminSidebarProp
           </div>
         </div>
 
-        {/* Navigation - scrollable */}
-        <nav className="flex-1 py-3 px-3 overflow-y-auto scrollbar-thin">
+        {/* Navigation - scrollable with hidden scrollbar and zero white tracks */}
+        <nav className="flex-1 py-3 px-3 overflow-y-auto overscroll-contain scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {navGroups.map((group) => {
             const isCollapsed = collapsedGroups.has(group.label);
 
@@ -169,42 +169,49 @@ const AdminSidebar = ({ open, onToggle, onSignOut, userEmail }: AdminSidebarProp
               </div>
             );
           })}
-        </nav>
 
-        {/* Quick Links */}
-        <div className="shrink-0 px-3 py-2 border-t border-sidebar-border/30">
-          <a
-            href="/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 px-4 py-2 rounded-xl text-sm text-white/70 hover:bg-sidebar-accent hover:text-white transition-colors"
-          >
-            <Globe className="h-4 w-4" />
-            <span>ওয়েবসাইট দেখুন</span>
-          </a>
-        </div>
+          {/* Quick Actions & Logout inside scroll flow */}
+          <div className="pt-4 pb-8 mt-4 border-t border-sidebar-border/30 space-y-2">
+            <div className="px-3 pb-1">
+              <span className="text-[10px] uppercase tracking-wider font-bold text-white/40">
+                কুইক লিংক ও সেশন
+              </span>
+            </div>
 
-        {/* User Section */}
-        <div className="shrink-0 p-3 border-t border-sidebar-border/30">
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-sidebar-accent/50 mb-2">
-            <div className="h-9 w-9 rounded-full bg-sidebar-primary/20 flex items-center justify-center ring-1 ring-sidebar-primary/30">
-              <Shield className="h-4 w-4 text-sidebar-primary" />
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-white/80 hover:bg-sidebar-accent hover:text-white transition-all group"
+            >
+              <Globe className="h-[18px] w-[18px] flex-shrink-0 text-white/60 group-hover:text-primary group-hover:scale-110 transition-transform" />
+              <span className="flex-1">ওয়েবসাইট দেখুন</span>
+            </a>
+
+            {/* Admin Info Card */}
+            <div className="mx-1 my-2 p-3 rounded-xl bg-sidebar-accent/50 border border-sidebar-border/30 flex items-center gap-3">
+              <div className="h-9 w-9 rounded-full bg-sidebar-primary/20 flex items-center justify-center ring-1 ring-sidebar-primary/30 shrink-0">
+                <Shield className="h-4 w-4 text-sidebar-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-white truncate" title={userEmail || "Admin"}>
+                  {userEmail || "Admin"}
+                </p>
+                <p className="text-[10px] text-white/60">সুপার অ্যাডমিন</p>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-white truncate">
-                {userEmail || "Admin"}
-              </p>
-              <p className="text-[10px] text-white/60">অ্যাডমিনিস্ট্রেটর</p>
-            </div>
+
+            {/* Logout Button */}
+            <button
+              type="button"
+              onClick={onSignOut}
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-300 hover:bg-red-500/20 hover:text-red-200 w-full transition-all duration-200 group text-left"
+            >
+              <LogOut className="h-[18px] w-[18px] flex-shrink-0 text-red-400 group-hover:scale-110 transition-transform" />
+              <span className="flex-1">লগআউট</span>
+            </button>
           </div>
-          <button
-            onClick={onSignOut}
-            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-white/70 hover:bg-red-500/20 hover:text-red-300 w-full transition-all duration-200"
-          >
-            <LogOut className="h-4 w-4" />
-            লগআউট
-          </button>
-        </div>
+        </nav>
       </aside>
     </>
   );

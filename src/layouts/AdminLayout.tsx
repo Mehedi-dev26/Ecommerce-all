@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { useQueryClient } from "@tanstack/react-query";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminBottomNav from "@/components/admin/AdminBottomNav";
 import AdminAIAssistant from "@/components/admin/AdminAIAssistant";
-import { Menu, Bell, RefreshCw } from "lucide-react";
+import AdminNotificationPopover from "@/components/admin/AdminNotificationPopover";
+import AdminProfileMenu from "@/components/admin/AdminProfileMenu";
+import { Menu, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import PageLoader from "@/components/PageLoader";
 
 const pageTitles: Record<string, { title: string; subtitle: string }> = {
@@ -30,9 +35,26 @@ const pageTitles: Record<string, { title: string; subtitle: string }> = {
 const AdminLayout = () => {
   const { user, loading, signOut } = useAdminAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const location = useLocation();
+  const queryClient = useQueryClient();
 
   const currentPage = pageTitles[location.pathname] || { title: "অ্যাডমিন", subtitle: "" };
+
+  const handleGlobalRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await queryClient.invalidateQueries();
+      toast({
+        title: "রিফ্রেশ সম্পন্ন",
+        description: "সমস্ত ডাটা সফলভাবে রিলোড হয়েছে।",
+      });
+    } catch {
+      // ignore
+    } finally {
+      setTimeout(() => setRefreshing(false), 500);
+    }
+  };
 
   if (loading) {
     return <PageLoader fullScreen message="অ্যাডমিন প্যানেল লোড হচ্ছে" />;
@@ -51,8 +73,8 @@ const AdminLayout = () => {
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top bar - sticky */}
-        <header className="shrink-0 z-30 bg-card/80 backdrop-blur-xl border-b border-border/50 px-4 lg:px-8 py-3">
-          <div className="flex items-center gap-4">
+        <header className="shrink-0 z-30 bg-card/80 backdrop-blur-xl border-b border-border/50 px-4 lg:px-8 py-2.5">
+          <div className="flex items-center gap-3 sm:gap-4">
             <Button
               variant="ghost"
               size="icon"
@@ -63,32 +85,31 @@ const AdminLayout = () => {
             </Button>
 
             <div className="flex-1 min-w-0">
-              <h1 className="text-lg font-bold text-foreground leading-tight">
+              <h1 className="text-base sm:text-lg font-bold text-foreground leading-tight truncate">
                 {currentPage.title}
               </h1>
-              <p className="text-xs text-muted-foreground hidden sm:block">
+              <p className="text-xs text-muted-foreground hidden sm:block truncate">
                 {currentPage.subtitle}
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="hidden md:flex text-muted-foreground hover:text-foreground">
-                <RefreshCw className="h-4 w-4" />
+            <div className="flex items-center gap-1 sm:gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleGlobalRefresh}
+                disabled={refreshing}
+                title="ডাটা রিফ্রেশ করুন"
+                className="hidden sm:flex text-muted-foreground hover:text-foreground rounded-xl"
+              >
+                <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin text-primary")} />
               </Button>
-              <div className="relative hidden md:block">
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
-                  <Bell className="h-4 w-4" />
-                </Button>
-                <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-destructive rounded-full" />
-              </div>
-              <div className="h-8 w-px bg-border hidden md:block" />
-              <div className="hidden md:flex items-center gap-2 pl-1">
-                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-xs font-bold text-primary">
-                    {user.email?.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-              </div>
+
+              <AdminNotificationPopover />
+
+              <div className="h-6 w-px bg-border/80 mx-1 hidden sm:block" />
+
+              <AdminProfileMenu userEmail={user.email} onSignOut={signOut} />
             </div>
           </div>
         </header>
