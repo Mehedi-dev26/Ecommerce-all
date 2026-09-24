@@ -159,18 +159,40 @@ const Footer = () => {
 
         {/* Payment / shipping methods strip */}
         <div className="mt-10 flex flex-col gap-4 rounded-2xl border border-border bg-white/60 px-5 py-4 backdrop-blur-md sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">পেমেন্ট</span>
-            <div className="flex items-center gap-2">
-              {["COD", "bKash", "Nagad"].map((m) => (
-                <span key={m} className="rounded-md border border-border bg-background px-2.5 py-1 text-[11px] font-bold text-foreground">{m}</span>
-              ))}
-            </div>
+            {settings.footer_payment_image_url ? (
+              <img
+                src={settings.footer_payment_image_url}
+                alt="পেমেন্ট মেথড"
+                className="h-8 max-w-full sm:h-9 object-contain rounded-md"
+                loading="lazy"
+                decoding="async"
+              />
+            ) : (
+              <div className="flex items-center gap-2">
+                {["COD", "bKash", "Nagad"].map((m) => (
+                  <span key={m} className="rounded-md border border-border bg-background px-2.5 py-1 text-[11px] font-bold text-foreground">{m}</span>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">কুরিয়ার</span>
-            <span className="rounded-md border border-border bg-background px-2.5 py-1 text-[11px] font-bold text-foreground">Pathao</span>
-            <span className="rounded-md border border-border bg-background px-2.5 py-1 text-[11px] font-bold text-foreground">Steadfast</span>
+            {settings.footer_courier_image_url ? (
+              <img
+                src={settings.footer_courier_image_url}
+                alt="কুরিয়ার পার্টনার্স"
+                className="h-7 max-w-full sm:h-8 object-contain rounded-md"
+                loading="lazy"
+                decoding="async"
+              />
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="rounded-md border border-border bg-background px-2.5 py-1 text-[11px] font-bold text-foreground">Pathao</span>
+                <span className="rounded-md border border-border bg-background px-2.5 py-1 text-[11px] font-bold text-foreground">Steadfast</span>
+              </div>
+            )}
           </div>
         </div>
 

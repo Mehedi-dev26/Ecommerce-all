@@ -20,6 +20,8 @@ export const SITE_DEFAULTS: Record<string, string> = {
   footer_instagram: "#",
   footer_youtube: "#",
   footer_copyright: "© {year} Sapahar Shop — সাপাহারের খাঁটি আমের নির্ভরযোগ্য ঠিকানা। সর্বস্বত্ব সংরক্ষিত।",
+  footer_payment_image_url: "",
+  footer_courier_image_url: "",
 };
 
 const CACHE_KEY = "sapahar:site_settings:v3";
@@ -108,7 +110,14 @@ export const SiteSettingsProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    void refresh();
+    const handleUpdate = () => { void refresh(); };
+    window.addEventListener("site-settings-updated", handleUpdate);
+    return () => {
+      window.removeEventListener("site-settings-updated", handleUpdate);
+    };
+  }, [refresh]);
 
   const logoUrl = settings.brand_logo_url?.trim() ? settings.brand_logo_url : brandLogoFallback;
 

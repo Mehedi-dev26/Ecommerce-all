@@ -88,18 +88,25 @@ const AdminVendorWithdrawals = lazy(() => import("./pages/admin/AdminVendorWithd
 const AdminVendorSupport = lazy(() => import("./pages/admin/AdminVendorSupport"));
 const LandingPageView = lazy(() => import("./pages/LandingPageView"));
 
+import { useRealtimeSync } from "@/hooks/useRealtimeSync";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 10 * 60 * 1000,
-      gcTime: 30 * 60 * 1000,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      refetchOnMount: false,
+      staleTime: 30 * 1000, // 30 seconds fresh window
+      gcTime: 10 * 60 * 1000,
+      refetchOnWindowFocus: true, // Auto refresh when user switches tabs or returns to window
+      refetchOnReconnect: true,
+      refetchOnMount: true,
       retry: 1,
     },
   },
 });
+
+const RealtimeSync = () => {
+  useRealtimeSync();
+  return null;
+};
 
 // Prefetch likely-next routes on idle so navigation feels instant
 const prefetchRoutes = () => {
@@ -140,6 +147,7 @@ const App = () => {
 
   return (
   <QueryClientProvider client={queryClient}>
+    <RealtimeSync />
     <TooltipProvider>
       <AuthProvider>
         <SiteSettingsProvider>

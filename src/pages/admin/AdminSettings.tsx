@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import AdminPageState from "@/components/admin/AdminPageState";
 import { getErrorMessage } from "@/lib/error-message";
-import { Save, Upload, Store, Phone, Globe, Image as ImageIcon, Loader2, Frame, Trash2 } from "lucide-react";
+import { Save, Upload, Store, Phone, Globe, Image as ImageIcon, Loader2, Frame, Trash2, CreditCard, Truck } from "lucide-react";
 import { useSiteSettings, SITE_DEFAULTS } from "@/contexts/SiteSettingsContext";
 import { clearProductFrameCache, PRODUCT_FRAME_KEY, PRODUCT_FRAME_INSET_KEY } from "@/lib/apply-product-frame";
 
@@ -70,6 +70,8 @@ const AdminSettings = () => {
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingFrame, setUploadingFrame] = useState(false);
+  const [uploadingPaymentImg, setUploadingPaymentImg] = useState(false);
+  const [uploadingCourierImg, setUploadingCourierImg] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -113,6 +115,8 @@ const AdminSettings = () => {
       const allKeys = new Set<string>();
       GROUPS.forEach((g) => g.fields.forEach((f) => allKeys.add(f.key)));
       allKeys.add("brand_logo_url");
+      allKeys.add("footer_payment_image_url");
+      allKeys.add("footer_courier_image_url");
       allKeys.add(PRODUCT_FRAME_KEY);
       allKeys.add(PRODUCT_FRAME_INSET_KEY);
       for (const key of allKeys) {
@@ -128,6 +132,62 @@ const AdminSettings = () => {
       toast({ title: "ত্রুটি", description: getErrorMessage(err, "সেভ করা যায়নি"), variant: "destructive" });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handlePaymentImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      toast({ title: "ত্রুটি", description: "ছবি সর্বোচ্চ 4MB হতে পারে", variant: "destructive" });
+      return;
+    }
+    setUploadingPaymentImg(true);
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const path = `site/payment-partners-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("product-images").upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("product-images").getPublicUrl(path);
+      const url = pub.publicUrl;
+      await upsertKey("footer_payment_image_url", url, "পেমেন্ট পার্টনার্স ছবি");
+      setFormValues((p) => ({ ...p, footer_payment_image_url: url }));
+      await fetchSettings();
+      await refreshSiteSettings();
+      toast({ title: "পেমেন্ট পার্টনার্স ছবি আপডেট হয়েছে ✓" });
+    } catch (err) {
+      toast({ title: "ত্রুটি", description: getErrorMessage(err, "ছবি আপলোড ব্যর্থ"), variant: "destructive" });
+    } finally {
+      setUploadingPaymentImg(false);
+      e.target.value = "";
+    }
+  };
+
+  const handleCourierImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      toast({ title: "ত্রুটি", description: "ছবি সর্বোচ্চ 4MB হতে পারে", variant: "destructive" });
+      return;
+    }
+    setUploadingCourierImg(true);
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const path = `site/courier-partners-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("product-images").upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("product-images").getPublicUrl(path);
+      const url = pub.publicUrl;
+      await upsertKey("footer_courier_image_url", url, "কুরিয়ার পার্টনার্স ছবি");
+      setFormValues((p) => ({ ...p, footer_courier_image_url: url }));
+      await fetchSettings();
+      await refreshSiteSettings();
+      toast({ title: "কুরিয়ার পার্টনার্স ছবি আপডেট হয়েছে ✓" });
+    } catch (err) {
+      toast({ title: "ত্রুটি", description: getErrorMessage(err, "ছবি আপলোড ব্যর্থ"), variant: "destructive" });
+    } finally {
+      setUploadingCourierImg(false);
+      e.target.value = "";
     }
   };
 
@@ -356,6 +416,136 @@ const AdminSettings = () => {
                 </p>
               </div>
             )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Footer Payment & Courier Partners Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <CreditCard className="h-5 w-5 text-primary" />
+            ফুটার পেমেন্ট ও কুরিয়ার পার্টনার্স ব্যানার / লোগো
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            আপনার ওয়েবসাইটের ফুটারে পেমেন্ট মেথড (যেমন SSLCommerz, bKash, Nagad, কার্ড) এবং কুরিয়ার পার্টনার্স (যেমন Pathao, Steadfast, RedX) ব্যানার বা লোগো আপলোড করুন অথবা যেকোনো ইমেজ লিঙ্ক প্রদান করুন।
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Payment Gateway Banner */}
+          <div className="space-y-3 rounded-xl border bg-muted/20 p-4">
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-primary" />
+              <Label className="text-sm font-semibold text-foreground">১. পেমেন্ট মেথড ব্যানার / লোগো</Label>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Google থেকে বা আপনার তৈরি করা SSLCommerz / পেমেন্ট পার্টনার্স লোগো বা ব্যানার আপলোড করুন অথবা লিঙ্ক দিন:
+            </p>
+            {formValues.footer_payment_image_url && (
+              <div className="relative inline-block overflow-hidden rounded-lg border bg-white p-2 shadow-sm">
+                <img
+                  src={formValues.footer_payment_image_url}
+                  alt="পেমেন্ট পার্টনার্স"
+                  className="max-h-16 max-w-full object-contain"
+                />
+              </div>
+            )}
+            <div className="flex flex-wrap items-center gap-2">
+              <label className="inline-flex">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handlePaymentImageUpload}
+                  disabled={uploadingPaymentImg}
+                />
+                <Button type="button" variant="outline" size="sm" disabled={uploadingPaymentImg} asChild>
+                  <span className="cursor-pointer gap-2">
+                    {uploadingPaymentImg ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                    {uploadingPaymentImg ? "আপলোড হচ্ছে..." : "ছবি আপলোড করুন"}
+                  </span>
+                </Button>
+              </label>
+              {formValues.footer_payment_image_url && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => setFormValues((p) => ({ ...p, footer_payment_image_url: "" }))}
+                >
+                  <Trash2 className="mr-1 h-3.5 w-3.5" />
+                  ছবি সরান (ডিফল্ট ব্যাজ দেখাবে)
+                </Button>
+              )}
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">অথবা সরাসরি ইমেজ URL দিন:</Label>
+              <Input
+                value={formValues.footer_payment_image_url ?? ""}
+                onChange={(e) => setFormValues((p) => ({ ...p, footer_payment_image_url: e.target.value }))}
+                placeholder="https://example.com/sslcommerz-banner.png"
+                className="h-9 text-xs"
+              />
+            </div>
+          </div>
+
+          {/* Courier Partners Banner */}
+          <div className="space-y-3 rounded-xl border bg-muted/20 p-4">
+            <div className="flex items-center gap-2">
+              <Truck className="h-4 w-4 text-primary" />
+              <Label className="text-sm font-semibold text-foreground">২. ডেলিভারি ও কুরিয়ার পার্টনার্স ব্যানার / লোগো</Label>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              পাঠাও, স্টিডফাস্ট, পেপারফ্লাই বা অন্যান্য কুরিয়ারের কম্বাইন্ড লোগো ব্যানার আপলোড করুন অথবা লিঙ্ক দিন:
+            </p>
+            {formValues.footer_courier_image_url && (
+              <div className="relative inline-block overflow-hidden rounded-lg border bg-white p-2 shadow-sm">
+                <img
+                  src={formValues.footer_courier_image_url}
+                  alt="কুরিয়ার পার্টনার্স"
+                  className="max-h-16 max-w-full object-contain"
+                />
+              </div>
+            )}
+            <div className="flex flex-wrap items-center gap-2">
+              <label className="inline-flex">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleCourierImageUpload}
+                  disabled={uploadingCourierImg}
+                />
+                <Button type="button" variant="outline" size="sm" disabled={uploadingCourierImg} asChild>
+                  <span className="cursor-pointer gap-2">
+                    {uploadingCourierImg ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                    {uploadingCourierImg ? "আপলোড হচ্ছে..." : "ছবি আপলোড করুন"}
+                  </span>
+                </Button>
+              </label>
+              {formValues.footer_courier_image_url && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => setFormValues((p) => ({ ...p, footer_courier_image_url: "" }))}
+                >
+                  <Trash2 className="mr-1 h-3.5 w-3.5" />
+                  ছবি সরান (ডিফল্ট ব্যাজ দেখাবে)
+                </Button>
+              )}
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">অথবা সরাসরি ইমেজ URL দিন:</Label>
+              <Input
+                value={formValues.footer_courier_image_url ?? ""}
+                onChange={(e) => setFormValues((p) => ({ ...p, footer_courier_image_url: e.target.value }))}
+                placeholder="https://example.com/courier-partners-banner.png"
+                className="h-9 text-xs"
+              />
+            </div>
           </div>
         </CardContent>
       </Card>

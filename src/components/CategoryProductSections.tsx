@@ -35,7 +35,6 @@ const CategoryProductSections = () => {
         }))
         .filter((c) => c.products.length > 0);
     },
-    staleTime: 10 * 60 * 1000,
   });
 
   const allVendorIds = data?.flatMap((c) => c.products.map((p: any) => p.vendor_id)) ?? [];

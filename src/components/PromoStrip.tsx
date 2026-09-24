@@ -23,7 +23,7 @@ const PromoStrip = ({ position, className = "", inline = false }: Props) => {
 
   useEffect(() => {
     let mounted = true;
-    (async () => {
+    const fetchStrips = async () => {
       const { data } = await (supabase as any)
         .from("promo_strips")
         .select("id,image_url,link_url,alt_text,position,sort_order")
@@ -31,9 +31,14 @@ const PromoStrip = ({ position, className = "", inline = false }: Props) => {
         .eq("position", position)
         .order("sort_order");
       if (mounted && data) setStrips(data as PromoStripRow[]);
-    })();
+    };
+
+    void fetchStrips();
+    window.addEventListener("promo-strips-updated", fetchStrips);
+
     return () => {
       mounted = false;
+      window.removeEventListener("promo-strips-updated", fetchStrips);
     };
   }, [position]);
 
