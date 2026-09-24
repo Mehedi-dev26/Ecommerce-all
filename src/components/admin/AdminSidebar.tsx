@@ -170,14 +170,8 @@ const AdminSidebar = ({ open, onToggle, onSignOut, userEmail }: AdminSidebarProp
             );
           })}
 
-          {/* Quick Actions & Logout inside scroll flow */}
-          <div className="pt-4 pb-8 mt-4 border-t border-sidebar-border/30 space-y-2">
-            <div className="px-3 pb-1">
-              <span className="text-[10px] uppercase tracking-wider font-bold text-white/40">
-                কুইক লিংক ও সেশন
-              </span>
-            </div>
-
+          {/* Right after Site Settings: Website View & Logout inside scroll flow */}
+          <div className="pt-2 pb-4 mt-2 border-t border-sidebar-border/30 space-y-1">
             <a
               href="/"
               target="_blank"
@@ -188,20 +182,6 @@ const AdminSidebar = ({ open, onToggle, onSignOut, userEmail }: AdminSidebarProp
               <span className="flex-1">ওয়েবসাইট দেখুন</span>
             </a>
 
-            {/* Admin Info Card */}
-            <div className="mx-1 my-2 p-3 rounded-xl bg-sidebar-accent/50 border border-sidebar-border/30 flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-sidebar-primary/20 flex items-center justify-center ring-1 ring-sidebar-primary/30 shrink-0">
-                <Shield className="h-4 w-4 text-sidebar-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-white truncate" title={userEmail || "Admin"}>
-                  {userEmail || "Admin"}
-                </p>
-                <p className="text-[10px] text-white/60">সুপার অ্যাডমিন</p>
-              </div>
-            </div>
-
-            {/* Logout Button */}
             <button
               type="button"
               onClick={onSignOut}
@@ -212,6 +192,24 @@ const AdminSidebar = ({ open, onToggle, onSignOut, userEmail }: AdminSidebarProp
             </button>
           </div>
         </nav>
+
+        {/* Fixed Super Admin Status Card at the bottom */}
+        <div className="shrink-0 p-3 border-t border-sidebar-border/30 bg-sidebar/95 backdrop-blur-md">
+          <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-sidebar-accent/50 border border-sidebar-border/40 shadow-xs">
+            <div className="h-9 w-9 rounded-full bg-sidebar-primary/20 flex items-center justify-center ring-1 ring-sidebar-primary/30 shrink-0">
+              <Shield className="h-4 w-4 text-sidebar-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-white truncate" title={userEmail || "Admin"}>
+                {userEmail || "Admin"}
+              </p>
+              <p className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                সুপার অ্যাডমিন
+              </p>
+            </div>
+          </div>
+        </div>
       </aside>
     </>
   );
